@@ -52,6 +52,12 @@ export interface Reservation {
     holdId: string | null;
     expiresAt: string | null;
   };
+  stay: {
+    checkedInAt: string | null;
+    checkedInBy: string | null;
+    checkedOutAt: string | null;
+    checkedOutBy: string | null;
+  };
   source: string;
   notes: string | null;
   createdAt: string;

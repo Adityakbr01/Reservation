@@ -114,32 +114,50 @@
 - **Note:** `ADMIN_NOTIFICATION_EMAIL` unset in dev → admin alerts skip
   silently; Resend test domain rejects non-owner recipients (failure path).
 
-## 🔨 Phase 10 — Admin operations complete (server DONE, admin UI next)
+## ✅ Phase 10 — Admin operations complete (DONE, verified live 2026-10-03)
 
-- **Built (server, verified live 2026-10-03):** check-in/out
-  (`CONFIRMED→CHECKED_IN→CHECKED_OUT`, `stay.{checkedIn/OutAt/By}`, pure
-  guards `checkInBlockReason`/`checkOutBlockReason` + `tests/stay.test.ts`),
-  customers (`GET /admin/users/:id` detail + `PATCH /:id/status`
-  enable/disable, self-disable blocked, disabled login 403),
-  `GET /admin/dashboard/summary` (arrivals/departures/guests/upcoming/
-  pending/failures/value/refunds/failed-mails), notifications admin API.
-  CHECKED_IN/OUT mails queued. All 10 live checks green; probe data cleaned.
-- **Next:** admin UI — customers pages, check-in/out buttons, coupons module,
-  notifications monitor, dashboard metric cards.
+- **Server:** check-in/out, customers detail + enable/disable, dashboard
+  summary, notifications admin API (all 10 live checks green).
+- **Admin UI:** customers list/detail + disable, check-in/out buttons + stay
+  stamp on reservation detail, coupons list/create/edit/disable, notifications
+  monitor + retry, dashboard ops snapshot + alerts with deep links, nav entries.
+- **Exit (verified live):** coupon create → public validate true → disable →
+  validate false; customers list; admin build green. Probe data cleaned.
 - **Docs:** `07`.
 
-## ⏳ Phase 11 — CMS + media + SEO
+## ✅ Phase 11 — CMS + media + SEO (DONE, verified live 2026-10-03)
 
-- **Build:** pages/blogs/faqs/offers/policies lifecycle
-  (DRAFT→PUBLISHED→ARCHIVED), ImageKit media metadata, site settings, SEO.
-- **Why late:** independent of booking engine; decoupled content layer.
-- **Docs:** `08`.
-- **Exit:** publish flows + public published-only reads.
+- **Server:** `cms` module (pages/blogs/faqs/offers/policies, lifecycle
+  `DRAFT→PUBLISHED→ARCHIVED`, slug/reserved/unique rules, version conflicts,
+  sanitizer + URL allowlist, preview tokens, published-only public API +
+  admin detail endpoints), `media` (ImageKit, ref-check delete), `settings`
+  singleton + safe public subset, `seo` sitemap/robots.
+- **Admin UI:** content section (pages/blogs/faqs/offers/policies editors +
+  publish controls), media library, settings form.
+- **Tests:** `tests/cms.test.ts` (10 cases). Suite 73 pass, typecheck/lint
+  clean, admin build green.
+- **Exit (verified live):** draft→404→publish→200→stale-version 409→archive→404;
+  reserved/duplicate/invalid slugs rejected; preview resolves; FAQ sanitized;
+  settings patch; sitemap/robots; media list. Probe data cleaned.
 
-## ⏳ Phase 12 — Production hardening
+## 🔨 Phase 12 — Production hardening (audit DONE, live probes BLOCKED)
 
-- **Build:** audit logs, RBAC review, rate-limit tuning, indexes review,
-  tests for critical flows, staging + launch checklist.
-- **Why last:** hardens everything above.
-- **Docs:** `02` acceptance, `09` phases 12–15.
-- **Exit:** definition-of-done per feature + green production checklist.
+- **Built:** append-only `audit-logs` module (13 actions, curated snapshots —
+  no contact/secrets, actor + IP/UA, insert-only model with zero delete API),
+  hooks in booking create/cancel, admin cancel/refund/check-in/out, customer
+  enable/disable, CMS publish/unpublish/archive, settings, notification retry,
+  coupon disable; admin `/audit-logs` page + nav; `tests/audit.test.ts`.
+- **Verified offline 2026-10-03:** suite 78 pass, typecheck + lint clean,
+  admin build green. RBAC review: every admin router enforces
+  `authenticate + authorize("admin")`, customer routers owner-scoped, public
+  readers published-only. Index review: all hot query paths covered
+  (bookings status/checkIn/user, payments intent/booking, notifications
+  status/nextAttempt, CMS status/slug, audit entity/action/time).
+- **BLOCKED by Atlas outage:** audit live probe, concurrency probe
+  (1 room / 2 customers → 1 wins), duplicate-webhook probe. API `/ready`
+  503 — cluster unreachable from this machine (DNS ok, internet ok).
+  Unblock: Atlas dashboard → cluster resumed + Network Access includes this
+  IP, then rerun the three probes. No code changes needed for them.
+- **Remaining checklist:** `EMAIL_FROM` to verified sender + API restart,
+  `ADMIN_NOTIFICATION_EMAIL`, `stripe listen` for local webhooks, prod env +
+  backup verification per `09` §86.

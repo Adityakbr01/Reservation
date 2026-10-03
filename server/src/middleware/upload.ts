@@ -26,8 +26,7 @@ const upload = multer({
  * Parses an optional single `avatar` file field into req.file.
  * Multer errors are normalized to AppError so the error contract holds.
  */
-export function avatarUpload(req: Request, res: Response, next: NextFunction): void {
-  upload.single("avatar")(req, res, (error: unknown) => {
+export function avatarUpload(req: Request, res: Response, next: NextFunction): void {  upload.single("avatar")(req, res, (error: unknown) => {
     if (!error) {
       next();
       return;
@@ -39,6 +38,41 @@ export function avatarUpload(req: Request, res: Response, next: NextFunction): v
       (error as { code?: unknown }).code === "LIMIT_FILE_SIZE"
     ) {
       next(new AppError("Avatar must be smaller than 5 MB", 400, "FILE_TOO_LARGE"));
+      return;
+    }
+    next(error);
+  });
+}
+
+const MAX_MEDIA_BYTES = 8 * 1024 * 1024;
+const ALLOWED_MEDIA_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
+
+const mediaUploadMulter = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_MEDIA_BYTES, files: 1 },
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_MEDIA_MIME.has(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new AppError("Only JPEG, PNG, WebP, or AVIF images are allowed", 400, "INVALID_FILE_TYPE"));
+    }
+  },
+});
+
+/** Parses a single `file` field for the media library (docs 08 §41-42). */
+export function mediaUpload(req: Request, res: Response, next: NextFunction): void {
+  mediaUploadMulter.single("file")(req, res, (error: unknown) => {
+    if (!error) {
+      next();
+      return;
+    }
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as { code?: unknown }).code === "LIMIT_FILE_SIZE"
+    ) {
+      next(new AppError("File must be smaller than 8 MB", 400, "FILE_TOO_LARGE"));
       return;
     }
     next(error);

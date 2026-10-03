@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { requireUser } from "../../middleware/auth";
 import { asyncHandler } from "../../utils/async-handler";
 import type { RequestWithValidatedQuery } from "../../middleware/validate";
+import { bookingSnapshot, recordAudit } from "../audit/audit.service";
 import {
   adminCancelBooking,
   adminRefundBooking,
@@ -40,6 +41,10 @@ export const adminCancelHandler = asyncHandler(async (req: Request, res: Respons
     requireUser(req).id,
     body.reason ?? null,
   );
+  await recordAudit(req, "BOOKING_CANCELLED", "booking", {
+    entityId: booking.id,
+    after: bookingSnapshot(booking),
+  });
   res.status(200).json({ success: true, data: booking });
 });
 
@@ -51,17 +56,29 @@ export const adminRefundHandler = asyncHandler(async (req: Request, res: Respons
     requireUser(req).id,
     body.amount ?? null,
   );
+  await recordAudit(req, "PAYMENT_REFUNDED", "booking", {
+    entityId: req.params.id as string,
+    after: { refundId: result.refundId, amount: result.amount },
+  });
   res.status(201).json({ success: true, data: result });
 });
 
 /** POST /api/v1/admin/reservations/:id/check-in — CONFIRMED → CHECKED_IN. */
 export const adminCheckInHandler = asyncHandler(async (req: Request, res: Response) => {
   const booking = await checkInBooking(req.params.id as string, requireUser(req).id);
+  await recordAudit(req, "BOOKING_CHECKED_IN", "booking", {
+    entityId: booking.id,
+    after: bookingSnapshot(booking),
+  });
   res.status(200).json({ success: true, data: booking });
 });
 
 /** POST /api/v1/admin/reservations/:id/check-out — CHECKED_IN → CHECKED_OUT. */
 export const adminCheckOutHandler = asyncHandler(async (req: Request, res: Response) => {
   const booking = await checkOutBooking(req.params.id as string, requireUser(req).id);
+  await recordAudit(req, "BOOKING_CHECKED_OUT", "booking", {
+    entityId: booking.id,
+    after: bookingSnapshot(booking),
+  });
   res.status(200).json({ success: true, data: booking });
 });

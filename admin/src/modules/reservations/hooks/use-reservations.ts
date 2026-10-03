@@ -4,6 +4,8 @@ import { getApiErrorMessage } from "@/lib/api-client";
 import { reservationKeys } from "@/lib/query-keys";
 import {
   cancelReservation,
+  checkInReservation,
+  checkOutReservation,
   getReservation,
   listReservations,
   previewReservationCancel,
@@ -40,6 +42,34 @@ export function useCancelReservation(id: string) {
     onSuccess: (booking) => {
       void queryClient.invalidateQueries({ queryKey: reservationKeys.all });
       toast.success(`Booking ${booking.bookingNumber} cancelled`);
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error));
+    },
+  });
+}
+
+export function useCheckInReservation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => checkInReservation(id),
+    onSuccess: (booking) => {
+      void queryClient.invalidateQueries({ queryKey: reservationKeys.all });
+      toast.success(`Booking ${booking.bookingNumber} checked in`);
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error));
+    },
+  });
+}
+
+export function useCheckOutReservation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => checkOutReservation(id),
+    onSuccess: (booking) => {
+      void queryClient.invalidateQueries({ queryKey: reservationKeys.all });
+      toast.success(`Booking ${booking.bookingNumber} checked out`);
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error));

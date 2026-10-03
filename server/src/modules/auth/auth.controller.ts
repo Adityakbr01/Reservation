@@ -3,6 +3,7 @@ import { requireUser } from "../../middleware/auth";
 import { asyncHandler } from "../../utils/async-handler";
 import type { RequestWithValidatedQuery } from "../../middleware/validate";
 import type { RequestWithFile } from "../../middleware/upload";
+import { recordAudit } from "../audit/audit.service";
 import {
   changePassword,
   forgotPassword,
@@ -106,5 +107,9 @@ export const setUserStatusHandler = asyncHandler(async (req: Request, res: Respo
     requireUser(req).id,
     body.isActive,
   );
+  await recordAudit(req, body.isActive ? "CUSTOMER_ENABLED" : "CUSTOMER_DISABLED", "user", {
+    entityId: result.id,
+    after: { isActive: result.isActive },
+  });
   res.status(200).json({ success: true, data: result });
 });

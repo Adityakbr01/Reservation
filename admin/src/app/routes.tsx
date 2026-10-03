@@ -12,6 +12,23 @@ import { RatePlanCreatePage, RatePlanEditPage, RatePlansPage } from "@/modules/r
 import { AvailabilityPage } from "@/modules/availability";
 import { ReservationDetailPage, ReservationsPage } from "@/modules/reservations";
 import { PaymentsPage } from "@/modules/payments";
+import { CustomerDetailPage, CustomersPage } from "@/modules/customers";
+import { CouponCreatePage, CouponEditPage, CouponsPage } from "@/modules/coupons";
+import { NotificationsPage } from "@/modules/notifications";
+import {
+  BlogEditPage,
+  BlogsPage,
+  CmsPageCreatePage,
+  CmsPageEditPage,
+  CmsPagesPage,
+  FaqsPage,
+  OfferEditPage,
+  OffersPage,
+  PoliciesPage,
+} from "@/modules/cms";
+import { MediaPage } from "@/modules/media";
+import { SettingsPage } from "@/modules/settings";
+import { AuditLogsPage } from "@/modules/audit";
 import { RequireAdmin, RequireAuth, RequireGuest } from "./guards";
 
 export function AppRoutes() {
@@ -169,6 +186,166 @@ export function AppRoutes() {
             element={
               <RequireAdmin>
                 <PaymentsPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="customers"
+            element={
+              <RequireAdmin>
+                <CustomersPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="customers/:id"
+            element={
+              <RequireAdmin>
+                <CustomerDetailPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="coupons"
+            element={
+              <RequireAdmin>
+                <CouponsPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="coupons/new"
+            element={
+              <RequireAdmin>
+                <CouponCreatePage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="coupons/:id/edit"
+            element={
+              <RequireAdmin>
+                <CouponEditPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="notifications"
+            element={
+              <RequireAdmin>
+                <NotificationsPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="cms/pages"
+            element={
+              <RequireAdmin>
+                <CmsPagesPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="cms/pages/new"
+            element={
+              <RequireAdmin>
+                <CmsPageCreatePage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="cms/pages/:id/edit"
+            element={
+              <RequireAdmin>
+                <CmsPageEditPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="cms/blogs"
+            element={
+              <RequireAdmin>
+                <BlogsPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="cms/blogs/new"
+            element={
+              <RequireAdmin>
+                <BlogEditPage mode="create" />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="cms/blogs/:id/edit"
+            element={
+              <RequireAdmin>
+                <BlogEditPage mode="edit" />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="cms/faqs"
+            element={
+              <RequireAdmin>
+                <FaqsPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="cms/offers"
+            element={
+              <RequireAdmin>
+                <OffersPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="cms/offers/new"
+            element={
+              <RequireAdmin>
+                <OfferEditPage mode="create" />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="cms/offers/:id/edit"
+            element={
+              <RequireAdmin>
+                <OfferEditPage mode="edit" />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="cms/policies"
+            element={
+              <RequireAdmin>
+                <PoliciesPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="media"
+            element={
+              <RequireAdmin>
+                <MediaPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="settings"
+            element={
+              <RequireAdmin>
+                <SettingsPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="audit-logs"
+            element={
+              <RequireAdmin>
+                <AuditLogsPage />
               </RequireAdmin>
             }
           />

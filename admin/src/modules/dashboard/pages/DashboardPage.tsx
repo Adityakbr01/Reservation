@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { BedDouble, Building2, CalendarDays, Plus, Tags } from "lucide-react";
+import { BedDouble, Building2, CalendarDays, CircleAlert, Plus, Tags } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,6 +7,8 @@ import { useBlocks } from "@/modules/availability";
 import { useRatePlans } from "@/modules/rate-plans";
 import { useRoomTypes } from "@/modules/room-types";
 import { useRooms } from "@/modules/rooms";
+import { formatMoney } from "@/lib/money";
+import { useDashboardSummary } from "../hooks/use-dashboard-summary";
 
 const QUICK_ACTIONS = [
   { to: "/room-types/new", label: "New room type" },
@@ -27,6 +29,7 @@ export function DashboardPage() {
   const rooms = useRooms({ page: 1, limit: 1 });
   const plans = useRatePlans({ page: 1, limit: 1 });
   const blocks = useBlocks({ page: 1, limit: 5 });
+  const summary = useDashboardSummary();
 
   const stats = [
     { label: "Room types", to: "/room-types", Icon: Building2, value: types.data?.total },
@@ -67,6 +70,118 @@ export function DashboardPage() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-5">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-xl">Today&apos;s operations</CardTitle>
+            <CardDescription>Live booking desk snapshot</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {summary.isPending ? (
+              <div className="space-y-2" aria-busy="true" aria-label="Loading operations">
+                {[0, 1].map((row) => (
+                  <Skeleton key={row} className="h-12 w-full" />
+                ))}
+              </div>
+            ) : summary.isError || !summary.data ? (
+              <p className="py-4 text-center text-sm text-muted-foreground">
+                Operations snapshot unavailable.
+              </p>
+            ) : (
+              <dl className="divide-y divide-border text-sm">
+                <div className="flex justify-between py-2">
+                  <dt className="text-muted-foreground">Arrivals today</dt>
+                  <dd className="font-semibold">{summary.data.todayArrivals}</dd>
+                </div>
+                <div className="flex justify-between py-2">
+                  <dt className="text-muted-foreground">Departures today</dt>
+                  <dd className="font-semibold">{summary.data.todayDepartures}</dd>
+                </div>
+                <div className="flex justify-between py-2">
+                  <dt className="text-muted-foreground">In-house guests</dt>
+                  <dd className="font-semibold">{summary.data.currentGuests}</dd>
+                </div>
+                <div className="flex justify-between py-2">
+                  <dt className="text-muted-foreground">Upcoming reservations</dt>
+                  <dd className="font-semibold">{summary.data.upcomingReservations}</dd>
+                </div>
+                <div className="flex justify-between py-2">
+                  <dt className="text-muted-foreground">Awaiting payment</dt>
+                  <dd className="font-semibold">{summary.data.pendingPayments}</dd>
+                </div>
+                <div className="flex justify-between py-2">
+                  <dt className="text-muted-foreground">Today&apos;s booking value</dt>
+                  <dd className="font-semibold">
+                    {summary.data.todayBookingCurrency
+                      ? formatMoney(
+                          summary.data.todayBookingValue,
+                          summary.data.todayBookingCurrency,
+                        )
+                      : "—"}
+                  </dd>
+                </div>
+              </dl>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-3">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <CircleAlert className="size-5 text-brand" aria-hidden />
+              Needs attention
+            </CardTitle>
+            <CardDescription>Failures and stuck work, with deep links</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {summary.isPending ? (
+              <div className="space-y-2" aria-busy="true" aria-label="Loading alerts">
+                <Skeleton className="h-12 w-full" />
+              </div>
+            ) : summary.isError || !summary.data ? (
+              <p className="py-4 text-center text-sm text-muted-foreground">Alerts unavailable.</p>
+            ) : (
+              <ul className="divide-y divide-border">
+                <li className="flex items-center justify-between py-3">
+                  <p className="text-sm">
+                    Payment failures (24h) ·{" "}
+                    <strong>{summary.data.paymentFailures24h}</strong>
+                  </p>
+                  <Link
+                    to="/payments"
+                    className="text-sm font-medium text-brand hover:text-brand-dark"
+                  >
+                    Review
+                  </Link>
+                </li>
+                <li className="flex items-center justify-between py-3">
+                  <p className="text-sm">
+                    Pending refunds · <strong>{summary.data.pendingRefunds}</strong>
+                  </p>
+                  <Link
+                    to="/reservations"
+                    className="text-sm font-medium text-brand hover:text-brand-dark"
+                  >
+                    Review
+                  </Link>
+                </li>
+                <li className="flex items-center justify-between py-3">
+                  <p className="text-sm">
+                    Failed emails · <strong>{summary.data.failedNotifications}</strong>
+                  </p>
+                  <Link
+                    to="/notifications"
+                    className="text-sm font-medium text-brand hover:text-brand-dark"
+                  >
+                    Review
+                  </Link>
+                </li>
+              </ul>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5">

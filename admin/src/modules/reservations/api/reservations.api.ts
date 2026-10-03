@@ -36,3 +36,13 @@ export async function cancelReservation(id: string, reason: string | null): Prom
   });
   return unwrapResponse(response);
 }
+
+export async function checkInReservation(id: string): Promise<Reservation> {
+  const response = await apiClient.post<ApiEnvelope<Reservation>>(`${BASE}/${id}/check-in`);
+  return unwrapResponse(response);
+}
+
+export async function checkOutReservation(id: string): Promise<Reservation> {
+  const response = await apiClient.post<ApiEnvelope<Reservation>>(`${BASE}/${id}/check-out`);
+  return unwrapResponse(response);
+}

@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/async-handler";
 import type { RequestWithValidatedQuery } from "../../middleware/validate";
+import { recordAudit } from "../audit/audit.service";
 import { listAdminNotifications, retryAdminNotification } from "./notification.service";
 import type { AdminNotificationsQuery } from "./notification.schema";
 
@@ -18,6 +19,10 @@ export const adminListNotificationsHandler = asyncHandler(
 export const adminRetryNotificationHandler = asyncHandler(
   async (req: Request, res: Response) => {
     const notification = await retryAdminNotification(req.params.id as string);
+    await recordAudit(req, "NOTIFICATION_RETRIED", "notification", {
+      entityId: notification.id,
+      after: { type: notification.type, recipient: notification.recipient },
+    });
     res.status(200).json({ success: true, data: notification });
   },
 );

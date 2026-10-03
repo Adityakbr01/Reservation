@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { requireUser } from "../../middleware/auth";
 import { asyncHandler } from "../../utils/async-handler";
 import type { RequestWithValidatedQuery } from "../../middleware/validate";
+import { recordAudit } from "../audit/audit.service";
 import {
   createCouponRecord,
   getCoupon,
@@ -38,6 +39,12 @@ export const getCouponHandler = asyncHandler(async (req: Request, res: Response)
 /** PATCH /api/v1/admin/coupons/:id. */
 export const updateCouponHandler = asyncHandler(async (req: Request, res: Response) => {
   const coupon = await updateCouponRecord(req.params.id as string, req.body as UpdateCouponInput);
+  if ((req.body as UpdateCouponInput).status === "INACTIVE") {
+    await recordAudit(req, "COUPON_DISABLED", "coupon", {
+      entityId: coupon.id,
+      after: { code: coupon.code, status: coupon.status },
+    });
+  }
   res.status(200).json({ success: true, data: coupon });
 });
 

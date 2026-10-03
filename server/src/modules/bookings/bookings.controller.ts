@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { requireUser } from "../../middleware/auth";
 import { asyncHandler } from "../../utils/async-handler";
 import type { RequestWithValidatedQuery } from "../../middleware/validate";
+import { bookingSnapshot, recordAudit } from "../audit/audit.service";
 import { cancelBooking, createBooking, getBooking, listMyBookings } from "./booking.service";
 import { createQuote } from "./quote.service";
 import type { QuoteRequest } from "./quote.schema";
@@ -30,6 +31,12 @@ export const createBookingHandler = asyncHandler(async (req: Request, res: Respo
     req.body as CreateBookingInput,
     idempotencyKey,
   );
+  if (!result.idempotentReplay) {
+    await recordAudit(req, "BOOKING_CREATED", "booking", {
+      entityId: result.booking.id,
+      after: bookingSnapshot(result.booking),
+    });
+  }
   res.status(result.idempotentReplay ? 200 : 201).json({ success: true, data: result });
 });
 
@@ -42,11 +49,17 @@ export const getBookingHandler = asyncHandler(async (req: Request, res: Response
 /** POST /api/v1/bookings/:id/cancel — owner only. */
 export const cancelBookingHandler = asyncHandler(async (req: Request, res: Response) => {
   const body = req.body as CancelBookingInput;
+  const before = await getBooking(req.params.id as string, requireUser(req).id);
   const booking = await cancelBooking(
     req.params.id as string,
     requireUser(req).id,
     body.reason ?? null,
   );
+  await recordAudit(req, "BOOKING_CANCELLED", "booking", {
+    entityId: booking.id,
+    before: bookingSnapshot(before.booking),
+    after: bookingSnapshot(booking),
+  });
   res.status(200).json({ success: true, data: booking });
 });
 

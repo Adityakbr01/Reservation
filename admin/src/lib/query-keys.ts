@@ -64,3 +64,44 @@ export const policyKeys = {
   all: ["policies"] as const,
   list: () => [...policyKeys.all, "list"] as const,
 };
+
+export const customerKeys = {
+  all: ["customers"] as const,
+  list: (filters: unknown) => [...customerKeys.all, "list", filters] as const,
+  detail: (id: string) => [...customerKeys.all, "detail", id] as const,
+};
+
+export const couponKeys = {
+  all: ["coupons"] as const,
+  list: (filters: unknown) => [...couponKeys.all, "list", filters] as const,
+  detail: (id: string) => [...couponKeys.all, "detail", id] as const,
+};
+
+export const notificationKeys = {
+  all: ["notifications"] as const,
+  list: (filters: unknown) => [...notificationKeys.all, "list", filters] as const,
+};
+
+export const dashboardKeys = {
+  all: ["dashboard"] as const,
+  summary: () => [...dashboardKeys.all, "summary"] as const,
+};
+
+export const cmsKeys = {
+  all: ["cms"] as const,
+  pages: (filters: unknown) => [...cmsKeys.all, "pages", filters] as const,
+  blogs: (filters: unknown) => [...cmsKeys.all, "blogs", filters] as const,
+  faqs: (filters: unknown) => [...cmsKeys.all, "faqs", filters] as const,
+  offers: (filters: unknown) => [...cmsKeys.all, "offers", filters] as const,
+  policies: () => [...cmsKeys.all, "policies"] as const,
+};
+
+export const mediaKeys = {
+  all: ["media"] as const,
+  list: (filters: unknown) => [...mediaKeys.all, "list", filters] as const,
+};
+
+export const settingsKeys = {
+  all: ["settings"] as const,
+  detail: () => [...settingsKeys.all, "detail"] as const,
+};

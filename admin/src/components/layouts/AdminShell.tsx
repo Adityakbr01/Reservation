@@ -2,15 +2,24 @@ import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import {
   BedDouble,
+  Bell,
   Building2,
   CalendarCheck,
   CalendarDays,
+  CircleHelp,
+  FileText,
+  Image,
   LayoutDashboard,
   LogOut,
   Menu,
+  Newspaper,
   Receipt,
+  ScrollText,
+  Settings,
   Tags,
+  Ticket,
   User,
+  Users,
   X,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -32,11 +41,25 @@ const OVERVIEW_LINKS = [{ to: "/dashboard", label: "Dashboard", Icon: LayoutDash
 
 const MANAGE_LINKS = [
   { to: "/reservations", label: "Reservations", Icon: CalendarCheck },
+  { to: "/customers", label: "Customers", Icon: Users },
   { to: "/room-types", label: "Room types", Icon: Building2 },
   { to: "/rooms", label: "Rooms", Icon: BedDouble },
   { to: "/rate-plans", label: "Rate plans", Icon: Tags },
   { to: "/availability", label: "Availability", Icon: CalendarDays },
   { to: "/payments", label: "Payments", Icon: Receipt },
+  { to: "/coupons", label: "Coupons", Icon: Ticket },
+  { to: "/notifications", label: "Notifications", Icon: Bell },
+];
+
+const CONTENT_LINKS = [
+  { to: "/cms/pages", label: "Pages", Icon: FileText },
+  { to: "/cms/blogs", label: "Blog", Icon: Newspaper },
+  { to: "/cms/faqs", label: "FAQs", Icon: CircleHelp },
+  { to: "/cms/offers", label: "Offers", Icon: Tags },
+  { to: "/cms/policies", label: "Policies", Icon: FileText },
+  { to: "/media", label: "Media", Icon: Image },
+  { to: "/settings", label: "Settings", Icon: Settings },
+  { to: "/audit-logs", label: "Audit logs", Icon: ScrollText },
 ];
 
 function sideLinkClass({ isActive }: { isActive: boolean }) {
@@ -88,6 +111,15 @@ export function AdminShell() {
         <div className="space-y-1">
           <SectionLabel>Manage</SectionLabel>
           {MANAGE_LINKS.map(({ to, label, Icon }) => (
+            <NavLink key={to} to={to} onClick={() => setOpen(false)} className={sideLinkClass}>
+              <Icon className="size-4 shrink-0" aria-hidden />
+              {label}
+            </NavLink>
+          ))}
+        </div>
+        <div className="space-y-1">
+          <SectionLabel>Content</SectionLabel>
+          {CONTENT_LINKS.map(({ to, label, Icon }) => (
             <NavLink key={to} to={to} onClick={() => setOpen(false)} className={sideLinkClass}>
               <Icon className="size-4 shrink-0" aria-hidden />
               {label}

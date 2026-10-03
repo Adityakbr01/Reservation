@@ -17,6 +17,8 @@ import { formatMoney } from "@/lib/money";
 import {
   useCancelPreview,
   useCancelReservation,
+  useCheckInReservation,
+  useCheckOutReservation,
   useReservation,
 } from "../hooks/use-reservations";
 import { useRefundBooking } from "../../payments/hooks/use-payments";
@@ -39,6 +41,8 @@ export function ReservationDetailPage() {
   const previewQuery = useCancelPreview(id, showCancel);
   const cancelMutation = useCancelReservation(id);
   const refundMutation = useRefundBooking(id);
+  const checkInMutation = useCheckInReservation(id);
+  const checkOutMutation = useCheckOutReservation(id);
 
   if (isPending) {
     return (
@@ -96,6 +100,24 @@ export function ReservationDetailPage() {
         </div>
         <div className="flex items-center gap-2">
           <StatusBadge status={booking.status} />
+          {booking.status === "CONFIRMED" && (
+            <Button
+              className="rounded-full"
+              disabled={checkInMutation.isPending}
+              onClick={() => checkInMutation.mutate()}
+            >
+              {checkInMutation.isPending ? "Checking in…" : "Check in"}
+            </Button>
+          )}
+          {booking.status === "CHECKED_IN" && (
+            <Button
+              className="rounded-full"
+              disabled={checkOutMutation.isPending}
+              onClick={() => checkOutMutation.mutate()}
+            >
+              {checkOutMutation.isPending ? "Checking out…" : "Check out"}
+            </Button>
+          )}
           {canCancel && (
             <Button
               variant="destructive"
@@ -145,6 +167,12 @@ export function ReservationDetailPage() {
               <p className="text-muted-foreground">
                 Cancelled {formatDate(booking.cancellation.cancelledAt)}
                 {booking.cancellation.reason ? ` — ${booking.cancellation.reason}` : ""}
+              </p>
+            )}
+            {booking.stay.checkedInAt && (
+              <p className="text-muted-foreground">
+                Checked in {formatDate(booking.stay.checkedInAt)}
+                {booking.stay.checkedOutAt ? ` · out ${formatDate(booking.stay.checkedOutAt)}` : ""}
               </p>
             )}
           </CardContent>
