@@ -24,12 +24,12 @@ function Calendar({ className, classNames, ...props }: ComponentProps<typeof Day
         weekday: "w-9 rounded-md text-[0.8rem] font-normal text-muted-foreground",
         weeks: "[&_tr]:flex w-full [&_tr]:mt-2",
         week: "flex w-full mt-2",
-        day: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected])]:rounded-full",
+        day: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected=true])]:rounded-full [&:has([aria-selected=true])]:bg-brand/15",
         day_button:
-          "inline-flex size-9 items-center justify-center rounded-full p-0 text-sm font-normal transition-colors outline-none hover:bg-accent hover:text-accent-foreground focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 aria-selected:opacity-100",
+          "inline-flex size-9 items-center justify-center rounded-full p-0 text-sm font-normal transition-colors outline-none hover:bg-brand/15 hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 aria-selected:bg-brand aria-selected:text-white aria-selected:hover:bg-brand aria-selected:hover:text-white aria-selected:opacity-100",
         selected:
           "bg-brand text-white hover:bg-brand hover:text-white focus:bg-brand focus:text-white",
-        today: "bg-surface-2 text-foreground",
+        today: "rounded-full bg-surface-2 font-semibold text-foreground",
         outside: "text-muted-foreground opacity-50",
         disabled: "text-muted-foreground opacity-50",
         hidden: "invisible",

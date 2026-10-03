@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { RootLayout } from "@/components/layouts/RootLayout";
 import { HomePage } from "@/modules/home";
+import { RoomDetailPage } from "@/modules/rooms";
 import { LoginPage } from "@/modules/auth/login";
 import { RegisterPage } from "@/modules/auth/register";
 import { ProfilePage } from "@/modules/auth/me";
@@ -12,6 +13,7 @@ export function AppRoutes() {
     <Routes>
       <Route element={<RootLayout />}>
         <Route index element={<HomePage />} />
+        <Route path="rooms/:slug" element={<RoomDetailPage />} />
         <Route
           path="login"
           element={

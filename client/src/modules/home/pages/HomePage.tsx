@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,8 +12,10 @@ import {
 import type { AvailabilitySearchParams } from "@/modules/availability";
 
 export function HomePage() {
-  const [search, setSearch] = useState<AvailabilitySearchParams | null>(null);
-  const { data, isPending, isError, refetch } = useAvailabilitySearch(search);
+  const location = useLocation();
+  const restored = (location.state as { search?: AvailabilitySearchParams } | null)?.search ?? null;
+  const [search, setSearch] = useState<AvailabilitySearchParams | null>(restored);
+  const { data, isFetching, isError, refetch } = useAvailabilitySearch(search);
   const dates = defaultSearchDates();
   const initial: AvailabilitySearchParams = {
     ...dates,
@@ -38,7 +41,7 @@ export function HomePage() {
 
       <Card className="shadow-card">
         <CardContent className="p-6">
-          <SearchForm initial={initial} isPending={isPending} onSearch={setSearch} />
+          <SearchForm initial={initial} isPending={isFetching} onSearch={setSearch} />
         </CardContent>
       </Card>
 
@@ -51,7 +54,7 @@ export function HomePage() {
             </p>
           </CardContent>
         </Card>
-      ) : isPending ? (
+      ) : isFetching ? (
         <div className="space-y-4" aria-busy="true" aria-label="Searching availability">
           {[0, 1].map((row) => (
             <Skeleton key={row} className="h-64 w-full rounded-xl" />
@@ -86,7 +89,7 @@ export function HomePage() {
             guest{data.search.adults + data.search.children === 1 ? "" : "s"}
           </p>
           {results.map((item) => (
-            <RoomTypeCard key={item.roomType.id} item={item} />
+            <RoomTypeCard key={item.roomType.id} item={item} search={search} />
           ))}
         </div>
       )}

@@ -1,7 +1,10 @@
 import { BedDouble, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { SearchResultItem } from "../types/availability.types";
+import { RoomTypeImage } from "@/components/common/RoomTypeImage";
+import type { AvailabilitySearchParams, SearchResultItem } from "../types/availability.types";
+import { toSearchRecord } from "../utils/search-params";
 
 function formatMoney(minor: number, currency: string): string {
   return new Intl.NumberFormat("en-IN", {
@@ -11,16 +14,37 @@ function formatMoney(minor: number, currency: string): string {
   }).format(minor / 100);
 }
 
-export function RoomTypeCard({ item }: { item: SearchResultItem }) {
+export function RoomTypeCard({
+  item,
+  search,
+}: {
+  item: SearchResultItem;
+  search: AvailabilitySearchParams;
+}) {
   const { roomType, availableCount, rates } = item;
   const lowStock = availableCount <= 2;
+  const detailTo = {
+    pathname: `/rooms/${roomType.slug}`,
+    search: new URLSearchParams(toSearchRecord(search)).toString(),
+  };
 
   return (
-    <Card className="shadow-card">
+    <Card className="overflow-hidden shadow-card">
+      <div className="aspect-[21/9] w-full border-b border-border">
+        <RoomTypeImage name={roomType.name} />
+      </div>
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <CardTitle className="text-2xl">{roomType.name}</CardTitle>
+            <CardTitle className="text-2xl">
+              <Link
+                to={detailTo}
+                state={{ search }}
+                className="hover:text-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                {roomType.name}
+              </Link>
+            </CardTitle>
             <CardDescription>
               {roomType.shortDescription ?? `${roomType.maxAdults} adults · max ${roomType.maxOccupancy} guests`}
             </CardDescription>
@@ -58,6 +82,13 @@ export function RoomTypeCard({ item }: { item: SearchResultItem }) {
         <p className="text-xs text-muted-foreground">
           Indicative total — availability and price are confirmed again at booking.
         </p>
+        <Link
+          to={detailTo}
+          state={{ search }}
+          className="inline-block text-sm font-medium text-brand hover:text-brand-dark focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        >
+          View details →
+        </Link>
       </CardContent>
     </Card>
   );

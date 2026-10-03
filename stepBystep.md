@@ -44,13 +44,13 @@
   with Phase 6; recheck-at-booking stays mandatory.
 - **Next:** client search + results UI (dates/guests form → room cards).
 
-## ⏳ Phase 5 — Pricing + coupons
+## ✅ Phase 5 — Pricing + coupons (backend DONE)
 
-- **Build:** quote endpoint (server-side totals, taxes/fees), coupon
-  validate/apply, snapshot rules for historical bookings.
-- **Why after availability:** pricing needs rate plans + occupancy + dates.
-- **Docs:** `05` pricing, `06` coupons.
-- **Exit:** quote → totals trusted by booking, coupons validate correctly.
+- **Built:** `utils/money` (integer minor units), `coupons` module (admin CRUD
+  + public validate with validity/discount engine), `POST /api/v1/bookings/quote`
+  (TTL-cached authoritative pricing, invalid coupons fail 422). Tax stays 0
+  until the tax engine lands — rates are never invented.
+- **Next:** coupon UI + price display ride with the booking flow (Phase 6).
 
 ## ⏳ Phase 6 — Booking + holds + My Bookings
 

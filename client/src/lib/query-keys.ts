@@ -25,3 +25,8 @@ export const availabilityKeys = {
   all: ["availability"] as const,
   search: (params: unknown) => [...availabilityKeys.all, "search", params] as const,
 };
+
+export const roomTypeKeys = {
+  all: ["room-type"] as const,
+  detail: (slug: string) => [...roomTypeKeys.all, slug] as const,
+};
