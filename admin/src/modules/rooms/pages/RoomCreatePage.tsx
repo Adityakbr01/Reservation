@@ -8,7 +8,7 @@ export function RoomCreatePage() {
   const { mutate, isPending } = useCreateRoom();
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 py-8">
+    <div className="mx-auto w-full max-w-2xl space-y-6">
       <div>
         <Link
           to="/rooms"

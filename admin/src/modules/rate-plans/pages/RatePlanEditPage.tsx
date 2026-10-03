@@ -12,7 +12,7 @@ export function RatePlanEditPage() {
 
   if (isPending) {
     return (
-      <div className="mx-auto w-full max-w-2xl py-8" aria-busy="true" aria-label="Loading rate plan">
+      <div className="mx-auto w-full max-w-2xl" aria-busy="true" aria-label="Loading rate plan">
         <div className="h-96 animate-pulse rounded-xl bg-muted" />
       </div>
     );
@@ -20,7 +20,7 @@ export function RatePlanEditPage() {
 
   if (isError || !plan) {
     return (
-      <div className="mx-auto w-full max-w-sm py-12">
+      <div className="mx-auto w-full max-w-sm">
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Not found</CardTitle>
@@ -40,7 +40,7 @@ export function RatePlanEditPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 py-8">
+    <div className="mx-auto w-full max-w-2xl space-y-6">
       <div>
         <Link
           to="/rate-plans"
