@@ -49,7 +49,7 @@ export function RegisterForm() {
           placeholder="••••••••"
         />
       </div>
-      <Button type="submit" className="w-full" disabled={isPending}>
+      <Button type="submit" className="h-11 w-full rounded-full" disabled={isPending}>
         {isPending ? "Creating account…" : "Create account"}
       </Button>
     </form>
