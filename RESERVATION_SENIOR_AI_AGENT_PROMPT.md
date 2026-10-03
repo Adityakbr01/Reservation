@@ -1,5 +1,7 @@
 # SENIOR AI AGENT MASTER PROMPT
+
 # Single-Property Hotel Reservation Platform
+
 # Full Repository Analysis + Frontend + Backend Foundation Setup
 
 You are the SENIOR SOFTWARE ENGINEERING AGENT responsible for taking an existing hotel reservation project from its current state to a clean, maintainable, production-oriented engineering foundation.
@@ -37,8 +39,8 @@ Do NOT replace working architecture without a reason.
 Do NOT invent product requirements.
 
 ============================================================
-1. PROJECT ROOT
-============================================================
+
+1. # PROJECT ROOT
 
 Project root:
 
@@ -63,9 +65,7 @@ Root README:
 
 D:\CLIENT_PROJECTS\Reservation\README.md
 
-
-============================================================
-2. PRODUCT DEFINITION
+============================================================ 2. PRODUCT DEFINITION
 ============================================================
 
 This is a SINGLE-PROPERTY HOTEL RESERVATION PLATFORM.
@@ -86,17 +86,17 @@ Example:
 
 Property
 ├── Deluxe Room
-│   ├── Room 101
-│   ├── Room 102
-│   └── Room 103
+│ ├── Room 101
+│ ├── Room 102
+│ └── Room 103
 │
 ├── Suite
-│   ├── Room 201
-│   └── Room 202
+│ ├── Room 201
+│ └── Room 202
 │
 └── Family Room
-    ├── Room 301
-    └── Room 302
+├── Room 301
+└── Room 302
 
 This project is NOT:
 
@@ -110,8 +110,7 @@ This project is NOT:
 
 Do not introduce those concepts.
 
-============================================================
-3. RESPONSIBILITY SPLIT
+============================================================ 3. RESPONSIBILITY SPLIT
 ============================================================
 
 The client/company is separately building the public marketing/landing website.
@@ -172,12 +171,10 @@ BACKEND
 - audit logs
 - APIs
 - database
-- Redis
+- Node-Cache
 - security
 
-
-============================================================
-4. DOCUMENTATION-FIRST RULE
+============================================================ 4. DOCUMENTATION-FIRST RULE
 ============================================================
 
 Before making architectural decisions, read:
@@ -215,9 +212,7 @@ If documentation and source code disagree:
 5. Report the conflict.
 6. Update documentation only when the decision is clear.
 
-
-============================================================
-5. FULL REPOSITORY SCAN
+============================================================ 5. FULL REPOSITORY SCAN
 ============================================================
 
 Before changing anything, inspect:
@@ -257,8 +252,7 @@ Search the codebase before creating new functionality.
 
 You must know whether something already exists before implementing a duplicate.
 
-============================================================
-6. EXISTING CODE PRESERVATION
+============================================================ 6. EXISTING CODE PRESERVATION
 ============================================================
 
 This is an existing project.
@@ -289,9 +283,7 @@ If something conflicts with the documented architecture:
 
 REFactor carefully and preserve behavior where possible.
 
-
-============================================================
-7. TECHNOLOGY STACK — LOCKED
+============================================================ 7. TECHNOLOGY STACK — LOCKED
 ============================================================
 
 FRONTEND:
@@ -317,7 +309,7 @@ BACKEND:
 - Mongoose
 - dotenv
 - Zod
-- Redis
+- Node-Cache
 - Stripe
 - Resend
 - ImageKit
@@ -342,14 +334,12 @@ Database:
 MongoDB + Mongoose
 
 Temporary state / locks / queues / cache:
-Redis
+Node-Cache
 
 Backend:
 Express + TypeScript + Bun
 
-
-============================================================
-8. PACKAGE MANAGER
+============================================================ 8. PACKAGE MANAGER
 ============================================================
 
 Use Bun.
@@ -370,9 +360,7 @@ Do not blindly upgrade major versions.
 
 Use versions compatible with the existing project.
 
-
-============================================================
-9. FRONTEND SETUP — BOTH APPLICATIONS
+============================================================ 9. FRONTEND SETUP — BOTH APPLICATIONS
 ============================================================
 
 Configure BOTH:
@@ -401,9 +389,7 @@ create-vite
 
 unless an application is genuinely missing and this has been explicitly established after inspection.
 
-
-============================================================
-10. CLIENT MODULE ARCHITECTURE
+============================================================ 10. CLIENT MODULE ARCHITECTURE
 ============================================================
 
 Customer application must use:
@@ -414,13 +400,13 @@ Recommended domains:
 
 src/
 ├── modules/
-│   ├── auth/
-│   ├── availability/
-│   ├── rooms/
-│   ├── booking/
-│   ├── payment/
-│   ├── my-bookings/
-│   └── profile/
+│ ├── auth/
+│ ├── availability/
+│ ├── rooms/
+│ ├── booking/
+│ ├── payment/
+│ ├── my-bookings/
+│ └── profile/
 │
 ├── components/
 ├── layouts/
@@ -438,9 +424,7 @@ Do not create unnecessary modules.
 
 Create modules based on actual product requirements and current source code.
 
-
-============================================================
-11. ADMIN MODULE ARCHITECTURE
+============================================================ 11. ADMIN MODULE ARCHITECTURE
 ============================================================
 
 Admin application must use:
@@ -451,23 +435,23 @@ Recommended domains:
 
 src/
 ├── modules/
-│   ├── auth/
-│   ├── dashboard/
-│   ├── reservations/
-│   ├── customers/
-│   ├── room-types/
-│   ├── rooms/
-│   ├── rate-plans/
-│   ├── availability/
-│   ├── payments/
-│   ├── refunds/
-│   ├── coupons/
-│   ├── cms/
-│   ├── media/
-│   ├── notifications/
-│   ├── audit-logs/
-│   ├── admin-users/
-│   └── settings/
+│ ├── auth/
+│ ├── dashboard/
+│ ├── reservations/
+│ ├── customers/
+│ ├── room-types/
+│ ├── rooms/
+│ ├── rate-plans/
+│ ├── availability/
+│ ├── payments/
+│ ├── refunds/
+│ ├── coupons/
+│ ├── cms/
+│ ├── media/
+│ ├── notifications/
+│ ├── audit-logs/
+│ ├── admin-users/
+│ └── settings/
 │
 ├── components/
 ├── layouts/
@@ -482,9 +466,7 @@ src/
 
 Do not blindly create every folder.
 
-
-============================================================
-12. MODULE INTERNAL STRUCTURE
+============================================================ 12. MODULE INTERNAL STRUCTURE
 ============================================================
 
 A domain module should generally look like:
@@ -516,9 +498,7 @@ Adapt to the existing architecture when appropriate.
 
 The goal is clear ownership, not folders for the sake of folders.
 
-
-============================================================
-13. AXIOS ARCHITECTURE
+============================================================ 13. AXIOS ARCHITECTURE
 ============================================================
 
 Create one centralized Axios client.
@@ -543,18 +523,16 @@ Do NOT create separate Axios instances in every module.
 Architecture:
 
 Component
-  ↓
+↓
 React Query Hook
-  ↓
+↓
 Module API Function
-  ↓
+↓
 Central Axios Client
-  ↓
+↓
 Express API
 
-
-============================================================
-14. REACT QUERY
+============================================================ 14. REACT QUERY
 ============================================================
 
 Configure one QueryClient at the application root.
@@ -593,9 +571,7 @@ Examples:
 ["cms-page", slug]
 ["admin-dashboard"]
 
-
-============================================================
-15. REACT HOT TOAST
+============================================================ 15. REACT HOT TOAST
 ============================================================
 
 Configure exactly one global Toaster unless the existing architecture requires otherwise.
@@ -616,9 +592,7 @@ Do not use toast as the only form validation mechanism.
 
 Use inline validation for forms.
 
-
-============================================================
-16. REACT ROUTER
+============================================================ 16. REACT ROUTER
 ============================================================
 
 Use React Router DOM.
@@ -626,19 +600,19 @@ Use React Router DOM.
 Client routes may include:
 
 /
- /search
- /rooms
- /booking
- /booking/review
- /payment
- /booking/confirmation
- /my-bookings
- /my-bookings/:id
- /login
- /register
- /forgot-password
- /reset-password
- /profile
+/search
+/rooms
+/booking
+/booking/review
+/payment
+/booking/confirmation
+/my-bookings
+/my-bookings/:id
+/login
+/register
+/forgot-password
+/reset-password
+/profile
 
 Admin routes may include:
 
@@ -665,9 +639,7 @@ Adapt these to the existing source and documentation.
 
 Admin routes must be protected.
 
-
-============================================================
-17. SHADCN/UI
+============================================================ 17. SHADCN/UI
 ============================================================
 
 Use shadcn/ui as the primary reusable UI primitive system.
@@ -700,9 +672,7 @@ Before creating a component:
 
 Do not add another UI framework.
 
-
-============================================================
-18. BACKEND STRUCTURE
+============================================================ 18. BACKEND STRUCTURE
 ============================================================
 
 Server:
@@ -713,42 +683,42 @@ Recommended:
 
 server/
 ├── src/
-│   ├── config/
-│   │   ├── env.ts
-│   │   ├── database.ts
-│   │   ├── redis.ts
-│   │   ├── stripe.ts
-│   │   ├── resend.ts
-│   │   └── imagekit.ts
-│   │
-│   ├── modules/
-│   │   ├── auth/
-│   │   ├── users/
-│   │   ├── properties/
-│   │   ├── roomTypes/
-│   │   ├── rooms/
-│   │   ├── ratePlans/
-│   │   ├── availability/
-│   │   ├── bookings/
-│   │   ├── payments/
-│   │   ├── refunds/
-│   │   ├── coupons/
-│   │   ├── cms/
-│   │   ├── media/
-│   │   ├── notifications/
-│   │   ├── emails/
-│   │   ├── auditLogs/
-│   │   └── webhooks/
-│   │
-│   ├── middleware/
-│   ├── jobs/
-│   ├── workers/
-│   ├── routes/
-│   ├── utils/
-│   ├── types/
-│   ├── constants/
-│   ├── app.ts
-│   └── server.ts
+│ ├── config/
+│ │ ├── env.ts
+│ │ ├── database.ts
+│ │ ├── Node-Cache.ts
+│ │ ├── stripe.ts
+│ │ ├── resend.ts
+│ │ └── imagekit.ts
+│ │
+│ ├── modules/
+│ │ ├── auth/
+│ │ ├── users/
+│ │ ├── properties/
+│ │ ├── roomTypes/
+│ │ ├── rooms/
+│ │ ├── ratePlans/
+│ │ ├── availability/
+│ │ ├── bookings/
+│ │ ├── payments/
+│ │ ├── refunds/
+│ │ ├── coupons/
+│ │ ├── cms/
+│ │ ├── media/
+│ │ ├── notifications/
+│ │ ├── emails/
+│ │ ├── auditLogs/
+│ │ └── webhooks/
+│ │
+│ ├── middleware/
+│ ├── jobs/
+│ ├── workers/
+│ ├── routes/
+│ ├── utils/
+│ ├── types/
+│ ├── constants/
+│ ├── app.ts
+│ └── server.ts
 │
 ├── tests/
 ├── scripts/
@@ -760,23 +730,21 @@ Do not create fake placeholder modules for every feature.
 
 Build the foundation first.
 
-
-============================================================
-19. BACKEND LAYERING
+============================================================ 19. BACKEND LAYERING
 ============================================================
 
 Use:
 
 Route
-  ↓
+↓
 Middleware
-  ↓
+↓
 Controller
-  ↓
+↓
 Service
-  ↓
+↓
 Repository / Model
-  ↓
+↓
 MongoDB
 
 Controller:
@@ -796,9 +764,7 @@ Zod validation.
 
 Do not put core business logic inside controllers.
 
-
-============================================================
-20. MONGODB
+============================================================ 20. MONGODB
 ============================================================
 
 Use MongoDB + Mongoose.
@@ -833,9 +799,7 @@ Follow the database documentation.
 
 Do not invent unnecessary collections.
 
-
-============================================================
-21. PHYSICAL ROOM INVENTORY
+============================================================ 21. PHYSICAL ROOM INVENTORY
 ============================================================
 
 This distinction must never be broken:
@@ -856,9 +820,7 @@ Reservations ultimately consume physical room inventory.
 
 The backend must prevent overlapping bookings for the same physical room.
 
-
-============================================================
-22. AVAILABILITY
+============================================================ 22. AVAILABILITY
 ============================================================
 
 Authoritative overlap rule:
@@ -885,38 +847,34 @@ Search results are NOT authoritative.
 
 The backend must perform a final availability check before creating/confirming a booking.
 
-
-============================================================
-23. TEMPORARY HOLDS
+============================================================ 23. TEMPORARY HOLDS
 ============================================================
 
-Use Redis for short-lived room holds/locks where appropriate.
+Use Node-Cache for short-lived room holds/locks where appropriate.
 
 Concept:
 
 AVAILABLE
- ↓
+↓
 HELD
- ↓
+↓
 PAYMENT_PENDING
- ↓
+↓
 CONFIRMED
 
 or:
 
 HELD
- ↓
+↓
 EXPIRED
- ↓
+↓
 AVAILABLE
 
 MongoDB remains durable source of truth.
 
 Expired holds must not permanently block inventory.
 
-
-============================================================
-24. DOUBLE-BOOKING PROTECTION
+============================================================ 24. DOUBLE-BOOKING PROTECTION
 ============================================================
 
 This is a critical invariant.
@@ -927,15 +885,13 @@ Use appropriate:
 
 - final DB availability check
 - transaction/session where appropriate
-- Redis lock/hold
+- Node-Cache lock/hold
 - atomic operations
 - idempotency
 
 Do not rely on frontend availability.
 
-
-============================================================
-25. BOOKING STATE
+============================================================ 25. BOOKING STATE
 ============================================================
 
 Recommended:
@@ -959,9 +915,7 @@ Do not allow arbitrary state changes.
 
 Implement explicit state transitions.
 
-
-============================================================
-26. PAYMENT STATE
+============================================================ 26. PAYMENT STATE
 ============================================================
 
 Payment states:
@@ -975,9 +929,7 @@ PARTIALLY_REFUNDED
 
 Booking status and payment status are separate.
 
-
-============================================================
-27. STRIPE
+============================================================ 27. STRIPE
 ============================================================
 
 Stripe is the payment provider.
@@ -989,28 +941,26 @@ Stripe secret credentials remain backend-only.
 Flow:
 
 Frontend
- ↓
+↓
 Backend
- ↓
+↓
 Stripe
- ↓
+↓
 Customer payment
- ↓
+↓
 Stripe webhook
- ↓
+↓
 Backend verification
- ↓
+↓
 Payment update
- ↓
+↓
 Booking confirmation
- ↓
+↓
 Notification
 
 Never confirm a booking merely because a frontend success page loaded.
 
-
-============================================================
-28. STRIPE WEBHOOKS
+============================================================ 28. STRIPE WEBHOOKS
 ============================================================
 
 Webhook handling must:
@@ -1027,9 +977,7 @@ Webhook handling must:
 
 Duplicate Stripe events must not produce duplicate business operations.
 
-
-============================================================
-29. AUTHENTICATION
+============================================================ 29. AUTHENTICATION
 ============================================================
 
 Support customer authentication:
@@ -1050,9 +998,7 @@ Never store plaintext passwords.
 
 Never return password hashes.
 
-
-============================================================
-30. AUTHORIZATION
+============================================================ 30. AUTHORIZATION
 ============================================================
 
 Backend is the real authorization boundary.
@@ -1091,9 +1037,7 @@ admin.users.manage
 
 A customer must never access another customer's booking.
 
-
-============================================================
-31. ZOD VALIDATION
+============================================================ 31. ZOD VALIDATION
 ============================================================
 
 Use Zod for backend validation.
@@ -1107,9 +1051,7 @@ Validate:
 
 Frontend validation does not replace backend validation.
 
-
-============================================================
-32. SECURITY
+============================================================ 32. SECURITY
 ============================================================
 
 Configure:
@@ -1136,9 +1078,7 @@ Never log:
 - Resend API key
 - unnecessary payment credentials
 
-
-============================================================
-33. RESEND — EMAIL
+============================================================ 33. RESEND — EMAIL
 ============================================================
 
 Use RESEND for application email delivery.
@@ -1162,22 +1102,20 @@ Never expose RESEND_API_KEY to frontend.
 Architecture:
 
 Business Event
- ↓
+↓
 Notification Service
- ↓
+↓
 Email Job
- ↓
+↓
 Worker
- ↓
+↓
 Resend
- ↓
+↓
 Recipient
 
 Do not call Resend directly from controllers.
 
-
-============================================================
-34. EMAIL MODULE
+============================================================ 34. EMAIL MODULE
 ============================================================
 
 Recommended:
@@ -1188,14 +1126,14 @@ server/src/modules/emails/
 ├── email.types.ts
 ├── email.constants.ts
 ├── templates/
-│   ├── booking-created/
-│   ├── payment-confirmed/
-│   ├── payment-failed/
-│   ├── booking-cancelled/
-│   ├── check-in-reminder/
-│   ├── check-in-completed/
-│   ├── check-out-completed/
-│   └── refund-update/
+│ ├── booking-created/
+│ ├── payment-confirmed/
+│ ├── payment-failed/
+│ ├── booking-cancelled/
+│ ├── check-in-reminder/
+│ ├── check-in-completed/
+│ ├── check-out-completed/
+│ └── refund-update/
 └── index.ts
 
 Critical emails must be idempotent.
@@ -1204,9 +1142,7 @@ Email failure must never invalidate a successful booking/payment.
 
 Use retry/backoff through background jobs.
 
-
-============================================================
-35. IMAGEKIT — ASSETS / MEDIA
+============================================================ 35. IMAGEKIT — ASSETS / MEDIA
 ============================================================
 
 Use IMAGEKIT for application-managed assets and media.
@@ -1229,9 +1165,7 @@ Use ImageKit for:
 
 MongoDB stores media metadata/references, not image binaries.
 
-
-============================================================
-36. IMAGEKIT CREDENTIALS
+============================================================ 36. IMAGEKIT CREDENTIALS
 ============================================================
 
 Use:
@@ -1250,9 +1184,7 @@ If client-side direct upload is implemented:
 
 backend must generate secure upload authentication/signature parameters.
 
-
-============================================================
-37. MEDIA MODULE
+============================================================ 37. MEDIA MODULE
 ============================================================
 
 Recommended:
@@ -1287,9 +1219,7 @@ Validate file type and size.
 
 Admin permissions are required for management operations.
 
-
-============================================================
-38. EXTERNAL PROVIDER ABSTRACTIONS
+============================================================ 38. EXTERNAL PROVIDER ABSTRACTIONS
 ============================================================
 
 Keep third-party SDK usage isolated.
@@ -1309,25 +1239,23 @@ Business logic must not be tightly coupled to SDK calls.
 Example:
 
 Booking Service
- ↓
+↓
 Notification Service
- ↓
+↓
 Email Provider
- ↓
+↓
 Resend
 
 CMS/Media Service
- ↓
+↓
 Media Provider
- ↓
+↓
 ImageKit
 
-
-============================================================
-39. REDIS
+============================================================ 39. Node-Cache
 ============================================================
 
-Redis may support:
+Node-Cache may support:
 
 - temporary room holds
 - distributed locks
@@ -1338,11 +1266,9 @@ Redis may support:
 
 MongoDB remains durable source of truth.
 
-Keep Redis connection centralized.
+Keep Node-Cache connection centralized.
 
-
-============================================================
-40. EXPRESS
+============================================================ 40. EXPRESS
 ============================================================
 
 Configure:
@@ -1361,9 +1287,7 @@ Configure:
 
 Stripe webhook raw-body handling must be implemented correctly.
 
-
-============================================================
-41. API VERSION
+============================================================ 41. API VERSION
 ============================================================
 
 Use:
@@ -1374,9 +1298,7 @@ Follow existing API documentation.
 
 Do not invent endpoints when documented contracts already exist.
 
-
-============================================================
-42. API RESPONSE CONTRACT
+============================================================ 42. API RESPONSE CONTRACT
 ============================================================
 
 Preferred:
@@ -1384,38 +1306,36 @@ Preferred:
 Success:
 
 {
-  "success": true,
-  "data": {}
+"success": true,
+"data": {}
 }
 
 Error:
 
 {
-  "success": false,
-  "error": {
-    "code": "ERROR_CODE",
-    "message": "Human readable message"
-  }
+"success": false,
+"error": {
+"code": "ERROR_CODE",
+"message": "Human readable message"
+}
 }
 
 Paginated:
 
 {
-  "success": true,
-  "data": [],
-  "pagination": {
-    "page": 1,
-    "limit": 20,
-    "total": 100,
-    "totalPages": 5
-  }
+"success": true,
+"data": [],
+"pagination": {
+"page": 1,
+"limit": 20,
+"total": 100,
+"totalPages": 5
+}
 }
 
 Follow existing project conventions if already established.
 
-
-============================================================
-43. ERROR HANDLING
+============================================================ 43. ERROR HANDLING
 ============================================================
 
 Create centralized error handling.
@@ -1431,9 +1351,7 @@ Do not expose:
 
 Errors must be useful for both frontend and server logs.
 
-
-============================================================
-44. HEALTH + SHUTDOWN
+============================================================ 44. HEALTH + SHUTDOWN
 ============================================================
 
 Create:
@@ -1444,7 +1362,7 @@ It may report:
 
 - API status
 - MongoDB status
-- Redis status
+- Node-Cache status
 
 without exposing secrets.
 
@@ -1457,12 +1375,10 @@ Close:
 
 - HTTP server
 - MongoDB
-- Redis
+- Node-Cache
 - queues/workers
 
-
-============================================================
-45. ENVIRONMENT
+============================================================ 45. ENVIRONMENT
 ============================================================
 
 Create/update:
@@ -1476,7 +1392,7 @@ PORT=
 
 MONGODB_URI=
 
-REDIS_URL=
+Node-Cache_URL=
 
 JWT_SECRET=
 JWT_EXPIRES_IN=
@@ -1497,9 +1413,7 @@ IMAGEKIT_URL_ENDPOINT=
 
 Never commit actual secrets.
 
-
-============================================================
-46. DATABASE INDEXING
+============================================================ 46. DATABASE INDEXING
 ============================================================
 
 Review actual query patterns and create appropriate indexes.
@@ -1534,9 +1448,7 @@ auditLogs.entityId
 
 Do not blindly add indexes.
 
-
-============================================================
-47. FRONTEND / BACKEND CONTRACT
+============================================================ 47. FRONTEND / BACKEND CONTRACT
 ============================================================
 
 Inspect client and admin applications to understand their expected API contracts.
@@ -1574,9 +1486,7 @@ Admin:
 - settings
 - admin users
 
-
-============================================================
-48. CMS
+============================================================ 48. CMS
 ============================================================
 
 CMS supports:
@@ -1603,9 +1513,7 @@ Public APIs expose published content.
 
 Admin APIs manage content.
 
-
-============================================================
-49. AUDIT LOGS
+============================================================ 49. AUDIT LOGS
 ============================================================
 
 Audit important operational actions:
@@ -1633,9 +1541,7 @@ Record appropriate:
 - timestamp
 - request metadata
 
-
-============================================================
-50. TESTING
+============================================================ 50. TESTING
 ============================================================
 
 Set up infrastructure for:
@@ -1665,9 +1571,7 @@ Critical tests:
 - CMS publishing
 - media permissions
 
-
-============================================================
-51. DO NOT IMPLEMENT EVERYTHING AT ONCE
+============================================================ 51. DO NOT IMPLEMENT EVERYTHING AT ONCE
 ============================================================
 
 This master task has two purposes:
@@ -1688,9 +1592,7 @@ Do not create placeholder services pretending to be complete.
 
 Implement the foundation and only implement domain functionality when enough information exists.
 
-
-============================================================
-52. IMPLEMENTATION PHASES
+============================================================ 52. IMPLEMENTATION PHASES
 ============================================================
 
 PHASE 1 — REPOSITORY AUDIT
@@ -1738,7 +1640,7 @@ PHASE 4 — SERVER FOUNDATION
 - env validation
 - MongoDB
 - Mongoose
-- Redis
+- Node-Cache
 - Zod
 - Helmet
 - CORS
@@ -1810,9 +1712,7 @@ PHASE 12 — PRODUCTION HARDENING
 - deployment
 - documentation
 
-
-============================================================
-53. CODE QUALITY RULES
+============================================================ 53. CODE QUALITY RULES
 ============================================================
 
 Use strict TypeScript.
@@ -1846,9 +1746,7 @@ Prefer:
 - explicit state transitions
 - centralized configuration
 
-
-============================================================
-54. FRONTEND BUSINESS LOGIC RULE
+============================================================ 54. FRONTEND BUSINESS LOGIC RULE
 ============================================================
 
 Frontend should represent business behavior but MUST NOT be the authority.
@@ -1865,9 +1763,7 @@ Never trust frontend for:
 
 Backend is authoritative.
 
-
-============================================================
-55. SECURITY RULE
+============================================================ 55. SECURITY RULE
 ============================================================
 
 Never expose:
@@ -1877,13 +1773,11 @@ Never expose:
 - ImageKit private key
 - JWT secrets
 - database credentials
-- Redis credentials
+- Node-Cache credentials
 
 Frontend may only receive intentionally public configuration.
 
-
-============================================================
-56. SCOPE PROTECTION
+============================================================ 56. SCOPE PROTECTION
 ============================================================
 
 Do not introduce:
@@ -1906,9 +1800,7 @@ Do not introduce:
 
 unless explicitly requested in a future change.
 
-
-============================================================
-57. DEVELOPMENT COMMANDS
+============================================================ 57. DEVELOPMENT COMMANDS
 ============================================================
 
 Use Bun.
@@ -1933,9 +1825,7 @@ Use the project's actual scripts when they exist.
 
 Do not invent command success.
 
-
-============================================================
-58. VERIFICATION
+============================================================ 58. VERIFICATION
 ============================================================
 
 After changes, verify BOTH frontends and backend.
@@ -1970,7 +1860,7 @@ SERVER:
 - starts
 - environment validation works
 - MongoDB connection works/configuration is valid
-- Redis connection works/configuration is valid
+- Node-Cache connection works/configuration is valid
 - /health works
 - CORS works
 - Helmet works
@@ -1980,9 +1870,7 @@ SERVER:
 - build passes
 - tests pass where implemented
 
-
-============================================================
-59. STOP CONDITIONS
+============================================================ 59. STOP CONDITIONS
 ============================================================
 
 Stop and ask for clarification only when:
@@ -1996,9 +1884,7 @@ Stop and ask for clarification only when:
 
 Do NOT ask unnecessary questions that can be answered by inspecting the repository or documentation.
 
-
-============================================================
-60. FINAL REPORT
+============================================================ 60. FINAL REPORT
 ============================================================
 
 After completing the work, provide a senior-engineer report.
@@ -2023,7 +1909,7 @@ Include:
 16. Toast configuration
 17. shadcn configuration
 18. MongoDB configuration
-19. Redis configuration
+19. Node-Cache configuration
 20. Express configuration
 21. Authentication foundation
 22. RBAC foundation
@@ -2044,9 +1930,7 @@ Include:
 
 Do not claim something is working unless you actually verified it.
 
-
-============================================================
-61. FINAL SENIOR-ENGINEER PRINCIPLE
+============================================================ 61. FINAL SENIOR-ENGINEER PRINCIPLE
 ============================================================
 
 You are not being asked to simply "install packages".
@@ -2099,21 +1983,22 @@ The desired final architecture is:
        ┌─────────────────┼──────────────────────┐
        │                 │                      │
        ▼                 ▼                      ▼
-   MongoDB             Redis                  Stripe
-   Durable DB        Holds/Locks             Payments
-       │                 │                      │
-       │                 ▼                      ▼
-       │            Background Jobs          Webhooks
-       │                 │
-       │                 ▼
-       │               Resend
-       │                Email
-       │
-       ▼
-   Media Metadata
-       │
-       ▼
-    ImageKit
+
+MongoDB Node-Cache Stripe
+Durable DB Holds/Locks Payments
+│ │ │
+│ ▼ ▼
+│ Background Jobs Webhooks
+│ │
+│ ▼
+│ Resend
+│ Email
+│
+▼
+Media Metadata
+│
+▼
+ImageKit
 
                          ▲
                          │
