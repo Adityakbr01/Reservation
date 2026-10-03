@@ -1,16 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { getApiErrorMessage } from "@/lib/api-client";
+import { setAccessToken } from "@/lib/auth-token";
 import { register } from "../api/register.api";
 
 export function useRegister() {
   return useMutation({
     mutationFn: register,
     onSuccess: (data) => {
-      localStorage.setItem("access_token", data.token);
+      setAccessToken(data.token);
       toast.success("Account created");
     },
-    onError: () => {
-      toast.error("Registration failed");
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error));
     },
   });
 }

@@ -1,22 +1,14 @@
-import axios from "axios";
-
-export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:5000/api",
-  timeout: 15_000,
-  headers: { "Content-Type": "application/json" },
-});
-
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    return Promise.reject(error);
-  },
-);
+// Backward-compatible re-export.
+// The canonical HTTP client lives in ./api-client.ts — import from there
+// in new code (@/lib/api-client). This shim keeps existing `@/lib/axios`
+// imports working without churn.
+export {
+  apiClient,
+  ApiError,
+  normalizeApiError,
+  getApiErrorMessage,
+  createIdempotencyKey,
+  idempotencyHeaders,
+  unwrapResponse,
+} from "./api-client";
+export type { ApiEnvelope, ApiErrorEnvelope } from "./api-client";
