@@ -55,6 +55,7 @@ export function toBooking(doc: BookingDocument): Booking {
     hold: { holdId: doc.hold.holdId, expiresAt: doc.hold.expiresAt },
     source: doc.source,
     notes: doc.notes,
+    reminderSent: doc.reminderSent ?? false,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
@@ -253,7 +254,7 @@ export async function setBookingStatus(
   const doc = await BookingModel.findByIdAndUpdate(
     id,
     { $set: { status, ...extra } },
-    { new: true, session },
+    { returnDocument: "after", session },
   ).exec();
   return doc ? toBooking(doc) : null;
 }
@@ -265,4 +266,24 @@ export async function expireOverdueHolds(now: Date = new Date()): Promise<number
     { $set: { status: "EXPIRED" } },
   ).exec();
   return result.modifiedCount;
+}
+
+/**
+ * Reminder sweep input: CONFIRMED bookings checking in before `before`
+ * that have not been reminded yet (docs 06 §41).
+ */
+export async function findBookingsForReminderSweep(before: Date): Promise<Booking[]> {
+  const docs = await BookingModel.find({
+    status: "CONFIRMED",
+    reminderSent: { $ne: true },
+    checkIn: { $lte: before },
+  })
+    .sort({ checkIn: 1 })
+    .limit(100)
+    .exec();
+  return docs.map((doc) => toBooking(doc));
+}
+
+export async function markReminderSent(id: string): Promise<void> {
+  await BookingModel.findByIdAndUpdate(id, { $set: { reminderSent: true } }).exec();
 }

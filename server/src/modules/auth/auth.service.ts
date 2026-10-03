@@ -28,7 +28,7 @@ import type {
   ResetPasswordInput,
   UpdateMeInput,
 } from "./auth.schema";
-import { sendPasswordResetEmail } from "../emails/email.service";
+import { sendPasswordResetEmail } from "../../emails/password-reset";
 
 const BCRYPT_ROUNDS = 10;
 const RESET_TOKEN_BYTES = 32;

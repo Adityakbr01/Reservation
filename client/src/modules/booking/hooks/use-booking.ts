@@ -7,6 +7,7 @@ import {
   createBooking,
   createPaymentIntent,
   fetchBooking,
+  fetchMyBookings,
   fetchQuote,
   validateCouponCode,
 } from "../api/booking.api";
@@ -77,6 +78,14 @@ export function useCancelBooking() {
 }
 
 const TERMINAL_STATUSES = ["CONFIRMED", "CANCELLED", "EXPIRED"] as const;
+
+export function useMyBookings(page = 1) {
+  return useQuery({
+    queryKey: bookingKeys.mine(page),
+    queryFn: () => fetchMyBookings(page),
+    retry: false,
+  });
+}
 
 export function useBookingStatus(id: string | null) {
   return useQuery({

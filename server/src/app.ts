@@ -14,6 +14,7 @@ import { adminPaymentsRouter } from "./modules/payments/admin-payments.routes";
 import { paymentsRouter } from "./modules/payments/payment.routes";
 import { adminBookingsRouter } from "./modules/bookings/admin-bookings.routes";
 import { adminRefundsRouter } from "./modules/refunds/refund.routes";
+import { adminNotificationsRouter } from "./modules/notifications/notification.routes";
 import { adminPoliciesRouter } from "./modules/policies/policy.routes";
 import { webhookRouter } from "./modules/webhooks/webhook.routes";
 import { adminPropertyRouter, publicPropertyRouter } from "./modules/properties/property.routes";
@@ -51,6 +52,7 @@ export function createApp() {
   app.use("/api/v1/admin/reservations", adminBookingsRouter);
   app.use("/api/v1/admin/payments", adminPaymentsRouter);
   app.use("/api/v1/admin/refunds", adminRefundsRouter);
+  app.use("/api/v1/admin/notifications", adminNotificationsRouter);
   app.use("/api/v1/admin/policies", adminPoliciesRouter);
   app.use("/api/v1/admin/properties", adminPropertyRouter);
   app.use("/api/v1/admin/room-types", adminRoomTypesRouter);

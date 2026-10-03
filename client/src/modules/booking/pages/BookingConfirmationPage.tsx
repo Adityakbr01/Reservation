@@ -133,8 +133,8 @@ export function BookingConfirmationPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Booking not active</CardTitle>
           <CardDescription>
-            This booking is {booking.status.toLowerCase()}. No payment was captured for an
-            inactive booking.
+            This booking is {(booking.status ?? "unknown").toLowerCase()}. No payment was
+            captured for an inactive booking.
           </CardDescription>
         </CardHeader>
         <CardContent>

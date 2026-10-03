@@ -46,6 +46,9 @@ export function RootLayout() {
           <div className="flex-1" />
           {user ? (
             <>
+              <NavLink to="/bookings" className={navLinkClass}>
+                My bookings
+              </NavLink>
               <NavLink to="/profile" className={navLinkClass}>
                 <span
                   className="mr-2 flex size-7 items-center justify-center rounded-full bg-night text-xs font-semibold text-white"

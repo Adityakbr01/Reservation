@@ -102,7 +102,7 @@ export interface UpdateUserInput {
 }
 
 export async function updateUserById(id: string, input: UpdateUserInput): Promise<SafeUser | null> {
-  const doc = await UserModel.findByIdAndUpdate(id, input, { new: true })
+  const doc = await UserModel.findByIdAndUpdate(id, input, { returnDocument: "after" })
     .select(SAFE_PROJECTION)
     .exec();
   return doc ? toSafeUser(doc) : null;

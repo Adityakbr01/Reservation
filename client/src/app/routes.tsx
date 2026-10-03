@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { RootLayout } from "@/components/layouts/RootLayout";
 import { HomePage } from "@/modules/home";
 import { RoomDetailPage } from "@/modules/rooms";
-import { BookingConfirmationPage, BookingPage } from "@/modules/booking";
+import { BookingConfirmationPage, BookingPage, MyBookingsPage } from "@/modules/booking";
 import { LoginPage } from "@/modules/auth/login";
 import { RegisterPage } from "@/modules/auth/register";
 import { ProfilePage } from "@/modules/auth/me";
@@ -28,6 +28,14 @@ export function AppRoutes() {
           element={
             <RequireAuth>
               <BookingConfirmationPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="bookings"
+          element={
+            <RequireAuth>
+              <MyBookingsPage />
             </RequireAuth>
           }
         />

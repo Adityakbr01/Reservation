@@ -5,6 +5,7 @@ import { connectDatabase, disconnectDatabase } from "./config/database";
 import { env, isProduction } from "./config/env";
 import { logger } from "./config/logger";
 import { runStartupSeeds } from "./seed";
+import { startNotificationWorker, stopNotificationWorker } from "./modules/notifications";
 
 async function boot(): Promise<void> {
   // Degraded boot by design: DB failure is logged and /ready reports 503,
@@ -21,12 +22,14 @@ async function boot(): Promise<void> {
   }
 
   const app = createApp();
+  startNotificationWorker();
   const server: Server = app.listen(env.PORT, () => {
     logger.info(`API listening on port ${env.PORT} (${env.NODE_ENV})`);
   });
 
   const shutdown = (signal: string): void => {
     logger.info(`Received ${signal}, shutting down gracefully`);
+    stopNotificationWorker();
     // Drop idle keep-alive connections so close() does not wait on them.
     // The ?. guard keeps this safe on runtimes without the API.
     server.closeIdleConnections?.();

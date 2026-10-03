@@ -78,6 +78,7 @@ export interface Booking {
   };
   source: BookingSource;
   notes: string | null;
+  reminderSent: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

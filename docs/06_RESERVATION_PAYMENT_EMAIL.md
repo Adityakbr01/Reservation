@@ -984,6 +984,37 @@ The webhook endpoint must:
 8. Commit transaction where applicable.
 9. Return success.
 
+## 28.1 Local Development Delivery
+
+Stripe cannot reach `localhost`, so without forwarding no webhook ever
+arrives. Install the Stripe CLI (Windows: `winget install Stripe.StripeCLI`),
+log in once, then forward test events to the local API:
+
+```text
+stripe login
+stripe listen --forward-to localhost:5000/api/v1/webhooks/stripe
+```
+
+Use the printed `whsec_...` value as `STRIPE_WEBHOOK_SECRET` and restart
+the API. Keep `stripe listen` running while testing payments — every
+`payment_intent.succeeded`, `payment_intent.payment_failed`, and
+`charge.refunded` then reaches the local webhook endpoint.
+
+A payment completed while forwarding was off can be completed
+afterwards by replaying its authentic event:
+
+```text
+stripe events resend evt_...
+```
+
+Without forwarding, the following is expected and is not a bug:
+
+```text
+payment stays PROCESSING (admin Payments screen)
+booking stays HELD / PAYMENT_PENDING (confirmation page keeps polling)
+hold expiry transitions the booking to EXPIRED
+```
+
 ---
 
 # 29. Important Stripe Events
@@ -1120,6 +1151,22 @@ booking → EXPIRED
 ```
 
 The system must not permanently reserve inventory.
+
+## 34.1 Confirmation Page Behavior
+
+After Stripe redirects back with `redirect_status=succeeded`, the
+confirmation page polls `GET /bookings/:id` every 2.5 seconds until the
+booking reaches a terminal state (`CONFIRMED`, `CANCELLED`, `EXPIRED`):
+
+```text
+HELD / PAYMENT_PENDING → "Confirming your payment" (polling)
+CONFIRMED → booking reference card
+EXPIRED / CANCELLED → "Booking not active" card
+```
+
+The Stripe URL parameters (`payment_intent`, `redirect_status`) are
+informational only — the webhook is authoritative. The page must render a
+card for every state and must never crash on an unexpected payload shape.
 
 ---
 

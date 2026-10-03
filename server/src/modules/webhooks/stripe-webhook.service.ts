@@ -5,6 +5,8 @@ import { AppError } from "../../utils/app-error";
 import { isDuplicateKeyError } from "../../utils/mongo";
 import { getStripe } from "../../integrations/stripe/stripe.client";
 import { setBookingStatus } from "../bookings/booking.repository";
+import { enqueueAdminAlert, enqueueNotification } from "../notifications/notification.service";
+import { notificationKeys } from "../notifications/notification.types";
 import { findPaymentByIntentId, updatePaymentStatus } from "../payments/payment.repository";
 import { markRefundSucceeded, recordRefund, sumSucceededRefunds } from "../refunds/refund.model";
 import { findBookingById } from "../bookings/booking.repository";
@@ -111,6 +113,18 @@ async function handleSucceeded(event: Stripe.Event): Promise<void> {
       items.map((item) => item.roomId).filter((roomId): roomId is string => roomId !== null),
       booking.hold.holdId ?? "",
     );
+    await enqueueNotification({
+      type: "BOOKING_CONFIRMED",
+      recipient: booking.contact.email,
+      bookingId: booking.id,
+      paymentId: payment.id,
+      idempotencyKey: notificationKeys.bookingConfirmed(booking.id),
+    });
+    await enqueueAdminAlert({
+      type: "ADMIN_NEW_BOOKING",
+      bookingId: booking.id,
+      idempotencyKey: notificationKeys.adminNewBooking(booking.id),
+    });
   } else {
     // Money captured but booking left the payable window (cancelled/expired
     // meanwhile). Flag for ops review / refund — Phase 8 owns the action.
@@ -119,7 +133,7 @@ async function handleSucceeded(event: Stripe.Event): Promise<void> {
       status: booking.status,
     });
   }
-  // Email + audit hooks attach here (Phase 9 / Phase 12).
+  // Email hook (Phase 9); audit hook lands in Phase 12.
 }
 
 async function handleFailed(event: Stripe.Event, canceled: boolean): Promise<void> {
@@ -136,6 +150,18 @@ async function handleFailed(event: Stripe.Event, canceled: boolean): Promise<voi
   const failedBooking = await findBookingById(payment.bookingId);
   if (failedBooking) {
     await setBookingStatus(failedBooking.id, failedBooking.status, { paymentStatus: "FAILED" });
+    await enqueueNotification({
+      type: "PAYMENT_FAILED",
+      recipient: failedBooking.contact.email,
+      bookingId: failedBooking.id,
+      paymentId: payment.id,
+      idempotencyKey: notificationKeys.paymentFailed(intent.id, event.id),
+    });
+    await enqueueAdminAlert({
+      type: "ADMIN_PAYMENT_FAILURE",
+      bookingId: failedBooking.id,
+      idempotencyKey: notificationKeys.adminPaymentFailure(intent.id, event.id),
+    });
   }
   // Booking stays retryable while its hold is alive; the lazy-expiry sweep
   // transitions it to EXPIRED afterwards. Never confirmed on failure.
@@ -171,6 +197,18 @@ async function handleRefunded(event: Stripe.Event): Promise<void> {
     // Null means already recorded — synchronously-succeeded refunds are
     // stored at creation time, async ones may still sit at PENDING.
     if (!recorded) await markRefundSucceeded(refund.id);
+    // Guest-facing refund update. Same key as the creation-time enqueue,
+    // so only the first writer actually queues the mail.
+    const refundBooking = await findBookingById(payment.bookingId);
+    if (refundBooking) {
+      await enqueueNotification({
+        type: "REFUND_UPDATED",
+        recipient: refundBooking.contact.email,
+        bookingId: refundBooking.id,
+        paymentId: payment.id,
+        idempotencyKey: notificationKeys.refundUpdated(refund.id),
+      });
+    }
   }
   // Reconcile unconditionally: a synchronously-succeeded refund is already
   // recorded before this event arrives, so gating on "changed" would leave

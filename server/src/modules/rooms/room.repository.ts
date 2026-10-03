@@ -76,6 +76,6 @@ export type UpdateRoomInput = Partial<
 >;
 
 export async function updateRoomById(id: string, input: UpdateRoomInput): Promise<Room | null> {
-  const doc = await RoomModel.findByIdAndUpdate(id, input, { new: true }).exec();
+  const doc = await RoomModel.findByIdAndUpdate(id, input, { returnDocument: "after" }).exec();
   return doc ? toRoom(doc) : null;
 }

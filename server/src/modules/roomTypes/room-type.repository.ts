@@ -125,6 +125,6 @@ export async function updateRoomTypeById(
   id: string,
   input: UpdateRoomTypeInput,
 ): Promise<RoomType | null> {
-  const doc = await RoomTypeModel.findByIdAndUpdate(id, input, { new: true }).exec();
+  const doc = await RoomTypeModel.findByIdAndUpdate(id, input, { returnDocument: "after" }).exec();
   return doc ? toRoomType(doc) : null;
 }

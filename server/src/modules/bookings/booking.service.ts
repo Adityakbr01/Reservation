@@ -18,6 +18,8 @@ import { findOverlappingBlockedRoomIds } from "../availability/availability-bloc
 import { findRatePlanById } from "../ratePlans/rate-plan.repository";
 import { findRoomTypeById } from "../roomTypes/room-type.repository";
 import { listRooms } from "../rooms/room.repository";
+import { enqueueAdminAlert, enqueueNotification } from "../notifications/notification.service";
+import { notificationKeys } from "../notifications/notification.types";
 import {
   createBookingWithItems,
   expireOverdueHolds,
@@ -295,6 +297,12 @@ export async function createBooking(
       if (idempotencyKey) {
         cacheStore.set(`idempotency:${idempotencyKey}`, booking.id, IDEMPOTENCY_TTL_SECONDS);
       }
+      await enqueueNotification({
+        type: "BOOKING_RECEIVED",
+        recipient: booking.contact.email,
+        bookingId: booking.id,
+        idempotencyKey: notificationKeys.bookingReceived(booking.id),
+      });
       return { booking, items, idempotentReplay: false };
     } catch (error) {
       if (isDuplicateKeyError(error)) {
@@ -447,6 +455,27 @@ async function performCancel(
     );
   }
   const cancelledAt = new Date();
+  const notifyCancelled = async (finalBooking: Booking, refundProviderId: string | null) => {
+    await enqueueNotification({
+      type: "BOOKING_CANCELLED",
+      recipient: finalBooking.contact.email,
+      bookingId: finalBooking.id,
+      idempotencyKey: notificationKeys.bookingCancelled(finalBooking.id),
+    });
+    await enqueueAdminAlert({
+      type: "ADMIN_CANCELLATION",
+      bookingId: finalBooking.id,
+      idempotencyKey: notificationKeys.adminCancellation(finalBooking.id),
+    });
+    if (refundProviderId) {
+      await enqueueNotification({
+        type: "REFUND_UPDATED",
+        recipient: finalBooking.contact.email,
+        bookingId: finalBooking.id,
+        idempotencyKey: notificationKeys.refundUpdated(refundProviderId),
+      });
+    }
+  };
   if (paidTotal > 0 && evaluation.refundAmount > 0) {
     const refunding = await setBookingStatus(booking.id, "REFUND_PENDING", {
       cancellation: { cancelledAt, cancelledBy: actorId, reason },
@@ -455,13 +484,15 @@ async function performCancel(
     if (!refunding) {
       throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
     }
+    let refundProviderRefundId: string | null = null;
     try {
       const payments = await listPaymentsByBooking(booking.id);
       const source = payments.find((p) => p.status === "PAID" || p.status === "PARTIALLY_REFUNDED");
       if (!source) {
         throw new AppError("No captured payment to refund", 409, "NOTHING_TO_REFUND");
       }
-      await refundPayment(source.id, evaluation.refundAmount, actorId);
+      const { refund } = await refundPayment(source.id, evaluation.refundAmount, actorId);
+      refundProviderRefundId = refund.providerRefundId;
     } catch (error) {
       // Booking stays REFUND_PENDING: safe to retry via the refund action.
       // Webhook completion (charge.refunded) moves it to CANCELLED.
@@ -472,6 +503,7 @@ async function performCancel(
     if (!pending) {
       throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
     }
+    await notifyCancelled(pending, refundProviderRefundId);
     return pending;
   }
   const cancelled = await setBookingStatus(booking.id, "CANCELLED", {
@@ -481,6 +513,7 @@ async function performCancel(
   if (!cancelled) {
     throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
   }
+  await notifyCancelled(cancelled, null);
   return cancelled;
 }
 
@@ -539,5 +572,12 @@ export async function adminRefundBooking(
     throw new AppError("Refund amount exceeds the refundable balance", 400, "REFUND_EXCEEDS_CAPTURED");
   }
   const { refund } = await refundPayment(source.id, refundAmount, adminId);
+  await enqueueNotification({
+    type: "REFUND_UPDATED",
+    recipient: booking.contact.email,
+    bookingId: booking.id,
+    paymentId: source.id,
+    idempotencyKey: notificationKeys.refundUpdated(refund.providerRefundId),
+  });
   return { refundId: refund.id, amount: refund.amount };
 }

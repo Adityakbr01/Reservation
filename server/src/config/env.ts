@@ -28,6 +28,7 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().min(1).default("no-reply@voiceact.tech"),
   EMAIL_REPLY_TO: z.string().optional(),
+  ADMIN_NOTIFICATION_EMAIL: z.string().trim().toLowerCase().email().optional(),
   IMAGEKIT_PUBLIC_KEY: z.string().optional(),
   IMAGEKIT_PRIVATE_KEY: z.string().optional(),
   IMAGEKIT_URL_ENDPOINT: z.string().optional(),

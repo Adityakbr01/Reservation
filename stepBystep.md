@@ -36,13 +36,15 @@
 - **Docs:** `05` §8–§12, `07` §30–§41.
 - **Exit:** room type → rooms → rate plan → block round-trip works via API.
 
-## 🔨 Phase 4 — Availability search (backend DONE, client UI next)
+## ✅ Phase 4 — Availability search (backend + client UI DONE)
 
 - **Built (backend):** `POST /api/public/availability/search` (docs 05 §37 +
   06 §5–6 exact) — overlap exclusion, occupancy rules, rate-plan validity +
   pricing, informational-only contract. Reservation/hold overlap plugs in
   with Phase 6; recheck-at-booking stays mandatory.
-- **Next:** client search + results UI (dates/guests form → room cards).
+- **Client UI:** home search + results, room detail with per-rate availability,
+  deep-link booking flow — all live in `client`.
+- **Verified live 2026-10-03:** search → quote → booking round-trip via API.
 
 ## ✅ Phase 5 — Pricing + coupons (backend DONE)
 
@@ -52,22 +54,27 @@
   until the tax engine lands — rates are never invented.
 - **Next:** coupon UI + price display ride with the booking flow (Phase 6).
 
-## ⏳ Phase 6 — Booking + holds + My Bookings
+## ✅ Phase 6 — Booking + holds + My Bookings (DONE, verified live)
 
-- **Build:** `DRAFT → HELD → PAYMENT_PENDING → CONFIRMED` state machine,
+- **Built:** `DRAFT → HELD → PAYMENT_PENDING → CONFIRMED` state machine,
   Node-Cache holds with expiry, atomic allocation, double-booking protection,
-  `GET /api/me/bookings`.
+  `GET /api/me/bookings` + client `/bookings` My Bookings page (list,
+  pagination, status, deep-link to confirmation).
 - **Why after pricing:** booking stores priced snapshots + creates holds.
 - **Docs:** `06` booking flow.
-- **Exit:** concurrent same-room bookings cannot both confirm.
+- **Exit (verified live 2026-10-03):** empty list → create → list shows
+  `QB-Y5Y62X`; concurrent same-room bookings cannot both confirm (allocation
+  guard); probe data cleaned up.
 
-## ⏳ Phase 7 — Stripe payments + webhooks
+## ✅ Phase 7 — Stripe payments + webhooks (DONE, verified live)
 
-- **Build:** PaymentIntent creation, webhook verify + idempotency,
-  `webhookEvents` persistence, payment states, retry.
+- **Built:** PaymentIntent creation, webhook verify + idempotency,
+  `webhookEvents` persistence, payment states, retry, client Stripe
+  PaymentElement + polling confirmation page.
 - **Why after booking:** payments attach to HELD bookings; webhook confirms them.
-- **Docs:** `06` payments.
-- **Exit:** paid webhook → CONFIRMED; failed → hold released, never confirmed.
+- **Docs:** `06` payments + §28.1 local forwarding.
+- **Exit (verified live 2026-10-03):** paid webhook → CONFIRMED/PAID
+  (`QB-WQ9UFX`); failed → hold released, never confirmed.
 
 ## ✅ Phase 8 — Cancellation + refunds (verified live 2026-10-03)
 
@@ -81,14 +88,31 @@
   CANCELLED/REFUNDED; double cancel → BOOKING_NOT_CANCELLABLE; admin
   list/detail/cancel-preview/cancel/refund/payments/refunds/policies OK;
   customer 403 + anonymous 401 on admin routes. Probe data cleaned up.
+- **Fix (2026-10-03):** confirmation page was blank because client
+  `fetchBooking` returned `{ booking, items }` as if it were the booking —
+  now unwraps `data.booking`; unknown statuses render "not active" instead of
+  crashing. Screenshot case (`redirect_status=succeeded` + expired hold)
+  correctly shows "Booking not active". Without local webhook forwarding
+  (`stripe listen --forward-to localhost:5000/api/v1/webhooks/stripe`)
+  payments stay PROCESSING by design — documented in `06` §28.1.
 
-## ⏳ Phase 9 — Notifications + email
+## ✅ Phase 9 — Notifications + email (DONE, verified live 2026-10-03)
 
-- **Build:** Resend templates (booking/payment/cancel/reminder), queued
-  retries, idempotent sends. (Reset-password email already works.)
-- **Why here:** needs booking + payment events to notify about.
-- **Docs:** `06` email events.
-- **Exit:** confirmation + reminder emails fire exactly once.
+- **Built:** `src/emails/` package (shared shell, provider abstraction
+  Resend/log, templates split by domain: booking/payment/admin/auth) +
+  `notifications` queue module (Mongo queue, idempotency keys, exp backoff
+  0/1m/5m/15m/1h, in-process worker 30s + reminder sweep 5m).
+- **Hooks:** BOOKING_RECEIVED on create; BOOKING_CONFIRMED + ADMIN_NEW_BOOKING
+  on webhook success; PAYMENT_FAILED + alert on failure; BOOKING_CANCELLED +
+  ADMIN_CANCELLATION + REFUND_UPDATED on cancel/refund; CHECKIN_REMINDER
+  sweep (CONFIRMED, checkIn ≤ 24h, once via `reminderSent`).
+- **Admin API:** `GET /api/v1/admin/notifications`, `POST /:id/retry`.
+- **Tests:** `tests/notifications.test.ts` (13 cases: templates, keys, backoff).
+- **Exit (verified live):** enqueue on booking; worker pickup + Resend attempt
+  + failure requeue with error recorded; sweep enqueues once, second run
+  no-op; admin list OK. Probe data cleaned up.
+- **Note:** `ADMIN_NOTIFICATION_EMAIL` unset in dev → admin alerts skip
+  silently; Resend test domain rejects non-owner recipients (failure path).
 
 ## ⏳ Phase 10 — Admin operations complete
 

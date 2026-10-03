@@ -75,6 +75,6 @@ export async function updatePolicyById(
       ).exec();
     }
   }
-  const doc = await CancellationPolicyModel.findByIdAndUpdate(id, input, { new: true }).exec();
+  const doc = await CancellationPolicyModel.findByIdAndUpdate(id, input, { returnDocument: "after" }).exec();
   return doc ? toPolicy(doc) : null;
 }

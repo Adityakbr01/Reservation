@@ -51,9 +51,22 @@ export async function createPaymentIntent(bookingId: string): Promise<PaymentInt
   return unwrapResponse(response);
 }
 
+export interface MyBookingsResult {
+  bookings: Booking[];
+  meta: { page: number; limit: number; total: number; totalPages: number };
+}
+
+export async function fetchMyBookings(page = 1): Promise<MyBookingsResult> {
+  const response = await publicApiClient.get<ApiEnvelope<Booking[]>>("/me/bookings", {
+    params: { page },
+  });
+  return { bookings: unwrapResponse(response), meta: response.data.meta ?? { page, limit: 10, total: 0, totalPages: 0 } };
+}
+
 export async function fetchBooking(id: string): Promise<Booking> {
-  const response = await apiClient.get<ApiEnvelope<Booking>>(`/bookings/${id}`);
-  return unwrapResponse(response);
+  // Server returns `{ booking, items }` — unwrap so callers always see a Booking.
+  const response = await apiClient.get<ApiEnvelope<{ booking: Booking }>>(`/bookings/${id}`);
+  return unwrapResponse(response).booking;
 }
 
 export async function cancelBooking(id: string): Promise<Booking> {

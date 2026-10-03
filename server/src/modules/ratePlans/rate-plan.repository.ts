@@ -104,6 +104,6 @@ export async function updateRatePlanById(
   id: string,
   input: UpdateRatePlanInput,
 ): Promise<RatePlan | null> {
-  const doc = await RatePlanModel.findByIdAndUpdate(id, input, { new: true }).exec();
+  const doc = await RatePlanModel.findByIdAndUpdate(id, input, { returnDocument: "after" }).exec();
   return doc ? toRatePlan(doc) : null;
 }

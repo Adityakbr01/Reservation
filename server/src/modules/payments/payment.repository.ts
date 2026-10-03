@@ -76,7 +76,7 @@ export async function updatePaymentStatus(
         ...(update.paidAt !== undefined ? { paidAt: update.paidAt } : {}),
       },
     },
-    { new: true },
+    { returnDocument: "after" },
   ).exec();
   return doc ? toPayment(doc) : null;
 }

@@ -35,6 +35,6 @@ export interface UpdatePropertyInput {
 }
 
 export async function updateProperty(id: string, input: UpdatePropertyInput): Promise<Property | null> {
-  const doc = await PropertyModel.findByIdAndUpdate(id, input, { new: true }).exec();
+  const doc = await PropertyModel.findByIdAndUpdate(id, input, { returnDocument: "after" }).exec();
   return doc ? toProperty(doc) : null;
 }

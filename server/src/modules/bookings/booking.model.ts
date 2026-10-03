@@ -31,6 +31,7 @@ export interface BookingDocument extends mongoose.Document {
   };
   source: BookingSource;
   notes: string | null;
+  reminderSent: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -89,12 +90,14 @@ const bookingSchema = new mongoose.Schema<BookingDocument>(
     },
     source: { type: String, enum: BOOKING_SOURCES, default: "DIRECT", required: true },
     notes: { type: String, default: null },
+    reminderSent: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
 
 bookingSchema.index({ propertyId: 1, status: 1, checkIn: 1 });
 bookingSchema.index({ propertyId: 1, checkOut: 1 });
+bookingSchema.index({ status: 1, reminderSent: 1, checkIn: 1 });
 bookingSchema.index({ userId: 1, createdAt: -1 });
 bookingSchema.index({ contact: 1, createdAt: -1 });
 

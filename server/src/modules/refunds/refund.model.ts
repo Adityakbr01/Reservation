@@ -107,6 +107,14 @@ export async function recordRefund(input: RecordRefundInput): Promise<Refund | n
   }
 }
 
+/** Latest refund for a payment — drives the REFUND_UPDATED email context. */
+export async function findLatestRefundForPayment(paymentId: string): Promise<Refund | null> {
+  const doc = await RefundModel.findOne({ paymentId })
+    .sort({ createdAt: -1 })
+    .exec();
+  return doc ? toRefund(doc) : null;
+}
+
 /** Sum of succeeded refunds for a payment — our own records, not Stripe's counter. */
 export async function sumSucceededRefunds(paymentId: string): Promise<number> {
   const rows = await RefundModel.aggregate<{ total: number }>([
@@ -127,7 +135,7 @@ export async function markRefundSucceeded(providerRefundId: string): Promise<boo
   const updated = await RefundModel.findOneAndUpdate(
     { providerRefundId, status: "PENDING" },
     { $set: { status: "SUCCEEDED", processedAt: new Date() } },
-    { new: true },
+    { returnDocument: "after" },
   ).exec();
   return updated !== null;
 }

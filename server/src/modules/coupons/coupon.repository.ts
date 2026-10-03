@@ -102,7 +102,7 @@ export type UpdateCouponInput = Partial<
 >;
 
 export async function updateCouponById(id: string, input: UpdateCouponInput): Promise<Coupon | null> {
-  const doc = await CouponModel.findByIdAndUpdate(id, input, { new: true }).exec();
+  const doc = await CouponModel.findByIdAndUpdate(id, input, { returnDocument: "after" }).exec();
   return doc ? toCoupon(doc) : null;
 }
 
@@ -121,7 +121,7 @@ export async function consumeCouponUsage(
       $or: [{ usageLimit: null }, { $expr: { $lt: ["$usageCount", "$usageLimit"] } }],
     },
     { $inc: { usageCount: 1 } },
-    { new: true, session },
+    { returnDocument: "after", session },
   ).exec();
   return doc ? toCoupon(doc) : null;
 }
