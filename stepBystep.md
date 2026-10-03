@@ -26,7 +26,7 @@
   theme + Zustand session + full auth screens in `client` and `admin`.
 - **Why first:** everything below needs identity (ownership, RBAC, audit actor).
 
-## 🔨 Phase 3 — Inventory (current)
+## ✅ Phase 3 — Inventory (DONE: backend + admin UI)
 
 - **Build:** `properties` (singleton seed + update), `roomTypes`, `rooms`
   (physical), `ratePlans`, `availabilityBlocks` — backend CRUD + public reads.
@@ -36,13 +36,13 @@
 - **Docs:** `05` §8–§12, `07` §30–§41.
 - **Exit:** room type → rooms → rate plan → block round-trip works via API.
 
-## ⏳ Phase 4 — Availability search
+## 🔨 Phase 4 — Availability search (backend DONE, client UI next)
 
-- **Build:** `POST /api/public/availability/search` (overlap rule, exclusive
-  checkout), room hold queries, availability calendar reads.
-- **Why after inventory:** needs roomTypes + rooms + blocks + rate plans.
-- **Docs:** `05` availability, `06` search rules.
-- **Exit:** search returns only truly available types for date ranges.
+- **Built (backend):** `POST /api/public/availability/search` (docs 05 §37 +
+  06 §5–6 exact) — overlap exclusion, occupancy rules, rate-plan validity +
+  pricing, informational-only contract. Reservation/hold overlap plugs in
+  with Phase 6; recheck-at-booking stays mandatory.
+- **Next:** client search + results UI (dates/guests form → room cards).
 
 ## ⏳ Phase 5 — Pricing + coupons
 

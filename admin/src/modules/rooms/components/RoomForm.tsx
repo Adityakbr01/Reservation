@@ -114,6 +114,18 @@ export function RoomForm({ initial, submitLabel, isPending, onSubmit }: RoomForm
           />
         </div>
       </div>
+      <div className="flex items-center justify-between gap-4 rounded-md border border-input px-4 py-3">
+        <div className="space-y-0.5">
+          <Label htmlFor="room-maintenance">Under maintenance</Label>
+          <p className="text-xs text-muted-foreground">Blocked from new bookings until turned off</p>
+        </div>
+        <Switch
+          id="room-maintenance"
+          checked={status === "MAINTENANCE"}
+          onCheckedChange={(on) => setStatus(on ? "MAINTENANCE" : "INACTIVE")}
+          aria-label="Under maintenance"
+        />
+      </div>
       </div>
 
       <div className="space-y-2">

@@ -6,8 +6,10 @@ import {
   createBlockHandler,
   deleteBlockHandler,
   listBlocksHandler,
+  searchAvailabilityHandler,
 } from "./availability.controller";
 import { createBlockSchema, listBlocksQuerySchema } from "./availability.schema";
+import { searchAvailabilitySchema } from "./search.schema";
 
 export const adminAvailabilityRouter = Router();
 
@@ -22,4 +24,12 @@ adminAvailabilityRouter.delete(
   "/blocks/:id",
   validate({ params: blockIdParamsSchema }),
   deleteBlockHandler,
+);
+
+export const publicAvailabilityRouter = Router();
+
+publicAvailabilityRouter.post(
+  "/search",
+  validate({ body: searchAvailabilitySchema }),
+  searchAvailabilityHandler,
 );

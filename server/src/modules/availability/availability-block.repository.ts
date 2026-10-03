@@ -38,6 +38,23 @@ export async function findBlockById(id: string): Promise<AvailabilityBlock | nul
   return doc ? toAvailabilityBlock(doc) : null;
 }
 
+/**
+ * Room ids blocked for any night of [checkIn, checkOut).
+ * DB-level overlap predicate: blockStart < reqOut && blockEnd > reqIn.
+ */
+export async function findOverlappingBlockedRoomIds(
+  checkIn: Date,
+  checkOut: Date,
+): Promise<Set<string>> {
+  const docs = await AvailabilityBlockModel.find({
+    startDate: { $lt: checkOut },
+    endDate: { $gt: checkIn },
+  })
+    .select("roomId")
+    .exec();
+  return new Set(docs.map((doc) => doc.roomId.toString()));
+}
+
 export interface ListBlocksFilter extends PaginationQuery {
   roomId?: string;
   from?: Date;

@@ -7,7 +7,9 @@ import {
   deleteBlockRecord,
   listBlockRecords,
 } from "./availability.service";
+import { searchAvailability } from "./search.service";
 import type { CreateBlockInput, ListBlocksQuery } from "./availability.schema";
+import type { SearchAvailabilityInput } from "./search.schema";
 
 /** GET /api/v1/admin/availability — standard paginated list contract. */
 export const listBlocksHandler = asyncHandler(async (req: Request, res: Response) => {
@@ -26,4 +28,13 @@ export const createBlockHandler = asyncHandler(async (req: Request, res: Respons
 export const deleteBlockHandler = asyncHandler(async (req: Request, res: Response) => {
   await deleteBlockRecord(req.params.id as string);
   res.status(200).json({ success: true, data: { deleted: true } });
+});
+
+/**
+ * POST /api/public/availability/search — informational only, never a
+ * reservation. Final availability recheck happens at booking/hold time.
+ */
+export const searchAvailabilityHandler = asyncHandler(async (req: Request, res: Response) => {
+  const result = await searchAvailability(req.body as SearchAvailabilityInput);
+  res.status(200).json({ success: true, data: result });
 });

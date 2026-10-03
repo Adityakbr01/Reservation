@@ -7,7 +7,7 @@ import { notFound } from "./middleware/not-found";
 import { globalRateLimiter } from "./middleware/rate-limit";
 import { requestLogger } from "./middleware/request-logger";
 import { adminUsersRouter, authRouter } from "./modules/auth/auth.routes";
-import { adminAvailabilityRouter } from "./modules/availability/availability.routes";
+import { adminAvailabilityRouter, publicAvailabilityRouter } from "./modules/availability/availability.routes";
 import { adminPropertyRouter, publicPropertyRouter } from "./modules/properties/property.routes";
 import { adminRatePlansRouter } from "./modules/ratePlans/rate-plan.routes";
 import { adminRoomTypesRouter, publicRoomTypesRouter } from "./modules/roomTypes/room-type.routes";
@@ -34,6 +34,7 @@ export function createApp() {
   app.use("/api/v1/admin/users", adminUsersRouter);
   app.use("/api/public/property", publicPropertyRouter);
   app.use("/api/public/room-types", publicRoomTypesRouter);
+  app.use("/api/public/availability", publicAvailabilityRouter);
   app.use("/api/v1/admin/properties", adminPropertyRouter);
   app.use("/api/v1/admin/room-types", adminRoomTypesRouter);
   app.use("/api/v1/admin/rooms", adminRoomsRouter);
