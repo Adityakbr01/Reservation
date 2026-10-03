@@ -82,6 +82,10 @@ confirmation (where self-cancel lives).
   cannot check in on 2026-10-03 — correct behavior, not a bug).
 - Check-in/out stamps `stay.{checkedIn/OutAt/By}` and queues guest mails.
 - `CHECKED_IN` rooms stay inventory-blocked; `CHECKED_OUT` frees them.
+- **Move room** (admin, single-room active stays only): target must be the same
+  room type and free for the whole stay, else `ROOM_NO_LONGER_AVAILABLE`.
+  Early check-in is refused with `CHECKIN_NOT_ALLOWED` with the reason
+  (unpaid / too early / not confirmed).
 
 ---
 
@@ -90,6 +94,7 @@ confirmation (where self-cancel lives).
 | Screen | What it does |
 |---|---|
 | Dashboard | Inventory counts + today's ops (arrivals, departures, in-house, upcoming, awaiting payment, today's value) + alerts with deep links |
+| Sales | Today / 7-day / 30-day booked-vs-collected graph with momentum, net, per-room-type, **recent purchases** |
 | Sales | Today / 7-day / 30-day: booked vs collected graph, net, refunds, per-room-type, **recent purchases** |
 | Reservations | Search/filter/paginate, detail (guest, stay, pricing, payments, rooms), cancel + preview, refund retry, **check-in/out, move room** |
 | Customers | Accounts, booking history, paid/refunded totals, enable/disable (disabled = 403 on next login; nobody can disable themselves) |
@@ -109,7 +114,8 @@ confirmation (where self-cancel lives).
   backoff `0 / 1m / 5m / 15m / 1h` → then `FAILED` dead-letter for the monitor.
   Payloads carry routing only; templates render **fresh** data at send time.
 - **Reminder sweep** (every 5m): `CONFIRMED` bookings checking in within the
-  configured window get exactly one `CHECKIN_REMINDER` (`reminderSent` flag).
+  configured window (Settings → reminder hours, default 24) get exactly one
+  `CHECKIN_REMINDER` (`reminderSent` flag).
 - **Hold-expiry sweep** (every 60s, plus lazy on-request): dead holds → `EXPIRED`.
 - **Email failure never breaks booking/payment** — `CONFIRMED + FAILED-mail`
   is a valid state; the monitor + retry fixes delivery later.

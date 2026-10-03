@@ -140,9 +140,7 @@
   reserved/duplicate/invalid slugs rejected; preview resolves; FAQ sanitized;
   settings patch; sitemap/robots; media list. Probe data cleaned.
 
-## ✅ Phase 12 — Production hardening (DONE 2026-10-03)
-
-- **Built:** append-only `audit-logs` module (13 actions, curated snapshots —
+## ✅ Phase 12 — Production hardening (DONE 2026-10-03)- **Built:** append-only `audit-logs` module (13 actions, curated snapshots —
   no contact/secrets, actor + IP/UA, insert-only model with zero delete API),
   hooks in booking create/cancel, admin cancel/refund/check-in/out, customer
   enable/disable, CMS publish/unpublish/archive, settings, notification retry,

@@ -1,7 +1,7 @@
-# Project Status — Reservation Platform (2026-10-03)
+# Project Status — Reservation Platform (2026-10-03, evening)
 
 > Source of truth for what is DONE, what is REMAINING, and why.
-> Roadmap: `stepBystep.md`. Specs: `docs/`.
+> Roadmap: `stepBystep.md`. Flows: `FLOW.md`. Specs: `docs/`.
 
 ## ✅ DONE (implemented + tested)
 
@@ -34,8 +34,13 @@
   robots.
 - **Audit logs** — append-only, curated snapshots (no secrets), 13 actions,
   admin list API. Unit-tested (snapshot + context tests).
-- **Tests** — 78 bun tests green (`notifications`, `stay`, `cms`, `audit`,
-  `cancellation`, `webhook`, …), `tsc` + `oxlint` clean.
+- **Tests** — 83 bun tests green (`notifications`, `stay`, `cms`, `audit`,
+  `sales`, `calendar`, `cancellation`, `webhook`, …), `tsc` + `oxlint` clean.
+- **Images end-to-end** — media resolve APIs, pickers in room-type/blog/offer/
+  page/settings editors, real photos on guest cards + detail + CMS renders.
+- **Move room, payment detail, per-guest coupon caps, reminder window,
+  hold-expiry timer, wide audit trail, admin month grid, all 12 CMS blocks,
+  guest blog/FAQ/offers/policy pages** — all built + probed (see below).
 
 ### Admin (`admin/src`) — builds green
 Dashboard (inventory + ops snapshot + alerts), reservations (list/detail,
@@ -51,25 +56,6 @@ page (all states, crash-proof), **My Bookings** list + pagination, coupon
 input, cancel flow.
 
 ## ❌ REMAINING (not implemented)
-
-### Server — small, well-specified
-1. **Coupon per-user limit** (`07 §52`) — `usageLimit` exists; per-user cap missing.
-2. **Room reassignment** (`07 §29`) — move a booking to another free room; no endpoint.
-3. **Payment detail endpoint** (`07 §48`) — list exists; deep single-payment view missing.
-4. **Configurable reminder window** (`06 §41`) — check-in reminder hardcoded to 24h.
-5. **Hold-expiry timer worker** (`06 §50`) — expiry is lazy (on-request) only; add a
-   30–60s sweep for expiry + stale `PAYMENT_PENDING` detection.
-6. **Wider audit hooks** — inventory/pricing/coupon-create/room edits not yet audited.
-
-### Admin UI
-7. **Availability calendar grid** (`07 §36–37`) — blocks list only, no calendar view.
-8. **Full section editor** — HERO/EDITORIAL/CTA/FAQ blocks editable; other 8 block
-   kinds are API-only. No image-picker wiring (media IDs pasted manually).
-
-### Client UI
-9. **Public CMS pages** — blog list/post, FAQs, offers, policies, custom pages.
-   APIs are live (`/api/public/cms/*`); no screens built.
-10. **Room showcase content** — `ROOM_SHOWCASE` refs exist in API; no display.
 
 ### Deliberately deferred (needs product decision, not code)
 - Extra roles (SuperAdmin/Manager/Editor) — system runs on `user`/`admin` only.
