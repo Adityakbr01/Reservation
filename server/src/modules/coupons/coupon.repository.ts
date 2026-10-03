@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import type { QueryFilter } from "mongoose";
 import type { PaginationQuery } from "../../utils/pagination";
 import { paginatedResponse } from "../../utils/pagination";
@@ -102,5 +103,25 @@ export type UpdateCouponInput = Partial<
 
 export async function updateCouponById(id: string, input: UpdateCouponInput): Promise<Coupon | null> {
   const doc = await CouponModel.findByIdAndUpdate(id, input, { new: true }).exec();
+  return doc ? toCoupon(doc) : null;
+}
+
+/**
+ * Atomically consumes one usage IFF the limit is not yet reached.
+ * Returns null when exhausted (or missing) so concurrent bookings can
+ * never overshoot usageLimit — checked again inside the booking txn.
+ */
+export async function consumeCouponUsage(
+  id: string,
+  session?: mongoose.ClientSession,
+): Promise<Coupon | null> {
+  const doc = await CouponModel.findOneAndUpdate(
+    {
+      _id: id,
+      $or: [{ usageLimit: null }, { $expr: { $lt: ["$usageCount", "$usageLimit"] } }],
+    },
+    { $inc: { usageCount: 1 } },
+    { new: true, session },
+  ).exec();
   return doc ? toCoupon(doc) : null;
 }

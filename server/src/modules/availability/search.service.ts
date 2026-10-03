@@ -1,5 +1,7 @@
 import { AppError } from "../../utils/app-error";
 import { isValidStayRange } from "../../utils/availability";
+import { findConflictingBookingRoomIds } from "../bookings/booking.repository";
+import { findHeldRoomIds } from "../bookings/hold.store";
 import { getProperty } from "../properties/property.service";
 import { listRatePlans } from "../ratePlans/rate-plan.repository";
 import { listRoomTypes } from "../roomTypes/room-type.repository";
@@ -49,8 +51,8 @@ function pricePlan(plan: RatePlan, nights: number): SearchRate {
 
 /**
  * Availability search (docs 06 §5). Informational only — never a reservation.
- * Excludes manual blocks + non-ACTIVE rooms. Reservation/hold overlap plugs
- * in with Phase 6 (bookings module); the final recheck + hold stays mandatory.
+ * Excludes manual blocks, conflicting reservations/holds, and non-ACTIVE
+ * rooms. The final recheck + hold at booking time stays mandatory.
  */
 export async function searchAvailability(input: SearchAvailabilityInput): Promise<SearchResponse> {
   const { checkIn, checkOut, adults, children, rooms: roomsWanted } = input;
@@ -79,10 +81,15 @@ export async function searchAvailability(input: SearchAvailabilityInput): Promis
     listRooms({ page: 1, limit: 2000, status: "ACTIVE" }),
     findOverlappingBlockedRoomIds(checkIn, checkOut),
   ]);
+  const allRoomIds = roomsPage.data.map((room) => room.id);
+  const bookingBlocked = await findConflictingBookingRoomIds(allRoomIds, checkIn, checkOut);
+  const heldIds = findHeldRoomIds(allRoomIds, checkIn, checkOut);
 
   const roomsByType = new Map<string, string[]>();
   for (const room of roomsPage.data) {
-    if (blockedRoomIds.has(room.id)) continue;
+    if (blockedRoomIds.has(room.id) || bookingBlocked.has(room.id) || heldIds.has(room.id)) {
+      continue;
+    }
     const list = roomsByType.get(room.roomTypeId) ?? [];
     list.push(room.id);
     roomsByType.set(room.roomTypeId, list);

@@ -23,6 +23,8 @@ export interface CouponEvaluation {
   valid: boolean;
   code: string;
   reason?: string;
+  /** Present whenever the coupon record exists (even when unusable). */
+  couponId?: string;
   discountType?: Coupon["discountType"];
   discountValue?: number;
   /** Minor units. Zero when invalid or when no subtotal was supplied. */
@@ -53,28 +55,30 @@ export async function evaluateCoupon(
     return {
       valid: false,
       code: normalizedCode,
+      couponId: coupon.id,
       reason: coupon.status === "EXPIRED" ? "COUPON_EXPIRED" : "COUPON_INACTIVE",
       discount: 0,
     };
   }
   if ((coupon.validFrom && coupon.validFrom.getTime() > now.getTime()) ||
     (coupon.validUntil && coupon.validUntil.getTime() < now.getTime())) {
-    return { valid: false, code: normalizedCode, reason: "COUPON_EXPIRED", discount: 0 };
+    return { valid: false, code: normalizedCode, couponId: coupon.id, reason: "COUPON_EXPIRED", discount: 0 };
   }
   if (coupon.usageLimit !== null && coupon.usageCount >= coupon.usageLimit) {
-    return { valid: false, code: normalizedCode, reason: "COUPON_LIMIT_REACHED", discount: 0 };
+    return { valid: false, code: normalizedCode, couponId: coupon.id, reason: "COUPON_LIMIT_REACHED", discount: 0 };
   }
   if (options.roomTypeId && coupon.applicableRoomTypeIds.length > 0 &&
     !coupon.applicableRoomTypeIds.includes(options.roomTypeId)) {
-    return { valid: false, code: normalizedCode, reason: "COUPON_NOT_APPLICABLE", discount: 0 };
+    return { valid: false, code: normalizedCode, couponId: coupon.id, reason: "COUPON_NOT_APPLICABLE", discount: 0 };
   }
   const subtotal = options.subtotal ?? 0;
   if (coupon.minimumBookingAmount !== null && subtotal < coupon.minimumBookingAmount) {
-    return { valid: false, code: normalizedCode, reason: "COUPON_MINIMUM_NOT_MET", discount: 0 };
+    return { valid: false, code: normalizedCode, couponId: coupon.id, reason: "COUPON_MINIMUM_NOT_MET", discount: 0 };
   }
   return {
     valid: true,
     code: normalizedCode,
+    couponId: coupon.id,
     discountType: coupon.discountType,
     discountValue: coupon.discountValue,
     discount: applyDiscount(subtotal, {

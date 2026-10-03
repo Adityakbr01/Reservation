@@ -8,7 +8,7 @@ import { globalRateLimiter } from "./middleware/rate-limit";
 import { requestLogger } from "./middleware/request-logger";
 import { adminUsersRouter, authRouter } from "./modules/auth/auth.routes";
 import { adminAvailabilityRouter, publicAvailabilityRouter } from "./modules/availability/availability.routes";
-import { bookingsRouter } from "./modules/bookings/bookings.routes";
+import { bookingsRouter, meBookingsRouter } from "./modules/bookings/bookings.routes";
 import { adminCouponsRouter, publicCouponsRouter } from "./modules/coupons/coupon.routes";
 import { adminPropertyRouter, publicPropertyRouter } from "./modules/properties/property.routes";
 import { adminRatePlansRouter } from "./modules/ratePlans/rate-plan.routes";
@@ -39,6 +39,7 @@ export function createApp() {
   app.use("/api/public/availability", publicAvailabilityRouter);
   app.use("/api/public/coupons", publicCouponsRouter);
   app.use("/api/v1/bookings", bookingsRouter);
+  app.use("/api/me/bookings", meBookingsRouter);
   app.use("/api/v1/admin/coupons", adminCouponsRouter);
   app.use("/api/v1/admin/properties", adminPropertyRouter);
   app.use("/api/v1/admin/room-types", adminRoomTypesRouter);
