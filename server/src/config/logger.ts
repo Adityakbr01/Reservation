@@ -1,13 +1,28 @@
 import winston from "winston";
 import { env } from "./env";
 
+const prettyPrint = winston.format.printf((info) => {
+  const { timestamp, level, message, service, env: envName, ...meta } = info;
+  const fields = Object.keys(meta).length > 0 ? ` ${JSON.stringify(meta)}` : "";
+  return `${String(timestamp)} [${String(service)}:${String(envName)}] ${String(level)}: ${String(message)}${fields}`;
+});
+
 const inner = winston.createLogger({
   level: env.LOG_LEVEL,
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.errors({ stack: true }),
-    winston.format.json(),
-  ),
+  // Human-readable colorized logs locally; machine-readable JSON in production.
+  format:
+    env.NODE_ENV === "production"
+      ? winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.errors({ stack: true }),
+          winston.format.json(),
+        )
+      : winston.format.combine(
+          winston.format.colorize(),
+          winston.format.timestamp({ format: "HH:mm:ss" }),
+          winston.format.errors({ stack: true }),
+          prettyPrint,
+        ),
   defaultMeta: { service: "reservation-api", env: env.NODE_ENV },
   transports: [new winston.transports.Console()],
 });

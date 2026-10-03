@@ -2,7 +2,7 @@ import type { Server } from "node:http";
 import { createApp } from "./app";
 import { closeCache } from "./config/cache";
 import { connectDatabase, disconnectDatabase } from "./config/database";
-import { env } from "./config/env";
+import { env, isProduction } from "./config/env";
 import { logger } from "./config/logger";
 
 async function boot(): Promise<void> {
@@ -17,6 +17,9 @@ async function boot(): Promise<void> {
 
   const shutdown = (signal: string): void => {
     logger.info(`Received ${signal}, shutting down gracefully`);
+    // Drop idle keep-alive connections so close() does not wait on them.
+    // The ?. guard keeps this safe on runtimes without the API.
+    server.closeIdleConnections?.();
     server.close(() => {
       void (async () => {
         try {
@@ -27,8 +30,12 @@ async function boot(): Promise<void> {
         }
       })();
     });
-    // Force-exit if connections refuse to drain.
-    setTimeout(() => process.exit(1), 10_000).unref();
+    // Force-exit if connections refuse to drain. Non-zero in production so
+    // orchestrators can tell a hung shutdown apart from a clean one.
+    setTimeout(() => {
+      logger.warn("Shutdown timed out, forcing exit");
+      process.exit(isProduction ? 1 : 0);
+    }, 10_000).unref();
   };
 
   process.on("SIGINT", () => shutdown("SIGINT"));
