@@ -10,6 +10,8 @@ import { adminUsersRouter, authRouter } from "./modules/auth/auth.routes";
 import { adminAvailabilityRouter, publicAvailabilityRouter } from "./modules/availability/availability.routes";
 import { bookingsRouter, meBookingsRouter } from "./modules/bookings/bookings.routes";
 import { adminCouponsRouter, publicCouponsRouter } from "./modules/coupons/coupon.routes";
+import { paymentsRouter } from "./modules/payments/payment.routes";
+import { webhookRouter } from "./modules/webhooks/webhook.routes";
 import { adminPropertyRouter, publicPropertyRouter } from "./modules/properties/property.routes";
 import { adminRatePlansRouter } from "./modules/ratePlans/rate-plan.routes";
 import { adminRoomTypesRouter, publicRoomTypesRouter } from "./modules/roomTypes/room-type.routes";
@@ -24,9 +26,9 @@ export function createApp() {
   app.use(cors({ origin: [env.CLIENT_URL, env.ADMIN_URL], credentials: true }));
   app.use(requestLogger);
 
-  // IMPORTANT: when the Stripe webhook route lands, mount it HERE with
-  // express.raw({ type: "application/json" }) BEFORE express.json().
-  // JSON parsing the webhook body breaks Stripe signature verification.
+  // Stripe webhooks need the RAW body for signature verification, so this
+  // mount sits BEFORE express.json(). Moving it below breaks verification.
+  app.use("/api/v1/webhooks/stripe", express.raw({ type: "application/json" }), webhookRouter);
 
   app.use(express.json({ limit: "1mb" }));
   app.use(globalRateLimiter);
@@ -40,6 +42,7 @@ export function createApp() {
   app.use("/api/public/coupons", publicCouponsRouter);
   app.use("/api/v1/bookings", bookingsRouter);
   app.use("/api/me/bookings", meBookingsRouter);
+  app.use("/api/v1/payments", paymentsRouter);
   app.use("/api/v1/admin/coupons", adminCouponsRouter);
   app.use("/api/v1/admin/properties", adminPropertyRouter);
   app.use("/api/v1/admin/room-types", adminRoomTypesRouter);

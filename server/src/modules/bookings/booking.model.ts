@@ -93,7 +93,6 @@ const bookingSchema = new mongoose.Schema<BookingDocument>(
   { timestamps: true },
 );
 
-bookingSchema.index({ bookingNumber: 1 }, { unique: true });
 bookingSchema.index({ propertyId: 1, status: 1, checkIn: 1 });
 bookingSchema.index({ propertyId: 1, checkOut: 1 });
 bookingSchema.index({ userId: 1, createdAt: -1 });
