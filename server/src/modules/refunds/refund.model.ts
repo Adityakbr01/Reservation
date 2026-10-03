@@ -108,11 +108,28 @@ export async function recordRefund(input: RecordRefundInput): Promise<Refund | n
 }
 
 /** Sum of succeeded refunds for a payment — our own records, not Stripe's counter. */
-export async function sumSucceededRefunds(paymentId: string): Promise<number> {  const rows = await RefundModel.aggregate<{ total: number }>([
+export async function sumSucceededRefunds(paymentId: string): Promise<number> {
+  const rows = await RefundModel.aggregate<{ total: number }>([
     { $match: { paymentId: new mongoose.Types.ObjectId(paymentId), status: "SUCCEEDED" } },
     { $group: { _id: null, total: { $sum: "$amount" } } },
   ]).exec();
   return rows[0]?.total ?? 0;
+}
+
+/**
+ * Promotes an already-recorded PENDING refund to SUCCEEDED once the
+ * provider confirms it. Returns true when a transition happened; false
+ * when the record was already terminal (idempotent repeat deliveries).
+ * Async provider refunds (PENDING at creation) only become countable
+ * through this path, so the webhook must call it before reconciling.
+ */
+export async function markRefundSucceeded(providerRefundId: string): Promise<boolean> {
+  const updated = await RefundModel.findOneAndUpdate(
+    { providerRefundId, status: "PENDING" },
+    { $set: { status: "SUCCEEDED", processedAt: new Date() } },
+    { new: true },
+  ).exec();
+  return updated !== null;
 }
 
 export interface ListRefundsFilter {

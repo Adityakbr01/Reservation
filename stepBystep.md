@@ -69,12 +69,18 @@
 - **Docs:** `06` payments.
 - **Exit:** paid webhook → CONFIRMED; failed → hold released, never confirmed.
 
-## ⏳ Phase 8 — Cancellation + refunds
+## ✅ Phase 8 — Cancellation + refunds (verified live 2026-10-03)
 
-- **Build:** cancel rules, refund states, Stripe refunds, reconciliation.
-- **Why after payments:** refunds reverse completed payments.
+- **Built:** policy engine (`freeCancellationHours: 24`, full % refund),
+  customer + admin cancel, `REFUND_PENDING`, Stripe refunds, `markRefundSucceeded`
+  + unconditional webhook reconciliation (`handleRefunded` finalizes even when
+  the refund was recorded synchronously-succeeded at creation time).
 - **Docs:** `06` cancel/refund.
-- **Exit:** cancel → refund recorded, inventory freed.
+- **Exit (all probed live, test mode):** unpaid cancel → CANCELLED, zero refund;
+  paid cancel → REFUND_PENDING + real Stripe refund → `charge.refunded` →
+  CANCELLED/REFUNDED; double cancel → BOOKING_NOT_CANCELLABLE; admin
+  list/detail/cancel-preview/cancel/refund/payments/refunds/policies OK;
+  customer 403 + anonymous 401 on admin routes. Probe data cleaned up.
 
 ## ⏳ Phase 9 — Notifications + email
 

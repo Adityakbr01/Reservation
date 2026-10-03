@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatMoney } from "@/lib/money";
-import { useBookingStatus } from "../hooks/use-booking";
+import { useBookingStatus, useCancelBooking } from "../hooks/use-booking";
 
 function formatDate(value: string): string {
   const date = new Date(value);
@@ -17,7 +18,9 @@ function formatDate(value: string): string {
 
 export function BookingConfirmationPage() {
   const { id = "" } = useParams();
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
   const { data: booking, isPending, isError, refetch } = useBookingStatus(id === "" ? null : id);
+  const cancelMutation = useCancelBooking();
 
   if (isPending) {
     return (
@@ -91,6 +94,33 @@ export function BookingConfirmationPage() {
             <Button asChild variant="outline" className="w-full rounded-full">
               <Link to="/">Book another stay</Link>
             </Button>
+            {confirmingCancel ? (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1 rounded-full"
+                  onClick={() => setConfirmingCancel(false)}
+                >
+                  Keep it
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="flex-1 rounded-full"
+                  disabled={cancelMutation.isPending}
+                  onClick={() => cancelMutation.mutate(booking.id)}
+                >
+                  {cancelMutation.isPending ? "Cancelling…" : "Yes, cancel"}
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="ghost"
+                className="w-full rounded-full text-muted-foreground"
+                onClick={() => setConfirmingCancel(true)}
+              >
+                Cancel this booking
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>

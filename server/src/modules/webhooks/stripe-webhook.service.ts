@@ -6,7 +6,7 @@ import { isDuplicateKeyError } from "../../utils/mongo";
 import { getStripe } from "../../integrations/stripe/stripe.client";
 import { setBookingStatus } from "../bookings/booking.repository";
 import { findPaymentByIntentId, updatePaymentStatus } from "../payments/payment.repository";
-import { recordRefund, sumSucceededRefunds } from "../refunds/refund.model";
+import { markRefundSucceeded, recordRefund, sumSucceededRefunds } from "../refunds/refund.model";
 import { findBookingById } from "../bookings/booking.repository";
 import { releaseBookingHolds } from "../bookings/hold.store";
 import { findBookingItems } from "../bookings/booking.repository";
@@ -157,7 +157,6 @@ async function handleRefunded(event: Stripe.Event): Promise<void> {
   // authoritative list is fetched. Only succeeded refunds count.
   const stripe = getStripe();
   const list = await stripe.refunds.list({ payment_intent: intentId, limit: 10 });
-  let changed = false;
   for (const refund of list.data) {
     if (refund.status !== "succeeded") continue;
     const recorded = await recordRefund({
@@ -169,19 +168,26 @@ async function handleRefunded(event: Stripe.Event): Promise<void> {
       status: "SUCCEEDED",
       processedAt: new Date(),
     });
-    if (recorded) changed = true;
+    // Null means already recorded — synchronously-succeeded refunds are
+    // stored at creation time, async ones may still sit at PENDING.
+    if (!recorded) await markRefundSucceeded(refund.id);
   }
-  if (!changed) return;
+  // Reconcile unconditionally: a synchronously-succeeded refund is already
+  // recorded before this event arrives, so gating on "changed" would leave
+  // the payment at PAID and the booking at REFUND_PENDING forever. All
+  // writes below are idempotent state sets, safe on repeat deliveries.
   const refundedSoFar = await sumSucceededRefunds(payment.id);
   const refundStatus = refundedSoFar >= payment.amount ? "REFUNDED" : "PARTIALLY_REFUNDED";
-  await updatePaymentStatus(payment.id, { status: refundStatus });
+  if (payment.status !== refundStatus) {
+    await updatePaymentStatus(payment.id, { status: refundStatus });
+  }
   const refundedBooking = await findBookingById(payment.bookingId);
   if (refundedBooking) {
     // A fully refunded REFUND_PENDING booking completes its cancellation.
     // Anything else keeps its status; only the payment state changes.
     if (refundStatus === "REFUNDED" && refundedBooking.status === "REFUND_PENDING") {
       await setBookingStatus(refundedBooking.id, "CANCELLED", { paymentStatus: refundStatus });
-    } else {
+    } else if (refundedBooking.paymentStatus !== refundStatus) {
       await setBookingStatus(refundedBooking.id, refundedBooking.status, { paymentStatus: refundStatus });
     }
   }

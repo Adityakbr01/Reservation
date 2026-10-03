@@ -19,6 +19,7 @@ import {
   useCancelReservation,
   useReservation,
 } from "../hooks/use-reservations";
+import { useRefundBooking } from "../../payments/hooks/use-payments";
 
 const CANCELLABLE = ["HELD", "PAYMENT_PENDING", "CONFIRMED"];
 
@@ -37,6 +38,7 @@ export function ReservationDetailPage() {
   const { data, isPending, isError, refetch } = useReservation(id);
   const previewQuery = useCancelPreview(id, showCancel);
   const cancelMutation = useCancelReservation(id);
+  const refundMutation = useRefundBooking(id);
 
   if (isPending) {
     return (
@@ -104,6 +106,16 @@ export function ReservationDetailPage() {
               }}
             >
               Cancel booking
+            </Button>
+          )}
+          {booking.status === "REFUND_PENDING" && (
+            <Button
+              variant="outline"
+              className="rounded-full"
+              disabled={refundMutation.isPending}
+              onClick={() => refundMutation.mutate(null)}
+            >
+              {refundMutation.isPending ? "Retrying…" : "Retry refund"}
             </Button>
           )}
         </div>

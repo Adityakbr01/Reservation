@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { getApiErrorMessage } from "@/lib/api-client";
 import { bookingKeys } from "@/lib/query-keys";
 import {
+  cancelBooking,
   createBooking,
   createPaymentIntent,
   fetchBooking,
@@ -56,6 +57,18 @@ export function useValidateCoupon() {
       } else {
         toast.error(data.reason ?? "This coupon cannot be applied");
       }
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error));
+    },
+  });
+}
+
+export function useCancelBooking() {
+  return useMutation({
+    mutationFn: cancelBooking,
+    onSuccess: () => {
+      toast.success("Booking cancelled");
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error));

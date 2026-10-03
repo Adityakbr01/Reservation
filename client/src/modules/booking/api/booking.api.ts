@@ -56,6 +56,11 @@ export async function fetchBooking(id: string): Promise<Booking> {
   return unwrapResponse(response);
 }
 
+export async function cancelBooking(id: string): Promise<Booking> {
+  const response = await apiClient.post<ApiEnvelope<Booking>>(`/bookings/${id}/cancel`, {});
+  return unwrapResponse(response);
+}
+
 export async function validateCouponCode(code: string): Promise<CouponCheck> {
   const response = await publicApiClient.post<ApiEnvelope<CouponCheck>>("/public/coupons/validate", {
     code,
