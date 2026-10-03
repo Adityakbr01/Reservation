@@ -126,6 +126,11 @@ export async function resetPassword(input: ResetPasswordInput): Promise<void> {
   if (!doc) {
     throw new AppError("Reset link is invalid or has expired", 400, "RESET_TOKEN_INVALID");
   }
+  // Defense in depth: the token may predate a suspension (forgot-password
+  // itself issues no new tokens to inactive accounts).
+  if (!doc.isActive) {
+    throw new AppError("This account has been suspended", 403, "ACCOUNT_SUSPENDED");
+  }
   const passwordHash = await bcrypt.hash(input.password, BCRYPT_ROUNDS);
   await updateUserById(doc._id.toString(), {
     passwordHash,
@@ -191,6 +196,13 @@ export async function changePassword(
   const doc = await findUserByIdWithHash(userId);
   if (!doc) {
     throw new AppError("Account not found", 404, "USER_NOT_FOUND");
+  }
+  if (currentPassword === newPassword) {
+    throw new AppError(
+      "New password must be different from the current password",
+      400,
+      "PASSWORD_UNCHANGED",
+    );
   }
   const matches = await bcrypt.compare(currentPassword, doc.passwordHash);
   if (!matches) {

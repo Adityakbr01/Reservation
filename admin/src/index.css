@@ -183,6 +183,11 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
+  /* Brand interaction: pointer cursor on all actionable buttons. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
   /* Brand typographic voice: light display headings. */
   h1,
   h2,

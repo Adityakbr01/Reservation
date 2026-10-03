@@ -25,6 +25,9 @@ export function ForgotPasswordForm() {
           If an account exists for <span className="font-medium text-foreground">{form.email}</span>,
           a reset link is on its way. Check your inbox.
         </p>
+        <p className="text-xs text-muted-foreground">
+          Staff access is provisioned by your administrator.
+        </p>
         <Button asChild variant="outline" className="w-full rounded-full">
           <Link to="/login">Back to sign in</Link>
         </Button>
