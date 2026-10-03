@@ -25,6 +25,7 @@ export interface SearchResultRoomType {
   maxOccupancy: number;
   shortDescription: string | null;
   amenities: string[];
+  images?: Array<{ mediaId: string; altText: string | null; sortOrder: number }>;
 }
 
 export interface SearchResultItem {

@@ -13,6 +13,7 @@ import { RatePlanCreatePage, RatePlanEditPage, RatePlansPage } from "@/modules/r
 import { AvailabilityPage } from "@/modules/availability";
 import { ReservationDetailPage, ReservationsPage } from "@/modules/reservations";
 import { PaymentsPage } from "@/modules/payments";
+import { PaymentDetailPage } from "@/modules/payments/pages/PaymentDetailPage";
 import { CustomerDetailPage, CustomersPage } from "@/modules/customers";
 import { CouponCreatePage, CouponEditPage, CouponsPage } from "@/modules/coupons";
 import { NotificationsPage } from "@/modules/notifications";
@@ -195,6 +196,14 @@ export function AppRoutes() {
             element={
               <RequireAdmin>
                 <PaymentsPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="payments/:id"
+            element={
+              <RequireAdmin>
+                <PaymentDetailPage />
               </RequireAdmin>
             }
           />

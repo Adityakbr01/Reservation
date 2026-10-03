@@ -10,12 +10,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ImageField } from "@/components/common/ImageField";
 
 const TEXTAREA_CLASS =
   "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
 import type { PageSection } from "../types/cms.types";
 
-const BLOCK_KINDS = ["HERO", "EDITORIAL_TEXT", "CTA", "FAQ"] as const;
+const BLOCK_KINDS = [
+  "HERO",
+  "EDITORIAL_TEXT",
+  "SPLIT_CONTENT",
+  "IMAGE_GALLERY",
+  "ROOM_SHOWCASE",
+  "FEATURE_GRID",
+  "OFFER_CARD",
+  "FAQ",
+  "TESTIMONIALS",
+  "LOCATION",
+  "CTA",
+  "CONTACT",
+] as const;
 
 interface SectionsEditorProps {
   value: PageSection[];
@@ -84,6 +98,13 @@ export function SectionsEditor({ value, onChange }: SectionsEditorProps) {
           </div>
           {(section.kind === "HERO" || section.kind === "CTA") && (
             <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1 sm:col-span-2">
+                <ImageField
+                  label="Background image"
+                  mediaId={section.imageMediaId ?? null}
+                  onChange={(mediaId) => patch(index, { imageMediaId: mediaId })}
+                />
+              </div>
               <div className="space-y-1">
                 <Label>Heading</Label>
                 <Input
@@ -130,6 +151,114 @@ export function SectionsEditor({ value, onChange }: SectionsEditorProps) {
               <Input
                 value={section.category ?? ""}
                 onChange={(e) => patch(index, { category: e.target.value })}
+              />
+            </div>
+          )}
+          {(section.kind === "SPLIT_CONTENT" || section.kind === "LOCATION" || section.kind === "CONTACT") && (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <Label>Heading</Label>
+                <Input
+                  value={section.heading ?? ""}
+                  onChange={(e) => patch(index, { heading: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Subheading</Label>
+                <Input
+                  value={section.subheading ?? ""}
+                  onChange={(e) => patch(index, { subheading: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1 sm:col-span-2">
+                <Label>Body (simple HTML allowed)</Label>
+                <textarea className={TEXTAREA_CLASS}
+                  rows={4}
+                  value={section.html ?? ""}
+                  onChange={(e) => patch(index, { html: e.target.value })}
+                />
+              </div>
+            </div>
+          )}
+          {section.kind === "IMAGE_GALLERY" && (
+            <div className="space-y-1">
+              <Label>Media IDs (comma separated — pick from Media, paste ids)</Label>
+              <Input
+                value={(section.mediaIds ?? []).join(", ")}
+                onChange={(e) =>
+                  patch(index, {
+                    mediaIds: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                  })
+                }
+                placeholder="65f…, 65f…"
+              />
+            </div>
+          )}
+          {section.kind === "ROOM_SHOWCASE" && (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <Label>Heading</Label>
+                <Input
+                  value={section.heading ?? ""}
+                  onChange={(e) => patch(index, { heading: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Room type IDs (comma separated)</Label>
+                <Input
+                  value={(section.roomTypeIds ?? []).join(", ")}
+                  onChange={(e) =>
+                    patch(index, {
+                      roomTypeIds: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                    })
+                  }
+                />
+              </div>
+            </div>
+          )}
+          {section.kind === "FEATURE_GRID" && (
+            <div className="space-y-1">
+              <Label>Features (one per line: Title | text)</Label>
+              <textarea className={TEXTAREA_CLASS}
+                rows={4}
+                value={(section.features ?? []).map((f) => `${f.title} | ${f.text}`).join("\n")}
+                onChange={(e) =>
+                  patch(index, {
+                    features: e.target.value
+                      .split("\n")
+                      .map((line) => line.split("|").map((s) => s.trim()))
+                      .filter((parts) => parts[0])
+                      .map((parts) => ({ title: parts[0] as string, text: parts[1] ?? "" })),
+                  })
+                }
+              />
+            </div>
+          )}
+          {section.kind === "OFFER_CARD" && (
+            <div className="space-y-1">
+              <Label>Offer ID</Label>
+              <Input
+                value={section.offerId ?? ""}
+                onChange={(e) => patch(index, { offerId: e.target.value.trim() || null })}
+                placeholder="Mongo ObjectId of a PUBLISHED offer"
+              />
+            </div>
+          )}
+          {section.kind === "TESTIMONIALS" && (
+            <div className="space-y-1">
+              <Label>Testimonials (one per line: quote | name)</Label>
+              <textarea className={TEXTAREA_CLASS}
+                rows={4}
+                value={(section.entries ?? []).map((t) => `${t.quote} | ${t.name}`).join("\n")}
+                onChange={(e) =>
+                  patch(index, {
+                    entries: e.target.value
+                      .split("\n")
+                      .map((line) => line.split("|").map((s) => s.trim()))
+                      .filter((parts) => parts[0])
+                      .map((parts) => ({ quote: parts[0] as string, name: parts[1] ?? "" })),
+                  })
+                }
               />
             </div>
           )}

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusButtons } from "../components/StatusButtons";
+import { ImageField } from "@/components/common/ImageField";
 import { PageFields, SubmitBar } from "../components/PageForm";
 import { useBlog, useSaveBlog, useSetBlogStatus } from "../hooks/use-cms";
 import type { ContentStatus } from "../types/cms.types";
@@ -43,6 +44,7 @@ export function BlogEditPage({ mode }: { mode: "create" | "edit" }) {
               author: item.author ?? "",
               category: item.category ?? "",
               tags: (item.tags ?? []).join(", "),
+              featuredImageMediaId: item.featuredImageMediaId ?? null,
               status: item.status,
               version: item.version,
             }
@@ -60,6 +62,7 @@ interface BlogInitial {
   author: string;
   category: string;
   tags: string;
+  featuredImageMediaId: string | null;
   status: ContentStatus;
   version: number;
 }
@@ -73,6 +76,9 @@ function BlogForm({ mode, id, initial }: { mode: "create" | "edit"; id: string; 
   const [author, setAuthor] = useState(initial?.author ?? "");
   const [category, setCategory] = useState(initial?.category ?? "");
   const [tags, setTags] = useState(initial?.tags ?? "");
+  const [featuredImageMediaId, setFeaturedImageMediaId] = useState<string | null>(
+    initial?.featuredImageMediaId ?? null,
+  );
   const { mutate, isPending } = useSaveBlog();
   const statusMutation = useSetBlogStatus();
 
@@ -89,6 +95,7 @@ function BlogForm({ mode, id, initial }: { mode: "create" | "edit"; id: string; 
           content,
           author: author.trim() || null,
           category: category.trim() || null,
+          featuredImageMediaId,
           tags: tags
             .split(",")
             .map((tag) => tag.trim())
@@ -154,6 +161,11 @@ function BlogForm({ mode, id, initial }: { mode: "create" | "edit"; id: string; 
                 <Input id="blog-tags" value={tags} onChange={(e) => setTags(e.target.value)} />
               </div>
             </div>
+            <ImageField
+              label="Cover image"
+              mediaId={featuredImageMediaId}
+              onChange={setFeaturedImageMediaId}
+            />
           </CardContent>
         </Card>
         <Card>

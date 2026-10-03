@@ -1,11 +1,14 @@
 import { logger } from "../../config/logger";
+import { expireOverdueHolds } from "../bookings/booking.repository";
 import { processDueNotification, runReminderSweep } from "./notification.service";
 
 const WORKER_INTERVAL_MS = 30_000;
 const REMINDER_INTERVAL_MS = 5 * 60_000;
+const HOLD_EXPIRY_INTERVAL_MS = 60_000;
 
 let workerTimer: ReturnType<typeof setInterval> | null = null;
 let reminderTimer: ReturnType<typeof setInterval> | null = null;
+let holdTimer: ReturnType<typeof setInterval> | null = null;
 let running = false;
 
 /**
@@ -42,8 +45,21 @@ export function startNotificationWorker(): void {
       });
     }
   };
+  // Hold expiry is ALSO lazy (on-request) — this timer just guarantees
+  // abandoned holds release within a minute even with zero traffic.
+  const expireHolds = async () => {
+    try {
+      const expired = await expireOverdueHolds(new Date());
+      if (expired > 0) logger.info("Overdue holds expired", { expired });
+    } catch (error) {
+      logger.error("Hold expiry sweep failed", {
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+  };
   workerTimer = setInterval(() => void drain(), WORKER_INTERVAL_MS);
   reminderTimer = setInterval(() => void sweep(), REMINDER_INTERVAL_MS);
+  holdTimer = setInterval(() => void expireHolds(), HOLD_EXPIRY_INTERVAL_MS);
   void drain();
   logger.info("Notification worker started");
 }
@@ -51,6 +67,8 @@ export function startNotificationWorker(): void {
 export function stopNotificationWorker(): void {
   if (workerTimer) clearInterval(workerTimer);
   if (reminderTimer) clearInterval(reminderTimer);
+  if (holdTimer) clearInterval(holdTimer);
   workerTimer = null;
   reminderTimer = null;
+  holdTimer = null;
 }

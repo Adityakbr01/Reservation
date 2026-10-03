@@ -66,6 +66,7 @@ export function CouponEditPage() {
                     validFrom: payload.validFrom,
                     validUntil: payload.validUntil,
                     usageLimit: payload.usageLimit,
+                    perUserLimit: payload.perUserLimit,
                   },
                 },
                 { onSuccess: () => navigate("/coupons") },

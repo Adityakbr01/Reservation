@@ -43,6 +43,15 @@ export function RootLayout() {
           <NavLink to="/" end className={navLinkClass}>
             Home
           </NavLink>
+          <NavLink to="/offers" className={navLinkClass}>
+            Offers
+          </NavLink>
+          <NavLink to="/blogs" className={navLinkClass}>
+            Blog
+          </NavLink>
+          <NavLink to="/faqs" className={navLinkClass}>
+            FAQs
+          </NavLink>
           <div className="flex-1" />
           {user ? (
             <>

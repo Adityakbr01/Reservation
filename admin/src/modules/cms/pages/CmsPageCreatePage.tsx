@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageFields, SectionsEditor, SubmitBar } from "../components/PageForm";
+import { ImageField } from "@/components/common/ImageField";
 import { useSavePage } from "../hooks/use-cms";
 import type { PageSection } from "../types/cms.types";
 
@@ -12,12 +13,21 @@ export function CmsPageCreatePage() {
   const [slug, setSlug] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [sections, setSections] = useState<PageSection[]>([]);
+  const [featuredImageMediaId, setFeaturedImageMediaId] = useState<string | null>(null);
   const { mutate, isPending } = useSavePage();
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     mutate(
-      { payload: { title: title.trim(), slug: slug.trim(), excerpt: excerpt || null, sections } },
+      {
+        payload: {
+          title: title.trim(),
+          slug: slug.trim(),
+          excerpt: excerpt || null,
+          sections,
+          featuredImageMediaId,
+        },
+      },
       { onSuccess: () => navigate("/cms/pages") },
     );
   }
@@ -44,6 +54,13 @@ export function CmsPageCreatePage() {
               onSlug={setSlug}
               onExcerpt={setExcerpt}
             />
+            <div className="mt-4">
+              <ImageField
+                label="Cover image"
+                mediaId={featuredImageMediaId}
+                onChange={setFeaturedImageMediaId}
+              />
+            </div>
           </CardContent>
         </Card>
         <Card>

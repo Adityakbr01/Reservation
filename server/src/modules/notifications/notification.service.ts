@@ -12,6 +12,7 @@ import { findLatestRefundForPayment, sumSucceededRefunds } from "../refunds/refu
 import { findRoomTypeById } from "../roomTypes/room-type.repository";
 import { getProperty } from "../properties/property.service";
 import { resolvePolicy } from "../policies/policy.service";
+import { getSiteSettings } from "../settings/settings.model";
 import { getEmailProvider } from "../../emails/email.provider";
 import {
   claimDueNotification,
@@ -301,7 +302,9 @@ export async function enqueueAdminAlert(input: {
  * idempotency key can never fire twice — even across restarts.
  */
 export async function runReminderSweep(now: Date = new Date()): Promise<number> {
-  const windowEnd = new Date(now.getTime() + 24 * 3_600_000);
+  const settings = await getSiteSettings().catch(() => null);
+  const windowMs = (settings?.reminderHoursBefore ?? 24) * 3_600_000;
+  const windowEnd = new Date(now.getTime() + windowMs);
   const due = await findBookingsForReminderSweep(windowEnd);
   let enqueued = 0;
   for (const booking of due) {

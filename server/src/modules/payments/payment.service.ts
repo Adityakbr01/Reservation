@@ -3,12 +3,50 @@ import { isDuplicateKeyError } from "../../utils/mongo";
 import { getStripe } from "../../integrations/stripe/stripe.client";
 import { expireOverdueHolds, findBookingById, setBookingStatus } from "../bookings/booking.repository";
 import { createPayment, findLatestPaymentForBooking, findPaymentById, listPayments, toPayment } from "./payment.repository";
+import { listRefundsForPayment } from "../refunds/refund.model";
 import type { ListPaymentsFilter } from "./payment.repository";
 import type { Payment } from "./payment.types";
 import type { Paginated } from "../../utils/pagination";
 
 export async function listAllPayments(filter: ListPaymentsFilter): Promise<Paginated<Payment>> {
   return listPayments(filter);
+}
+
+export interface AdminPaymentDetail {
+  payment: Payment;
+  bookingNumber: string | null;
+  refunds: Array<{
+    id: string;
+    providerRefundId: string;
+    amount: number;
+    currency: string;
+    status: string;
+    processedAt: Date | null;
+  }>;
+}
+
+/** Deep payment view (docs 07 §48): booking ref, Stripe PI id, refunds — no secrets. */
+export async function getPaymentAdmin(id: string): Promise<AdminPaymentDetail> {
+  const payment = await findPaymentById(id);
+  if (!payment) {
+    throw new AppError("Payment not found", 404, "PAYMENT_NOT_FOUND");
+  }
+  const [booking, refunds] = await Promise.all([
+    findBookingById(payment.bookingId),
+    listRefundsForPayment(payment.id),
+  ]);
+  return {
+    payment,
+    bookingNumber: booking?.bookingNumber ?? null,
+    refunds: refunds.map((refund) => ({
+      id: refund.id,
+      providerRefundId: refund.providerRefundId,
+      amount: refund.amount,
+      currency: refund.currency,
+      status: refund.status,
+      processedAt: refund.processedAt,
+    })),
+  };
 }
 import { recordRefund, sumSucceededRefunds } from "../refunds/refund.model";
 import type { Refund } from "../refunds/refund.model";

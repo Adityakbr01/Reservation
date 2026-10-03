@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/async-handler";
 import type { RequestWithValidatedQuery } from "../../middleware/validate";
+import { recordAudit } from "../audit/audit.service";
 import {
   createRoomTypeRecord,
   getPublicRoomType,
@@ -19,6 +20,10 @@ import type {
 /** POST /api/v1/admin/room-types — 201. */
 export const createRoomTypeHandler = asyncHandler(async (req: Request, res: Response) => {
   const roomType = await createRoomTypeRecord(req.body as CreateRoomTypeInput);
+  await recordAudit(req, "ROOM_TYPE_SAVED", "room-type", {
+    entityId: roomType.id,
+    after: { name: roomType.name, status: roomType.status },
+  });
   res.status(201).json({ success: true, data: roomType });
 });
 
@@ -41,6 +46,10 @@ export const updateRoomTypeHandler = asyncHandler(async (req: Request, res: Resp
     req.params.id as string,
     req.body as UpdateRoomTypeInput,
   );
+  await recordAudit(req, "ROOM_TYPE_SAVED", "room-type", {
+    entityId: roomType.id,
+    after: { name: roomType.name, status: roomType.status },
+  });
   res.status(200).json({ success: true, data: roomType });
 });
 

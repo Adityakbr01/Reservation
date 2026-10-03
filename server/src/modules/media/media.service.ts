@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { logger } from "../../config/logger";
 import { AppError } from "../../utils/app-error";
 import { getImageKit } from "../../integrations/imagekit/imagekit.client";
@@ -132,4 +133,24 @@ export async function deleteMedia(id: string): Promise<void> {
 
 export async function listAllMedia(filter: ListMediaFilter) {
   return listMedia(filter);
+}
+
+export interface ResolvedMedia {
+  id: string;
+  url: string;
+  alt: string | null;
+}
+
+/** Batch URL resolution for editors/renderers. Skips unknown ids silently. */
+export async function resolveMedia(ids: string[]): Promise<ResolvedMedia[]> {
+  const unique = [...new Set(ids)].filter((id) => mongoose.Types.ObjectId.isValid(id)).slice(0, 50);
+  if (unique.length === 0) return [];
+  const docs = await MediaModel.find({ _id: { $in: unique } })
+    .select("url alt")
+    .exec();
+  return docs.map((doc) => ({
+    id: doc._id.toString(),
+    url: doc.url,
+    alt: doc.alt,
+  }));
 }

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -150,7 +151,12 @@ export function PaymentsPage() {
                   {paymentItems.map((payment) => (
                     <TableRow key={payment.id}>
                       <TableCell className="font-medium">
-                        {formatMoney(payment.amount, payment.currency)}
+                        <Link
+                          to={`/payments/${payment.id}`}
+                          className="text-brand hover:text-brand-dark"
+                        >
+                          {formatMoney(payment.amount, payment.currency)}
+                        </Link>
                       </TableCell>
                       <TableCell>
                         <StatusBadge status={payment.status} />

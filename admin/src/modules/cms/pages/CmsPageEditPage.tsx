@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusButtons } from "../components/StatusButtons";
 import { PageFields, SectionsEditor, SubmitBar } from "../components/PageForm";
+import { ImageField } from "@/components/common/ImageField";
 import { usePage, useSavePage, useSetPageStatus } from "../hooks/use-cms";
 import type { CmsPage, PageSection } from "../types/cms.types";
 
@@ -39,6 +40,9 @@ function PageForm({ id, initial }: { id: string; initial: CmsPage }) {
   const [slug, setSlug] = useState(initial.slug);
   const [excerpt, setExcerpt] = useState(initial.excerpt ?? "");
   const [sections, setSections] = useState<PageSection[]>(initial.sections ?? []);
+  const [featuredImageMediaId, setFeaturedImageMediaId] = useState<string | null>(
+    initial.featuredImageMediaId ?? null,
+  );
   const { mutate, isPending } = useSavePage();
   const statusMutation = useSetPageStatus();
 
@@ -53,6 +57,7 @@ function PageForm({ id, initial }: { id: string; initial: CmsPage }) {
           slug: slug.trim(),
           excerpt: excerpt || null,
           sections,
+          featuredImageMediaId,
         },
       },
       { onSuccess: () => navigate("/cms/pages") },
@@ -88,6 +93,13 @@ function PageForm({ id, initial }: { id: string; initial: CmsPage }) {
               onSlug={setSlug}
               onExcerpt={setExcerpt}
             />
+            <div className="mt-4">
+              <ImageField
+                label="Cover image"
+                mediaId={featuredImageMediaId}
+                onChange={setFeaturedImageMediaId}
+              />
+            </div>
           </CardContent>
         </Card>
         <Card>

@@ -20,6 +20,7 @@ import {
 import { PaginationControls } from "@/components/common/PaginationControls";
 import { useRooms } from "@/modules/rooms";
 import { BlockForm } from "../components/BlockForm";
+import { AdminCalendar } from "../components/AdminCalendar";
 import { useBlocks, useDeleteBlock } from "../hooks/use-availability";
 
 function formatDate(value: string): string {
@@ -161,6 +162,8 @@ export function AvailabilityPage() {
           )}
         </div>
       </div>
+
+      <AdminCalendar />
     </div>
   );
 }

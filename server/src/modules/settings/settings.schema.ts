@@ -14,6 +14,7 @@ export const updateSettingsSchema = z.object({
   currency: z.string().trim().length(3).optional(),
   checkInTime: z.string().regex(/^\d{2}:\d{2}$/).nullable().optional(),
   checkOutTime: z.string().regex(/^\d{2}:\d{2}$/).nullable().optional(),
+  reminderHoursBefore: z.number().int().min(1).max(72).optional(),
   social: z
     .object({
       facebook: z.string().max(300).nullable().optional(),

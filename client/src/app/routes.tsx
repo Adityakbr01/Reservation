@@ -3,6 +3,7 @@ import { RootLayout } from "@/components/layouts/RootLayout";
 import { HomePage } from "@/modules/home";
 import { RoomDetailPage } from "@/modules/rooms";
 import { BookingConfirmationPage, BookingPage, MyBookingsPage } from "@/modules/booking";
+import { BlogPostPage, BlogsPage, CmsPageView, FaqsPage, OffersPage, PolicyPage } from "@/modules/cms";
 import { LoginPage } from "@/modules/auth/login";
 import { RegisterPage } from "@/modules/auth/register";
 import { ProfilePage } from "@/modules/auth/me";
@@ -15,6 +16,18 @@ export function AppRoutes() {
       <Route element={<RootLayout />}>
         <Route index element={<HomePage />} />
         <Route path="rooms/:slug" element={<RoomDetailPage />} />
+        <Route path="p/:slug" element={<CmsPageView />} />
+        <Route path="blogs" element={<BlogsPage />} />
+        <Route path="blogs/:slug" element={<BlogPostPage />} />
+        <Route path="faqs" element={<FaqsPage />} />
+        <Route path="offers" element={<OffersPage />} />
+        <Route path="policies/:key" element={<PolicyPage />} />
+        <Route path="p/:slug" element={<CmsPageView />} />
+        <Route path="blogs" element={<BlogsPage />} />
+        <Route path="blogs/:slug" element={<BlogPostPage />} />
+        <Route path="faqs" element={<FaqsPage />} />
+        <Route path="offers" element={<OffersPage />} />
+        <Route path="policies/:key" element={<PolicyPage />} />
         <Route
           path="booking/new"
           element={

@@ -11,8 +11,9 @@ import {
   getBookingAdmin,
   listAllBookings,
   previewCancellation,
+  reassignBookingRoom,
 } from "./booking.service";
-import type { AdminBookingsQuery, CancelBookingInput, RefundBookingInput } from "./booking.schema";
+import type { AdminBookingsQuery, CancelBookingInput, ReassignBookingInput, RefundBookingInput } from "./booking.schema";
 
 /** GET /api/v1/admin/reservations — standard paginated list contract. */
 export const adminListBookingsHandler = asyncHandler(async (req: Request, res: Response) => {
@@ -79,6 +80,21 @@ export const adminCheckOutHandler = asyncHandler(async (req: Request, res: Respo
   await recordAudit(req, "BOOKING_CHECKED_OUT", "booking", {
     entityId: booking.id,
     after: bookingSnapshot(booking),
+  });
+  res.status(200).json({ success: true, data: booking });
+});
+
+/** POST /api/v1/admin/reservations/:id/reassign — move to another free room. */
+export const adminReassignHandler = asyncHandler(async (req: Request, res: Response) => {
+  const body = req.body as ReassignBookingInput;
+  const booking = await reassignBookingRoom(
+    req.params.id as string,
+    body.roomId,
+    requireUser(req).id,
+  );
+  await recordAudit(req, "ROOM_REASSIGNED", "booking", {
+    entityId: booking.id,
+    after: { ...bookingSnapshot(booking), roomId: body.roomId },
   });
   res.status(200).json({ success: true, data: booking });
 });

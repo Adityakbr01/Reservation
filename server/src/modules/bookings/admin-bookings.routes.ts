@@ -8,9 +8,10 @@ import {
   adminCheckOutHandler,
   adminGetBookingHandler,
   adminListBookingsHandler,
+  adminReassignHandler,
   adminRefundHandler,
 } from "./admin-bookings.controller";
-import { adminBookingsQuerySchema, bookingIdParamsSchema, cancelBookingSchema, refundBookingSchema } from "./booking.schema";
+import { adminBookingsQuerySchema, bookingIdParamsSchema, cancelBookingSchema, reassignBookingSchema, refundBookingSchema } from "./booking.schema";
 
 export const adminBookingsRouter = Router();
 
@@ -45,4 +46,9 @@ adminBookingsRouter.post(
   "/:id/check-out",
   validate({ params: bookingIdParamsSchema }),
   adminCheckOutHandler,
+);
+adminBookingsRouter.post(
+  "/:id/reassign",
+  validate({ params: bookingIdParamsSchema, body: reassignBookingSchema }),
+  adminReassignHandler,
 );

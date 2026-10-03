@@ -9,6 +9,7 @@ import {
   getReservation,
   listReservations,
   previewReservationCancel,
+  reassignReservation,
 } from "../api/reservations.api";
 import type { ReservationFilters } from "../types/reservation.types";
 
@@ -70,6 +71,20 @@ export function useCheckOutReservation(id: string) {
     onSuccess: (booking) => {
       void queryClient.invalidateQueries({ queryKey: reservationKeys.all });
       toast.success(`Booking ${booking.bookingNumber} checked out`);
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error));
+    },
+  });
+}
+
+export function useReassignReservation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (roomId: string) => reassignReservation(id, roomId),
+    onSuccess: (booking) => {
+      void queryClient.invalidateQueries({ queryKey: reservationKeys.all });
+      toast.success(`Booking ${booking.bookingNumber} moved`);
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error));

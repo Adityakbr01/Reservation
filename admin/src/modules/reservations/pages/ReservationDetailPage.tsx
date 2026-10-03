@@ -5,6 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -19,8 +26,10 @@ import {
   useCancelReservation,
   useCheckInReservation,
   useCheckOutReservation,
+  useReassignReservation,
   useReservation,
 } from "../hooks/use-reservations";
+import { useRooms } from "../../rooms/hooks/use-rooms";
 import { useRefundBooking } from "../../payments/hooks/use-payments";
 
 const CANCELLABLE = ["HELD", "PAYMENT_PENDING", "CONFIRMED"];
@@ -43,6 +52,15 @@ export function ReservationDetailPage() {
   const refundMutation = useRefundBooking(id);
   const checkInMutation = useCheckInReservation(id);
   const checkOutMutation = useCheckOutReservation(id);
+  const reassignMutation = useReassignReservation(id);
+  const [showReassign, setShowReassign] = useState(false);
+  const [targetRoom, setTargetRoom] = useState("");
+  // Unconditional (args vary by readiness) — always above the early returns.
+  const { data: roomsData } = useRooms(
+    data && (data.booking.status === "CONFIRMED" || data.booking.status === "CHECKED_IN") && data.items.length === 1 && data.items[0]
+      ? { page: 1, limit: 100, roomTypeId: data.items[0].roomTypeId }
+      : { page: 1, limit: 1 },
+  );
 
   if (isPending) {
     return (
@@ -77,6 +95,9 @@ export function ReservationDetailPage() {
   const { booking, items, payments } = data;
   const canCancel = CANCELLABLE.includes(booking.status);
   const preview = previewQuery.data ?? null;
+  const canReassign =
+    (booking.status === "CONFIRMED" || booking.status === "CHECKED_IN") && items.length === 1;
+  const firstItem = items[0];
 
   function confirmCancel() {
     cancelMutation.mutate(reason.trim() || null, {
@@ -116,6 +137,18 @@ export function ReservationDetailPage() {
               onClick={() => checkOutMutation.mutate()}
             >
               {checkOutMutation.isPending ? "Checking out…" : "Check out"}
+            </Button>
+          )}
+          {canReassign && (
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => {
+                setTargetRoom("");
+                setShowReassign(true);
+              }}
+            >
+              Move room
             </Button>
           )}
           {canCancel && (
@@ -237,6 +270,64 @@ export function ReservationDetailPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {showReassign && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Move to another room"
+          onClick={() => setShowReassign(false)}
+        >
+          <Card className="w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <CardHeader>
+              <CardTitle className="text-xl">Move {booking.bookingNumber}?</CardTitle>
+              <CardDescription>
+                Same room type · target must be free for the whole stay.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Target room</Label>
+                <Select value={targetRoom} onValueChange={setTargetRoom}>
+                  <SelectTrigger aria-label="Target room">
+                    <SelectValue placeholder="Choose a room" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(roomsData?.items ?? [])
+                      .filter((room) => room.id !== firstItem?.roomId)
+                      .map((room) => (
+                        <SelectItem key={room.id} value={room.id}>
+                          {room.roomNumber} ({room.status.toLowerCase()})
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1 rounded-full"
+                  onClick={() => setShowReassign(false)}
+                >
+                  Keep room
+                </Button>
+                <Button
+                  className="flex-1 rounded-full"
+                  disabled={!targetRoom || reassignMutation.isPending}
+                  onClick={() =>
+                    reassignMutation.mutate(targetRoom, {
+                      onSuccess: () => setShowReassign(false),
+                    })
+                  }
+                >
+                  {reassignMutation.isPending ? "Moving…" : "Confirm move"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {showCancel && (
         <div

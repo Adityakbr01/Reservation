@@ -39,6 +39,10 @@ export const refundBookingSchema = z.object({
   amount: z.number().int().min(1).nullable().optional(),
 });
 
+export const reassignBookingSchema = z.object({
+  roomId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid room"),
+});
+
 export const myBookingsQuerySchema = paginationQuerySchema.extend({
   status: z.enum(BOOKING_STATUSES).optional(),
 });
@@ -55,5 +59,6 @@ export const bookingIdParamsSchema = z.object({ id: objectIdSchema });
 export type CreateBookingInput = z.infer<typeof createBookingSchema>;
 export type CancelBookingInput = z.infer<typeof cancelBookingSchema>;
 export type RefundBookingInput = z.infer<typeof refundBookingSchema>;
+export type ReassignBookingInput = z.infer<typeof reassignBookingSchema>;
 export type MyBookingsQuery = z.infer<typeof myBookingsQuerySchema>;
 export type AdminBookingsQuery = z.infer<typeof adminBookingsQuerySchema>;

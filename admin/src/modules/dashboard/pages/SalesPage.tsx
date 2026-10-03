@@ -14,18 +14,10 @@ import { StatusBadge } from "@/components/common/StatusBadge";
 import { apiClient, unwrapResponse } from "@/lib/api-client";
 import type { ApiEnvelope } from "@/lib/api-client";
 import { dashboardKeys } from "@/lib/query-keys";
-import { formatMoney } from "@/lib/money";
+import { SalesChart, bucketTrend, money, TrendChip } from "../components/SalesChart";
+import type { SalesBucket } from "../components/SalesChart";
 
 export type SalesRange = "today" | "week" | "month";
-
-export interface SalesBucket {
-  label: string;
-  start: string;
-  bookings: number;
-  gross: number;
-  collected: number;
-  refunded: number;
-}
 
 export interface SalesReport {
   range: SalesRange;
@@ -56,68 +48,6 @@ const RANGES: Array<{ value: SalesRange; label: string }> = [
   { value: "week", label: "7 days" },
   { value: "month", label: "30 days" },
 ];
-
-function money(minor: number, currency: string | null): string {
-  if (currency) return formatMoney(minor, currency);
-  return `₹${(minor / 100).toFixed(2)}`;
-}
-
-function SalesChart({ buckets, currency }: { buckets: SalesBucket[]; currency: string | null }) {
-  const max = Math.max(1, ...buckets.map((b) => Math.max(b.gross, b.collected)));
-  const width = Math.max(buckets.length * 36, 280);
-  const height = 180;
-  const barW = Math.max(6, Math.floor((width / buckets.length - 10) / 2));
-  return (
-    <div className="overflow-x-auto" role="img" aria-label="Sales by period chart">
-      <svg width={width} height={height + 28} className="min-w-full">
-        {buckets.map((bucket, i) => {
-          const x = i * (width / buckets.length) + 5;
-          const grossH = Math.round((bucket.gross / max) * height);
-          const collH = Math.round((bucket.collected / max) * height);
-          return (
-            <g key={bucket.start}>
-              <rect
-                x={x}
-                y={height - grossH}
-                width={barW}
-                height={Math.max(grossH, 2)}
-                rx={3}
-                className="fill-brand/70"
-              >
-                <title>
-                  {bucket.label}: booked {money(bucket.gross, currency)}
-                </title>
-              </rect>
-              <rect
-                x={x + barW + 2}
-                y={height - collH}
-                width={barW}
-                height={Math.max(collH, 2)}
-                rx={3}
-                className="fill-emerald-500/80"
-              >
-                <title>
-                  {bucket.label}: collected {money(bucket.collected, currency)}
-                </title>
-              </rect>
-              <text x={x} y={height + 16} fontSize={10} className="fill-muted-foreground">
-                {bucket.label}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
-      <div className="mt-2 flex gap-4 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1">
-          <span className="inline-block size-3 rounded-sm bg-brand/70" /> Booked
-        </span>
-        <span className="inline-flex items-center gap-1">
-          <span className="inline-block size-3 rounded-sm bg-emerald-500/80" /> Collected
-        </span>
-      </div>
-    </div>
-  );
-}
 
 export function SalesPage() {
   const [range, setRange] = useState<SalesRange>("week");
@@ -190,8 +120,9 @@ export function SalesPage() {
           </div>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-xl">Booked vs collected</CardTitle>
+              <TrendChip pct={bucketTrend(data.buckets).pct} />
             </CardHeader>
             <CardContent>
               <SalesChart buckets={data.buckets} currency={data.currency} />

@@ -14,6 +14,7 @@ export const createCouponSchema = z.object({
   validFrom: dateSchema.nullable().optional(),
   validUntil: dateSchema.nullable().optional(),
   usageLimit: z.number().int().min(1).nullable().optional(),
+  perUserLimit: z.number().int().min(1).nullable().optional(),
   applicableRoomTypeIds: z.array(objectIdSchema).max(100).optional(),
   status: z.enum(COUPON_STATUSES).optional(),
 }).refine(
@@ -28,6 +29,7 @@ export const updateCouponSchema = z.object({
   validFrom: dateSchema.nullable().optional(),
   validUntil: dateSchema.nullable().optional(),
   usageLimit: z.number().int().min(1).nullable().optional(),
+  perUserLimit: z.number().int().min(1).nullable().optional(),
   applicableRoomTypeIds: z.array(objectIdSchema).max(100).optional(),
   status: z.enum(COUPON_STATUSES).optional(),
 });

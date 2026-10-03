@@ -17,7 +17,7 @@ import { adminRefundsRouter } from "./modules/refunds/refund.routes";
 import { adminNotificationsRouter } from "./modules/notifications/notification.routes";
 import { adminDashboardRouter } from "./modules/dashboard/dashboard.routes";
 import { adminCmsRouter, publicCmsRouter } from "./modules/cms/cms.routes";
-import { adminMediaRouter } from "./modules/media/media.routes";
+import { adminMediaRouter, publicMediaRouter } from "./modules/media/media.routes";
 import { adminSettingsRouter, publicSettingsRouter } from "./modules/settings/settings.routes";
 import { adminAuditRouter } from "./modules/audit/audit.routes";
 import { seoRouter } from "./modules/seo/seo.routes";
@@ -62,6 +62,7 @@ export function createApp() {
   app.use("/api/v1/admin/dashboard", adminDashboardRouter);
   app.use("/api/v1/admin/cms", adminCmsRouter);
   app.use("/api/v1/admin/media", adminMediaRouter);
+  app.use("/api/public/media", publicMediaRouter);
   app.use("/api/v1/admin/settings", adminSettingsRouter);
   app.use("/api/v1/admin/audit-logs", adminAuditRouter);
   app.use("/api/public/cms", publicCmsRouter);

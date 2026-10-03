@@ -13,6 +13,7 @@ export interface Coupon {
   validUntil: string | null;
   usageLimit: number | null;
   usageCount: number;
+  perUserLimit: number | null;
   applicableRoomTypeIds: string[];
   status: CouponStatus;
   createdAt: string;
@@ -34,6 +35,7 @@ export interface CreateCouponPayload {
   validFrom: string | null;
   validUntil: string | null;
   usageLimit: number | null;
+  perUserLimit: number | null;
   applicableRoomTypeIds: string[];
   status?: CouponStatus;
 }
@@ -47,6 +49,7 @@ export type UpdateCouponPayload = Partial<
     | "validFrom"
     | "validUntil"
     | "usageLimit"
+    | "perUserLimit"
     | "applicableRoomTypeIds"
     | "status"
   >

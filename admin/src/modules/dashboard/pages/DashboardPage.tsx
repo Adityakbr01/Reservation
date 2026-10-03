@@ -3,12 +3,15 @@ import { BedDouble, Building2, CalendarDays, CircleAlert, Plus, Tags } from "luc
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StatusBadge } from "@/components/common/StatusBadge";
 import { useBlocks } from "@/modules/availability";
 import { useRatePlans } from "@/modules/rate-plans";
 import { useRoomTypes } from "@/modules/room-types";
 import { useRooms } from "@/modules/rooms";
 import { formatMoney } from "@/lib/money";
 import { useDashboardSummary } from "../hooks/use-dashboard-summary";
+import { useSales } from "../hooks/use-sales";
+import { SalesChart, bucketTrend, money, TrendChip } from "../components/SalesChart";
 
 const QUICK_ACTIONS = [
   { to: "/room-types/new", label: "New room type" },
@@ -30,6 +33,8 @@ export function DashboardPage() {
   const plans = useRatePlans({ page: 1, limit: 1 });
   const blocks = useBlocks({ page: 1, limit: 5 });
   const summary = useDashboardSummary();
+  const salesWeek = useSales("week");
+  const weekTrend = bucketTrend(salesWeek.data?.buckets ?? []);
 
   const stats = [
     { label: "Room types", to: "/room-types", Icon: Building2, value: types.data?.total },
@@ -70,6 +75,86 @@ export function DashboardPage() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-5">
+        <Card className="lg:col-span-3">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <div>
+              <CardTitle className="text-xl">Sales · last 7 days</CardTitle>
+              <CardDescription>Booked vs collected, with momentum</CardDescription>
+            </div>
+            <TrendChip pct={weekTrend.pct} />
+          </CardHeader>
+          <CardContent>
+            {salesWeek.isPending ? (
+              <div className="h-44 animate-pulse rounded-xl bg-muted" aria-label="Loading sales" />
+            ) : salesWeek.isError || !salesWeek.data ? (
+              <p className="py-4 text-center text-sm text-muted-foreground">
+                Sales snapshot unavailable.
+              </p>
+            ) : (
+              <>
+                <div className="mb-3 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                  <span>
+                    Booked{" "}
+                    <strong>{money(salesWeek.data.grossValue, salesWeek.data.currency)}</strong>
+                  </span>
+                  <span>
+                    Net{" "}
+                    <strong>{money(salesWeek.data.netCollected, salesWeek.data.currency)}</strong>
+                  </span>
+                  <Link
+                    to="/sales"
+                    className="font-medium text-brand hover:text-brand-dark"
+                  >
+                    Full report →
+                  </Link>
+                </div>
+                <SalesChart buckets={salesWeek.data.buckets} currency={salesWeek.data.currency} />
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-xl">Recent purchases</CardTitle>
+            <CardDescription>Latest confirmed bookings</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {salesWeek.isPending ? (
+              <div className="space-y-2" aria-label="Loading purchases">
+                {[0, 1, 2].map((row) => (
+                  <Skeleton key={row} className="h-12 w-full" />
+                ))}
+              </div>
+            ) : (salesWeek.data?.recent.length ?? 0) === 0 ? (
+              <p className="py-4 text-center text-sm text-muted-foreground">
+                No confirmed bookings yet.
+              </p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {(salesWeek.data?.recent ?? []).slice(0, 5).map((purchase) => (
+                  <li key={purchase.id} className="flex items-center justify-between gap-3 py-2.5">
+                    <div className="min-w-0">
+                      <Link
+                        to={`/reservations/${purchase.id}`}
+                        className="truncate text-sm font-medium text-brand hover:text-brand-dark"
+                      >
+                        {purchase.bookingNumber} · {purchase.guest}
+                      </Link>
+                      <p className="text-xs text-muted-foreground">
+                        {money(purchase.total, purchase.currency)}
+                      </p>
+                    </div>
+                    <StatusBadge status={purchase.paymentStatus} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5">

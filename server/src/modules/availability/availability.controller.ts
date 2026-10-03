@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { requireUser } from "../../middleware/auth";
 import { asyncHandler } from "../../utils/async-handler";
 import type { RequestWithValidatedQuery } from "../../middleware/validate";
+import { recordAudit } from "../audit/audit.service";
 import {
   createBlockRecord,
   deleteBlockRecord,
@@ -22,12 +23,20 @@ export const listBlocksHandler = asyncHandler(async (req: Request, res: Response
 /** POST /api/v1/admin/availability/blocks — 201. */
 export const createBlockHandler = asyncHandler(async (req: Request, res: Response) => {
   const block = await createBlockRecord(req.body as CreateBlockInput, requireUser(req).id);
+  await recordAudit(req, "AVAILABILITY_CHANGED", "availability-block", {
+    entityId: block.id,
+    after: { roomId: String(block.roomId) },
+  });
   res.status(201).json({ success: true, data: block });
 });
 
 /** DELETE /api/v1/admin/availability/blocks/:id. */
 export const deleteBlockHandler = asyncHandler(async (req: Request, res: Response) => {
   await deleteBlockRecord(req.params.id as string);
+  await recordAudit(req, "AVAILABILITY_CHANGED", "availability-block", {
+    entityId: req.params.id as string,
+    after: { deleted: true },
+  });
   res.status(200).json({ success: true, data: { deleted: true } });
 });
 

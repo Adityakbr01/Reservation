@@ -46,3 +46,10 @@ export async function checkOutReservation(id: string): Promise<Reservation> {
   const response = await apiClient.post<ApiEnvelope<Reservation>>(`${BASE}/${id}/check-out`);
   return unwrapResponse(response);
 }
+
+export async function reassignReservation(id: string, roomId: string): Promise<Reservation> {
+  const response = await apiClient.post<ApiEnvelope<Reservation>>(`${BASE}/${id}/reassign`, {
+    roomId,
+  });
+  return unwrapResponse(response);
+}

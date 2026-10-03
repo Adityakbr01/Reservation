@@ -20,6 +20,10 @@ import type {
 /** POST /api/v1/admin/coupons — 201. */
 export const createCouponHandler = asyncHandler(async (req: Request, res: Response) => {
   const coupon = await createCouponRecord(req.body as CreateCouponInput, requireUser(req).id);
+  await recordAudit(req, "COUPON_CREATED", "coupon", {
+    entityId: coupon.id,
+    after: { code: coupon.code, status: coupon.status },
+  });
   res.status(201).json({ success: true, data: coupon });
 });
 

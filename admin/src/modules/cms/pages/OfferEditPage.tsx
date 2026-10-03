@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusButtons } from "../components/StatusButtons";
+import { ImageField } from "@/components/common/ImageField";
 import { PageFields, SubmitBar } from "../components/PageForm";
 import { useOffer, useSaveOffer, useSetOfferStatus } from "../hooks/use-cms";
 import type { ContentStatus } from "../types/cms.types";
@@ -47,6 +48,7 @@ export function OfferEditPage({ mode }: { mode: "create" | "edit" }) {
               ctaLabel: item.ctaLabel ?? "",
               ctaUrl: item.ctaUrl ?? "",
               couponId: item.couponId ?? "",
+              imageMediaId: item.imageMediaId ?? null,
               status: item.status,
               version: item.version,
             }
@@ -65,6 +67,7 @@ interface OfferInitial {
   ctaLabel: string;
   ctaUrl: string;
   couponId: string;
+  imageMediaId: string | null;
   status: ContentStatus;
   version: number;
 }
@@ -79,6 +82,7 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
   const [ctaLabel, setCtaLabel] = useState(initial?.ctaLabel ?? "");
   const [ctaUrl, setCtaUrl] = useState(initial?.ctaUrl ?? "");
   const [couponId, setCouponId] = useState(initial?.couponId ?? "");
+  const [imageMediaId, setImageMediaId] = useState<string | null>(initial?.imageMediaId ?? null);
   const { mutate, isPending } = useSaveOffer();
   const statusMutation = useSetOfferStatus();
 
@@ -97,6 +101,7 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
           ctaLabel: ctaLabel.trim() || null,
           ctaUrl: ctaUrl.trim() || null,
           couponId: couponId.trim() || null,
+          imageMediaId,
         },
       },
       { onSuccess: () => navigate("/cms/offers") },
@@ -175,6 +180,9 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
                   onChange={(e) => setCouponId(e.target.value)}
                   placeholder="Mongo ObjectId of an ACTIVE coupon"
                 />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <ImageField label="Offer image" mediaId={imageMediaId} onChange={setImageMediaId} />
               </div>
             </div>
           </CardContent>

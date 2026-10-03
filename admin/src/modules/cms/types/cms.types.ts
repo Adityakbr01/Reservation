@@ -15,6 +15,12 @@ export interface PageSection {
   heading?: string | null;
   subheading?: string | null;
   html?: string | null;
+  imageMediaId?: string | null;
+  mediaIds?: string[];
+  roomTypeIds?: string[];
+  features?: Array<{ title: string; text: string }>;
+  entries?: Array<{ quote: string; name: string }>;
+  offerId?: string | null;
   ctaLabel?: string | null;
   ctaUrl?: string | null;
   category?: string | null;
@@ -43,6 +49,7 @@ export interface CmsBlogPost {
   category: string | null;
   tags: string[];
   readingMinutes: number;
+  featuredImageMediaId: string | null;
   status: ContentStatus;
   version: number;
   publishedAt: string | null;

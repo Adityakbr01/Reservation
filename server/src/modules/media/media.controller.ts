@@ -4,7 +4,7 @@ import { requireUser } from "../../middleware/auth";
 import type { RequestWithFile } from "../../middleware/upload";
 import type { RequestWithValidatedQuery } from "../../middleware/validate";
 import { AppError } from "../../utils/app-error";
-import { deleteMedia, listAllMedia, updateMediaMeta, uploadMedia } from "./media.service";
+import { deleteMedia, listAllMedia, resolveMedia, updateMediaMeta, uploadMedia } from "./media.service";
 import type { ListMediaQuery, UpdateMediaInput } from "./media.schema";
 
 /** POST /api/v1/admin/media — multipart `file` (docs 08 §41). */
@@ -40,4 +40,19 @@ export const adminUpdateMediaHandler = asyncHandler(async (req: Request, res: Re
 export const adminDeleteMediaHandler = asyncHandler(async (req: Request, res: Response) => {
   await deleteMedia(req.params.id as string);
   res.status(200).json({ success: true, data: { message: "Media deleted" } });
+});
+
+/** GET /api/v1/admin/media/resolve?ids=a,b — batch URLs for editors. */
+export const adminResolveMediaHandler = asyncHandler(async (req: Request, res: Response) => {
+  const raw = typeof req.query.ids === "string" ? req.query.ids : "";
+  const result = await resolveMedia(raw.split(",").map((id) => id.trim()).filter(Boolean));
+  res.status(200).json({ success: true, data: result });
+});
+
+/** POST /api/public/media/resolve — batch URLs for renderers (no metadata leak). */
+export const publicResolveMediaHandler = asyncHandler(async (req: Request, res: Response) => {
+  const body = req.body as { ids?: unknown };
+  const ids = Array.isArray(body.ids) ? body.ids.filter((id): id is string => typeof id === "string") : [];
+  const result = await resolveMedia(ids);
+  res.status(200).json({ success: true, data: result });
 });

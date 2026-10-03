@@ -21,6 +21,7 @@ export function toCoupon(doc: CouponDocument): Coupon {
     validUntil: doc.validUntil,
     usageLimit: doc.usageLimit,
     usageCount: doc.usageCount,
+    perUserLimit: doc.perUserLimit ?? null,
     applicableRoomTypeIds: doc.applicableRoomTypeIds.map((id) => id.toString()),
     status: doc.status,
     createdBy: doc.createdBy.toString(),
@@ -40,6 +41,7 @@ export interface CreateCouponInput {
   validFrom?: Date | null;
   validUntil?: Date | null;
   usageLimit?: number | null;
+  perUserLimit?: number | null;
   applicableRoomTypeIds?: string[];
   status?: CouponStatus;
   createdBy: string;
@@ -96,6 +98,7 @@ export type UpdateCouponInput = Partial<
     | "validFrom"
     | "validUntil"
     | "usageLimit"
+    | "perUserLimit"
     | "applicableRoomTypeIds"
     | "status"
   >

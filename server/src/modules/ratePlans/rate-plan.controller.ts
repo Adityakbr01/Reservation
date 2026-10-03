@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/async-handler";
 import type { RequestWithValidatedQuery } from "../../middleware/validate";
+import { recordAudit } from "../audit/audit.service";
 import {
   createRatePlanRecord,
   getRatePlan,
@@ -16,6 +17,10 @@ import type {
 /** POST /api/v1/admin/rate-plans — 201. */
 export const createRatePlanHandler = asyncHandler(async (req: Request, res: Response) => {
   const ratePlan = await createRatePlanRecord(req.body as CreateRatePlanInput);
+  await recordAudit(req, "RATE_PLAN_SAVED", "rate-plan", {
+    entityId: ratePlan.id,
+    after: { name: ratePlan.name, status: ratePlan.status },
+  });
   res.status(201).json({ success: true, data: ratePlan });
 });
 
@@ -38,5 +43,9 @@ export const updateRatePlanHandler = asyncHandler(async (req: Request, res: Resp
     req.params.id as string,
     req.body as UpdateRatePlanInput,
   );
+  await recordAudit(req, "RATE_PLAN_SAVED", "rate-plan", {
+    entityId: ratePlan.id,
+    after: { name: ratePlan.name, status: ratePlan.status },
+  });
   res.status(200).json({ success: true, data: ratePlan });
 });

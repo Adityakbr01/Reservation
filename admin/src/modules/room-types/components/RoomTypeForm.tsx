@@ -1,15 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { MediaPicker } from "@/components/common/MediaPicker";
 import { StatusBadge } from "@/components/common/StatusBadge";
+import { apiClient } from "@/lib/api-client";
+import type { ApiEnvelope } from "@/lib/api-client";
 import type {
   CreateRoomTypePayload,
   RoomType,
   RoomTypeBed,
+  RoomTypeImage,
   RoomTypeStatus,
 } from "../types/room-type.types";
 
@@ -33,6 +37,29 @@ export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: Room
   const [beds, setBeds] = useState<RoomTypeBed[]>(
     initial?.beds.length ? initial.beds : [{ type: "", quantity: 1 }],
   );
+  const [images, setImages] = useState<RoomTypeImage[]>(initial?.images ?? []);
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  // Initial images carry mediaId only — resolve thumbnails once.
+  useEffect(() => {
+    const missing = images.filter((img) => !img.url).map((img) => img.mediaId);
+    if (missing.length === 0) return;
+    let cancelled = false;
+    void apiClient
+      .get<ApiEnvelope<Array<{ id: string; url: string }>>>("/admin/media/resolve", {
+        params: { ids: missing.join(",") },
+      })
+      .then(({ data }) => {
+        if (cancelled) return;
+        const urls = new Map(data.data.map((m) => [m.id, m.url]));
+        setImages((rows) => rows.map((img) => ({ ...img, url: urls.get(img.mediaId) ?? null })));
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const invalid = name.trim().length < 2;
 
@@ -56,6 +83,11 @@ export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: Room
         .split(",")
         .map((item) => item.trim())
         .filter((item) => item.length > 0),
+      images: images.map((img, index) => ({
+        mediaId: img.mediaId,
+        altText: img.altText?.trim() || null,
+        sortOrder: index,
+      })),
       status,
     });
   }
@@ -190,6 +222,51 @@ export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: Room
           value={amenities}
           onChange={(e) => setAmenities(e.target.value)}
           placeholder="WiFi, AC, Sea view"
+        />
+      </div>
+
+      <div className="space-y-3">
+        <Label>Photos</Label>
+        {images.length > 0 && (
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {images.map((img, index) => (
+              <div key={`${img.mediaId}-${index}`} className="space-y-1 rounded-lg border border-border p-2">
+                {img.url ? (
+                  <img src={img.url} alt={img.altText ?? ""} className="h-24 w-full rounded-md object-cover" loading="lazy" />
+                ) : (
+                  <div className="flex h-24 items-center justify-center rounded-md bg-muted text-xs text-muted-foreground">
+                    {img.mediaId.slice(-6)}
+                  </div>
+                )}
+                <Input
+                  value={img.altText ?? ""}
+                  onChange={(e) =>
+                    setImages((rows) => rows.map((r, i) => (i === index ? { ...r, altText: e.target.value } : r)))
+                  }
+                  placeholder="Alt text"
+                  aria-label={`Alt text for photo ${index + 1}`}
+                />
+                <div className="flex gap-1">
+                  <Button type="button" variant="ghost" size="sm" disabled={index === 0} onClick={() => setImages((rows) => { const next = [...rows]; const [m] = next.splice(index, 1); next.splice(index - 1, 0, m); return next; })} aria-label="Move photo left">
+                    ←
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" className="text-destructive" onClick={() => setImages((rows) => rows.filter((_, i) => i !== index))}>
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => setPickerOpen(true)}>
+          Add photo
+        </Button>
+        <MediaPicker
+          open={pickerOpen}
+          onClose={() => setPickerOpen(false)}
+          onSelect={(media) =>
+            setImages((rows) => [...rows, { mediaId: media.id, url: media.url, altText: null }])
+          }
         />
       </div>
 

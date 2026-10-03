@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,22 +19,6 @@ function monthLabel(year: number, month: number): string {
   });
 }
 
-type DayState = "past" | "full" | "left-few" | "free";
-
-function dayState(day: CalendarDay | undefined, today: string): DayState {
-  if (!day || day.date < today) return "past";
-  if (day.available <= 0) return "full";
-  if (day.available < day.total) return "left-few";
-  return "free";
-}
-
-const DAY_CLASS: Record<DayState, string> = {
-  past: "text-muted-foreground/40",
-  full: "bg-destructive/15 text-destructive line-through",
-  "left-few": "bg-amber-400/25 text-amber-700 dark:text-amber-300",
-  free: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/30",
-};
-
 interface AvailabilityCalendarProps {
   roomTypeId: string;
   selectedCheckIn?: string | null;
@@ -50,103 +34,140 @@ export function AvailabilityCalendar({
 }: AvailabilityCalendarProps) {
   const [now] = useState(() => new Date());
   const [offset, setOffset] = useState(0);
-  const view = useMemo(() => {
-    const base = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + offset, 1));
-    return { year: base.getUTCFullYear(), month: base.getUTCMonth() };
-  }, [now, offset]);
-  const { from, to } = monthBounds(view.year, view.month);
+  const base = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + offset, 1));
+  const year = base.getUTCFullYear();
+  const month = base.getUTCMonth();
+  const { from, to } = monthBounds(year, month);
   const { data, isPending } = useAvailabilityCalendar(roomTypeId, from, to);
-  const dayList = data?.types[0]?.days;
-  const byDate = useMemo(() => new Map((dayList ?? []).map((day) => [day.date, day])), [dayList]);
-  const days = dayList ?? [];
+  const days = data?.types[0]?.days ?? [];
   const today = now.toISOString().slice(0, 10);
 
-  const leadBlanks = new Date(Date.UTC(view.year, view.month, 1)).getUTCDay();
-  const cells: Array<string | null> = [...Array<string | null>(leadBlanks).fill(null)];
-  for (const day of days) cells.push(day.date);
+  const leadBlanks = new Date(Date.UTC(year, month, 1)).getUTCDay();
+  const cells: Array<CalendarDay | null> = [
+    ...Array<CalendarDay | null>(leadBlanks).fill(null),
+    ...days,
+  ];
+
+  function stateOf(day: CalendarDay): "past" | "full" | "few" | "free" {
+    if (day.date < today) return "past";
+    if (day.available <= 0) return "full";
+    if (day.available < day.total) return "few";
+    return "free";
+  }
+
+  function inRange(date: string): boolean {
+    if (!selectedCheckIn || !selectedCheckOut) return false;
+    return date > selectedCheckIn && date < selectedCheckOut;
+  }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-xl">Availability</CardTitle>
+    <Card className="mx-auto w-full max-w-md">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-lg">Availability</CardTitle>
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="sm"
-            className="rounded-full"
+            className="size-8 rounded-full p-0"
             disabled={offset <= 0 || isPending}
             onClick={() => setOffset((o) => o - 1)}
             aria-label="Previous month"
           >
-            <ChevronLeft aria-hidden />
+            <ChevronLeft className="size-4" aria-hidden />
           </Button>
-          <span className="min-w-32 text-center text-sm font-medium">
-            {monthLabel(view.year, view.month)}
+          <span className="min-w-28 text-center text-sm font-semibold">
+            {monthLabel(year, month)}
           </span>
           <Button
             variant="ghost"
             size="sm"
-            className="rounded-full"
+            className="size-8 rounded-full p-0"
             disabled={offset >= 2 || isPending}
             onClick={() => setOffset((o) => o + 1)}
             aria-label="Next month"
           >
-            <ChevronRight aria-hidden />
+            <ChevronRight className="size-4" aria-hidden />
           </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground" aria-hidden>
-          {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-            <span key={i}>{d}</span>
+        <div
+          className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
+          aria-hidden
+        >
+          {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d, i) => (
+            <span key={i} className="py-1">{d}</span>
           ))}
         </div>
         {isPending ? (
           <div className="grid grid-cols-7 gap-1" aria-label="Loading calendar">
             {Array.from({ length: 35 }).map((_, i) => (
-              <div key={i} className="h-9 animate-pulse rounded-md bg-muted" />
+              <div key={i} className="h-10 animate-pulse rounded-lg bg-muted" />
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-7 gap-1">
-            {cells.map((date, i) =>
-              date === null ? (
-                <span key={`blank-${i}`} />
-              ) : (
+            {cells.map((day, i) => {
+              if (day === null) return <span key={`blank-${i}`} />;
+              const state = stateOf(day);
+              const isEndpoint = selectedCheckIn === day.date || selectedCheckOut === day.date;
+              const clickable = onPickDate !== undefined && state === "free";
+              return (
                 <button
-                  key={date}
+                  key={day.date}
                   type="button"
-                  disabled={!onPickDate || dayState(byDate.get(date), today) !== "free"}
-                  onClick={() => onPickDate?.(date)}
-                  aria-label={`${date}: ${dayState(byDate.get(date), today).replace("-", " ")}`}
+                  disabled={!clickable}
+                  onClick={() => onPickDate?.(day.date)}
+                  title={
+                    state === "past"
+                      ? day.date
+                      : state === "full"
+                        ? `${day.date}: full`
+                        : `${day.date}: ${day.available} of ${day.total} free`
+                  }
+                  aria-label={`${day.date}: ${state === "free" ? `${day.available} free` : state}`}
                   className={cn(
-                    "h-9 rounded-md text-xs font-medium transition-colors",
-                    "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-                    dayState(byDate.get(date), today),
-                    (selectedCheckIn === date || selectedCheckOut === date) &&
-                      "ring-2 ring-brand",
-                    DAY_CLASS[dayState(byDate.get(date), today)],
+                    "flex h-10 flex-col items-center justify-center rounded-lg text-[13px] font-medium transition-colors",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    state === "past" && "text-muted-foreground/30",
+                    state === "full" && "bg-destructive/[0.07] text-destructive/70 line-through",
+                    state === "few" && "bg-amber-400/15 text-amber-800 dark:text-amber-200",
+                    state === "free" && !isEndpoint && !inRange(day.date) && "bg-emerald-500/[0.08] text-emerald-800 hover:bg-emerald-500/20 dark:text-emerald-200",
+                    inRange(day.date) && "rounded-none bg-brand/10 text-foreground",
+                    isEndpoint && "bg-brand font-semibold text-white hover:bg-brand",
                   )}
                 >
-                  {Number(date.slice(8))}
+                  {Number(day.date.slice(8))}
+                  {!isEndpoint && state !== "past" && (
+                    <span
+                      aria-hidden
+                      className={cn(
+                        "mt-0.5 size-1 rounded-full",
+                        state === "full" && "bg-destructive/60",
+                        state === "few" && "bg-amber-500",
+                        state === "free" && "bg-emerald-500",
+                      )}
+                    />
+                  )}
                 </button>
-              ),
-            )}
+              );
+            })}
           </div>
         )}
-        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1">
-            <span className="inline-block size-3 rounded-sm bg-emerald-500/40" /> Free
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-emerald-500" /> Free
           </span>
-          <span className="inline-flex items-center gap-1">
-            <span className="inline-block size-3 rounded-sm bg-amber-400/50" /> Few left
+          <span className="inline-flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-amber-500" /> Few left
           </span>
-          <span className="inline-flex items-center gap-1">
-            <span className="inline-block size-3 rounded-sm bg-destructive/25" /> Full
+          <span className="inline-flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-destructive/60" /> Full
           </span>
         </div>
         <p className="text-xs text-muted-foreground">
-          Tap a free date to start your stay — tap a second date for check-out.
+          Tap a free date to start your stay — tap a second date for check-out. Final
+          availability is always rechecked at booking.
         </p>
       </CardContent>
     </Card>

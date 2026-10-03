@@ -12,6 +12,8 @@ export interface SiteSettings {
   currency: string;
   checkInTime: string | null;
   checkOutTime: string | null;
+  /** Hours before check-in the reminder sweep fires (docs 06 §41). */
+  reminderHoursBefore: number;
   social: { facebook: string | null; instagram: string | null; x: string | null };
   defaultSeo: {
     title: string | null;
@@ -33,6 +35,7 @@ export interface SiteSettingsDocument extends mongoose.Document {
   currency: string;
   checkInTime: string | null;
   checkOutTime: string | null;
+  reminderHoursBefore: number;
   social: { facebook: string | null; instagram: string | null; x: string | null };
   defaultSeo: { title: string | null; description: string | null; ogImageMediaId: mongoose.Types.ObjectId | null };
   updatedAt: Date;
@@ -51,6 +54,7 @@ const settingsSchema = new mongoose.Schema<SiteSettingsDocument>(
     currency: { type: String, default: "INR", maxlength: 3 },
     checkInTime: { type: String, default: null, maxlength: 5 },
     checkOutTime: { type: String, default: null, maxlength: 5 },
+    reminderHoursBefore: { type: Number, default: 24, min: 1, max: 72 },
     social: {
       facebook: { type: String, default: null, maxlength: 300 },
       instagram: { type: String, default: null, maxlength: 300 },
@@ -83,6 +87,7 @@ export function toSiteSettings(doc: SiteSettingsDocument): SiteSettings {
     currency: doc.currency,
     checkInTime: doc.checkInTime,
     checkOutTime: doc.checkOutTime,
+    reminderHoursBefore: doc.reminderHoursBefore ?? 24,
     social: { ...doc.social },
     defaultSeo: {
       title: doc.defaultSeo?.title ?? null,
@@ -111,6 +116,7 @@ export async function updateSiteSettings(patch: {
   currency?: string;
   checkInTime?: string | null;
   checkOutTime?: string | null;
+  reminderHoursBefore?: number;
   social?: { facebook?: string | null; instagram?: string | null; x?: string | null };
   defaultSeo?: { title?: string | null; description?: string | null; ogImageMediaId?: string | null };
 }): Promise<SiteSettings> {

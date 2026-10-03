@@ -51,6 +51,9 @@ export function CouponForm({ initial, submitLabel, isPending, onSubmit }: Coupon
   const [usageLimit, setUsageLimit] = useState(
     initial?.usageLimit != null ? String(initial.usageLimit) : "",
   );
+  const [perUserLimit, setPerUserLimit] = useState(
+    initial?.perUserLimit != null ? String(initial.perUserLimit) : "",
+  );
 
   const invalid = code.trim().length < 2 || !(Number(discountValue) > 0);
 
@@ -74,6 +77,7 @@ export function CouponForm({ initial, submitLabel, isPending, onSubmit }: Coupon
       validFrom: validFrom ? new Date(`${validFrom}T00:00:00Z`).toISOString() : null,
       validUntil: validUntil ? new Date(`${validUntil}T00:00:00Z`).toISOString() : null,
       usageLimit: usageLimit.trim() ? Math.max(1, Number(usageLimit) || 1) : null,
+      perUserLimit: perUserLimit.trim() ? Math.max(1, Number(perUserLimit) || 1) : null,
       applicableRoomTypeIds: [],
     });
   }
@@ -144,6 +148,16 @@ export function CouponForm({ initial, submitLabel, isPending, onSubmit }: Coupon
             inputMode="numeric"
             value={usageLimit}
             onChange={(e) => setUsageLimit(e.target.value)}
+            placeholder="Unlimited"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="cp-peruser">Max uses per guest (optional)</Label>
+          <Input
+            id="cp-peruser"
+            inputMode="numeric"
+            value={perUserLimit}
+            onChange={(e) => setPerUserLimit(e.target.value)}
             placeholder="Unlimited"
           />
         </div>

@@ -15,12 +15,15 @@ import { ensureProperty } from "../properties/property.service";
 import { consumeCouponUsage } from "../coupons/coupon.repository";
 import { evaluateCoupon } from "../coupons/coupon.service";
 import { findOverlappingBlockedRoomIds } from "../availability/availability-block.repository";
+import { findRoomById } from "../rooms/room.repository";
+import { BookingItemModel } from "./booking-item.model";
 import { findRatePlanById } from "../ratePlans/rate-plan.repository";
 import { findRoomTypeById } from "../roomTypes/room-type.repository";
 import { listRooms } from "../rooms/room.repository";
 import { enqueueAdminAlert, enqueueNotification } from "../notifications/notification.service";
 import { notificationKeys } from "../notifications/notification.types";
 import {
+  countUserCouponUses,
   createBookingWithItems,
   expireOverdueHolds,
   findBookingById,
@@ -283,6 +286,16 @@ export async function createBooking(
           const consumed = await consumeCouponUsage(couponId, session);
           if (!consumed) {
             throw new AppError("Coupon usage limit was just reached", 409, "COUPON_LIMIT_REACHED");
+          }
+          if (consumed.perUserLimit !== null) {
+            const used = await countUserCouponUses(userId, consumed.normalizedCode);
+            if (used >= consumed.perUserLimit) {
+              throw new AppError(
+                "You have already used this coupon the maximum times",
+                409,
+                "COUPON_LIMIT_REACHED",
+              );
+            }
           }
         }
         const doc = await createBookingWithItems(bookingRecord, itemRecords, session);
@@ -633,8 +646,7 @@ export async function checkInBooking(id: string, adminId: string): Promise<Booki
   return checkedIn;
 }
 
-export async function checkOutBooking(id: string, adminId: string): Promise<Booking> {
-  const booking = await findBookingById(id);
+export async function checkOutBooking(id: string, adminId: string): Promise<Booking> {  const booking = await findBookingById(id);
   if (!booking) {
     throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
   }
@@ -660,4 +672,57 @@ export async function checkOutBooking(id: string, adminId: string): Promise<Book
     idempotencyKey: notificationKeys.checkedOut(checkedOut.id),
   });
   return checkedOut;
+}
+
+/**
+ * Moves a booking to a different free room of the same type
+ * (docs 07 §29). Only single-room bookings qualify — multi-room stays
+ * need per-item handling the API does not offer yet.
+ */
+export async function reassignBookingRoom(
+  id: string,
+  newRoomId: string,
+  // Actor is recorded by the controller audit row; the move itself is actor-free.
+  _adminId: string,
+): Promise<Booking> {
+  const booking = await findBookingById(id);
+  if (!booking) {
+    throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
+  }
+  if (booking.status !== "CONFIRMED" && booking.status !== "CHECKED_IN") {
+    throw new AppError("Only active stays can be reassigned", 400, "REASSIGN_NOT_ALLOWED");
+  }
+  const items = await findBookingItems(booking.id);
+  if (items.length !== 1 || !items[0]) {
+    throw new AppError("Only single-room bookings can be reassigned", 400, "REASSIGN_NOT_ALLOWED");
+  }
+  const item = items[0];
+  const room = await findRoomById(newRoomId);
+  if (!room || room.propertyId !== booking.propertyId) {
+    throw new AppError("Room not found", 404, "ROOM_NOT_FOUND");
+  }
+  if (room.status !== "ACTIVE") {
+    throw new AppError("Target room is not sellable", 400, "REASSIGN_NOT_ALLOWED");
+  }
+  if (room.roomTypeId !== item.roomTypeId) {
+    throw new AppError("Target room must be the same room type", 400, "REASSIGN_NOT_ALLOWED");
+  }
+  if (room.id === item.roomId) {
+    throw new AppError("Booking is already in this room", 400, "REASSIGN_NOT_ALLOWED");
+  }
+  const [blocked, conflicting] = await Promise.all([
+    findOverlappingBlockedRoomIds(booking.checkIn, booking.checkOut),
+    findConflictingBookingRoomIds([room.id], booking.checkIn, booking.checkOut),
+  ]);
+  if (blocked.has(room.id) || conflicting.has(room.id)) {
+    throw new AppError("Target room is not free for this stay", 409, "ROOM_NO_LONGER_AVAILABLE");
+  }
+  await BookingItemModel.findByIdAndUpdate(item.id, {
+    $set: { roomId: room.id, roomNumberSnapshot: room.roomNumber },
+  }).exec();
+  const updated = await findBookingById(booking.id);
+  if (!updated) {
+    throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
+  }
+  return updated;
 }

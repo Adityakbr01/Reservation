@@ -6,12 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ImageField } from "@/components/common/ImageField";
 import { apiClient, getApiErrorMessage, unwrapResponse } from "@/lib/api-client";
 import type { ApiEnvelope } from "@/lib/api-client";
 import { settingsKeys } from "@/lib/query-keys";
 
 interface Settings {
   propertyName: string;
+  logoMediaId: string | null;
+  faviconMediaId: string | null;
   phone: string | null;
   supportEmail: string | null;
   address: string | null;
@@ -19,6 +22,7 @@ interface Settings {
   currency: string;
   checkInTime: string | null;
   checkOutTime: string | null;
+  reminderHoursBefore: number;
 }
 
 export function SettingsPage() {
@@ -92,6 +96,20 @@ function SettingsForm({ initial }: { initial: Settings }) {
               />
             </div>
             <div className="space-y-2">
+              <ImageField
+                label="Logo"
+                mediaId={form.logoMediaId}
+                onChange={(mediaId) => set("logoMediaId", mediaId)}
+              />
+            </div>
+            <div className="space-y-2">
+              <ImageField
+                label="Favicon"
+                mediaId={form.faviconMediaId}
+                onChange={(mediaId) => set("faviconMediaId", mediaId)}
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="set-phone">Phone</Label>
               <Input
                 id="set-phone"
@@ -145,6 +163,17 @@ function SettingsForm({ initial }: { initial: Settings }) {
                 value={form.checkOutTime ?? ""}
                 onChange={(e) => set("checkOutTime", e.target.value || null)}
                 placeholder="11:00"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="set-reminder">Reminder hours before check-in</Label>
+              <Input
+                id="set-reminder"
+                type="number"
+                min={1}
+                max={72}
+                value={form.reminderHoursBefore}
+                onChange={(e) => set("reminderHoursBefore", Math.min(72, Math.max(1, Number(e.target.value) || 24)))}
               />
             </div>
           </CardContent>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RoomTypeImage } from "@/components/common/RoomTypeImage";
+import { useMediaUrls } from "@/modules/media";
 import {
   AvailabilityCalendar,
   parseAvailabilitySearchParams,
@@ -34,6 +35,12 @@ export function RoomDetailPage() {
   const { data: availability } = useAvailabilitySearch(search);
   const match = availability?.results.find((item) => item.roomType.slug === slug);
   const [picked, setPicked] = useState<string[]>([]);
+  const mediaIds = useMemo(
+    () => [...(roomType?.images ?? [])].sort((a, b) => a.sortOrder - b.sortOrder).map((img) => img.mediaId),
+    [roomType],
+  );
+  const { data: photos } = useMediaUrls(mediaIds);
+  const coverPhoto = photos?.[0];
 
   function pickDate(date: string) {
     if (picked.length === 0 || (picked.length === 1 && date <= picked[0])) {
@@ -97,7 +104,11 @@ export function RoomDetailPage() {
 
       <div className="overflow-hidden rounded-xl border border-border">
         <div className="aspect-[21/9] w-full">
-          <RoomTypeImage name={roomType.name} imageUrl={null} />
+          <RoomTypeImage
+            name={roomType.name}
+            imageUrl={coverPhoto?.url ?? null}
+            alt={coverPhoto?.alt}
+          />
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RoomTypeImage } from "@/components/common/RoomTypeImage";
+import { useMediaUrls } from "@/modules/media";
 import type { AvailabilitySearchParams, SearchResultItem } from "../types/availability.types";
 import { toSearchRecord } from "../utils/search-params";
 
@@ -24,6 +25,9 @@ export function RoomTypeCard({
 }) {
   const { roomType, availableCount, rates } = item;
   const lowStock = availableCount <= 2;
+  const coverId = [...(roomType.images ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)[0]?.mediaId;
+  const { data: photos } = useMediaUrls(coverId ? [coverId] : []);
+  const coverPhoto = photos?.[0];
   const detailTo = {
     pathname: `/rooms/${roomType.slug}`,
     search: new URLSearchParams(toSearchRecord(search)).toString(),
@@ -32,7 +36,11 @@ export function RoomTypeCard({
   return (
     <Card className="overflow-hidden shadow-card">
       <div className="aspect-[21/9] w-full border-b border-border">
-        <RoomTypeImage name={roomType.name} />
+        <RoomTypeImage
+          name={roomType.name}
+          imageUrl={coverPhoto?.url ?? null}
+          alt={coverPhoto?.alt}
+        />
       </div>
       <CardHeader>
         <div className="flex items-start justify-between gap-3">

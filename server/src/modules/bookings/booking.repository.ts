@@ -293,3 +293,13 @@ export async function findBookingsForReminderSweep(before: Date): Promise<Bookin
 export async function markReminderSent(id: string): Promise<void> {
   await BookingModel.findByIdAndUpdate(id, { $set: { reminderSent: true } }).exec();
 }
+
+/** Prior uses of a coupon code by a user (live bookings only, case-insensitive). */
+export async function countUserCouponUses(userId: string, normalizedCode: string): Promise<number> {
+  const escaped = normalizedCode.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return BookingModel.countDocuments({
+    userId,
+    "pricing.couponCode": { $regex: `^${escaped}$`, $options: "i" },
+    status: { $nin: ["CANCELLED", "EXPIRED"] },
+  }).exec();
+}

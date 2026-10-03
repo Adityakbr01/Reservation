@@ -106,13 +106,16 @@ export async function recordRefund(input: RecordRefundInput): Promise<Refund | n
     throw error;
   }
 }
+/** All refunds for a payment, newest first — payment detail + email context. */
+export async function listRefundsForPayment(paymentId: string): Promise<Refund[]> {
+  const docs = await RefundModel.find({ paymentId }).sort({ createdAt: -1 }).exec();
+  return docs.map((doc) => toRefund(doc));
+}
 
 /** Latest refund for a payment — drives the REFUND_UPDATED email context. */
 export async function findLatestRefundForPayment(paymentId: string): Promise<Refund | null> {
-  const doc = await RefundModel.findOne({ paymentId })
-    .sort({ createdAt: -1 })
-    .exec();
-  return doc ? toRefund(doc) : null;
+  const refunds = await listRefundsForPayment(paymentId);
+  return refunds[0] ?? null;
 }
 
 /** Sum of succeeded refunds for a payment — our own records, not Stripe's counter. */

@@ -5,6 +5,12 @@ export interface RoomTypeBed {
   quantity: number;
 }
 
+export interface RoomTypeImage {
+  mediaId: string;
+  url?: string | null;
+  altText: string | null;
+}
+
 export interface RoomType {
   id: string;
   propertyId: string;
@@ -18,6 +24,7 @@ export interface RoomType {
   beds: RoomTypeBed[];
   amenities: string[];
   status: RoomTypeStatus;
+  images: RoomTypeImage[];
   createdAt: string;
   updatedAt: string;
 }
@@ -39,6 +46,7 @@ export interface CreateRoomTypePayload {
   maxOccupancy: number;
   beds?: RoomTypeBed[];
   amenities?: string[];
+  images?: Array<{ mediaId: string; altText: string | null; sortOrder: number }>;
   status?: RoomTypeStatus;
 }
 

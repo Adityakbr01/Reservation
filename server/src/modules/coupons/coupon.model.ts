@@ -14,6 +14,7 @@ export interface CouponDocument extends mongoose.Document {
   validUntil: Date | null;
   usageLimit: number | null;
   usageCount: number;
+  perUserLimit: number | null;
   applicableRoomTypeIds: mongoose.Types.ObjectId[];
   status: CouponStatus;
   createdBy: mongoose.Types.ObjectId;
