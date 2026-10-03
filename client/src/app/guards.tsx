@@ -20,8 +20,11 @@ export function RequireAuth({ children }: { children?: ReactNode }) {
 }
 
 export function RequireGuest({ children }: { children: ReactNode }) {
+  const location = useLocation();
+  const state = location.state as { from?: string } | null;
+  const from = state?.from ?? "/";
   if (getAccessToken()) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={from} replace />;
   }
   return children;
 }

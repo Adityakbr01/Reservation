@@ -2,8 +2,9 @@ import { Route, Routes } from "react-router-dom";
 import { RootLayout } from "@/components/layouts/RootLayout";
 import { HomePage } from "@/modules/home";
 import { LoginPage } from "@/modules/auth/login";
-import { RegisterPage } from "@/modules/auth/register";
-import { RequireGuest } from "./guards";
+import { ProfilePage } from "@/modules/auth/me";
+import { ForgotPasswordPage, ResetPasswordPage } from "@/modules/auth/password";
+import { RequireAuth, RequireGuest } from "./guards";
 
 export function AppRoutes() {
   return (
@@ -19,11 +20,27 @@ export function AppRoutes() {
           }
         />
         <Route
-          path="register"
+          path="forgot-password"
           element={
             <RequireGuest>
-              <RegisterPage />
+              <ForgotPasswordPage />
             </RequireGuest>
+          }
+        />
+        <Route
+          path="reset-password"
+          element={
+            <RequireGuest>
+              <ResetPasswordPage />
+            </RequireGuest>
+          }
+        />
+        <Route
+          path="profile"
+          element={
+            <RequireAuth>
+              <ProfilePage />
+            </RequireAuth>
           }
         />
         <Route path="*" element={<div className="py-10 text-center">Page not found</div>} />

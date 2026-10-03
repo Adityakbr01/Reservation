@@ -12,6 +12,11 @@ const envSchema = z.object({
   MONGODB_URI: z.string().min(1).default("mongodb://127.0.0.1:27017/reservation"),
   JWT_SECRET: z.string().min(1).default(DEV_JWT_FALLBACK),
   JWT_EXPIRES_IN: z.string().min(1).default("7d"),
+  // Optional staff-admin seed (the admin frontend has no registration UI).
+  // Absent values skip seeding; present-but-malformed values fail boot fast.
+  ADMIN_NAME: z.string().trim().max(80).default("Administrator"),
+  ADMIN_EMAIL: z.string().trim().toLowerCase().email().optional(),
+  ADMIN_PASSWORD: z.string().min(8).max(128).optional(),
   CLIENT_URL: z.string().url().default("http://localhost:5173"),
   ADMIN_URL: z.string().url().default("http://localhost:5174"),
   CACHE_TTL_SECONDS: z.coerce.number().int().positive().default(900),

@@ -1,6 +1,11 @@
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuthInit } from "@/app/use-auth-init";
+import { useAuthStore } from "@/stores/auth-store";
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return cn(
@@ -11,6 +16,20 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
 }
 
 export function RootLayout() {
+  useAuthInit();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const user = useAuthStore((s) => s.user);
+
+  function handleLogout() {
+    useAuthStore.getState().clearSession();
+    void queryClient.clear();
+    toast.success("Signed out");
+    navigate("/", { replace: true });
+  }
+
+  const initial = user?.name.trim().charAt(0).toUpperCase() || "?";
+
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground">
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
@@ -25,12 +44,33 @@ export function RootLayout() {
             Home
           </NavLink>
           <div className="flex-1" />
-          <NavLink to="/login" className={navLinkClass}>
-            Login
-          </NavLink>
-          <Button asChild className="h-11 rounded-full px-6">
-            <Link to="/register">Register</Link>
-          </Button>
+          {user ? (
+            <>
+              <NavLink to="/profile" className={navLinkClass}>
+                <span
+                  className="mr-2 flex size-7 items-center justify-center rounded-full bg-night text-xs font-semibold text-white"
+                  aria-hidden
+                >
+                  {initial}
+                </span>
+                <span className="hidden max-w-28 truncate sm:inline">{user.name}</span>
+                <span className="sm:hidden">Profile</span>
+              </NavLink>
+              <Button variant="ghost" className="rounded-full" onClick={handleLogout}>
+                <LogOut aria-hidden />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            </>
+          ) : (
+            <>
+              <NavLink to="/login" className={navLinkClass}>
+                Login
+              </NavLink>
+              <Button asChild className="h-11 rounded-full px-6">
+                <Link to="/register">Register</Link>
+              </Button>
+            </>
+          )}
         </nav>
       </header>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-12">

@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoginForm } from "../components/LoginForm";
 
@@ -13,13 +12,7 @@ export function LoginPage() {
         <CardContent>
           <LoginForm />
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            No account yet?{" "}
-            <Link
-              to="/register"
-              className="font-medium text-brand hover:text-brand-dark focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              Create one
-            </Link>
+            Staff accounts are provisioned by your administrator.
           </p>
         </CardContent>
       </Card>

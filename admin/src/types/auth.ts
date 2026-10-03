@@ -1,5 +1,5 @@
 /**
- * Authenticated account shape returned by login/register.
+ * Authenticated account shape returned by login.
  * Mirrors the backend SafeUser contract. Single definition shared by
  * every auth submodule — do not redeclare per module.
  */

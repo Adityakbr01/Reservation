@@ -22,7 +22,7 @@ export function HomeHero({ title, subtitle }: HomeHeroProps) {
         </p>
         <div className="flex flex-col gap-3 pt-2 sm:flex-row">
           <Button asChild className="h-12 rounded-full px-8 text-sm">
-            <Link to="/register">
+            <Link to="/login">
               Get started
               <ArrowRight aria-hidden />
             </Link>

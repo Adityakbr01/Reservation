@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,6 +39,14 @@ export function LoginForm() {
           onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
           placeholder="••••••••"
         />
+      </div>
+      <div className="flex justify-end">
+        <Link
+          to="/forgot-password"
+          className="text-xs font-medium text-brand hover:text-brand-dark focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        >
+          Forgot password?
+        </Link>
       </div>
       <Button type="submit" className="h-11 w-full rounded-full" disabled={isPending}>
         {isPending ? "Signing in…" : "Sign in"}
