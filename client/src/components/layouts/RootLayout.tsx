@@ -56,12 +56,18 @@ export function RootLayout() {
                 >
                   {initial}
                 </span>
-                <span className="hidden max-w-28 truncate sm:inline">{user.name}</span>
+                <span className="hidden max-w-28 truncate sm:inline">
+                  {user.name}
+                </span>
                 <span className="sm:hidden">Profile</span>
               </NavLink>
-              <Button variant="ghost" className="rounded-full" onClick={handleLogout}>
+              <Button
+                variant="destructive"
+                className="rounded-full text-white!"
+                onClick={handleLogout}
+              >
                 <LogOut aria-hidden />
-                <span className="hidden sm:inline">Logout</span>
+                <span className="hidden sm:inline ">Logout</span>
               </Button>
             </>
           ) : (

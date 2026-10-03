@@ -136,7 +136,7 @@ export function AdminShell() {
       </nav>
       <div className="p-3">
         <Separator className="mb-3" />
-        <Button variant="ghost" className="w-full justify-start rounded-full" onClick={logout}>
+        <Button variant="destructive" className="w-full justify-start rounded-full text-white!" onClick={logout}>
           <LogOut aria-hidden />
           Logout
         </Button>
