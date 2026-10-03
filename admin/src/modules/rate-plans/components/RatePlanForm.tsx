@@ -4,6 +4,8 @@ import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { StatusBadge } from "@/components/common/StatusBadge";
 import {
   Select,
   SelectContent,
@@ -19,7 +21,6 @@ import type {
   RatePlanStatus,
 } from "../types/rate-plan.types";
 
-const STATUSES: RatePlanStatus[] = ["DRAFT", "ACTIVE", "INACTIVE"];
 const PRICING_TYPES: PricingType[] = ["PER_NIGHT", "PER_STAY"];
 
 /**
@@ -163,23 +164,20 @@ export function RatePlanForm({ initial, submitLabel, isPending, onSubmit }: Rate
         />
       </div>
 
-      <div className="space-y-2">
-        <Label>Status</Label>
-        <Select value={status} onValueChange={(value) => setStatus(value as RatePlanStatus)}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {STATUSES.map((option) => (
-              <SelectItem key={option} value={option}>
-                {option}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <p className="text-xs text-muted-foreground">
-          Stay restrictions and advance rules stay on defaults for now.
-        </p>
+      <div className="flex items-center justify-between gap-4 rounded-md border border-input px-4 py-3">
+        <div className="space-y-0.5">
+          <Label htmlFor="rp-active">Active</Label>
+          <p className="text-xs text-muted-foreground">On: bookable · Off: hidden from customers</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <StatusBadge status={status} />
+          <Switch
+            id="rp-active"
+            checked={status === "ACTIVE"}
+            onCheckedChange={(on) => setStatus(on ? "ACTIVE" : "INACTIVE")}
+            aria-label="Active"
+          />
+        </div>
       </div>
 
       <Button type="submit" className="h-11 rounded-full px-8" disabled={isPending || invalid}>

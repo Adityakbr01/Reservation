@@ -6,7 +6,7 @@ import { useMe } from "../hooks/use-me";
 
 function ProfileSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6" aria-busy="true" aria-label="Loading profile">
+    <div className="space-y-6" aria-busy="true" aria-label="Loading profile">
       <div className="h-40 animate-pulse rounded-xl bg-muted" />
       <div className="h-64 animate-pulse rounded-xl bg-muted" />
     </div>
@@ -39,7 +39,7 @@ export function ProfilePage() {
   const initial = user.name.trim().charAt(0).toUpperCase() || "?";
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6">
+    <div className="space-y-6">
       <Card className="shadow-card">
         <CardContent className="flex items-center gap-4 p-6">
           {user.avatarUrl ? (

@@ -8,7 +8,7 @@ export function RoomCreatePage() {
   const { mutate, isPending } = useCreateRoom();
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6">
+    <div className="space-y-6">
       <div>
         <Link
           to="/rooms"

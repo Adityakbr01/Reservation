@@ -4,21 +4,14 @@ import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { StatusBadge } from "@/components/common/StatusBadge";
 import type {
   CreateRoomTypePayload,
   RoomType,
   RoomTypeBed,
   RoomTypeStatus,
 } from "../types/room-type.types";
-
-const STATUSES: RoomTypeStatus[] = ["DRAFT", "ACTIVE", "INACTIVE"];
 
 interface RoomTypeFormProps {
   initial?: RoomType;
@@ -200,20 +193,20 @@ export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: Room
         />
       </div>
 
-      <div className="space-y-2">
-        <Label>Status</Label>
-        <Select value={status} onValueChange={(value) => setStatus(value as RoomTypeStatus)}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {STATUSES.map((option) => (
-              <SelectItem key={option} value={option}>
-                {option}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex items-center justify-between gap-4 rounded-md border border-input px-4 py-3">
+        <div className="space-y-0.5">
+          <Label htmlFor="rt-active">Active</Label>
+          <p className="text-xs text-muted-foreground">On: bookable · Off: hidden from customers</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <StatusBadge status={status} />
+          <Switch
+            id="rt-active"
+            checked={status === "ACTIVE"}
+            onCheckedChange={(on) => setStatus(on ? "ACTIVE" : "INACTIVE")}
+            aria-label="Active"
+          />
+        </div>
       </div>
 
       <Button type="submit" className="h-11 rounded-full px-8" disabled={isPending || invalid}>

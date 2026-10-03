@@ -12,7 +12,7 @@ export function RoomEditPage() {
 
   if (isPending) {
     return (
-      <div className="mx-auto w-full max-w-2xl" aria-busy="true" aria-label="Loading room">
+      <div className="w-full" aria-busy="true" aria-label="Loading room">
         <div className="h-96 animate-pulse rounded-xl bg-muted" />
       </div>
     );
@@ -40,7 +40,7 @@ export function RoomEditPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6">
+    <div className="space-y-6">
       <div>
         <Link
           to="/rooms"

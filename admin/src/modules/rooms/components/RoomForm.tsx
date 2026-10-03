@@ -4,6 +4,8 @@ import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { StatusBadge } from "@/components/common/StatusBadge";
 import {
   Select,
   SelectContent,
@@ -13,8 +15,6 @@ import {
 } from "@/components/ui/select";
 import { useRoomTypes } from "@/modules/room-types";
 import type { CreateRoomPayload, Room, RoomStatus } from "../types/room.types";
-
-const STATUSES: RoomStatus[] = ["ACTIVE", "INACTIVE", "MAINTENANCE"];
 
 interface RoomFormProps {
   initial?: Room;
@@ -99,21 +99,21 @@ export function RoomForm({ initial, submitLabel, isPending, onSubmit }: RoomForm
             placeholder="1"
           />
         </div>
-        <div className="space-y-2">
-          <Label>Status</Label>
-          <Select value={status} onValueChange={(value) => setStatus(value as RoomStatus)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {STATUSES.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="flex items-center justify-between gap-4 rounded-md border border-input px-4 py-3">
+        <div className="space-y-0.5">
+          <Label htmlFor="room-active">Active</Label>
+          <p className="text-xs text-muted-foreground">On: bookable · Off: hidden from customers</p>
         </div>
+        <div className="flex items-center gap-3">
+          <StatusBadge status={status} />
+          <Switch
+            id="room-active"
+            checked={status === "ACTIVE"}
+            onCheckedChange={(on) => setStatus(on ? "ACTIVE" : "INACTIVE")}
+            aria-label="Active"
+          />
+        </div>
+      </div>
       </div>
 
       <div className="space-y-2">
