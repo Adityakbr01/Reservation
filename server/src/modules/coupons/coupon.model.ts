@@ -34,6 +34,7 @@ const couponSchema = new mongoose.Schema<CouponDocument>(
     validUntil: { type: Date, default: null },
     usageLimit: { type: Number, default: null, min: 1 },
     usageCount: { type: Number, required: true, default: 0, min: 0 },
+    perUserLimit: { type: Number, default: null, min: 1 },
     applicableRoomTypeIds: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "RoomType" }],
       default: [],

@@ -3,12 +3,13 @@ import { authenticate, authorize } from "../../middleware/auth";
 import { validate } from "../../middleware/validate";
 import { blockIdParamsSchema } from "./availability.schema";
 import {
+  calendarHandler,
   createBlockHandler,
   deleteBlockHandler,
   listBlocksHandler,
   searchAvailabilityHandler,
 } from "./availability.controller";
-import { createBlockSchema, listBlocksQuerySchema } from "./availability.schema";
+import { calendarQuerySchema, createBlockSchema, listBlocksQuerySchema } from "./availability.schema";
 import { searchAvailabilitySchema } from "./search.schema";
 
 export const adminAvailabilityRouter = Router();
@@ -32,4 +33,9 @@ publicAvailabilityRouter.post(
   "/search",
   validate({ body: searchAvailabilitySchema }),
   searchAvailabilityHandler,
+);
+publicAvailabilityRouter.get(
+  "/calendar",
+  validate({ query: calendarQuerySchema }),
+  calendarHandler,
 );

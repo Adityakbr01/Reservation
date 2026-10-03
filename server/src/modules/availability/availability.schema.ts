@@ -19,5 +19,13 @@ export const listBlocksQuerySchema = paginationQuerySchema.extend({
 
 export const blockIdParamsSchema = z.object({ id: objectIdSchema });
 
+export const calendarQuerySchema = z.object({
+  from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  roomTypeId: objectIdSchema.optional(),
+});
+
+export type CalendarQuery = z.infer<typeof calendarQuerySchema>;
+
 export type CreateBlockInput = z.infer<typeof createBlockSchema>;
 export type ListBlocksQuery = z.infer<typeof listBlocksQuerySchema>;

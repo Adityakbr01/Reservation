@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { BedDouble, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { RoomTypeImage } from "@/components/common/RoomTypeImage";
 import {
+  AvailabilityCalendar,
   parseAvailabilitySearchParams,
   useAvailabilitySearch,
 } from "@/modules/availability";
@@ -22,7 +23,7 @@ function formatMoney(minor: number, currency: string): string {
 
 export function RoomDetailPage() {
   const { slug = "" } = useParams();
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const search = useMemo(() => parseAvailabilitySearchParams(params), [params]);
   const {
     data: roomType,
@@ -32,6 +33,27 @@ export function RoomDetailPage() {
   } = useRoomTypeBySlug(slug);
   const { data: availability } = useAvailabilitySearch(search);
   const match = availability?.results.find((item) => item.roomType.slug === slug);
+  const [picked, setPicked] = useState<string[]>([]);
+
+  function pickDate(date: string) {
+    if (picked.length === 0 || (picked.length === 1 && date <= picked[0])) {
+      setPicked([date]);
+      return;
+    }
+    if (picked.length === 1) {
+      const [checkIn, checkOut] = [picked[0], date];
+      setPicked([]);
+      const next = new URLSearchParams(params);
+      next.set("checkIn", checkIn);
+      next.set("checkOut", checkOut);
+      if (!next.get("adults")) next.set("adults", "2");
+      if (!next.get("children")) next.set("children", "0");
+      if (!next.get("rooms")) next.set("rooms", "1");
+      setParams(next);
+    } else {
+      setPicked([date]);
+    }
+  }
 
   if (isTypePending) {
     return (
@@ -124,6 +146,13 @@ export function RoomDetailPage() {
               </ul>
             </section>
           )}
+
+          <AvailabilityCalendar
+            roomTypeId={roomType.id}
+            selectedCheckIn={picked[0] ?? search?.checkIn ?? null}
+            selectedCheckOut={picked[1] ?? search?.checkOut ?? null}
+            onPickDate={pickDate}
+          />
         </div>
 
         <Card className="h-fit shadow-card lg:sticky lg:top-24">

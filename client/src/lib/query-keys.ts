@@ -24,6 +24,8 @@ export const userKeys = {
 export const availabilityKeys = {
   all: ["availability"] as const,
   search: (params: unknown) => [...availabilityKeys.all, "search", params] as const,
+  calendar: (roomTypeId: string, from: string, to: string) =>
+    [...availabilityKeys.all, "calendar", roomTypeId, from, to] as const,
 };
 
 export const roomTypeKeys = {

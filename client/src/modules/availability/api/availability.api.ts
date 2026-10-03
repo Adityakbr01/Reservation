@@ -18,3 +18,29 @@ export async function searchAvailability(
   );
   return unwrapResponse(response);
 }
+
+export interface CalendarDay {
+  date: string;
+  total: number;
+  available: number;
+  booked: number;
+  blocked: number;
+}
+
+export interface AvailabilityCalendarResponse {
+  from: string;
+  to: string;
+  types: Array<{ roomTypeId: string; name: string; days: CalendarDay[] }>;
+}
+
+export async function fetchAvailabilityCalendar(
+  roomTypeId: string,
+  from: string,
+  to: string,
+): Promise<AvailabilityCalendarResponse> {
+  const response = await publicApiClient.get<ApiEnvelope<AvailabilityCalendarResponse>>(
+    "/public/availability/calendar",
+    { params: { roomTypeId, from, to } },
+  );
+  return unwrapResponse(response);
+}

@@ -8,7 +8,8 @@ import {
   listBlockRecords,
 } from "./availability.service";
 import { searchAvailability } from "./search.service";
-import type { CreateBlockInput, ListBlocksQuery } from "./availability.schema";
+import { getAvailabilityCalendar } from "./calendar.service";
+import type { CalendarQuery, CreateBlockInput, ListBlocksQuery } from "./availability.schema";
 import type { SearchAvailabilityInput } from "./search.schema";
 
 /** GET /api/v1/admin/availability — standard paginated list contract. */
@@ -36,5 +37,12 @@ export const deleteBlockHandler = asyncHandler(async (req: Request, res: Respons
  */
 export const searchAvailabilityHandler = asyncHandler(async (req: Request, res: Response) => {
   const result = await searchAvailability(req.body as SearchAvailabilityInput);
+  res.status(200).json({ success: true, data: result });
+});
+
+/** GET /api/public/availability/calendar — per-day grid, informational only. */
+export const calendarHandler = asyncHandler(async (req: Request, res: Response) => {
+  const query = (req as Request & RequestWithValidatedQuery).validatedQuery as CalendarQuery;
+  const result = await getAvailabilityCalendar(query.from, query.to, query.roomTypeId);
   res.status(200).json({ success: true, data: result });
 });

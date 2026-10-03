@@ -18,7 +18,14 @@ export async function connectDatabase(): Promise<void> {
   if (mongoose.connection.readyState === 1) return;
   mongoose.set("strictQuery", true);
   try {
-    await mongoose.connect(env.MONGODB_URI, { serverSelectionTimeoutMS: 5000 });
+    // Capped pool: M0 allows 500 connections cluster-wide and this API is
+    // the only writer. One dev server + probes never need more than a
+    // handful; an uncapped default (100) plus hot-reload churn can exhaust
+    // the cluster and surface as TLS/handshake failures on new connects.
+    await mongoose.connect(env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      maxPoolSize: 10,
+    });
     logger.info("MongoDB connected");
   } catch (error) {
     // Degraded boot: the API still serves /health so the failure is observable.

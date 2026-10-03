@@ -18,6 +18,7 @@ import {
   Settings,
   Tags,
   Ticket,
+  TrendingUp,
   User,
   Users,
   X,
@@ -37,7 +38,10 @@ import { cn } from "@/lib/utils";
 import { useLogout } from "@/app/use-logout";
 import { useAuthStore } from "@/stores/auth-store";
 
-const OVERVIEW_LINKS = [{ to: "/dashboard", label: "Dashboard", Icon: LayoutDashboard }];
+const OVERVIEW_LINKS = [
+  { to: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
+  { to: "/sales", label: "Sales", Icon: TrendingUp },
+];
 
 const MANAGE_LINKS = [
   { to: "/reservations", label: "Reservations", Icon: CalendarCheck },

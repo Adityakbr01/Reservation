@@ -140,7 +140,7 @@
   reserved/duplicate/invalid slugs rejected; preview resolves; FAQ sanitized;
   settings patch; sitemap/robots; media list. Probe data cleaned.
 
-## 🔨 Phase 12 — Production hardening (audit DONE, live probes BLOCKED)
+## ✅ Phase 12 — Production hardening (DONE 2026-10-03)
 
 - **Built:** append-only `audit-logs` module (13 actions, curated snapshots —
   no contact/secrets, actor + IP/UA, insert-only model with zero delete API),
@@ -153,11 +153,12 @@
   readers published-only. Index review: all hot query paths covered
   (bookings status/checkIn/user, payments intent/booking, notifications
   status/nextAttempt, CMS status/slug, audit entity/action/time).
-- **BLOCKED by Atlas outage:** audit live probe, concurrency probe
-  (1 room / 2 customers → 1 wins), duplicate-webhook probe. API `/ready`
-  503 — cluster unreachable from this machine (DNS ok, internet ok).
-  Unblock: Atlas dashboard → cluster resumed + Network Access includes this
-  IP, then rerun the three probes. No code changes needed for them.
+- **Critical probes (verified live 2026-10-03, after Atlas recovery):**
+  audit rows recorded with actor/IP + anonymous 401; 1-room race →
+  exactly one 201, loser 409 `ROOM_NO_LONGER_AVAILABLE`; same
+  `payment_intent.succeeded` delivered twice → single payment, state intact,
+  zero duplicate mails.
 - **Remaining checklist:** `EMAIL_FROM` to verified sender + API restart,
-  `ADMIN_NOTIFICATION_EMAIL`, `stripe listen` for local webhooks, prod env +
-  backup verification per `09` §86.
+  `ADMIN_NOTIFICATION_EMAIL`, `stripe listen` for local webhooks,
+  prod env + backup verification per `09` §86. M0 pool capped at 10
+  (`database.ts`) after connection-exhaustion incident (501/500).

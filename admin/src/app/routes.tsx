@@ -6,6 +6,7 @@ import { LoginPage } from "@/modules/auth/login";
 import { ProfilePage } from "@/modules/auth/me";
 import { ForgotPasswordPage, ResetPasswordPage } from "@/modules/auth/password";
 import { DashboardPage } from "@/modules/dashboard";
+import { SalesPage } from "@/modules/dashboard/pages/SalesPage";
 import { RoomTypeCreatePage, RoomTypeEditPage, RoomTypesPage } from "@/modules/room-types";
 import { RoomCreatePage, RoomEditPage, RoomsPage } from "@/modules/rooms";
 import { RatePlanCreatePage, RatePlanEditPage, RatePlansPage } from "@/modules/rate-plans";
@@ -74,6 +75,14 @@ export function AppRoutes() {
             element={
               <RequireAdmin>
                 <DashboardPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="sales"
+            element={
+              <RequireAdmin>
+                <SalesPage />
               </RequireAdmin>
             }
           />

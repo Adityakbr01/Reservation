@@ -22,6 +22,8 @@ export interface Coupon {
   validUntil: Date | null;
   usageLimit: number | null;
   usageCount: number;
+  /** Max uses per user account (null = unlimited). Enforced at booking time. */
+  perUserLimit: number | null;
   applicableRoomTypeIds: string[];
   status: CouponStatus;
   createdBy: string;
