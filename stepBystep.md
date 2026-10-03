@@ -114,13 +114,19 @@
 - **Note:** `ADMIN_NOTIFICATION_EMAIL` unset in dev → admin alerts skip
   silently; Resend test domain rejects non-owner recipients (failure path).
 
-## ⏳ Phase 10 — Admin operations complete
+## 🔨 Phase 10 — Admin operations complete (server DONE, admin UI next)
 
-- **Build:** dashboard, reservations, customers, check-in/out, payments view,
-  coupons admin, notifications monitor.
-- **Why here:** operates on bookings/payments built above.
+- **Built (server, verified live 2026-10-03):** check-in/out
+  (`CONFIRMED→CHECKED_IN→CHECKED_OUT`, `stay.{checkedIn/OutAt/By}`, pure
+  guards `checkInBlockReason`/`checkOutBlockReason` + `tests/stay.test.ts`),
+  customers (`GET /admin/users/:id` detail + `PATCH /:id/status`
+  enable/disable, self-disable blocked, disabled login 403),
+  `GET /admin/dashboard/summary` (arrivals/departures/guests/upcoming/
+  pending/failures/value/refunds/failed-mails), notifications admin API.
+  CHECKED_IN/OUT mails queued. All 10 live checks green; probe data cleaned.
+- **Next:** admin UI — customers pages, check-in/out buttons, coupons module,
+  notifications monitor, dashboard metric cards.
 - **Docs:** `07`.
-- **Exit:** full reservation lifecycle manageable from admin app.
 
 ## ⏳ Phase 11 — CMS + media + SEO
 

@@ -6,11 +6,13 @@ import type { RequestWithFile } from "../../middleware/upload";
 import {
   changePassword,
   forgotPassword,
+  getCustomerDetail,
   getMe,
   listAccounts,
   login,
   register,
   resetPassword,
+  setAccountStatus,
   updateMe,
 } from "./auth.service";
 import type {
@@ -21,6 +23,7 @@ import type {
   RegisterInput,
   ResetPasswordInput,
   UpdateMeInput,
+  UserStatusInput,
 } from "./auth.schema";
 
 /** POST /api/v1/auth/register — 201 + { user, token }. */
@@ -87,4 +90,21 @@ export const listUsersHandler = asyncHandler(async (req: Request, res: Response)
   const query = (req as Request & RequestWithValidatedQuery).validatedQuery as ListUsersQuery;
   const result = await listAccounts(query);
   res.status(200).json({ success: true, data: result.data, meta: result.meta });
+});
+
+/** GET /api/v1/admin/users/:id — customer detail (docs 07 §44). */
+export const getUserHandler = asyncHandler(async (req: Request, res: Response) => {
+  const result = await getCustomerDetail(req.params.id as string);
+  res.status(200).json({ success: true, data: result });
+});
+
+/** PATCH /api/v1/admin/users/:id/status — enable/disable (docs 07 §45). */
+export const setUserStatusHandler = asyncHandler(async (req: Request, res: Response) => {
+  const body = req.body as UserStatusInput;
+  const result = await setAccountStatus(
+    req.params.id as string,
+    requireUser(req).id,
+    body.isActive,
+  );
+  res.status(200).json({ success: true, data: result });
 });

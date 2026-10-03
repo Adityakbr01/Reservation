@@ -1,5 +1,6 @@
 import { env } from "../../config/env";
 import { logger } from "../../config/logger";
+import { AppError } from "../../utils/app-error";
 import { findBookingById, findBookingItems } from "../bookings/booking.repository";
 import {
   findBookingsForReminderSweep,
@@ -28,6 +29,8 @@ import {
   bookingCancelledEmail,
   bookingConfirmedEmail,
   bookingReceivedEmail,
+  checkedInEmail,
+  checkedOutEmail,
   checkinReminderEmail,
   paymentFailedEmail,
   refundUpdatedEmail,
@@ -178,6 +181,10 @@ function renderFor(
       });
     case "CHECKIN_REMINDER":
       return checkinReminderEmail(snapshot);
+    case "CHECKED_IN":
+      return checkedInEmail(snapshot);
+    case "CHECKED_OUT":
+      return checkedOutEmail(snapshot);
     case "ADMIN_NEW_BOOKING":
       return adminAlertEmail(
         {
@@ -314,16 +321,13 @@ export async function runReminderSweep(now: Date = new Date()): Promise<number> 
 export async function retryAdminNotification(id: string): Promise<Notification> {
   const existing = await findNotificationById(id);
   if (!existing) {
-    const { AppError } = await import("../../utils/app-error");
     throw new AppError("Notification not found", 404, "NOTIFICATION_NOT_FOUND");
   }
   if (existing.status !== "FAILED") {
-    const { AppError } = await import("../../utils/app-error");
     throw new AppError("Only failed notifications can be retried", 400, "NOTIFICATION_NOT_RETRYABLE");
   }
   const requeued = await requeueNotification(id);
   if (!requeued) {
-    const { AppError } = await import("../../utils/app-error");
     throw new AppError("Notification not found", 404, "NOTIFICATION_NOT_FOUND");
   }
   return requeued;

@@ -5,6 +5,8 @@ import type { RequestWithValidatedQuery } from "../../middleware/validate";
 import {
   adminCancelBooking,
   adminRefundBooking,
+  checkInBooking,
+  checkOutBooking,
   getBookingAdmin,
   listAllBookings,
   previewCancellation,
@@ -50,4 +52,16 @@ export const adminRefundHandler = asyncHandler(async (req: Request, res: Respons
     body.amount ?? null,
   );
   res.status(201).json({ success: true, data: result });
+});
+
+/** POST /api/v1/admin/reservations/:id/check-in — CONFIRMED → CHECKED_IN. */
+export const adminCheckInHandler = asyncHandler(async (req: Request, res: Response) => {
+  const booking = await checkInBooking(req.params.id as string, requireUser(req).id);
+  res.status(200).json({ success: true, data: booking });
+});
+
+/** POST /api/v1/admin/reservations/:id/check-out — CHECKED_IN → CHECKED_OUT. */
+export const adminCheckOutHandler = asyncHandler(async (req: Request, res: Response) => {
+  const booking = await checkOutBooking(req.params.id as string, requireUser(req).id);
+  res.status(200).json({ success: true, data: booking });
 });

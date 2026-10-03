@@ -4,6 +4,8 @@ import { validate } from "../../middleware/validate";
 import {
   adminCancelHandler,
   adminCancelPreviewHandler,
+  adminCheckInHandler,
+  adminCheckOutHandler,
   adminGetBookingHandler,
   adminListBookingsHandler,
   adminRefundHandler,
@@ -33,4 +35,14 @@ adminBookingsRouter.post(
   "/:id/refund",
   validate({ params: bookingIdParamsSchema, body: refundBookingSchema }),
   adminRefundHandler,
+);
+adminBookingsRouter.post(
+  "/:id/check-in",
+  validate({ params: bookingIdParamsSchema }),
+  adminCheckInHandler,
+);
+adminBookingsRouter.post(
+  "/:id/check-out",
+  validate({ params: bookingIdParamsSchema }),
+  adminCheckOutHandler,
 );

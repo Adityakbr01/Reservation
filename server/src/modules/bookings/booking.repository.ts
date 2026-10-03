@@ -53,6 +53,12 @@ export function toBooking(doc: BookingDocument): Booking {
       reason: doc.cancellation.reason,
     },
     hold: { holdId: doc.hold.holdId, expiresAt: doc.hold.expiresAt },
+    stay: {
+      checkedInAt: doc.stay?.checkedInAt ?? null,
+      checkedInBy: doc.stay?.checkedInBy ? doc.stay.checkedInBy.toString() : null,
+      checkedOutAt: doc.stay?.checkedOutAt ?? null,
+      checkedOutBy: doc.stay?.checkedOutBy ? doc.stay.checkedOutBy.toString() : null,
+    },
     source: doc.source,
     notes: doc.notes,
     reminderSent: doc.reminderSent ?? false,

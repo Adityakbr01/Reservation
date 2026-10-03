@@ -76,6 +76,12 @@ export interface Booking {
     holdId: string | null;
     expiresAt: Date | null;
   };
+  stay: {
+    checkedInAt: Date | null;
+    checkedInBy: string | null;
+    checkedOutAt: Date | null;
+    checkedOutBy: string | null;
+  };
   source: BookingSource;
   notes: string | null;
   reminderSent: boolean;

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { objectIdSchema } from "../../utils/validators";
 import { paginationQuerySchema } from "../../utils/pagination";
 import { USER_ROLES } from "../users/user.types";
 
@@ -38,6 +39,12 @@ export const listUsersQuerySchema = paginationQuerySchema.extend({
   q: z.string().trim().max(80).optional(),
   role: z.enum(USER_ROLES).optional(),
 });
+
+export const userIdParamsSchema = z.object({ id: objectIdSchema });
+
+export const userStatusBodySchema = z.object({ isActive: z.boolean() });
+
+export type UserStatusInput = z.infer<typeof userStatusBodySchema>;
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;

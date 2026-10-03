@@ -29,6 +29,12 @@ export interface BookingDocument extends mongoose.Document {
     holdId: string | null;
     expiresAt: Date | null;
   };
+  stay: {
+    checkedInAt: Date | null;
+    checkedInBy: mongoose.Types.ObjectId | null;
+    checkedOutAt: Date | null;
+    checkedOutBy: mongoose.Types.ObjectId | null;
+  };
   source: BookingSource;
   notes: string | null;
   reminderSent: boolean;
@@ -87,6 +93,12 @@ const bookingSchema = new mongoose.Schema<BookingDocument>(
     hold: {
       holdId: { type: String, default: null },
       expiresAt: { type: Date, default: null },
+    },
+    stay: {
+      checkedInAt: { type: Date, default: null },
+      checkedInBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+      checkedOutAt: { type: Date, default: null },
+      checkedOutBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
     },
     source: { type: String, enum: BOOKING_SOURCES, default: "DIRECT", required: true },
     notes: { type: String, default: null },

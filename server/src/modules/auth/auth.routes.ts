@@ -6,12 +6,14 @@ import { validate } from "../../middleware/validate";
 import {
   changePasswordHandler,
   forgotPasswordHandler,
+  getUserHandler,
   listUsersHandler,
   loginHandler,
   logoutHandler,
   meHandler,
   registerHandler,
   resetPasswordHandler,
+  setUserStatusHandler,
   updateMeHandler,
 } from "./auth.controller";
 import {
@@ -22,6 +24,8 @@ import {
   registerSchema,
   resetPasswordSchema,
   updateMeSchema,
+  userIdParamsSchema,
+  userStatusBodySchema,
 } from "./auth.schema";
 
 export const authRouter = Router();
@@ -56,8 +60,14 @@ authRouter.post(
   changePasswordHandler,
 );
 
-/** Staff account listing. Extend into a full admin-users module in a later phase. */
+/** Staff customer management (docs 07 §43-45). */
 export const adminUsersRouter = Router();
 
 adminUsersRouter.use(authenticate, authorize("admin"));
 adminUsersRouter.get("/", validate({ query: listUsersQuerySchema }), listUsersHandler);
+adminUsersRouter.get("/:id", validate({ params: userIdParamsSchema }), getUserHandler);
+adminUsersRouter.patch(
+  "/:id/status",
+  validate({ params: userIdParamsSchema, body: userStatusBodySchema }),
+  setUserStatusHandler,
+);

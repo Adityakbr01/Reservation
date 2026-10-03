@@ -581,3 +581,83 @@ export async function adminRefundBooking(
   });
   return { refundId: refund.id, amount: refund.amount };
 }
+
+/**
+ * Pure check-in gate (docs 07 §27): CONFIRMED + captured payment + guest
+ * contact present + check-in day reached. Unit-tested; the service
+ * re-checks against fresh state.
+ */
+export function checkInBlockReason(booking: Booking, now: Date = new Date()): string | null {
+  if (booking.status !== "CONFIRMED") return "Only confirmed bookings can be checked in";
+  if (booking.paymentStatus !== "PAID") return "Payment must be captured before check-in";
+  if (!booking.contact.email || !booking.contact.firstName) {
+    return "Guest details are required before check-in";
+  }
+  const checkInDay = new Date(booking.checkIn);
+  checkInDay.setUTCHours(0, 0, 0, 0);
+  if (now.getTime() < checkInDay.getTime()) return "Check-in day has not arrived yet";
+  return null;
+}
+
+export function checkOutBlockReason(booking: Booking): string | null {
+  if (booking.status !== "CHECKED_IN") return "Only checked-in bookings can be checked out";
+  return null;
+}
+
+export async function checkInBooking(id: string, adminId: string): Promise<Booking> {
+  const booking = await findBookingById(id);
+  if (!booking) {
+    throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
+  }
+  const blocked = checkInBlockReason(booking);
+  if (blocked) {
+    throw new AppError(blocked, 400, "CHECKIN_NOT_ALLOWED");
+  }
+  const checkedIn = await setBookingStatus(booking.id, "CHECKED_IN", {
+    stay: {
+      checkedInAt: new Date(),
+      checkedInBy: adminId,
+      checkedOutAt: null,
+      checkedOutBy: null,
+    },
+  });
+  if (!checkedIn) {
+    throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
+  }
+  await enqueueNotification({
+    type: "CHECKED_IN",
+    recipient: checkedIn.contact.email,
+    bookingId: checkedIn.id,
+    idempotencyKey: notificationKeys.checkedIn(checkedIn.id),
+  });
+  return checkedIn;
+}
+
+export async function checkOutBooking(id: string, adminId: string): Promise<Booking> {
+  const booking = await findBookingById(id);
+  if (!booking) {
+    throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
+  }
+  const blocked = checkOutBlockReason(booking);
+  if (blocked) {
+    throw new AppError(blocked, 400, "CHECKOUT_NOT_ALLOWED");
+  }
+  const checkedOut = await setBookingStatus(booking.id, "CHECKED_OUT", {
+    stay: {
+      checkedInAt: booking.stay.checkedInAt,
+      checkedInBy: booking.stay.checkedInBy,
+      checkedOutAt: new Date(),
+      checkedOutBy: adminId,
+    },
+  });
+  if (!checkedOut) {
+    throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
+  }
+  await enqueueNotification({
+    type: "CHECKED_OUT",
+    recipient: checkedOut.contact.email,
+    bookingId: checkedOut.id,
+    idempotencyKey: notificationKeys.checkedOut(checkedOut.id),
+  });
+  return checkedOut;
+}

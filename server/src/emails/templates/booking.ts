@@ -85,6 +85,30 @@ export function bookingCancelledEmail(ctx: CancellationEmailContext): RenderedEm
   };
 }
 
+export function checkedInEmail(ctx: BookingEmailContext): RenderedEmail {
+  return {
+    subject: `Checked in — ${ctx.bookingReference}`,
+    html: layout(
+      "Welcome",
+      escapeHtml(ctx.guestName),
+      `<p style="color: #2f2f2f;">You are checked in at ${escapeHtml(ctx.propertyName)}. Booking <strong>${escapeHtml(ctx.bookingReference)}</strong>, rooms: ${escapeHtml(ctx.roomSummary)}. Enjoy your stay.</p>`,
+      `Questions? Contact ${escapeHtml(ctx.supportEmail)}.`,
+    ),
+  };
+}
+
+export function checkedOutEmail(ctx: BookingEmailContext): RenderedEmail {
+  return {
+    subject: `Checked out — ${ctx.bookingReference}`,
+    html: layout(
+      "Thanks for staying",
+      escapeHtml(ctx.guestName),
+      `<p style="color: #2f2f2f;">You are checked out of ${escapeHtml(ctx.propertyName)}. Booking <strong>${escapeHtml(ctx.bookingReference)}</strong> total was ${money(ctx.total, ctx.currency)} (${escapeHtml(ctx.paymentStatus)}). We hope to host you again.</p>`,
+      `Questions about charges? Contact ${escapeHtml(ctx.supportEmail)}.`,
+    ),
+  };
+}
+
 export function checkinReminderEmail(ctx: BookingEmailContext): RenderedEmail {
   return {
     subject: `Check-in tomorrow — ${ctx.bookingReference}`,

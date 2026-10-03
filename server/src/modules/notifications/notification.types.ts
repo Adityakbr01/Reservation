@@ -79,6 +79,8 @@ export const notificationKeys = {
     idempotencyKeyFor("REFUND_UPDATED", providerRefundId),
   checkinReminder: (bookingId: string, checkIn: Date) =>
     idempotencyKeyFor("CHECKIN_REMINDER", bookingId, toDateKey(checkIn)),
+  checkedIn: (bookingId: string) => idempotencyKeyFor("CHECKED_IN", bookingId),
+  checkedOut: (bookingId: string) => idempotencyKeyFor("CHECKED_OUT", bookingId),
   adminNewBooking: (bookingId: string) =>
     idempotencyKeyFor("ADMIN_NEW_BOOKING", bookingId),
   adminPaymentFailure: (paymentIntentId: string, eventId: string) =>

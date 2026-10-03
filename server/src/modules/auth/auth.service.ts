@@ -29,6 +29,9 @@ import type {
   UpdateMeInput,
 } from "./auth.schema";
 import { sendPasswordResetEmail } from "../../emails/password-reset";
+import { listBookingsByUser } from "../bookings/booking.repository";
+import { listPaymentsByBooking } from "../payments/payment.repository";
+import { sumSucceededRefunds } from "../refunds/refund.model";
 
 const BCRYPT_ROUNDS = 10;
 const RESET_TOKEN_BYTES = 32;
@@ -209,4 +212,83 @@ export async function changePassword(
 
 export async function listAccounts(query: ListUsersQuery): Promise<Paginated<SafeUser>> {
   return listUsers(query);
+}
+
+export interface CustomerDetail {
+  user: SafeUser;
+  bookings: Array<{
+    id: string;
+    bookingNumber: string;
+    status: string;
+    paymentStatus: string;
+    checkIn: Date;
+    checkOut: Date;
+    total: number;
+    currency: string;
+  }>;
+  paymentSummary: { paid: number; refunded: number; currency: string | null };
+  cancellations: Array<{ bookingNumber: string; cancelledAt: Date | null; reason: string | null }>;
+}
+
+/** Admin customer detail (docs 07 §43-45): profile + history + money, never secrets. */
+export async function getCustomerDetail(userId: string): Promise<CustomerDetail> {
+  const user = await findUserById(userId);
+  if (!user) {
+    throw new AppError("Customer not found", 404, "CUSTOMER_NOT_FOUND");
+  }
+  const history = await listBookingsByUser(userId, { page: 1, limit: 100 });
+  let paid = 0;
+  let refunded = 0;
+  let currency: string | null = null;
+  for (const booking of history.data) {
+    currency ??= booking.pricing.currency;
+    const rows = await listPaymentsByBooking(booking.id);
+    for (const row of rows) {
+      currency = row.currency;
+      if (row.status === "PAID") {
+        paid += row.amount;
+      } else if (row.status === "PARTIALLY_REFUNDED" || row.status === "REFUNDED") {
+        const refundedForPayment = await sumSucceededRefunds(row.id);
+        refunded += refundedForPayment;
+        paid += Math.max(0, row.amount - refundedForPayment);
+      }
+    }
+  }
+  return {
+    user,
+    bookings: history.data.map((booking) => ({
+      id: booking.id,
+      bookingNumber: booking.bookingNumber,
+      status: booking.status,
+      paymentStatus: booking.paymentStatus,
+      checkIn: booking.checkIn,
+      checkOut: booking.checkOut,
+      total: booking.pricing.total,
+      currency: booking.pricing.currency,
+    })),
+    paymentSummary: { paid, refunded, currency },
+    cancellations: history.data
+      .filter((booking) => booking.status === "CANCELLED")
+      .map((booking) => ({
+        bookingNumber: booking.bookingNumber,
+        cancelledAt: booking.cancellation.cancelledAt,
+        reason: booking.cancellation.reason,
+      })),
+  };
+}
+
+/** Enable/disable a customer account. Staff can never disable themselves. */
+export async function setAccountStatus(
+  userId: string,
+  actorId: string,
+  isActive: boolean,
+): Promise<SafeUser> {
+  if (userId === actorId) {
+    throw new AppError("You cannot change your own account status", 400, "CANNOT_MODIFY_SELF");
+  }
+  const updated = await updateUserById(userId, { isActive });
+  if (!updated) {
+    throw new AppError("Customer not found", 404, "CUSTOMER_NOT_FOUND");
+  }
+  return updated;
 }
