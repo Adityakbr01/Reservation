@@ -3,76 +3,98 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Brand theme — mapped from the GoKwik-extracted design system:
+ *   DESIGN-gokwik-co.md / DESIGN.md (visual language, do's & don'ts)
+ *   design-tokens-gokwik-co.json (source color/type/radius/shadow tokens)
+ *   SKILL-gokwik-co.md / SKILL.md (component + accessibility rules)
+ *
+ * Core voice: light canvas #ffffff, ink text #000000, single dominant
+ * accent #ff8000, 8px spacing grid, pill radii on CTAs, weight-300
+ * display headings, WCAG 2.2 AA focus visibility via --ring.
+ */
+
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.5rem;
+
+  /* --- shadcn surface roles (brand-mapped) --- */
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #ff8000;
+  --primary-foreground: #ffffff;
+  --secondary: #f2f1ea;
+  --secondary-foreground: #000000;
+  --muted: #f8f7f3;
+  --muted-foreground: #696969;
+  --accent: #061a1c;
+  --accent-foreground: #ffffff;
+  --destructive: #e53e3e;
+  --destructive-foreground: #ffffff;
+  --border: rgba(221, 220, 209, 0.58);
+  --input: rgba(221, 220, 209, 0.58);
+  --ring: #ff8000;
+
+  /* --- charts (brand palette) --- */
+  --chart-1: #ff8000;
+  --chart-2: #0779ff;
+  --chart-3: #4b9a6d;
+  --chart-4: #f79d1d;
+  --chart-5: #1449b2;
+
+  /* --- sidebar --- */
+  --sidebar: #f8f7f3;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: #ff8000;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f2f1ea;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: rgba(221, 220, 209, 0.58);
+  --sidebar-ring: #ff8000;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #061a1c;
+  --foreground: #ffffff;
+  --card: #0c2e31;
+  --card-foreground: #ffffff;
+  --popover: #0c2e31;
+  --popover-foreground: #ffffff;
+  --primary: #ff9933;
+  --primary-foreground: #000000;
+  --secondary: #0c2e31;
+  --secondary-foreground: #ffffff;
+  --muted: #0c2e31;
+  --muted-foreground: rgba(255, 255, 255, 0.7);
+  --accent: #f2f1ea;
+  --accent-foreground: #000000;
+  --destructive: #fc8181;
+  --destructive-foreground: #000000;
+  --border: rgba(255, 255, 255, 0.17);
+  --input: rgba(255, 255, 255, 0.17);
+  --ring: #ff9933;
+
+  --chart-1: #ff9933;
+  --chart-2: #3d9aff;
+  --chart-3: #68d391;
+  --chart-4: #fbbf24;
+  --chart-5: #63b3ed;
+
+  --sidebar: #0c2e31;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ff9933;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: rgba(255, 255, 255, 0.1);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.17);
+  --sidebar-ring: #ff9933;
 }
 
 @theme inline {
+  /* --- shadcn role mapping --- */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -108,6 +130,50 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* --- brand typography (BDO Grotesk / PP Neue Montreal licensed;
+       Inter loaded via Google Fonts as the renderable fallback) --- */
+  --font-sans: "BDO Grotesk", "PP Neue Montreal", Inter, system-ui, sans-serif;
+  --font-display: "BDO Grotesk", "PP Neue Montreal", Inter, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* --- brand colors (design-tokens-gokwik-co.json) --- */
+  --color-brand: #ff8000;
+  --color-brand-light: #ff9933;
+  --color-brand-dark: #e67300;
+  --color-royal: #0779ff;
+  --color-royal-light: #3d9aff;
+  --color-royal-dark: #0561cc;
+  --color-ink: #000428;
+  --color-night: #081320;
+  --color-deep: #061a1c;
+  --color-deep-light: #0c2e31;
+  --color-royal-block: #1449b2;
+  --color-royal-deep: #10377a;
+  --color-royal-ink: #1c407e;
+  --color-marigold: #f79d1d;
+  --color-cream: #fef1de;
+  --color-surface: #f8f7f3;
+  --color-surface-2: #f2f1ea;
+  --color-surface-3: #e2e8f0;
+  --color-gold: #bd9964;
+  --color-bronze: #86602c;
+  --color-success: #4b9a6d;
+  --color-success-light: #68d391;
+  --color-warning: #ffc130;
+  --color-warning-light: #fbbf24;
+  --color-error: #e53e3e;
+  --color-error-light: #fc8181;
+  --color-info: #0779ff;
+  --color-info-light: #63b3ed;
+
+  /* --- brand elevation (tinted shadows, not defaults) --- */
+  --shadow-card: 0px 3.955390453338623px 48.45353317260742px 23px rgba(240, 152, 25, 0.05);
+  --shadow-kwik: 0px 3.64px 44.64px 0.73px rgba(23, 119, 231, 0.1);
+  --shadow-pop: rgba(0, 0, 0, 0.3) 0px 4px 12px 0px;
+
+  /* --- brand radii --- */
+  --radius-pill: 1000px;
 }
 
 @layer base {
@@ -115,6 +181,15 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  /* Brand typographic voice: light display headings. */
+  h1,
+  h2,
+  h3 {
+    @apply font-display font-light tracking-normal;
+  }
+  ::selection {
+    background: rgba(255, 128, 0, 0.25);
   }
 }
