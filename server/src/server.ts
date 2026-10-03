@@ -4,19 +4,20 @@ import { closeCache } from "./config/cache";
 import { connectDatabase, disconnectDatabase } from "./config/database";
 import { env, isProduction } from "./config/env";
 import { logger } from "./config/logger";
-import { seedAdminFromEnv } from "./modules/auth/auth.service";
+import { runStartupSeeds } from "./seed";
 
 async function boot(): Promise<void> {
   // Degraded boot by design: DB failure is logged and /ready reports 503,
   // but the process still serves /health so the failure is observable.
   await connectDatabase();
 
-  // Staff admin seed. Failures are logged loudly but never take the API down.
+  // Startup seeds (admin account, property singleton). Failures are logged
+  // loudly but never take the API down.
   try {
-    await seedAdminFromEnv();
+    await runStartupSeeds();
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    logger.error("Admin seeding failed", { message });
+    logger.error("Boot seeding failed", { message });
   }
 
   const app = createApp();

@@ -6,6 +6,4 @@ export {
   login,
   register,
   resetPassword,
-  seedAdminFromEnv,
 } from "./auth.service";
-export type { AdminSeedResult } from "./auth.service";

@@ -1,10 +1,10 @@
 import bcrypt from "bcryptjs";
 import { createHash, randomBytes } from "node:crypto";
 import { env, isProduction } from "../../config/env";
-import { isDatabaseConnected } from "../../config/database";
 import { logger } from "../../config/logger";
 import { AppError } from "../../utils/app-error";
 import { signAccessToken } from "../../utils/jwt";
+import { isDuplicateKeyError } from "../../utils/mongo";
 import { deleteAvatar, uploadAvatar } from "../../integrations/imagekit/imagekit.service";
 import {
   createUser,
@@ -39,10 +39,6 @@ export interface AuthResult {
   token: string;
 }
 
-function isDuplicateKey(error: unknown): boolean {
-  return error instanceof Error && (error as unknown as { code?: unknown }).code === 11000;
-}
-
 function hashResetToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
@@ -68,7 +64,7 @@ export async function register(input: RegisterInput): Promise<AuthResult> {
     return { user, token: signAccessToken(user.id, user.role) };
   } catch (error) {
     // Race-safe duplicate handling: two simultaneous registers for one email.
-    if (isDuplicateKey(error)) {
+    if (isDuplicateKeyError(error)) {
       throw new AppError("An account with this email already exists", 409, "USER_EXISTS");
     }
     throw error;
@@ -213,39 +209,4 @@ export async function changePassword(
 
 export async function listAccounts(query: ListUsersQuery): Promise<Paginated<SafeUser>> {
   return listUsers(query);
-}
-
-export type AdminSeedResult = "created" | "exists" | "skipped";
-
-/**
- * Boot-time staff admin seed (the admin frontend has no registration UI).
- * Creates the ADMIN_EMAIL account with the admin role ONLY when that email
- * is not registered yet. Existing accounts are never modified — passwords
- * and roles are never overwritten on boot.
- */
-export async function seedAdminFromEnv(): Promise<AdminSeedResult> {
-  const email = env.ADMIN_EMAIL;
-  const password = env.ADMIN_PASSWORD;
-  if (!email || !password) {
-    logger.warn("Admin seed skipped: set ADMIN_EMAIL and ADMIN_PASSWORD to create a staff admin");
-    return "skipped";
-  }
-  if (!isDatabaseConnected()) {
-    logger.warn("Admin seed skipped: database is not connected");
-    return "skipped";
-  }
-  const existing = await findUserByEmail(email);
-  if (existing) {
-    logger.info("Admin seed already present, leaving the existing account untouched");
-    return "exists";
-  }
-  const name = env.ADMIN_NAME.trim() === "" ? "Administrator" : env.ADMIN_NAME.trim();
-  await createUser({
-    name,
-    email,
-    passwordHash: await bcrypt.hash(password, BCRYPT_ROUNDS),
-    role: "admin",
-  });
-  logger.info("Staff admin seeded from environment");
-  return "created";
 }

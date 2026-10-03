@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RegisterForm } from "../components/RegisterForm";
+import { useRedirectIfAuthenticated } from "@/app/use-redirect-if-authenticated";
 
 export function RegisterPage() {
+  useRedirectIfAuthenticated();
   return (
     <div className="mx-auto w-full max-w-sm py-8 sm:py-12">
       <Card className="shadow-card">

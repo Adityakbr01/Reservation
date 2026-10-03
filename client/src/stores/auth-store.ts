@@ -34,7 +34,9 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: "auth-session",
+      // Namespaced per app so the public site (or the other app on a
+      // shared origin) can never read or collide with this session.
+      name: "reservation-client:session",
       partialize: (state) => ({ user: state.user }),
     },
   ),

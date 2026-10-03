@@ -1,7 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoginForm } from "../components/LoginForm";
+import { useRedirectIfAuthenticated } from "@/app/use-redirect-if-authenticated";
 
 export function LoginPage() {
+  useRedirectIfAuthenticated();
   return (
     <div className="mx-auto w-full max-w-sm py-8 sm:py-12">
       <Card className="shadow-card">

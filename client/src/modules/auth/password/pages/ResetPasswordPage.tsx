@@ -1,8 +1,10 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResetPasswordForm } from "../components/ResetPasswordForm";
+import { useRedirectIfAuthenticated } from "@/app/use-redirect-if-authenticated";
 
 export function ResetPasswordPage() {
+  useRedirectIfAuthenticated();
   const [params] = useSearchParams();
   const token = params.get("token") ?? "";
 
