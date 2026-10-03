@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -78,7 +79,14 @@ export function ProfileForm({ user }: { user: AuthUser }) {
         {fileError && <p className="text-xs text-error">{fileError}</p>}
       </div>
       <Button type="submit" className="h-11 rounded-full px-8" disabled={isPending || invalid}>
-        {isPending ? "Saving…" : "Save changes"}
+        {isPending ? (
+          <>
+            <Loader className="size-4 animate-spin" aria-hidden />
+            <span className="sr-only">Saving…</span>
+          </>
+        ) : (
+          "Save changes"
+        )}
       </Button>
     </form>
   );

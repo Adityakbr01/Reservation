@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
+import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,7 +50,14 @@ export function LoginForm() {
         </Link>
       </div>
       <Button type="submit" className="h-11 w-full rounded-full" disabled={isPending}>
-        {isPending ? "Signing in…" : "Sign in"}
+        {isPending ? (
+          <>
+            <Loader className="size-4 animate-spin" aria-hidden />
+            <span className="sr-only">Signing in…</span>
+          </>
+        ) : (
+          "Sign in"
+        )}
       </Button>
     </form>
   );

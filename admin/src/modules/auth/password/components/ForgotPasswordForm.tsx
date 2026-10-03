@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,7 +46,14 @@ export function ForgotPasswordForm() {
         />
       </div>
       <Button type="submit" className="h-11 w-full rounded-full" disabled={isPending}>
-        {isPending ? "Sending…" : "Send reset link"}
+        {isPending ? (
+          <>
+            <Loader className="size-4 animate-spin" aria-hidden />
+            <span className="sr-only">Sending…</span>
+          </>
+        ) : (
+          "Send reset link"
+        )}
       </Button>
     </form>
   );

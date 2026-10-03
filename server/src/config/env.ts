@@ -26,7 +26,7 @@ const envSchema = z.object({
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
-  EMAIL_FROM: z.string().min(1).default("no-reply@example.com"),
+  EMAIL_FROM: z.string().min(1).default("no-reply@voiceact.tech"),
   EMAIL_REPLY_TO: z.string().optional(),
   IMAGEKIT_PUBLIC_KEY: z.string().optional(),
   IMAGEKIT_PRIVATE_KEY: z.string().optional(),

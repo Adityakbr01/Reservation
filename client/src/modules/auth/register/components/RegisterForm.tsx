@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,7 +51,14 @@ export function RegisterForm() {
         />
       </div>
       <Button type="submit" className="h-11 w-full rounded-full" disabled={isPending}>
-        {isPending ? "Creating account…" : "Create account"}
+        {isPending ? (
+          <>
+            <Loader className="size-4 animate-spin" aria-hidden />
+            <span className="sr-only">Creating account…</span>
+          </>
+        ) : (
+          "Create account"
+        )}
       </Button>
     </form>
   );

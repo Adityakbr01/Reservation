@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -66,7 +66,14 @@ export function ResetPasswordForm({ token }: { token: string }) {
         {mismatch && <p className="text-xs text-error">Passwords do not match.</p>}
       </div>
       <Button type="submit" className="h-11 w-full rounded-full" disabled={isPending || invalid}>
-        {isPending ? "Resetting…" : "Reset password"}
+        {isPending ? (
+          <>
+            <Loader className="size-4 animate-spin" aria-hidden />
+            <span className="sr-only">Resetting…</span>
+          </>
+        ) : (
+          "Reset password"
+        )}
       </Button>
     </form>
   );
