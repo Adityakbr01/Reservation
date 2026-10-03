@@ -14,3 +14,20 @@ export const globalRateLimiter = rateLimit({
     });
   },
 });
+
+/**
+ * Stricter bucket for credential endpoints (register/login/password reset).
+ * Fixed values on purpose: brute-force protection must not be loosened via env.
+ */
+export const authRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req: Request, res: Response): void => {
+    res.status(429).json({
+      success: false,
+      error: { code: "RATE_LIMITED", message: "Too many attempts, please try again later." },
+    });
+  },
+});

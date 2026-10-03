@@ -6,7 +6,7 @@ import { getAccessToken } from "@/lib/auth-token";
  * UX-only route guards. They improve navigation flow but are NOT the
  * security boundary — backend authorization remains mandatory (docs §17).
  *
- * - RequireAuth: customer/admin protected areas (My Bookings, profile,
+ * - RequireAuth: user/admin protected areas (My Bookings, profile,
  *   dashboard, ...). Redirects to /login preserving the target path.
  * - RequireGuest: login/register/forgot-password — sends signed-in
  *   users back to / instead of showing auth forms again.

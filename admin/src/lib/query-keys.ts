@@ -16,3 +16,7 @@ export const homeKeys = {
   all: ["home"] as const,
   summary: () => [...homeKeys.all, "summary"] as const,
 };
+
+export const userKeys = {
+  all: ["me"] as const,
+};

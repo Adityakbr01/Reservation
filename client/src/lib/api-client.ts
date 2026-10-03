@@ -15,15 +15,15 @@ import { getAccessToken } from "./auth-token";
  * trusts its own search results or payment redirects.
  */
 
-/** Documented backend success envelope. */
+/** Documented backend success envelope. Lists add a top-level meta object (docs 05 §36). */
 export interface ApiEnvelope<T> {
   success: boolean;
   data: T;
   meta?: {
-    page?: number;
-    limit?: number;
-    total?: number;
-    totalPages?: number;
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
   };
 }
 

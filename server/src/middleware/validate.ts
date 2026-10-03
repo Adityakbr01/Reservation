@@ -12,6 +12,14 @@ interface ValidationSchemas {
   query?: Validatable;
 }
 
+/**
+ * Parsed query output. Express 5 exposes req.query as a read-only getter,
+ * so validated query values live here instead of assigning back to req.query.
+ */
+export interface RequestWithValidatedQuery {
+  validatedQuery?: unknown;
+}
+
 /** Zod validation for body/params/query. Throws 400 VALIDATION_ERROR on failure. */
 export function validate(schemas: ValidationSchemas) {
   return (req: Request, _res: Response, next: NextFunction): void => {
@@ -20,7 +28,8 @@ export function validate(schemas: ValidationSchemas) {
         req.params = schemas.params.parse(req.params) as Request["params"];
       }
       if (schemas.query) {
-        req.query = schemas.query.parse(req.query) as Request["query"];
+        (req as Request & RequestWithValidatedQuery).validatedQuery =
+          schemas.query.parse(req.query);
       }
       if (schemas.body) {
         req.body = schemas.body.parse(req.body) as Request["body"];

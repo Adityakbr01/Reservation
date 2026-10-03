@@ -6,6 +6,7 @@ import { errorHandler } from "./middleware/error-handler";
 import { notFound } from "./middleware/not-found";
 import { globalRateLimiter } from "./middleware/rate-limit";
 import { requestLogger } from "./middleware/request-logger";
+import { adminUsersRouter, authRouter } from "./modules/auth/auth.routes";
 import { healthRouter } from "./routes/health.routes";
 
 export function createApp() {
@@ -24,6 +25,8 @@ export function createApp() {
   app.use(globalRateLimiter);
 
   app.use(healthRouter);
+  app.use("/api/v1/auth", authRouter);
+  app.use("/api/v1/admin/users", adminUsersRouter);
   // Future domain routers mount under /api/v1 (see docs 05_DATABASE_AND_API_SPEC).
 
   app.use(notFound);

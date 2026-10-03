@@ -1,3 +1,5 @@
+import type { AuthUser } from "@/types/auth";
+
 export interface RegisterPayload {
   name: string;
   email: string;
@@ -5,5 +7,6 @@ export interface RegisterPayload {
 }
 
 export interface RegisterResponse {
+  user: AuthUser;
   token: string;
 }
