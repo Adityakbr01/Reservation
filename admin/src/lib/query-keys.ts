@@ -43,3 +43,24 @@ export const availabilityKeys = {
   all: ["availability"] as const,
   blocks: (filters: unknown) => [...availabilityKeys.all, "blocks", filters] as const,
 };
+
+export const reservationKeys = {
+  all: ["reservations"] as const,
+  list: (filters: unknown) => [...reservationKeys.all, "list", filters] as const,
+  detail: (id: string) => [...reservationKeys.all, "detail", id] as const,
+};
+
+export const adminPaymentKeys = {
+  all: ["admin-payments"] as const,
+  list: (filters: unknown) => [...adminPaymentKeys.all, "list", filters] as const,
+};
+
+export const refundKeys = {
+  all: ["refunds"] as const,
+  list: (filters: unknown) => [...refundKeys.all, "list", filters] as const,
+};
+
+export const policyKeys = {
+  all: ["policies"] as const,
+  list: () => [...policyKeys.all, "list"] as const,
+};

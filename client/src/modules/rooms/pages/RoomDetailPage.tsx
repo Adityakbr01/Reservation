@@ -35,7 +35,7 @@ export function RoomDetailPage() {
 
   if (isTypePending) {
     return (
-      <div className="space-y-6 py-8" aria-busy="true" aria-label="Loading room details">
+      <div className="space-y-6 pb-8" aria-busy="true" aria-label="Loading room details">
         <Skeleton className="h-64 w-full rounded-xl" />
         <Skeleton className="h-40 w-full rounded-xl" />
       </div>
@@ -44,7 +44,7 @@ export function RoomDetailPage() {
 
   if (isTypeError || !roomType) {
     return (
-      <div className="mx-auto w-full max-w-sm py-8">
+      <div className="mx-auto w-full max-w-sm pb-8">
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Room not found</CardTitle>
@@ -64,7 +64,7 @@ export function RoomDetailPage() {
   }
 
   return (
-    <div className="space-y-6 py-8">
+    <div className="space-y-6 pb-8">
       <Link
         to="/"
         state={search ? { search } : undefined}
@@ -159,9 +159,18 @@ export function RoomDetailPage() {
                           {rate.pricingType === "PER_NIGHT" ? " / night" : " / stay"}
                         </p>
                       </div>
-                      <p className="font-display text-xl font-light">
-                        {formatMoney(rate.total, rate.currency)}
-                      </p>
+                      <div className="flex flex-col items-end gap-2">
+                        <p className="font-display text-xl font-light">
+                          {formatMoney(rate.total, rate.currency)}
+                        </p>
+                        <Button asChild size="sm" className="rounded-full">
+                          <Link
+                            to={`/booking/new?roomTypeId=${match.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&roomName=${encodeURIComponent(match.roomType.name)}&rateName=${encodeURIComponent(rate.name)}`}
+                          >
+                            Book now
+                          </Link>
+                        </Button>
+                      </div>
                     </li>
                   ))}
                 </ul>

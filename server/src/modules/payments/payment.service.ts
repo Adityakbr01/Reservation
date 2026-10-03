@@ -2,8 +2,16 @@ import { AppError } from "../../utils/app-error";
 import { isDuplicateKeyError } from "../../utils/mongo";
 import { getStripe } from "../../integrations/stripe/stripe.client";
 import { expireOverdueHolds, findBookingById, setBookingStatus } from "../bookings/booking.repository";
-import { createPayment, findLatestPaymentForBooking, findPaymentById, toPayment } from "./payment.repository";
+import { createPayment, findLatestPaymentForBooking, findPaymentById, listPayments, toPayment } from "./payment.repository";
+import type { ListPaymentsFilter } from "./payment.repository";
 import type { Payment } from "./payment.types";
+import type { Paginated } from "../../utils/pagination";
+
+export async function listAllPayments(filter: ListPaymentsFilter): Promise<Paginated<Payment>> {
+  return listPayments(filter);
+}
+import { recordRefund, sumSucceededRefunds } from "../refunds/refund.model";
+import type { Refund } from "../refunds/refund.model";
 
 export interface PaymentIntentResult {
   payment: Payment;
@@ -112,4 +120,63 @@ export async function getPayment(id: string, userId: string): Promise<Payment> {
     throw new AppError("Payment not found", 404, "PAYMENT_NOT_FOUND");
   }
   return payment;
+}
+
+export interface RefundPaymentResult {
+  refund: Refund;
+}
+
+/**
+ * Admin-initiated Stripe refund against captured funds. Amount defaults to
+ * the remaining refundable balance. Webhook delivery finalizes payment
+ * states; this call only starts the refund at the provider.
+ */
+export async function refundPayment(
+  paymentId: string,
+  amount: number | null,
+  requestedBy: string | null,
+): Promise<RefundPaymentResult> {
+  const payment = await findPaymentById(paymentId);
+  if (!payment) {
+    throw new AppError("Payment not found", 404, "PAYMENT_NOT_FOUND");
+  }
+  if (payment.status !== "PAID" && payment.status !== "PARTIALLY_REFUNDED") {
+    throw new AppError("Only captured payments can be refunded", 400, "PAYMENT_NOT_REFUNDABLE");
+  }
+  if (!payment.providerPaymentIntentId) {
+    throw new AppError("Payment has no provider reference", 400, "PAYMENT_NOT_REFUNDABLE");
+  }
+  const alreadyRefunded = await sumSucceededRefunds(payment.id);
+  const remaining = payment.amount - alreadyRefunded;
+  if (remaining <= 0) {
+    throw new AppError("Nothing left to refund on this payment", 400, "NOTHING_TO_REFUND");
+  }
+  const refundAmount = amount ?? remaining;
+  if (!Number.isInteger(refundAmount) || refundAmount <= 0 || refundAmount > remaining) {
+    throw new AppError("Refund amount exceeds the refundable balance", 400, "REFUND_EXCEEDS_CAPTURED");
+  }
+  let stripeRefund;
+  try {
+    stripeRefund = await getStripe().refunds.create({
+      payment_intent: payment.providerPaymentIntentId,
+      amount: refundAmount,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new AppError(`Refund failed at provider: ${message}`, 502, "REFUND_PROVIDER_ERROR");
+  }
+  const recorded = await recordRefund({
+    bookingId: payment.bookingId,
+    paymentId: payment.id,
+    providerRefundId: stripeRefund.id,
+    amount: stripeRefund.amount,
+    currency: (stripeRefund.currency ?? payment.currency).toUpperCase(),
+    status: stripeRefund.status === "succeeded" ? "SUCCEEDED" : "PENDING",
+    requestedBy,
+    processedAt: stripeRefund.status === "succeeded" ? new Date() : null,
+  });
+  if (!recorded) {
+    throw new AppError("Refund was already recorded", 409, "REFUND_DUPLICATE");
+  }
+  return { refund: recorded };
 }

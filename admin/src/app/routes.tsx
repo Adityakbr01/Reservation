@@ -10,6 +10,8 @@ import { RoomTypeCreatePage, RoomTypeEditPage, RoomTypesPage } from "@/modules/r
 import { RoomCreatePage, RoomEditPage, RoomsPage } from "@/modules/rooms";
 import { RatePlanCreatePage, RatePlanEditPage, RatePlansPage } from "@/modules/rate-plans";
 import { AvailabilityPage } from "@/modules/availability";
+import { ReservationDetailPage, ReservationsPage } from "@/modules/reservations";
+import { PaymentsPage } from "@/modules/payments";
 import { RequireAdmin, RequireAuth, RequireGuest } from "./guards";
 
 export function AppRoutes() {
@@ -143,6 +145,30 @@ export function AppRoutes() {
             element={
               <RequireAdmin>
                 <AvailabilityPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="reservations"
+            element={
+              <RequireAdmin>
+                <ReservationsPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="reservations/:id"
+            element={
+              <RequireAdmin>
+                <ReservationDetailPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="payments"
+            element={
+              <RequireAdmin>
+                <PaymentsPage />
               </RequireAdmin>
             }
           />

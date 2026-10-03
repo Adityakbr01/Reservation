@@ -6,7 +6,7 @@ import { useMe } from "../hooks/use-me";
 
 function ProfileSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6 py-8" aria-busy="true" aria-label="Loading profile">
+    <div className="mx-auto w-full max-w-3xl space-y-6 pb-8" aria-busy="true" aria-label="Loading profile">
       <div className="h-40 animate-pulse rounded-xl bg-muted" />
       <div className="h-64 animate-pulse rounded-xl bg-muted" />
     </div>
@@ -20,7 +20,7 @@ export function ProfilePage() {
 
   if (isError || !user) {
     return (
-      <div className="mx-auto w-full max-w-sm py-8 sm:py-12">
+      <div className="mx-auto w-full max-w-sm pb-8 sm:pb-12">
         <Card className="shadow-card">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Profile unavailable</CardTitle>
@@ -39,7 +39,7 @@ export function ProfilePage() {
   const initial = user.name.trim().charAt(0).toUpperCase() || "?";
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6 py-8">
+    <div className="mx-auto w-full max-w-3xl space-y-6 pb-8">
       <Card className="shadow-card">
         <CardContent className="flex items-center gap-4 p-6">
           {user.avatarUrl ? (

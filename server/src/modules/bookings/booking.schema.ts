@@ -35,12 +35,25 @@ export const cancelBookingSchema = z.object({
   reason: z.string().trim().max(500).nullable().optional(),
 });
 
+export const refundBookingSchema = z.object({
+  amount: z.number().int().min(1).nullable().optional(),
+});
+
 export const myBookingsQuerySchema = paginationQuerySchema.extend({
   status: z.enum(BOOKING_STATUSES).optional(),
+});
+
+export const adminBookingsQuerySchema = paginationQuerySchema.extend({
+  status: z.enum(BOOKING_STATUSES).optional(),
+  q: z.string().trim().max(80).optional(),
+  checkInFrom: z.coerce.date().optional(),
+  checkOutTo: z.coerce.date().optional(),
 });
 
 export const bookingIdParamsSchema = z.object({ id: objectIdSchema });
 
 export type CreateBookingInput = z.infer<typeof createBookingSchema>;
 export type CancelBookingInput = z.infer<typeof cancelBookingSchema>;
+export type RefundBookingInput = z.infer<typeof refundBookingSchema>;
 export type MyBookingsQuery = z.infer<typeof myBookingsQuerySchema>;
+export type AdminBookingsQuery = z.infer<typeof adminBookingsQuerySchema>;

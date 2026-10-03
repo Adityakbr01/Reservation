@@ -1,4 +1,7 @@
 import mongoose from "mongoose";
+import type { QueryFilter } from "mongoose";
+import { paginatedResponse } from "../../utils/pagination";
+import type { Paginated } from "../../utils/pagination";
 
 export const REFUND_STATUSES = ["PENDING", "SUCCEEDED", "FAILED", "CANCELLED"] as const;
 
@@ -84,6 +87,7 @@ export interface RecordRefundInput {
   currency: string;
   status?: RefundStatus;
   reason?: string | null;
+  requestedBy?: string | null;
   processedAt?: Date | null;
 }
 
@@ -104,10 +108,37 @@ export async function recordRefund(input: RecordRefundInput): Promise<Refund | n
 }
 
 /** Sum of succeeded refunds for a payment — our own records, not Stripe's counter. */
-export async function sumSucceededRefunds(paymentId: string): Promise<number> {
-  const rows = await RefundModel.aggregate<{ total: number }>([
+export async function sumSucceededRefunds(paymentId: string): Promise<number> {  const rows = await RefundModel.aggregate<{ total: number }>([
     { $match: { paymentId: new mongoose.Types.ObjectId(paymentId), status: "SUCCEEDED" } },
     { $group: { _id: null, total: { $sum: "$amount" } } },
   ]).exec();
   return rows[0]?.total ?? 0;
+}
+
+export interface ListRefundsFilter {
+  page: number;
+  limit: number;
+  bookingId?: string;
+  status?: RefundStatus;
+}
+
+export async function listRefunds(filter: ListRefundsFilter): Promise<Paginated<Refund>> {
+  const { page, limit, bookingId, status } = filter;
+  const query: QueryFilter<RefundDocument> = {};
+  if (bookingId) query.bookingId = bookingId;
+  if (status) query.status = status;
+  const [total, docs] = await Promise.all([
+    RefundModel.countDocuments(query).exec(),
+    RefundModel.find(query)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec(),
+  ]);
+  return paginatedResponse(
+    docs.map((doc) => toRefund(doc)),
+    page,
+    limit,
+    total,
+  );
 }

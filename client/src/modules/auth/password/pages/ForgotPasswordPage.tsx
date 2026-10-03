@@ -5,7 +5,7 @@ import { useRedirectIfAuthenticated } from "@/app/use-redirect-if-authenticated"
 export function ForgotPasswordPage() {
   useRedirectIfAuthenticated();
   return (
-    <div className="mx-auto w-full max-w-sm py-8 sm:py-12">
+    <div className="mx-auto w-full max-w-sm pb-8 sm:pb-12">
       <Card className="shadow-card">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl sm:text-3xl">Forgot password</CardTitle>

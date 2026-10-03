@@ -1,6 +1,7 @@
 import { BedDouble, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RoomTypeImage } from "@/components/common/RoomTypeImage";
 import type { AvailabilitySearchParams, SearchResultItem } from "../types/availability.types";
@@ -75,7 +76,18 @@ export function RoomTypeCard({
                   {rate.pricingType === "PER_NIGHT" ? " / night" : " / stay"}
                 </p>
               </div>
-              <p className="font-display text-xl font-light">{formatMoney(rate.total, rate.currency)}</p>
+              <div className="flex flex-col items-end gap-2">
+                <p className="font-display text-xl font-light">
+                  {formatMoney(rate.total, rate.currency)}
+                </p>
+                <Button asChild size="sm" className="rounded-full">
+                  <Link
+                    to={`/booking/new?roomTypeId=${item.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&roomName=${encodeURIComponent(item.roomType.name)}&rateName=${encodeURIComponent(rate.name)}`}
+                  >
+                    Book now
+                  </Link>
+                </Button>
+              </div>
             </li>
           ))}
         </ul>

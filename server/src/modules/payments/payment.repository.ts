@@ -1,3 +1,6 @@
+import type { QueryFilter } from "mongoose";
+import { paginatedResponse } from "../../utils/pagination";
+import type { Paginated } from "../../utils/pagination";
 import { PaymentModel } from "./payment.model";
 import type { PaymentDocument } from "./payment.model";
 import type { Payment } from "./payment.types";
@@ -81,4 +84,32 @@ export async function updatePaymentStatus(
 export async function listPaymentsByBooking(bookingId: string): Promise<Payment[]> {
   const docs = await PaymentModel.find({ bookingId }).sort({ createdAt: -1 }).exec();
   return docs.map((doc) => toPayment(doc));
+}
+
+export interface ListPaymentsFilter {
+  page: number;
+  limit: number;
+  status?: Payment["status"];
+  bookingId?: string;
+}
+
+export async function listPayments(filter: ListPaymentsFilter): Promise<Paginated<Payment>> {
+  const { page, limit, status, bookingId } = filter;
+  const query: QueryFilter<PaymentDocument> = {};
+  if (status) query.status = status;
+  if (bookingId) query.bookingId = bookingId;
+  const [total, docs] = await Promise.all([
+    PaymentModel.countDocuments(query).exec(),
+    PaymentModel.find(query)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec(),
+  ]);
+  return paginatedResponse(
+    docs.map((doc) => toPayment(doc)),
+    page,
+    limit,
+    total,
+  );
 }

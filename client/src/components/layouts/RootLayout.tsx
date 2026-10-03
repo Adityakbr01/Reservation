@@ -73,7 +73,7 @@ export function RootLayout() {
           )}
         </nav>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-8 pt-4 sm:px-6 sm:pb-12 sm:pt-6">
         <Outlet />
       </main>
       <footer className="border-t border-border bg-surface-2">

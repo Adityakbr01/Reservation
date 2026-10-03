@@ -30,3 +30,9 @@ export const roomTypeKeys = {
   all: ["room-type"] as const,
   detail: (slug: string) => [...roomTypeKeys.all, slug] as const,
 };
+
+export const bookingKeys = {
+  all: ["booking"] as const,
+  quote: (params: unknown) => [...bookingKeys.all, "quote", params] as const,
+  detail: (id: string) => [...bookingKeys.all, "detail", id] as const,
+};

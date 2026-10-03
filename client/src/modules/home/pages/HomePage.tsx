@@ -26,7 +26,7 @@ export function HomePage() {
   const results = data?.results ?? [];
 
   return (
-    <div className="space-y-8 py-8 sm:py-12">
+    <div className="space-y-8 pb-8 sm:pb-12">
       <section className="max-w-2xl space-y-4">
         <p className="text-sm font-medium tracking-wide text-brand">
           Single property · Best rate here

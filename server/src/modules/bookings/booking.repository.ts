@@ -208,6 +208,42 @@ export async function listBookingsByUser(
   );
 }
 
+export interface ListBookingsFilter extends PaginationQuery {
+  status?: BookingStatus;
+  q?: string;
+  checkInFrom?: Date;
+  checkOutTo?: Date;
+}
+
+export async function listBookings(filter: ListBookingsFilter): Promise<Paginated<Booking>> {
+  const { page, limit, status, q, checkInFrom, checkOutTo } = filter;
+  const query: QueryFilter<BookingDocument> = {};
+  if (status) query.status = status;
+  if (checkInFrom || checkOutTo) {
+    query.checkIn = {};
+    if (checkInFrom) query.checkIn.$gte = checkInFrom;
+    if (checkOutTo) query.checkIn.$lte = checkOutTo;
+  }
+  if (q) {
+    const pattern = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+    query.$or = [{ bookingNumber: pattern }, { "contact.email": pattern }];
+  }
+  const [total, docs] = await Promise.all([
+    BookingModel.countDocuments(query).exec(),
+    BookingModel.find(query)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec(),
+  ]);
+  return paginatedResponse(
+    docs.map((doc) => toBooking(doc)),
+    page,
+    limit,
+    total,
+  );
+}
+
 export async function setBookingStatus(
   id: string,
   status: BookingStatus,

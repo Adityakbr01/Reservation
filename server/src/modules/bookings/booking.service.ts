@@ -6,6 +6,11 @@ import { isValidStayRange } from "../../utils/availability";
 import { cacheStore } from "../../config/cache";
 import { isDuplicateKeyError } from "../../utils/mongo";
 import { findHeldRoomIds, releaseBookingHolds, writeRoomHold } from "./hold.store";
+import { evaluateCancellation, resolvePolicy } from "../policies/policy.service";
+import type { CancellationEvaluation } from "../policies/policy.service";
+import { listPaymentsByBooking } from "../payments/payment.repository";
+import { refundPayment } from "../payments/payment.service";
+import { sumSucceededRefunds } from "../refunds/refund.model";
 import { ensureProperty } from "../properties/property.service";
 import { consumeCouponUsage } from "../coupons/coupon.repository";
 import { evaluateCoupon } from "../coupons/coupon.service";
@@ -20,18 +25,21 @@ import {
   findBookingItems,
   findConflictingBookingRoomIds,
   generateBookingNumber,
+  listBookings,
   listBookingsByUser,
   setBookingStatus,
 } from "./booking.repository";
 import type {
   CreateBookingItemRecord,
   CreateBookingRecord,
+  ListBookingsFilter,
 } from "./booking.repository";
 import type {
   CreateBookingInput,
   MyBookingsQuery,
 } from "./booking.schema";
 import type { Booking, BookingItem, BookingStatus } from "./booking.types";
+import type { Payment } from "../payments/payment.types";
 import type { Paginated } from "../../utils/pagination";
 
 const HOLD_TTL_SECONDS = 15 * 60;
@@ -330,20 +338,106 @@ export async function listMyBookings(
   return listBookingsByUser(userId, query);
 }
 
+export async function listAllBookings(query: ListBookingsFilter): Promise<Paginated<Booking>> {
+  await expireOverdueHolds();
+  return listBookings(query);
+}
+
+export interface AdminBookingDetail {
+  booking: Booking;
+  items: BookingItem[];
+  payments: Payment[];
+}
+
+export async function getBookingAdmin(id: string): Promise<AdminBookingDetail> {
+  await expireOverdueHolds();
+  const booking = await findBookingById(id);
+  if (!booking) {
+    throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
+  }
+  const [items, payments] = await Promise.all([
+    findBookingItems(booking.id),
+    listPaymentsByBooking(booking.id),
+  ]);
+  return { booking, items, payments };
+}
+
 const CANCELLABLE: BookingStatus[] = ["HELD", "PAYMENT_PENDING", "CONFIRMED"];
 
-export async function cancelBooking(
+/** Net captured funds: paid amounts minus already-recorded succeeded refunds. */
+async function netPaidTotal(bookingId: string): Promise<number> {
+  const payments = await listPaymentsByBooking(bookingId);
+  let total = 0;
+  for (const payment of payments) {
+    if (payment.status === "PAID") {
+      total += payment.amount;
+    } else if (payment.status === "PARTIALLY_REFUNDED") {
+      total += Math.max(0, payment.amount - (await sumSucceededRefunds(payment.id)));
+    }
+  }
+  return total;
+}
+
+export interface CancellationPreview {
+  evaluation: CancellationEvaluation;
+  bookingNumber: string;
+  status: BookingStatus;
+  paidTotal: number;
+}
+
+async function resolveCancellableBooking(
   id: string,
-  userId: string,
-  reason: string | null,
+  actorUserId: string | null,
 ): Promise<Booking> {
   await expireOverdueHolds();
   const booking = await findBookingById(id);
-  if (!booking || booking.userId !== userId) {
+  if (!booking || (actorUserId !== null && booking.userId !== actorUserId)) {
     throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
   }
   if (!CANCELLABLE.includes(booking.status)) {
     throw new AppError("This booking can no longer be cancelled", 400, "BOOKING_NOT_CANCELLABLE");
+  }
+  return booking;
+}
+
+export async function previewCancellation(
+  id: string,
+  actorUserId: string | null,
+): Promise<CancellationPreview> {
+  const booking = await resolveCancellableBooking(id, actorUserId);
+  const policy = await resolvePolicy(booking.propertyId);
+  const paidTotal = await netPaidTotal(booking.id);
+  const evaluation = evaluateCancellation({
+    status: booking.status,
+    checkIn: booking.checkIn,
+    checkOut: booking.checkOut,
+    paidTotal,
+    policy,
+  });
+  return {
+    evaluation,
+    bookingNumber: booking.bookingNumber,
+    status: booking.status,
+    paidTotal,
+  };
+}
+
+async function performCancel(
+  booking: Booking,
+  actorId: string,
+  reason: string | null,
+): Promise<Booking> {
+  const policy = await resolvePolicy(booking.propertyId);
+  const paidTotal = await netPaidTotal(booking.id);
+  const evaluation = evaluateCancellation({
+    status: booking.status,
+    checkIn: booking.checkIn,
+    checkOut: booking.checkOut,
+    paidTotal,
+    policy,
+  });
+  if (!evaluation.isCancellable) {
+    throw new AppError(evaluation.reason, 400, "BOOKING_NOT_CANCELLABLE");
   }
   if (booking.hold.holdId) {
     const items = await findBookingItems(booking.id);
@@ -352,14 +446,98 @@ export async function cancelBooking(
       booking.hold.holdId,
     );
   }
-  // Refunds for paid bookings attach here in Phase 8; all bookings are
-  // unpaid until the payment flow lands (Phase 7).
+  const cancelledAt = new Date();
+  if (paidTotal > 0 && evaluation.refundAmount > 0) {
+    const refunding = await setBookingStatus(booking.id, "REFUND_PENDING", {
+      cancellation: { cancelledAt, cancelledBy: actorId, reason },
+      hold: { holdId: null, expiresAt: null },
+    });
+    if (!refunding) {
+      throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
+    }
+    try {
+      const payments = await listPaymentsByBooking(booking.id);
+      const source = payments.find((p) => p.status === "PAID" || p.status === "PARTIALLY_REFUNDED");
+      if (!source) {
+        throw new AppError("No captured payment to refund", 409, "NOTHING_TO_REFUND");
+      }
+      await refundPayment(source.id, evaluation.refundAmount, actorId);
+    } catch (error) {
+      // Booking stays REFUND_PENDING: safe to retry via the refund action.
+      // Webhook completion (charge.refunded) moves it to CANCELLED.
+      if (error instanceof AppError) throw error;
+      throw new AppError("Refund failed, booking held for retry", 502, "REFUND_FAILED");
+    }
+    const pending = await findBookingById(booking.id);
+    if (!pending) {
+      throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
+    }
+    return pending;
+  }
   const cancelled = await setBookingStatus(booking.id, "CANCELLED", {
-    cancellation: { cancelledAt: new Date(), cancelledBy: userId, reason },
+    cancellation: { cancelledAt, cancelledBy: actorId, reason },
     hold: { holdId: null, expiresAt: null },
   });
   if (!cancelled) {
     throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
   }
   return cancelled;
+}
+
+export async function cancelBooking(
+  id: string,
+  userId: string,
+  reason: string | null,
+): Promise<Booking> {
+  const booking = await resolveCancellableBooking(id, userId);
+  return performCancel(booking, userId, reason);
+}
+
+export async function adminCancelBooking(
+  id: string,
+  adminId: string,
+  reason: string | null,
+): Promise<Booking> {
+  const booking = await resolveCancellableBooking(id, null);
+  return performCancel(booking, adminId, reason);
+}
+
+/**
+ * Standalone admin refund: creates a Stripe refund against captured funds
+ * without touching booking status. Used for partial post-stay refunds and
+ * for retrying a REFUND_PENDING booking whose provider call failed.
+ * Webhook delivery finalizes payment states.
+ */
+export async function adminRefundBooking(
+  id: string,
+  adminId: string,
+  amount: number | null,
+): Promise<{ refundId: string; amount: number }> {
+  const booking = await findBookingById(id);
+  if (!booking) {
+    throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
+  }
+  if (
+    booking.status !== "CONFIRMED" &&
+    booking.status !== "REFUND_PENDING" &&
+    booking.status !== "CHECKED_OUT"
+  ) {
+    throw new AppError("This booking has no refundable state", 400, "BOOKING_NOT_REFUNDABLE");
+  }
+  const payments = await listPaymentsByBooking(booking.id);
+  const source = payments.find((p) => p.status === "PAID" || p.status === "PARTIALLY_REFUNDED");
+  if (!source) {
+    throw new AppError("No captured payment to refund", 409, "NOTHING_TO_REFUND");
+  }
+  const refundedSoFar = await sumSucceededRefunds(source.id);
+  const remaining = source.amount - refundedSoFar;
+  if (remaining <= 0) {
+    throw new AppError("Nothing left to refund on this payment", 400, "NOTHING_TO_REFUND");
+  }
+  const refundAmount = amount ?? remaining;
+  if (!Number.isInteger(refundAmount) || refundAmount <= 0 || refundAmount > remaining) {
+    throw new AppError("Refund amount exceeds the refundable balance", 400, "REFUND_EXCEEDS_CAPTURED");
+  }
+  const { refund } = await refundPayment(source.id, refundAmount, adminId);
+  return { refundId: refund.id, amount: refund.amount };
 }

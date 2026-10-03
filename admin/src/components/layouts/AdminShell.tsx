@@ -3,10 +3,12 @@ import { Link, NavLink, Outlet } from "react-router-dom";
 import {
   BedDouble,
   Building2,
+  CalendarCheck,
   CalendarDays,
   LayoutDashboard,
   LogOut,
   Menu,
+  Receipt,
   Tags,
   User,
   X,
@@ -29,10 +31,12 @@ import { useAuthStore } from "@/stores/auth-store";
 const OVERVIEW_LINKS = [{ to: "/dashboard", label: "Dashboard", Icon: LayoutDashboard }];
 
 const MANAGE_LINKS = [
+  { to: "/reservations", label: "Reservations", Icon: CalendarCheck },
   { to: "/room-types", label: "Room types", Icon: Building2 },
   { to: "/rooms", label: "Rooms", Icon: BedDouble },
   { to: "/rate-plans", label: "Rate plans", Icon: Tags },
   { to: "/availability", label: "Availability", Icon: CalendarDays },
+  { to: "/payments", label: "Payments", Icon: Receipt },
 ];
 
 function sideLinkClass({ isActive }: { isActive: boolean }) {

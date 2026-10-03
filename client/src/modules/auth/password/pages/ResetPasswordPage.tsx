@@ -9,7 +9,7 @@ export function ResetPasswordPage() {
   const token = params.get("token") ?? "";
 
   return (
-    <div className="mx-auto w-full max-w-sm py-8 sm:py-12">
+    <div className="mx-auto w-full max-w-sm pb-8 sm:pb-12">
       <Card className="shadow-card">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl sm:text-3xl">Set a new password</CardTitle>

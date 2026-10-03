@@ -177,6 +177,12 @@ async function handleRefunded(event: Stripe.Event): Promise<void> {
   await updatePaymentStatus(payment.id, { status: refundStatus });
   const refundedBooking = await findBookingById(payment.bookingId);
   if (refundedBooking) {
-    await setBookingStatus(refundedBooking.id, refundedBooking.status, { paymentStatus: refundStatus });
+    // A fully refunded REFUND_PENDING booking completes its cancellation.
+    // Anything else keeps its status; only the payment state changes.
+    if (refundStatus === "REFUNDED" && refundedBooking.status === "REFUND_PENDING") {
+      await setBookingStatus(refundedBooking.id, "CANCELLED", { paymentStatus: refundStatus });
+    } else {
+      await setBookingStatus(refundedBooking.id, refundedBooking.status, { paymentStatus: refundStatus });
+    }
   }
 }
