@@ -20,3 +20,8 @@ export const homeKeys = {
 export const userKeys = {
   all: ["me"] as const,
 };
+
+export const availabilityKeys = {
+  all: ["availability"] as const,
+  search: (params: unknown) => [...availabilityKeys.all, "search", params] as const,
+};

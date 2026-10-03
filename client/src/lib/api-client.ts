@@ -107,21 +107,38 @@ function getToken(): string | null {
   return getAccessToken();
 }
 
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000/api/v1";
+
+function attachSharedInterceptors(instance: AxiosInstance): void {
+  instance.interceptors.request.use((config) => {
+    const token = getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
+  instance.interceptors.response.use(
+    (response) => response,
+    (error: unknown) => Promise.reject(normalizeApiError(error)),
+  );
+}
+
 export const apiClient: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:5000/api/v1",
+  baseURL: API_BASE_URL,
   timeout: 15_000,
   headers: { "Content-Type": "application/json" },
 });
 
-apiClient.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
+attachSharedInterceptors(apiClient);
+
+/**
+ * Unversioned public surface (/api/public/*). Same auth/error handling as
+ * the versioned client, separate base so the two contracts never mix.
+ */
+export const publicApiClient: AxiosInstance = axios.create({
+  baseURL: API_BASE_URL.replace(/\/v1\/?$/, ""),
+  timeout: 15_000,
+  headers: { "Content-Type": "application/json" },
 });
 
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error: unknown) => Promise.reject(normalizeApiError(error)),
-);
+attachSharedInterceptors(publicApiClient);
