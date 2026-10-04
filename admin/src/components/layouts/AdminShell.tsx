@@ -102,7 +102,7 @@ export function AdminShell() {
       >
         Reservation · Admin
       </Link>
-      <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4" aria-label="Management">
+      <nav className="no-scrollbar flex-1 space-y-5 overflow-y-auto px-3 py-4" aria-label="Management">
         <div className="space-y-1">
           <SectionLabel>Overview</SectionLabel>
           {OVERVIEW_LINKS.map(({ to, label, Icon }) => (

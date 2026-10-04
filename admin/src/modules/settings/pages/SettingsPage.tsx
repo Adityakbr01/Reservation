@@ -7,7 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageField } from "@/components/common/ImageField";
-import { apiClient, getApiErrorMessage, unwrapResponse } from "@/lib/api-client";
+import {
+  apiClient,
+  getApiErrorMessage,
+  unwrapResponse,
+} from "@/lib/api-client";
 import type { ApiEnvelope } from "@/lib/api-client";
 import { settingsKeys } from "@/lib/query-keys";
 
@@ -36,10 +40,17 @@ export function SettingsPage() {
 
   if (isPending || !data) {
     return (
-      <div className="mx-auto max-w-2xl space-y-6">
-        <div className="h-40 animate-pulse rounded-xl bg-muted" aria-label="Loading settings" />
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div
+          className="h-40 animate-pulse rounded-xl bg-muted"
+          aria-label="Loading settings"
+        />
         {isError && (
-          <Button variant="outline" className="rounded-full" onClick={() => void refetch()}>
+          <Button
+            variant="outline"
+            className="rounded-full"
+            onClick={() => void refetch()}
+          >
             Retry
           </Button>
         )}
@@ -55,7 +66,10 @@ function SettingsForm({ initial }: { initial: Settings }) {
   const [form, setForm] = useState<Settings>(initial);
   const mutation = useMutation({
     mutationFn: async (payload: Partial<Settings>) => {
-      const r = await apiClient.patch<ApiEnvelope<Settings>>("/admin/settings", payload);
+      const r = await apiClient.patch<ApiEnvelope<Settings>>(
+        "/admin/settings",
+        payload,
+      );
       return unwrapResponse(r);
     },
     onSuccess: (saved) => {
@@ -76,10 +90,14 @@ function SettingsForm({ initial }: { initial: Settings }) {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">Settings</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Property profile and contact details</p>
+        <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">
+          Settings
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Property profile and contact details
+        </p>
       </div>
       <form onSubmit={handleSubmit}>
         <Card>
@@ -136,7 +154,11 @@ function SettingsForm({ initial }: { initial: Settings }) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="set-tz">Timezone</Label>
-              <Input id="set-tz" value={form.timezone} onChange={(e) => set("timezone", e.target.value)} />
+              <Input
+                id="set-tz"
+                value={form.timezone}
+                onChange={(e) => set("timezone", e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="set-cur">Currency</Label>
@@ -166,19 +188,30 @@ function SettingsForm({ initial }: { initial: Settings }) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="set-reminder">Reminder hours before check-in</Label>
+              <Label htmlFor="set-reminder">
+                Reminder hours before check-in
+              </Label>
               <Input
                 id="set-reminder"
                 type="number"
                 min={1}
                 max={72}
                 value={form.reminderHoursBefore}
-                onChange={(e) => set("reminderHoursBefore", Math.min(72, Math.max(1, Number(e.target.value) || 24)))}
+                onChange={(e) =>
+                  set(
+                    "reminderHoursBefore",
+                    Math.min(72, Math.max(1, Number(e.target.value) || 24)),
+                  )
+                }
               />
             </div>
           </CardContent>
         </Card>
-        <Button type="submit" className="mt-4 rounded-full" disabled={mutation.isPending}>
+        <Button
+          type="submit"
+          className="mt-4 rounded-full"
+          disabled={mutation.isPending}
+        >
           {mutation.isPending ? "Saving…" : "Save settings"}
         </Button>
       </form>

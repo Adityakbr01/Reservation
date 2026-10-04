@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { Check, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -25,6 +26,40 @@ import { useCoupons, useUpdateCoupon } from "../hooks/use-coupons";
 import type { CouponStatus } from "../types/coupon.types";
 
 const STATUS_FILTERS = ["all", "ACTIVE", "INACTIVE", "EXPIRED"] as const;
+
+function CopyCodeButton({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(code);
+    } catch {
+      // Clipboard API needs a secure context; fall back to legacy exec.
+      const area = document.createElement("textarea");
+      area.value = code;
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      document.body.removeChild(area);
+    }
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1500);
+  }
+
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className="h-7 w-7 rounded-full"
+      onClick={() => void handleCopy()}
+      title={copied ? "Copied" : `Copy ${code}`}
+      aria-label={copied ? "Copied" : `Copy ${code}`}
+    >
+      {copied ? <Check aria-hidden className="text-success" /> : <Copy aria-hidden />}
+    </Button>
+  );
+}
 
 function discountLabel(code: {
   discountType: string;
@@ -134,12 +169,15 @@ export function CouponsPage() {
               {items.map((coupon) => (
                 <TableRow key={coupon.id}>
                   <TableCell>
-                    <Link
-                      to={`/coupons/${coupon.id}/edit`}
-                      className="font-medium text-brand hover:text-brand-dark"
-                    >
-                      {coupon.code}
-                    </Link>
+                    <span className="inline-flex items-center gap-1">
+                      <Link
+                        to={`/coupons/${coupon.id}/edit`}
+                        className="font-medium text-brand hover:text-brand-dark"
+                      >
+                        {coupon.code}
+                      </Link>
+                      <CopyCodeButton code={coupon.code} />
+                    </span>
                   </TableCell>
                   <TableCell>{discountLabel(coupon)}</TableCell>
                   <TableCell className="text-muted-foreground">
