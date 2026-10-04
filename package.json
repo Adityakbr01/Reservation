@@ -1,0 +1,22 @@
+{
+  // Monorepo root for GoDaddy Node.js Hosting (PaaSNodeJS).
+  // The platform installs + starts at the REPO ROOT only, while the API
+  // lives in server/. These scripts delegate everything there:
+  //   npm install  -> installs server deps (including devDeps for the build)
+  //   npm run build -> compiles server TS to dist-node/ (plain Node output)
+  //   npm start     -> boots the API (prestart guarantees a fresh build even
+  //                    if the platform skips the build step)
+  // The server listens on process.env.PORT (injected by the platform).
+  "name": "hamptworth-reservation",
+  "private": true,
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "postinstall": "npm --prefix server install --include=dev",
+    "build": "npm --prefix server run build:node",
+    "prestart": "npm --prefix server run build:node",
+    "start": "npm --prefix server run start:node"
+  }
+}
