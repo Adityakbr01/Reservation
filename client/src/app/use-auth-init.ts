@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { normalizeApiError } from "@/lib/api-client";
 import { getAccessToken } from "@/lib/auth-token";
-import { useMe } from "@/modules/auth/me";
+import { useMe } from "@/modules/auth/me/hooks/use-me";
 import { useAuthStore } from "@/stores/auth-store";
 
 const SESSION_END_CODES = new Set(["UNAUTHORIZED", "TOKEN_INVALID"]);
