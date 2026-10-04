@@ -34,38 +34,40 @@ export function RoomTypeCard({
   };
 
   return (
-    <Card className="flex h-full flex-col overflow-hidden shadow-card">
-      <div className="p-2.5 pb-0">
-        <div className="aspect-[16/10] w-full overflow-hidden rounded-xl">
+    <Card className="flex h-full flex-col overflow-hidden shadow-card sm:flex-row">
+      <div className="p-2.5 pb-0 sm:w-[38%] sm:shrink-0 sm:py-2.5 sm:pl-2.5 sm:pr-0">
+        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl sm:aspect-auto sm:h-full sm:min-h-[240px]">
           <RoomTypeImage
             name={roomType.name}
             imageUrl={coverPhoto?.url ?? null}
             alt={coverPhoto?.alt}
+            className="absolute inset-0"
           />
-        </div>
-      </div>
-      <CardHeader className="p-4 pb-2">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <CardTitle className="text-xl">
-              <Link
-                to={detailTo}
-                state={{ search }}
-                className="hover:text-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                {roomType.name}
-              </Link>
-            </CardTitle>
-            <CardDescription className="mt-1 line-clamp-2">
-              {roomType.shortDescription ?? `${roomType.maxAdults} adults · max ${roomType.maxOccupancy} guests`}
-            </CardDescription>
-          </div>
-          <Badge variant={lowStock ? "warning" : "success"} className="shrink-0 whitespace-nowrap">
+          <Badge
+            variant={lowStock ? "warning" : "success"}
+            className="absolute right-3 top-3 gap-1 whitespace-nowrap shadow-sm"
+          >
+            <BedDouble className="size-3.5" aria-hidden />
             {availableCount} room{availableCount === 1 ? "" : "s"} left
           </Badge>
         </div>
-      </CardHeader>
-      <CardContent className="flex flex-1 flex-col space-y-3 p-4 pt-0">
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <CardHeader className="p-4 pb-2">
+          <CardTitle className="font-display text-xl font-medium">
+            <Link
+              to={detailTo}
+              state={{ search }}
+              className="hover:text-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              {roomType.name}
+            </Link>
+          </CardTitle>
+          <CardDescription className="mt-1 line-clamp-2">
+            {roomType.shortDescription ?? `${roomType.maxAdults} adults · max ${roomType.maxOccupancy} guests`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-1 flex-col space-y-3 p-4 pt-0">
         <div className="flex flex-wrap gap-x-3 gap-y-1 text-[13px] text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Users className="size-4" aria-hidden />
@@ -90,7 +92,7 @@ export function RoomTypeCard({
                 <p className="font-display text-lg font-light">
                   {formatMoney(rate.total, rate.currency)}
                 </p>
-                <Button asChild size="sm" className="rounded-full">
+                <Button asChild size="sm" className="btn-shine rounded-full">
                   <Link
                     to={`/booking/new?roomTypeId=${item.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&roomName=${encodeURIComponent(item.roomType.name)}&rateName=${encodeURIComponent(rate.name)}`}
                   >
@@ -101,17 +103,18 @@ export function RoomTypeCard({
             </li>
           ))}
         </ul>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-[11px] text-muted-foreground">
           Indicative total — availability and price are confirmed again at booking.
         </p>
-        <Link
-          to={detailTo}
-          state={{ search }}
-          className="inline-block text-sm font-medium text-brand hover:text-brand-dark focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-        >
-          View details →
-        </Link>
+        <div className="mt-auto flex gap-2 pt-1">
+          <Button asChild variant="outline" className="flex-1 rounded-full">
+            <Link to={detailTo} state={{ search }}>
+              View details →
+            </Link>
+          </Button>
+        </div>
       </CardContent>
+      </div>
     </Card>
   );
 }

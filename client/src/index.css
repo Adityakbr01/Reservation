@@ -4,93 +4,89 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Brand theme — mapped from the GoKwik-extracted design system:
- *   DESIGN-gokwik-co.md / DESIGN.md (visual language, do's & don'ts)
- *   design-tokens-gokwik-co.json (source color/type/radius/shadow tokens)
- *   SKILL-gokwik-co.md / SKILL.md (component + accessibility rules)
- *
- * Core voice: light canvas #ffffff, ink text #000000, single dominant
- * accent #ff8000, 8px spacing grid, pill radii on CTAs, weight-300
- * display headings, WCAG 2.2 AA focus visibility via --ring.
+ * Luxury hotel theme — extracted from "Luxury Hotel Booking Experience" design:
+ * warm ivory canvas, deep ink-navy text, brushed-gold accents, bronze CTAs,
+ * Playfair Display headlines, pill radii, 8px spacing grid,
+ * WCAG 2.2 AA focus visibility via --ring.
  */
 
 :root {
   --radius: 0.5rem;
 
-  /* --- shadcn surface roles (brand-mapped) --- */
-  --background: #ffffff;
-  --foreground: #000000;
+  /* --- shadcn surface roles (luxury-mapped) --- */
+  --background: #faf7f0;
+  --foreground: #1c2433;
   --card: #ffffff;
-  --card-foreground: #000000;
+  --card-foreground: #1c2433;
   --popover: #ffffff;
-  --popover-foreground: #000000;
-  --primary: #ff8000;
+  --popover-foreground: #1c2433;
+  --primary: #8a6d3b;
   --primary-foreground: #ffffff;
-  --secondary: #f2f1ea;
-  --secondary-foreground: #000000;
-  --muted: #f8f7f3;
-  --muted-foreground: #696969;
-  --accent: #061a1c;
-  --accent-foreground: #ffffff;
+  --secondary: #f0e9d8;
+  --secondary-foreground: #1c2433;
+  --muted: #f3eee2;
+  --muted-foreground: #6f6759;
+  --accent: #ece2cb;
+  --accent-foreground: #1c2433;
   --destructive: #e53e3e;
   --destructive-foreground: #ffffff;
-  --border: rgba(221, 220, 209, 0.58);
-  --input: rgba(221, 220, 209, 0.58);
-  --ring: #ff8000;
+  --border: rgba(180, 158, 116, 0.35);
+  --input: rgba(180, 158, 116, 0.45);
+  --ring: #b08d4c;
 
-  /* --- charts (brand palette) --- */
-  --chart-1: #ff8000;
-  --chart-2: #0779ff;
+  /* --- charts (luxury palette) --- */
+  --chart-1: #b08d4c;
+  --chart-2: #1c2433;
   --chart-3: #4b9a6d;
-  --chart-4: #f79d1d;
-  --chart-5: #1449b2;
+  --chart-4: #c9a86a;
+  --chart-5: #5b6b82;
 
   /* --- sidebar --- */
-  --sidebar: #f8f7f3;
-  --sidebar-foreground: #000000;
-  --sidebar-primary: #ff8000;
+  --sidebar: #f3eee2;
+  --sidebar-foreground: #1c2433;
+  --sidebar-primary: #8a6d3b;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f2f1ea;
-  --sidebar-accent-foreground: #000000;
-  --sidebar-border: rgba(221, 220, 209, 0.58);
-  --sidebar-ring: #ff8000;
+  --sidebar-accent: #ece2cb;
+  --sidebar-accent-foreground: #1c2433;
+  --sidebar-border: rgba(180, 158, 116, 0.35);
+  --sidebar-ring: #b08d4c;
 }
 
 .dark {
-  --background: #061a1c;
-  --foreground: #ffffff;
-  --card: #0c2e31;
-  --card-foreground: #ffffff;
-  --popover: #0c2e31;
-  --popover-foreground: #ffffff;
-  --primary: #ff9933;
-  --primary-foreground: #000000;
-  --secondary: #0c2e31;
-  --secondary-foreground: #ffffff;
-  --muted: #0c2e31;
-  --muted-foreground: rgba(255, 255, 255, 0.7);
-  --accent: #f2f1ea;
-  --accent-foreground: #000000;
+  --background: #1c2433;
+  --foreground: #f5efe2;
+  --card: #242e42;
+  --card-foreground: #f5efe2;
+  --popover: #242e42;
+  --popover-foreground: #f5efe2;
+  --primary: #c9a86a;
+  --primary-foreground: #1c2433;
+  --secondary: #242e42;
+  --secondary-foreground: #f5efe2;
+  --muted: #242e42;
+  --muted-foreground: rgba(245, 239, 226, 0.7);
+  --accent: #2c3850;
+  --accent-foreground: #f5efe2;
   --destructive: #fc8181;
   --destructive-foreground: #000000;
-  --border: rgba(255, 255, 255, 0.17);
-  --input: rgba(255, 255, 255, 0.17);
-  --ring: #ff9933;
+  --border: rgba(176, 141, 76, 0.3);
+  --input: rgba(176, 141, 76, 0.35);
+  --ring: #c9a86a;
 
-  --chart-1: #ff9933;
+  --chart-1: #c9a86a;
   --chart-2: #3d9aff;
   --chart-3: #68d391;
   --chart-4: #fbbf24;
   --chart-5: #63b3ed;
 
-  --sidebar: #0c2e31;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #ff9933;
-  --sidebar-primary-foreground: #000000;
-  --sidebar-accent: rgba(255, 255, 255, 0.1);
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.17);
-  --sidebar-ring: #ff9933;
+  --sidebar: #242e42;
+  --sidebar-foreground: #f5efe2;
+  --sidebar-primary: #c9a86a;
+  --sidebar-primary-foreground: #1c2433;
+  --sidebar-accent: rgba(201, 168, 106, 0.15);
+  --sidebar-accent-foreground: #f5efe2;
+  --sidebar-border: rgba(176, 141, 76, 0.3);
+  --sidebar-ring: #c9a86a;
 }
 
 @theme inline {
@@ -131,45 +127,44 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* --- brand typography (BDO Grotesk / PP Neue Montreal licensed;
-       Inter loaded via Google Fonts as the renderable fallback) --- */
-  --font-sans: "BDO Grotesk", "PP Neue Montreal", Inter, system-ui, sans-serif;
-  --font-display: "BDO Grotesk", "PP Neue Montreal", Inter, system-ui, sans-serif;
+  /* --- brand typography (Playfair Display headlines, Inter body) --- */
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* --- brand colors (design-tokens-gokwik-co.json) --- */
-  --color-brand: #ff8000;
-  --color-brand-light: #ff9933;
-  --color-brand-dark: #e67300;
+  /* --- brand colors (luxury gold + bronze) --- */
+  --color-brand: #b08d4c;
+  --color-brand-light: #c9a86a;
+  --color-brand-dark: #8a6d3b;
   --color-royal: #0779ff;
   --color-royal-light: #3d9aff;
   --color-royal-dark: #0561cc;
-  --color-ink: #000428;
-  --color-night: #081320;
+  --color-ink: #1c2433;
+  --color-night: #20293a;
   --color-deep: #061a1c;
   --color-deep-light: #0c2e31;
   --color-royal-block: #1449b2;
   --color-royal-deep: #10377a;
   --color-royal-ink: #1c407e;
-  --color-marigold: #f79d1d;
-  --color-cream: #fef1de;
-  --color-surface: #f8f7f3;
-  --color-surface-2: #f2f1ea;
-  --color-surface-3: #e2e8f0;
-  --color-gold: #bd9964;
-  --color-bronze: #86602c;
+  --color-marigold: #c9a24b;
+  --color-cream: #faf7f0;
+  --color-surface: #faf7f0;
+  --color-surface-2: #f3eee2;
+  --color-surface-3: #e7dcc4;
+  --color-gold: #b08d4c;
+  --color-bronze: #8a6d3b;
   --color-success: #4b9a6d;
   --color-success-light: #68d391;
-  --color-warning: #ffc130;
-  --color-warning-light: #fbbf24;
+  --color-warning: #cba64f;
+  --color-warning-light: #e3c57f;
   --color-error: #e53e3e;
   --color-error-light: #fc8181;
   --color-info: #0779ff;
   --color-info-light: #63b3ed;
 
-  /* --- brand elevation (tinted shadows, not defaults) --- */
-  --shadow-card: 0px 3.955390453338623px 48.45353317260742px 23px rgba(240, 152, 25, 0.05);
-  --shadow-kwik: 0px 3.64px 44.64px 0.73px rgba(23, 119, 231, 0.1);
+  /* --- brand elevation (warm tinted shadows, not defaults) --- */
+  --shadow-card: 0px 8px 32px 0px rgba(138, 109, 59, 0.1);
+  --shadow-kwik: 0px 8px 32px 0px rgba(138, 109, 59, 0.12);
   --shadow-pop: rgba(0, 0, 0, 0.3) 0px 4px 12px 0px;
 
   /* --- brand radii --- */
@@ -182,6 +177,7 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    overflow-x: clip;
   }
   /* Brand interaction: pointer cursor on all actionable buttons. */
   button:not(:disabled),
@@ -195,7 +191,37 @@
     @apply font-display font-light tracking-normal;
   }
   ::selection {
-    background: rgba(255, 128, 0, 0.25);
+    background: rgba(176, 141, 76, 0.3);
+  }
+}
+
+/* Glossy sweep shine for primary CTAs (hover). Add `btn-shine` to a Button. */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 60%
+  );
+  transform: translateX(-130%);
+}
+.btn-shine:hover::after {
+  transform: translateX(130%);
+  transition: transform 0.8s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-shine::after {
+    display: none;
   }
 }
 

@@ -36,7 +36,7 @@ export function DateField({ id, label, value, min, onChange }: DateFieldProps) {
   const minDate = min ? parseInput(min) : undefined;
 
   return (
-    <div className="space-y-2">
+    <div className="min-w-0 space-y-2">
       <Label htmlFor={id}>{label}</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -45,12 +45,12 @@ export function DateField({ id, label, value, min, onChange }: DateFieldProps) {
             type="button"
             variant="outline"
             className={cn(
-              "h-9 w-full justify-start rounded-md px-3 py-1 text-left text-sm font-normal shadow-sm",
+              "h-9 w-full justify-start overflow-hidden rounded-md px-3 py-1 text-left text-sm font-normal shadow-sm",
               !selected && "text-muted-foreground",
             )}
           >
             <CalendarIcon className="mr-2 size-4 shrink-0" aria-hidden />
-            {selected ? format(selected, "PPP") : "Pick a date"}
+            <span className="truncate">{selected ? format(selected, "PPP") : "Pick a date"}</span>
           </Button>
         </PopoverTrigger>
         <PopoverContent align="start">

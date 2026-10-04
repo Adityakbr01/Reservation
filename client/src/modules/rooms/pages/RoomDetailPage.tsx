@@ -203,7 +203,7 @@ export function RoomDetailPage() {
                         <p className="font-display text-xl font-light">
                           {formatMoney(rate.total, rate.currency)}
                         </p>
-                        <Button asChild size="sm" className="rounded-full">
+                        <Button asChild size="sm" className="btn-shine rounded-full">
                           <Link
                             to={`/booking/new?roomTypeId=${match.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&roomName=${encodeURIComponent(match.roomType.name)}&rateName=${encodeURIComponent(rate.name)}`}
                           >

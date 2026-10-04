@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { Loader, Search } from "lucide-react";
+import { ArrowRight, Loader, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -73,7 +73,8 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
+        <div className="grid min-w-0 flex-1 gap-4 sm:grid-cols-2 lg:grid-cols-[1.35fr_1.35fr_0.75fr_0.75fr_0.8fr]">
         <DateField
           id="search-checkin"
           label="Check-in"
@@ -88,7 +89,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
           min={checkIn || today}
           onChange={setCheckOut}
         />
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           <Label htmlFor="search-adults">Adults</Label>
           <Input
             id="search-adults"
@@ -100,7 +101,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
             onChange={(e) => setAdults(e.target.value)}
           />
         </div>
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           <Label htmlFor="search-children">Children</Label>
           <Input
             id="search-children"
@@ -112,7 +113,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
             onChange={(e) => setChildren(e.target.value)}
           />
         </div>
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           <Label htmlFor="search-rooms">Rooms</Label>
           <Input
             id="search-rooms"
@@ -124,21 +125,27 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
             onChange={(e) => setRooms(e.target.value)}
           />
         </div>
+        </div>
+        <Button
+          type="submit"
+          className="btn-shine h-12 w-full shrink-0 rounded-full bg-night px-8 text-white hover:bg-night/90 lg:w-auto"
+          disabled={isPending}
+        >
+          {isPending ? (
+            <>
+              <Loader className="size-4 animate-spin" aria-hidden />
+              <span className="sr-only">Searching…</span>
+            </>
+          ) : (
+            <>
+              <Search aria-hidden className="text-gold" />
+              <span className="whitespace-nowrap">Search availability</span>
+              <ArrowRight aria-hidden className="text-gold" />
+            </>
+          )}
+        </Button>
       </div>
       {rangeError && <p className="text-xs text-error">{rangeError}</p>}
-      <Button type="submit" className="h-11 rounded-full px-8" disabled={isPending}>
-        {isPending ? (
-          <>
-            <Loader className="size-4 animate-spin" aria-hidden />
-            <span className="sr-only">Searching…</span>
-          </>
-        ) : (
-          <>
-            <Search aria-hidden />
-            Search availability
-          </>
-        )}
-      </Button>
     </form>
   );
 }

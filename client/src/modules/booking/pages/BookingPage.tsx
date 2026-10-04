@@ -120,7 +120,7 @@ function CheckoutForm({ bookingId }: { bookingId: string }) {
       )}
       <Button
         type="button"
-        className="h-11 w-full rounded-full"
+        className="btn-shine h-11 w-full rounded-full"
         disabled={paying}
         onClick={() => void handlePay()}
       >
@@ -388,7 +388,7 @@ export function BookingPage() {
               </Button>
               <Button
                 type="button"
-                className="h-11 flex-1 rounded-full"
+                className="btn-shine h-11 flex-1 rounded-full"
                 disabled={busy}
                 onClick={() => void submitGuestDetails()}
               >

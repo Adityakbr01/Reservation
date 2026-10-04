@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { LogOut, Menu, X } from "lucide-react";
+import { Crown, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuthInit } from "@/app/use-auth-init";
@@ -12,7 +12,7 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
   return cn(
     "inline-flex min-h-[44px] items-center rounded-full px-4 text-sm font-medium transition-colors",
     "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-    isActive ? "text-brand" : "text-foreground hover:text-brand",
+    isActive ? "text-brand underline decoration-brand decoration-2 underline-offset-8" : "text-foreground hover:text-brand",
   );
 }
 
@@ -63,12 +63,13 @@ export function RootLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground">
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
-        <nav className="mx-auto flex w-full max-w-6xl items-center gap-1 px-4 py-2 sm:gap-2 sm:px-6">
+        <nav className="mx-auto flex w-full max-w-7xl items-center gap-1 px-4 py-2 sm:gap-2 sm:px-6">
           <Link
             to="/"
             onClick={closeMenu}
-            className="mr-2 font-display text-lg font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            className="mr-2 inline-flex items-center gap-2 font-display text-xl font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
+            <Crown className="size-5 text-brand" aria-hidden />
             Reservation
           </Link>
           {/* Desktop links */}
@@ -106,8 +107,7 @@ export function RootLayout() {
                   <span className="lg:hidden">Profile</span>
                 </NavLink>
                 <Button
-                  variant="destructive"
-                  className="rounded-full text-white!"
+                  className="rounded-full"
                   onClick={handleLogout}
                 >
                   <LogOut aria-hidden />
@@ -204,8 +204,7 @@ export function RootLayout() {
             <div className="border-t border-border px-4 py-4">
               {user ? (
                 <Button
-                  variant="destructive"
-                  className="min-h-[44px] w-full rounded-xl text-white!"
+                  className="min-h-[44px] w-full rounded-xl"
                   onClick={handleLogout}
                 >
                   <LogOut aria-hidden />
@@ -228,11 +227,11 @@ export function RootLayout() {
             </div>
           </aside>
         </div>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-8 pt-4 sm:px-6 sm:pb-12 sm:pt-6">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pb-8 pt-4 sm:px-6 sm:pb-12 sm:pt-6">
         <Outlet />
       </main>
       <footer className="border-t border-border bg-surface-2">
-        <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-2 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:px-6">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-2 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:px-6">
           <p>© 2026 Reservation. All rights reserved.</p>
           <p>Single property · Multiple room types</p>
         </div>

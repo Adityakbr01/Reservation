@@ -35,7 +35,7 @@ export function CmsPageView() {
   if (isError || !data) return <NotFound back="/" label="Back home" />;
 
   return (
-    <article className="mx-auto w-full max-w-4xl space-y-6 pb-8">
+    <article className="mx-auto w-full max-w-7xl space-y-6 pb-8">
       {photos?.[0]?.url && (
         <img src={photos[0].url} alt="" className="aspect-[21/9] w-full rounded-xl object-cover" loading="lazy" />
       )}
@@ -123,7 +123,7 @@ export function BlogPostPage() {
   if (isError || !data) return <NotFound back="/blogs" label="All posts" />;
 
   return (
-    <article className="mx-auto w-full max-w-4xl space-y-6 pb-8">
+    <article className="mx-auto w-full max-w-7xl space-y-6 pb-8">
       <Link to="/blogs" className="text-sm font-medium text-brand hover:text-brand-dark">
         ← All posts
       </Link>
@@ -240,7 +240,7 @@ export function PolicyPage() {
   if (isPending) return <div className="h-40 animate-pulse rounded-xl bg-muted" aria-label="Loading policy" />;
   if (isError || !data) return <NotFound back="/" label="Back home" />;
   return (
-    <article className="mx-auto w-full max-w-4xl space-y-4 pb-8">
+    <article className="mx-auto w-full max-w-7xl space-y-4 pb-8">
       <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">{data.title}</h1>
       <p className="text-xs text-muted-foreground">Version {data.version}</p>
       <div className="rich-text leading-relaxed" dangerouslySetInnerHTML={{ __html: data.body }} />
