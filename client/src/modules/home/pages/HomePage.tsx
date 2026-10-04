@@ -28,10 +28,6 @@ export function HomePage() {
   const restored =
     (location.state as { search?: AvailabilitySearchParams } | null)?.search ??
     null;
-  const [search, setSearch] = useState<AvailabilitySearchParams | null>(
-    restored,
-  );
-  const { data, isFetching, isError, refetch } = useAvailabilitySearch(search);
   const dates = defaultSearchDates();
   const initial: AvailabilitySearchParams = {
     ...dates,
@@ -39,6 +35,10 @@ export function HomePage() {
     children: 0,
     rooms: 1,
   };
+  const [search, setSearch] = useState<AvailabilitySearchParams>(
+    restored ?? initial,
+  );
+  const { data, isFetching, isError, refetch } = useAvailabilitySearch(search);
   const results = data?.results ?? [];
   const resultsKey = search
     ? [
@@ -246,16 +246,7 @@ export function HomePage() {
         </CardContent>
       </Card>
 
-      {!search ? (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <p className="font-medium">Where to, and when?</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Search above to see available rooms and rates for your stay.
-            </p>
-          </CardContent>
-        </Card>
-      ) : isFetching ? (
+      {isFetching ? (
         <div
           className="grid gap-4 sm:gap-5 lg:grid-cols-2"
           aria-busy="true"
