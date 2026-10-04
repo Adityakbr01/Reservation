@@ -55,9 +55,9 @@ export function HomePage() {
           </CardContent>
         </Card>
       ) : isFetching ? (
-        <div className="space-y-4" aria-busy="true" aria-label="Searching availability">
-          {[0, 1].map((row) => (
-            <Skeleton key={row} className="h-64 w-full rounded-xl" />
+        <div className="grid gap-4 sm:gap-5 lg:grid-cols-2" aria-busy="true" aria-label="Searching availability">
+          {[0, 1, 2, 3].map((row) => (
+            <Skeleton key={row} className="h-72 w-full rounded-xl" />
           ))}
         </div>
       ) : isError || !data ? (
@@ -88,9 +88,11 @@ export function HomePage() {
             night{data.search.nights === 1 ? "" : "s"} · {data.search.adults + data.search.children}{" "}
             guest{data.search.adults + data.search.children === 1 ? "" : "s"}
           </p>
-          {results.map((item) => (
-            <RoomTypeCard key={item.roomType.id} item={item} search={search} />
-          ))}
+          <div className="grid items-stretch gap-4 sm:gap-5 lg:grid-cols-2">
+            {results.map((item) => (
+              <RoomTypeCard key={item.roomType.id} item={item} search={search} />
+            ))}
+          </div>
         </div>
       )}
     </div>

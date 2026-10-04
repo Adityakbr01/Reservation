@@ -34,18 +34,20 @@ export function RoomTypeCard({
   };
 
   return (
-    <Card className="overflow-hidden shadow-card">
-      <div className="aspect-[21/9] w-full border-b border-border">
-        <RoomTypeImage
-          name={roomType.name}
-          imageUrl={coverPhoto?.url ?? null}
-          alt={coverPhoto?.alt}
-        />
+    <Card className="flex h-full flex-col overflow-hidden shadow-card">
+      <div className="p-2.5 pb-0">
+        <div className="aspect-[16/10] w-full overflow-hidden rounded-xl">
+          <RoomTypeImage
+            name={roomType.name}
+            imageUrl={coverPhoto?.url ?? null}
+            alt={coverPhoto?.alt}
+          />
+        </div>
       </div>
-      <CardHeader>
+      <CardHeader className="p-4 pb-2">
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <CardTitle className="text-2xl">
+          <div className="min-w-0">
+            <CardTitle className="text-xl">
               <Link
                 to={detailTo}
                 state={{ search }}
@@ -54,17 +56,17 @@ export function RoomTypeCard({
                 {roomType.name}
               </Link>
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="mt-1 line-clamp-2">
               {roomType.shortDescription ?? `${roomType.maxAdults} adults · max ${roomType.maxOccupancy} guests`}
             </CardDescription>
           </div>
-          <Badge variant={lowStock ? "warning" : "success"}>
+          <Badge variant={lowStock ? "warning" : "success"} className="shrink-0 whitespace-nowrap">
             {availableCount} room{availableCount === 1 ? "" : "s"} left
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+      <CardContent className="flex flex-1 flex-col space-y-3 p-4 pt-0">
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-[13px] text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Users className="size-4" aria-hidden />
             {roomType.maxAdults} adults · {roomType.maxChildren} children · max {roomType.maxOccupancy}
@@ -76,16 +78,16 @@ export function RoomTypeCard({
         </div>
         <ul className="divide-y divide-border rounded-xl border border-border">
           {rates.map((rate) => (
-            <li key={rate.ratePlanId} className="flex items-center justify-between gap-3 p-4">
-              <div>
-                <p className="text-sm font-medium">{rate.name}</p>
+            <li key={rate.ratePlanId} className="flex items-center justify-between gap-3 px-4 py-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">{rate.name}</p>
                 <p className="text-xs text-muted-foreground">
                   {formatMoney(rate.perNight, rate.currency)}
                   {rate.pricingType === "PER_NIGHT" ? " / night" : " / stay"}
                 </p>
               </div>
-              <div className="flex flex-col items-end gap-2">
-                <p className="font-display text-xl font-light">
+              <div className="flex shrink-0 flex-col items-end gap-1.5">
+                <p className="font-display text-lg font-light">
                   {formatMoney(rate.total, rate.currency)}
                 </p>
                 <Button asChild size="sm" className="rounded-full">
