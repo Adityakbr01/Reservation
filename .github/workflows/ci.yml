@@ -1,0 +1,77 @@
+# CI/CD: har push/PR par production jaisa verification.
+# GoDaddy Node hosting (Node 22) se match karne ke liye CI bhi Node 22 par
+# chalta hai. master par merge se pehle teeno apps ka green hona zaroori hai.
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  # API: typecheck + unit tests + plain-Node production build + live boot
+  # smoke test (bina Mongo ke degraded boot me /health 200 aana chahiye).
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js (match GoDaddy runtime)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Bun (tests use `bun test`)
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install server deps (same as platform postinstall)
+        run: npm --prefix server install --include=dev
+
+      - name: Typecheck
+        run: npm --prefix server run typecheck
+
+      - name: Unit tests
+        run: npm --prefix server test
+
+      - name: Production build (same command the platform runs)
+        run: npm --prefix server run build:node
+
+      - name: Boot smoke test with plain node (no Mongo -> degraded, /health must be 200)
+        run: |
+          PORT=5999 MONGODB_URI="mongodb://127.0.0.1:1/smoke" node server/dist-node/server.js > /tmp/api.log 2>&1 &
+          SRVPID=$!
+          OK=0
+          for _ in $(seq 1 24); do
+            sleep 5
+            if curl -sf http://127.0.0.1:5999/health | grep -q '"status":"ok"'; then OK=1; break; fi
+          done
+          kill $SRVPID 2>/dev/null || true
+          if [ "$OK" -ne 1 ]; then echo "--- /health never became OK ---"; cat /tmp/api.log; exit 1; fi
+          echo "smoke OK"
+
+  # Booking site must always compile.
+  client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install (lockfile)
+        run: npm --prefix client ci
+      - name: Build
+        run: npm --prefix client run build
+
+  # Admin panel must always compile.
+  admin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install (lockfile)
+        run: npm --prefix admin ci
+      - name: Build
+        run: npm --prefix admin run build
