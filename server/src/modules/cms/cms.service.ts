@@ -335,6 +335,7 @@ export async function listBlogPosts(filter: CmsListFilter & { category?: string 
     title: doc.title,
     slug: doc.slug,
     excerpt: doc.excerpt,
+    featuredImageMediaId: doc.featuredImageMediaId ? doc.featuredImageMediaId.toString() : null,
     author: doc.author,
     category: doc.category,
     tags: doc.tags ?? [],

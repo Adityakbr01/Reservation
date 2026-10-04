@@ -198,3 +198,33 @@
     background: rgba(255, 128, 0, 0.25);
   }
 }
+
+/* Rich text editor (TipTap) content styles — admin authoring view. */
+.tiptap h2 {
+  @apply mt-4 font-display text-xl font-light tracking-tight first:mt-0;
+}
+.tiptap h3 {
+  @apply mt-3 font-display text-lg font-light tracking-tight first:mt-0;
+}
+.tiptap p {
+  @apply my-2 leading-relaxed first:mt-0 last:mb-0;
+}
+.tiptap ul {
+  @apply my-2 list-disc space-y-1 pl-6;
+}
+.tiptap ol {
+  @apply my-2 list-decimal space-y-1 pl-6;
+}
+.tiptap blockquote {
+  @apply my-2 border-l-2 border-brand pl-3 italic text-muted-foreground;
+}
+.tiptap a {
+  @apply font-medium text-brand underline underline-offset-2;
+}
+.tiptap img {
+  @apply my-3 h-auto max-w-full rounded-lg;
+}
+.tiptap p.is-editor-empty:first-child::before {
+  @apply pointer-events-none float-left h-0 text-muted-foreground;
+  content: attr(data-placeholder);
+}

@@ -169,7 +169,7 @@ export function CmsSections({ sections }: { sections: CmsSection[] }) {
                 )}
                 {section.html && (
                   <div
-                    className="prose-sm leading-relaxed"
+                    className="rich-text leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: section.html }}
                   />
                 )}

@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useBlogPost, useBlogPosts, useCmsPage, useFaqs, useOffers, usePolicyDoc } from "../hooks/use-cms";
 import { CmsSections } from "../components/CmsSections";
@@ -50,17 +51,28 @@ export function CmsPageView() {
 export function BlogsPage() {
   const { data, isPending } = useBlogPosts();
   const items = data ?? [];
+  const coverIds = items.map((post) => post.featuredImageMediaId).filter((id): id is string => Boolean(id));
+  const { data: photos } = useMediaUrls(coverIds);
+  const photoById = new Map((photos ?? []).map((photo) => [photo.id, photo] as const));
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6 pb-8">
+    <div className="w-full space-y-6 pb-8">
       <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">Blog</h1>
       {isPending ? (
-        <div className="h-40 animate-pulse rounded-xl bg-muted" aria-label="Loading posts" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loading posts">
+          {[0, 1, 2].map((row) => (
+            <div key={row} className="h-64 animate-pulse rounded-xl bg-muted" />
+          ))}
+        </div>
       ) : items.length === 0 ? (
         <p className="text-muted-foreground">No stories yet — check back soon.</p>
       ) : (
-        <div className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((post) => (
-            <BlogCard key={post.id} post={post} />
+            <BlogCard
+              key={post.id}
+              post={post}
+              imageUrl={post.featuredImageMediaId ? (photoById.get(post.featuredImageMediaId)?.url ?? null) : null}
+            />
           ))}
         </div>
       )}
@@ -68,24 +80,34 @@ export function BlogsPage() {
   );
 }
 
-function BlogCard({ post }: { post: { id: string; slug: string; title: string; excerpt: string | null; author: string | null; readingMinutes: number; publishedAt: string | null } }) {
+function BlogCard({ post, imageUrl }: { post: { id: string; slug: string; title: string; excerpt: string | null; author: string | null; category: string | null; readingMinutes: number; publishedAt: string | null }; imageUrl: string | null }) {
   return (
-    <Card className="shadow-card">
-      <CardHeader>
+    <Card className="overflow-hidden shadow-card">
+      {imageUrl && (
+        <div className="p-2.5 pb-0">
+          <div className="aspect-[16/9] w-full overflow-hidden rounded-xl">
+            <RoomTypeImage name={post.title} imageUrl={imageUrl} alt={`${post.title} cover`} />
+          </div>
+        </div>
+      )}
+      <CardHeader className="p-4 pb-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {post.category && <Badge variant="secondary">{post.category}</Badge>}
+          <p className="text-xs text-muted-foreground">
+            {[post.author, formatDate(post.publishedAt), `${post.readingMinutes} min read`]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+        </div>
         <CardTitle className="text-xl">
           <Link to={`/blogs/${post.slug}`} className="hover:text-brand">
             {post.title}
           </Link>
         </CardTitle>
-        <p className="text-xs text-muted-foreground">
-          {[post.author, formatDate(post.publishedAt), `${post.readingMinutes} min read`]
-            .filter(Boolean)
-            .join(" · ")}
-        </p>
       </CardHeader>
       {post.excerpt && (
-        <CardContent>
-          <p className="text-sm text-muted-foreground">{post.excerpt}</p>
+        <CardContent className="p-4 pt-0">
+          <p className="line-clamp-2 text-sm text-muted-foreground">{post.excerpt}</p>
         </CardContent>
       )}
     </Card>
@@ -113,15 +135,27 @@ export function BlogPostPage() {
         </div>
       )}
       <div>
-        <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">{data.title}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {[data.author, formatDate(data.publishedAt), `${data.readingMinutes} min read`]
-            .filter(Boolean)
-            .join(" · ")}
-        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          {data.category && <Badge variant="secondary">{data.category}</Badge>}
+          <p className="text-sm text-muted-foreground">
+            {[data.author, formatDate(data.publishedAt), `${data.readingMinutes} min read`]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+        </div>
+        <h1 className="mt-2 font-display text-3xl font-light tracking-tight sm:text-4xl">{data.title}</h1>
+        {data.tags && data.tags.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {data.tags.map((tag) => (
+              <Badge key={tag} variant="outline">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
       </div>
       {data.content && (
-        <div className="prose-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: data.content }} />
+        <div className="rich-text leading-relaxed" dangerouslySetInnerHTML={{ __html: data.content }} />
       )}
     </article>
   );
@@ -131,7 +165,7 @@ export function FaqsPage() {
   const { data, isPending } = useFaqs();
   const items = data ?? [];
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6 pb-8">
+    <div className="w-full space-y-6 pb-8">
       <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">FAQs</h1>
       {isPending ? (
         <div className="h-40 animate-pulse rounded-xl bg-muted" aria-label="Loading FAQs" />
@@ -153,14 +187,14 @@ export function OffersPage() {
   const { data, isPending } = useOffers();
   const items = data ?? [];
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6 pb-8">
+    <div className="w-full space-y-6 pb-8">
       <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">Offers</h1>
       {isPending ? (
         <div className="h-40 animate-pulse rounded-xl bg-muted" aria-label="Loading offers" />
       ) : items.length === 0 ? (
         <p className="text-muted-foreground">No current offers — check back soon.</p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((offer) => (
             <OfferCard key={offer.id} offer={offer} />
           ))}
@@ -209,7 +243,7 @@ export function PolicyPage() {
     <article className="mx-auto w-full max-w-3xl space-y-4 pb-8">
       <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">{data.title}</h1>
       <p className="text-xs text-muted-foreground">Version {data.version}</p>
-      <div className="prose-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: data.body }} />
+      <div className="rich-text leading-relaxed" dangerouslySetInnerHTML={{ __html: data.body }} />
     </article>
   );
 }

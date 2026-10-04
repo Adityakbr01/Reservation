@@ -6,13 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusButtons } from "../components/StatusButtons";
+import { RichTextEditor } from "../components/RichTextEditor";
 import { ImageField } from "@/components/common/ImageField";
 import { PageFields, SubmitBar } from "../components/PageForm";
 import { useBlog, useSaveBlog, useSetBlogStatus } from "../hooks/use-cms";
 import type { ContentStatus } from "../types/cms.types";
-
-const TEXTAREA_CLASS =
-  "flex min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
 
 export function BlogEditPage({ mode }: { mode: "create" | "edit" }) {
   const { id = "" } = useParams();
@@ -173,16 +171,7 @@ function BlogForm({ mode, id, initial }: { mode: "create" | "edit"; id: string; 
             <CardTitle className="text-xl">Content</CardTitle>
           </CardHeader>
           <CardContent>
-            <Label htmlFor="blog-content" className="sr-only">
-              Content
-            </Label>
-            <textarea
-              id="blog-content"
-              className={TEXTAREA_CLASS}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Write the post (simple HTML allowed)…"
-            />
+            <RichTextEditor label="Content" value={content} onChange={setContent} />
           </CardContent>
         </Card>
         <SubmitBar label={mode === "create" ? "Create post" : "Save changes"} pending={isPending} />
