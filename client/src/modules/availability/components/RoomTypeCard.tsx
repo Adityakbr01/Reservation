@@ -1,4 +1,4 @@
-import { BedDouble, Users } from "lucide-react";
+import { ArrowRight, BedDouble, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -44,8 +44,8 @@ export function RoomTypeCard({
             className="absolute inset-0"
           />
           <Badge
-            variant={lowStock ? "warning" : "success"}
-            className="absolute right-3 top-3 gap-1 whitespace-nowrap shadow-sm"
+            variant={lowStock ? "default" : "success"}
+            className="absolute right-3 top-3 gap-1 whitespace-nowrap shadow-md"
           >
             <BedDouble className="size-3.5" aria-hidden />
             {availableCount} room{availableCount === 1 ? "" : "s"} left
@@ -107,9 +107,10 @@ export function RoomTypeCard({
           Indicative total — availability and price are confirmed again at booking.
         </p>
         <div className="mt-auto flex gap-2 pt-1">
-          <Button asChild variant="outline" className="flex-1 rounded-full">
+          <Button asChild variant="outline" className="btn-arrow flex-1 rounded-full">
             <Link to={detailTo} state={{ search }}>
-              View details →
+              View details
+              <ArrowRight className="arrow-icon size-4" aria-hidden />
             </Link>
           </Button>
         </div>

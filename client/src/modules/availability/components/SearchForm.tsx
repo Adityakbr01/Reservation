@@ -128,7 +128,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
         </div>
         <Button
           type="submit"
-          className="btn-shine h-12 w-full shrink-0 rounded-full bg-night px-8 text-white hover:bg-night/90 lg:w-auto"
+          className="btn-arrow btn-shine h-12 w-full shrink-0 rounded-full bg-night px-8 text-white hover:bg-night/90 lg:w-auto"
           disabled={isPending}
         >
           {isPending ? (
@@ -140,7 +140,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
             <>
               <Search aria-hidden className="text-gold" />
               <span className="whitespace-nowrap">Search availability</span>
-              <ArrowRight aria-hidden className="text-gold" />
+              <ArrowRight aria-hidden className="arrow-icon text-gold" />
             </>
           )}
         </Button>

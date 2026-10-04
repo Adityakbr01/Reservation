@@ -95,12 +95,21 @@ export function RootLayout() {
                   My bookings
                 </NavLink>
                 <NavLink to="/profile" className={navLinkClass}>
-                  <span
-                    className="mr-2 flex size-7 items-center justify-center rounded-full bg-night text-xs font-semibold text-white"
-                    aria-hidden
-                  >
-                    {initial}
-                  </span>
+                  {user.avatarUrl ? (
+                    <img
+                      src={user.avatarUrl}
+                      alt=""
+                      aria-hidden
+                      className="mr-2 size-7 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span
+                      className="mr-2 flex size-7 items-center justify-center rounded-full bg-night text-xs font-semibold text-white"
+                      aria-hidden
+                    >
+                      {initial}
+                    </span>
+                  )}
                   <span className="hidden max-w-28 truncate lg:inline">
                     {user.name}
                   </span>
@@ -196,6 +205,21 @@ export function RootLayout() {
                     My bookings
                   </NavLink>
                   <NavLink to="/profile" className={mobileLinkClass} onClick={closeMenu}>
+                    {user.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt=""
+                        aria-hidden
+                        className="mr-3 size-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span
+                        className="mr-3 flex size-8 items-center justify-center rounded-full bg-night text-xs font-semibold text-white"
+                        aria-hidden
+                      >
+                        {initial}
+                      </span>
+                    )}
                     Profile ({user.name})
                   </NavLink>
                 </>
