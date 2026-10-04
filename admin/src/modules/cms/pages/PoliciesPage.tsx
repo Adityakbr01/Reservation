@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { StatusButtons } from "../components/StatusButtons";
+import { RichTextEditor } from "../components/RichTextEditor";
 import { usePolicies, useSavePolicy, useSetPolicyStatus } from "../hooks/use-cms";
 
 const POLICY_KEYS = [
@@ -25,9 +26,6 @@ const POLICY_KEYS = [
   "PRIVACY",
   "TERMS",
 ] as const;
-
-const TEXTAREA_CLASS =
-  "flex min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
 
 export function PoliciesPage() {
   const { data, isPending, isError, refetch } = usePolicies();
@@ -104,13 +102,7 @@ export function PoliciesPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="pol-body">Body (simple HTML allowed)</Label>
-              <textarea
-                id="pol-body"
-                className={TEXTAREA_CLASS}
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-              />
+              <RichTextEditor label="Body" value={body} onChange={setBody} />
             </div>
             <div>
               <Button type="submit" className="rounded-full" disabled={isSaving}>

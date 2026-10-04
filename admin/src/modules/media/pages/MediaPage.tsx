@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PaginationControls } from "@/components/common/PaginationControls";
+import { ConfirmButton } from "@/components/common/ConfirmButton";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useDeleteMedia, useMedia, useUpdateMedia, useUploadMedia } from "../hooks/use-media";
 
@@ -109,15 +110,12 @@ export function MediaPage() {
                       Save
                     </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive"
-                    disabled={deleteMutation.isPending}
-                    onClick={() => deleteMutation.mutate(item.id)}
-                  >
-                    Delete
-                  </Button>
+                  <ConfirmButton
+                    title="Delete this image?"
+                    description="The file is permanently removed. Pages using it will show a placeholder."
+                    pending={deleteMutation.isPending}
+                    onConfirm={() => deleteMutation.mutate(item.id)}
+                  />
                 </CardContent>
               </Card>
             ))}

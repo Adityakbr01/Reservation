@@ -18,6 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PaginationControls } from "@/components/common/PaginationControls";
+import { ConfirmButton } from "@/components/common/ConfirmButton";
 import { useRooms } from "@/modules/rooms";
 import { BlockForm } from "../components/BlockForm";
 import { AdminCalendar } from "../components/AdminCalendar";
@@ -143,15 +144,14 @@ export function AvailabilityPage() {
                         {formatDate(block.startDate)} → {formatDate(block.endDate)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="rounded-full text-destructive hover:text-destructive"
-                          disabled={isDeleting}
-                          onClick={() => removeBlock(block.id)}
-                        >
-                          Remove
-                        </Button>
+                        <ConfirmButton
+                          title="Remove this block?"
+                          description="These dates become bookable again immediately."
+                          confirmLabel="Remove"
+                          triggerLabel="Remove"
+                          pending={isDeleting}
+                          onConfirm={() => removeBlock(block.id)}
+                        />
                       </TableCell>
                     </TableRow>
                   ))}

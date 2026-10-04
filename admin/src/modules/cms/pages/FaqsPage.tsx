@@ -13,6 +13,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusButtons } from "../components/StatusButtons";
+import { RichTextEditor } from "../components/RichTextEditor";
+import { ConfirmButton } from "@/components/common/ConfirmButton";
 import { useDeleteFaq, useFaqs, useSaveFaq, useSetFaqStatus } from "../hooks/use-cms";
 
 export function FaqsPage() {
@@ -21,7 +23,7 @@ export function FaqsPage() {
   const [category, setCategory] = useState("");
   const { data, isPending, isError, refetch } = useFaqs({ page: 1, limit: 100 });
   const { mutate: save, isPending: isSaving } = useSaveFaq();
-  const { mutate: remove } = useDeleteFaq();
+  const { mutate: remove, isPending: isRemoving } = useDeleteFaq();
   const statusMutation = useSetFaqStatus();
   const items = data?.items ?? [];
 
@@ -82,8 +84,7 @@ export function FaqsPage() {
               />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="faq-a">Answer</Label>
-              <Input id="faq-a" value={answer} onChange={(e) => setAnswer(e.target.value)} />
+              <RichTextEditor label="Answer" value={answer} onChange={setAnswer} />
             </div>
             <div>
               <Button type="submit" className="rounded-full" disabled={isSaving}>
@@ -132,14 +133,12 @@ export function FaqsPage() {
                   />
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive"
-                    onClick={() => remove(item.id)}
-                  >
-                    Delete
-                  </Button>
+                  <ConfirmButton
+                    title="Delete this FAQ?"
+                    description="The question is permanently removed. Published FAQs must be archived first."
+                    pending={isRemoving}
+                    onConfirm={() => remove(item.id)}
+                  />
                 </TableCell>
               </TableRow>
             ))}

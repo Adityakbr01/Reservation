@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ImageField } from "@/components/common/ImageField";
+import { RichTextEditor } from "./RichTextEditor";
 
 const TEXTAREA_CLASS =
   "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
@@ -136,14 +137,11 @@ export function SectionsEditor({ value, onChange }: SectionsEditorProps) {
             </div>
           )}
           {section.kind === "EDITORIAL_TEXT" && (
-            <div className="space-y-1">
-              <Label>Body (simple HTML allowed)</Label>
-              <textarea className={TEXTAREA_CLASS}
-                rows={5}
-                value={section.html ?? ""}
-                onChange={(e) => patch(index, { html: e.target.value })}
-              />
-            </div>
+            <RichTextEditor
+              label="Body"
+              value={section.html ?? ""}
+              onChange={(html) => patch(index, { html })}
+            />
           )}
           {section.kind === "FAQ" && (
             <div className="space-y-1">
@@ -171,11 +169,10 @@ export function SectionsEditor({ value, onChange }: SectionsEditorProps) {
                 />
               </div>
               <div className="space-y-1 sm:col-span-2">
-                <Label>Body (simple HTML allowed)</Label>
-                <textarea className={TEXTAREA_CLASS}
-                  rows={4}
+                <RichTextEditor
+                  label="Body"
                   value={section.html ?? ""}
-                  onChange={(e) => patch(index, { html: e.target.value })}
+                  onChange={(html) => patch(index, { html })}
                 />
               </div>
             </div>
