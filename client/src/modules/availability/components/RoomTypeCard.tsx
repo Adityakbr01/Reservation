@@ -34,7 +34,7 @@ export function RoomTypeCard({
   };
 
   return (
-    <Card className="flex h-full flex-col overflow-hidden shadow-card sm:flex-row">
+    <Card className="room-card flex h-full flex-col overflow-hidden shadow-card sm:flex-row">
       <div className="p-2.5 pb-0 sm:w-[38%] sm:shrink-0 sm:py-2.5 sm:pl-2.5 sm:pr-0">
         <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl sm:aspect-auto sm:h-full sm:min-h-[240px]">
           <RoomTypeImage
