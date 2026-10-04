@@ -8,8 +8,10 @@
   },
   "scripts": {
     "dev": "bun --hot src/server.ts",
-    "start": "bun src/server.ts",
-    "build": "bun build src/server.ts --outdir dist --target bun",
+    "dev:node": "node --watch dist/server.js",
+    "build": "tsc -p tsconfig.build.json && node scripts/postbuild-node.cjs",
+    "start": "node dist/server.js",
+    "start:bun": "bun run src/server.ts",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint",
     "test": "bun test"

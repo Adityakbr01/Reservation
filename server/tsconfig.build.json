@@ -22,7 +22,7 @@
     "declaration": false,
     "declarationMap": false,
     "sourceMap": true,
-    "outDir": "dist-node",
+    "outDir": "dist",
     "rootDir": "src"
   },
   "include": ["src"]
