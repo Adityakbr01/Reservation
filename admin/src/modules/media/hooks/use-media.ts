@@ -24,7 +24,7 @@ export interface MediaFilters {
   q?: string;
 }
 
-async function listMedia(filters: MediaFilters): Promise<Paged<MediaItem>> {
+export async function listMedia(filters: MediaFilters): Promise<Paged<MediaItem>> {
   const { data } = await apiClient.get<ApiEnvelope<MediaItem[]>>("/admin/media", {
     params: filters,
   });

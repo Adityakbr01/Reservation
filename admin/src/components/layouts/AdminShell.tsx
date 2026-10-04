@@ -34,6 +34,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
+import { prefetchRoute } from "@/lib/route-prefetch";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { useLogout } from "@/app/use-logout";
 import { useAuthStore } from "@/stores/auth-store";
@@ -90,6 +100,7 @@ export function AdminShell() {
   const logout = useLogout();
   const user = useAuthStore((s) => s.user);
   const [open, setOpen] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   const initial = user?.name.trim().charAt(0).toUpperCase() || "?";
 
@@ -106,7 +117,7 @@ export function AdminShell() {
         <div className="space-y-1">
           <SectionLabel>Overview</SectionLabel>
           {OVERVIEW_LINKS.map(({ to, label, Icon }) => (
-            <NavLink key={to} to={to} end={to === "/dashboard"} onClick={() => setOpen(false)} className={sideLinkClass}>
+            <NavLink key={to} to={to} end={to === "/dashboard"} onClick={() => setOpen(false)} onMouseEnter={() => prefetchRoute(to)} onFocus={() => prefetchRoute(to)} className={sideLinkClass}>
               <Icon className="size-4 shrink-0" aria-hidden />
               {label}
             </NavLink>
@@ -115,7 +126,7 @@ export function AdminShell() {
         <div className="space-y-1">
           <SectionLabel>Manage</SectionLabel>
           {MANAGE_LINKS.map(({ to, label, Icon }) => (
-            <NavLink key={to} to={to} onClick={() => setOpen(false)} className={sideLinkClass}>
+            <NavLink key={to} to={to} onClick={() => setOpen(false)} onMouseEnter={() => prefetchRoute(to)} onFocus={() => prefetchRoute(to)} className={sideLinkClass}>
               <Icon className="size-4 shrink-0" aria-hidden />
               {label}
             </NavLink>
@@ -124,7 +135,7 @@ export function AdminShell() {
         <div className="space-y-1">
           <SectionLabel>Content</SectionLabel>
           {CONTENT_LINKS.map(({ to, label, Icon }) => (
-            <NavLink key={to} to={to} onClick={() => setOpen(false)} className={sideLinkClass}>
+            <NavLink key={to} to={to} onClick={() => setOpen(false)} onMouseEnter={() => prefetchRoute(to)} onFocus={() => prefetchRoute(to)} className={sideLinkClass}>
               <Icon className="size-4 shrink-0" aria-hidden />
               {label}
             </NavLink>
@@ -140,7 +151,7 @@ export function AdminShell() {
       </nav>
       <div className="p-3">
         <Separator className="mb-3" />
-        <Button variant="destructive" className="w-full justify-start rounded-full text-white!" onClick={logout}>
+        <Button variant="destructive" className="w-full justify-start rounded-full text-white!" onClick={() => setConfirmLogout(true)}>
           <LogOut aria-hidden />
           Logout
         </Button>
@@ -214,7 +225,7 @@ export function AdminShell() {
                   <DropdownMenuItem asChild>
                     <Link to="/profile">Profile</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={logout}>Logout</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setConfirmLogout(true)}>Logout</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
@@ -224,6 +235,21 @@ export function AdminShell() {
           <Outlet />
         </main>
       </div>
+
+      <AlertDialog open={confirmLogout} onOpenChange={setConfirmLogout}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Log out?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You will need your email and password to sign back in.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <AlertDialogCancel>Stay signed in</AlertDialogCancel>
+            <AlertDialogAction onClick={logout}>Logout</AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

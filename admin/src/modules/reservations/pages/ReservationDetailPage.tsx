@@ -20,6 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/common/StatusBadge";
+import { ConfirmButton } from "@/components/common/ConfirmButton";
 import { formatMoney } from "@/lib/money";
 import {
   useCancelPreview,
@@ -56,7 +57,7 @@ export function ReservationDetailPage() {
   const [showReassign, setShowReassign] = useState(false);
   const [targetRoom, setTargetRoom] = useState("");
   // Unconditional (args vary by readiness) — always above the early returns.
-  const { data: roomsData } = useRooms(
+  const { data: roomsData, isPending: roomsPending, isError: roomsError } = useRooms(
     data && (data.booking.status === "CONFIRMED" || data.booking.status === "CHECKED_IN") && data.items.length === 1 && data.items[0]
       ? { page: 1, limit: 100, roomTypeId: data.items[0].roomTypeId }
       : { page: 1, limit: 1 },
@@ -122,22 +123,28 @@ export function ReservationDetailPage() {
         <div className="flex items-center gap-2">
           <StatusBadge status={booking.status} />
           {booking.status === "CONFIRMED" && (
-            <Button
-              className="rounded-full"
-              disabled={checkInMutation.isPending}
-              onClick={() => checkInMutation.mutate()}
-            >
-              {checkInMutation.isPending ? "Checking in…" : "Check in"}
-            </Button>
+            <ConfirmButton
+              title={`Check in ${booking.bookingNumber}?`}
+              description="The guest is marked as arrived and the stay starts."
+              confirmLabel="Check in"
+              triggerLabel={checkInMutation.isPending ? "Checking in…" : "Check in"}
+              triggerVariant="default"
+              triggerClassName="rounded-full"
+              pending={checkInMutation.isPending}
+              onConfirm={() => checkInMutation.mutate()}
+            />
           )}
           {booking.status === "CHECKED_IN" && (
-            <Button
-              className="rounded-full"
-              disabled={checkOutMutation.isPending}
-              onClick={() => checkOutMutation.mutate()}
-            >
-              {checkOutMutation.isPending ? "Checking out…" : "Check out"}
-            </Button>
+            <ConfirmButton
+              title={`Check out ${booking.bookingNumber}?`}
+              description="The stay is closed. Make sure dues are settled first."
+              confirmLabel="Check out"
+              triggerLabel={checkOutMutation.isPending ? "Checking out…" : "Check out"}
+              triggerVariant="default"
+              triggerClassName="rounded-full"
+              pending={checkOutMutation.isPending}
+              onConfirm={() => checkOutMutation.mutate()}
+            />
           )}
           {canReassign && (
             <Button
@@ -164,14 +171,16 @@ export function ReservationDetailPage() {
             </Button>
           )}
           {booking.status === "REFUND_PENDING" && (
-            <Button
-              variant="outline"
-              className="rounded-full"
-              disabled={refundMutation.isPending}
-              onClick={() => refundMutation.mutate(null)}
-            >
-              {refundMutation.isPending ? "Retrying…" : "Retry refund"}
-            </Button>
+            <ConfirmButton
+              title="Retry the refund?"
+              description="A new refund attempt is sent to Stripe for this booking."
+              confirmLabel="Retry refund"
+              triggerLabel={refundMutation.isPending ? "Retrying…" : "Retry refund"}
+              triggerVariant="outline"
+              triggerClassName="rounded-full"
+              pending={refundMutation.isPending}
+              onConfirm={() => refundMutation.mutate(null)}
+            />
           )}
         </div>
       </div>
@@ -289,9 +298,17 @@ export function ReservationDetailPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Target room</Label>
-                <Select value={targetRoom} onValueChange={setTargetRoom}>
+                <Select value={targetRoom} onValueChange={setTargetRoom} disabled={roomsPending}>
                   <SelectTrigger aria-label="Target room">
-                    <SelectValue placeholder="Choose a room" />
+                    <SelectValue
+                      placeholder={
+                        roomsPending
+                          ? "Loading rooms…"
+                          : roomsError
+                            ? "Could not load rooms"
+                            : "Choose a room"
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {(roomsData?.items ?? [])
@@ -303,6 +320,18 @@ export function ReservationDetailPage() {
                       ))}
                   </SelectContent>
                 </Select>
+                {roomsError ? (
+                  <p className="text-xs text-destructive">
+                    Room list failed to load — close and reopen to retry.
+                  </p>
+                ) : (
+                  !roomsPending &&
+                  (roomsData?.items ?? []).filter((room) => room.id !== firstItem?.roomId).length === 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      No other rooms of this type exist — add one under Rooms first.
+                    </p>
+                  )
+                )}
               </div>
               <div className="flex gap-2">
                 <Button

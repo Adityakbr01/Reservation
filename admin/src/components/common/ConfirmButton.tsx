@@ -16,19 +16,23 @@ interface ConfirmButtonProps {
   description: string;
   confirmLabel?: string;
   triggerLabel?: ReactNode;
+  triggerVariant?: "ghost" | "default" | "outline" | "destructive";
+  triggerClassName?: string;
   pending?: boolean;
   onConfirm: () => void;
 }
 
 /**
- * Destructive action guarded by a shadcn confirmation dialog.
- * Use for deletes and other irreversible admin actions.
+ * Destructive/important action guarded by a shadcn confirmation dialog.
+ * Use for deletes, money moves, stay transitions, and sign-out.
  */
 export function ConfirmButton({
   title,
   description,
   confirmLabel = "Delete",
   triggerLabel = "Delete",
+  triggerVariant = "ghost",
+  triggerClassName,
   pending = false,
   onConfirm,
 }: ConfirmButtonProps) {
@@ -37,9 +41,9 @@ export function ConfirmButton({
       <AlertDialogTrigger asChild>
         <Button
           type="button"
-          variant="ghost"
+          variant={triggerVariant}
           size="sm"
-          className="rounded-full text-destructive hover:text-destructive"
+          className={triggerClassName ?? "rounded-full text-destructive hover:text-destructive"}
         >
           {triggerLabel}
         </Button>
