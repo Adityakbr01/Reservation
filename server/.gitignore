@@ -1,5 +1,6 @@
 node_modules/
 dist/
+server-godaddy-deploy.zip
 .env
 *.log
 coverage/
