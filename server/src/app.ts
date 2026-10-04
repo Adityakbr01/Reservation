@@ -33,8 +33,22 @@ export function createApp() {
   const app = express();
 
   app.disable("x-powered-by");
+  // Behind GoDaddy/cPanel (Passenger + reverse proxy) this lets secure
+  // cookies, req.ip and the rate limiter see the real client (one hop).
+  // Kept off by default for local dev; set TRUST_PROXY=true in production.
+  if (env.TRUST_PROXY) {
+    app.set("trust proxy", 1);
+  }
   app.use(helmet());
-  app.use(cors({ origin: [env.CLIENT_URL, env.ADMIN_URL], credentials: true }));
+  // Production domains come from CLIENT_URL / ADMIN_URL / EXTRA_ORIGINS
+  // (comma-separated). Trailing slashes are stripped so
+  // "https://hotel.example.com/" still matches the browser Origin.
+  const allowedOrigins = [
+    env.CLIENT_URL,
+    env.ADMIN_URL,
+    ...env.EXTRA_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean),
+  ].map((o) => o.replace(/\/+$/, ""));
+  app.use(cors({ origin: allowedOrigins, credentials: true }));
   app.use(requestLogger);
 
   // Stripe webhooks need the RAW body for signature verification, so this

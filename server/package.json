@@ -3,12 +3,17 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "bun --hot src/server.ts",
     "start": "bun src/server.ts",
+    "build": "bun build src/server.ts --outdir dist --target bun",
+    "build:node": "tsc -p tsconfig.build.json && node scripts/postbuild-node.cjs",
+    "start:node": "node dist-node/server.js",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint",
-    "build": "bun build src/server.ts --outdir dist --target bun",
     "test": "bun test"
   },
   "dependencies": {

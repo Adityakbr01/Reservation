@@ -19,6 +19,17 @@ const envSchema = z.object({
   ADMIN_PASSWORD: z.string().min(8).max(128).optional(),
   CLIENT_URL: z.string().url().default("http://localhost:5173"),
   ADMIN_URL: z.string().url().default("http://localhost:5174"),
+  // Extra allowed browser origins (comma-separated) for production, e.g.
+  // "https://hotel.example.com,https://www.hotel.example.com".
+  // On single-domain hosts (GoDaddy shared) the site and the API share one
+  // origin — put that domain in CLIENT_URL/ADMIN_URL and/or here.
+  EXTRA_ORIGINS: z.string().trim().default(""),
+  // Behind GoDaddy/cPanel (Passenger + proxy) set "true" so secure cookies,
+  // client IPs and rate limiting see the real requester (one proxy hop).
+  TRUST_PROXY: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((v) => v === "true"),
   CACHE_TTL_SECONDS: z.coerce.number().int().positive().default(900),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(900000),
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(300),

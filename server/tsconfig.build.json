@@ -1,0 +1,29 @@
+{
+  // Plain-Node production build for hosts that only support Node.js
+  // (GoDaddy shared/cPanel, plain VPS, ...). Bun stays for local dev.
+  //
+  // Strategy: emit ESM exactly like dev (same module semantics, so no new
+  // type errors), then scripts/postbuild-node.cjs adds explicit `.js`
+  // extensions to relative imports, because Node ESM — unlike Bun and
+  // bundlers — requires them. Source files are NOT touched.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["node"],
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
+    "verbatimModuleSyntax": false,
+    "erasableSyntaxOnly": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": true,
+    "outDir": "dist-node",
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}
