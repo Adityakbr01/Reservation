@@ -2,8 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { BedDouble, Users } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { BedDouble, Check, ChevronDown, Gift, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -126,6 +125,8 @@ export function RoomDetailPage() {
   const linkedAmenities = (roomType.amenityIds ?? [])
     .map((id) => (amenities ?? []).find((a) => a.id === id))
     .filter((a): a is NonNullable<typeof a> => Boolean(a));
+  const highlights = linkedAmenities.filter((a) => (a.group ?? "HIGHLIGHT") === "HIGHLIGHT");
+  const facilities = linkedAmenities.filter((a) => (a.group ?? "HIGHLIGHT") !== "HIGHLIGHT");
   const mapUrl = roomType.mapEmbedUrl || (roomType.mapLat != null && roomType.mapLng != null ? osmEmbed(roomType.mapLat, roomType.mapLng) : null);
 
   return (
@@ -197,23 +198,25 @@ export function RoomDetailPage() {
             <p className="leading-relaxed text-foreground">{roomType.description}</p>
           )}
 
-          {linkedAmenities.length > 0 && (
-            <section className="space-y-2">
-              <h2 className="font-medium">Features</h2>
-              <AmenityChips amenities={linkedAmenities} />
+          {highlights.length > 0 && (
+            <section aria-label="Highlights">
+              <HighlightRow amenities={highlights} />
             </section>
           )}
 
-          {roomType.amenities.length > 0 && (
-            <section className="space-y-2">
-              <h2 className="font-medium">Amenities</h2>
-              <div className="flex flex-wrap gap-2">
-                {roomType.amenities.map((amenity) => (
-                  <Badge key={amenity} variant="secondary">
-                    {amenity}
-                  </Badge>
-                ))}
-              </div>
+          {roomType.welcomeHamperIncluded && (
+            <HamperBanner
+              description={roomType.welcomeHamperDescription ?? null}
+              imageUrl={hamperPhoto?.[0]?.url ?? null}
+            />
+          )}
+
+          {(facilities.length > 0 || roomType.amenities.length > 0) && (
+            <section aria-label="Facilities">
+              <FacilityGrid
+                amenities={facilities}
+                extra={roomType.amenities}
+              />
             </section>
           )}
 
@@ -228,14 +231,6 @@ export function RoomDetailPage() {
                   </li>
                 ))}
               </ul>
-            </section>
-          )}
-
-          {roomType.welcomeHamperIncluded && (
-            <section className="space-y-2 rounded-xl border border-border p-4">
-              <h2 className="font-medium">Welcome hamper included</h2>
-              {roomType.welcomeHamperDescription && <p className="text-sm text-muted-foreground">{roomType.welcomeHamperDescription}</p>}
-              {hamperPhoto?.[0]?.url && <img src={hamperPhoto[0].url} alt="Welcome hamper" className="mt-2 h-48 w-full rounded-xl object-cover" loading="lazy" />}
             </section>
           )}
 
@@ -258,14 +253,7 @@ export function RoomDetailPage() {
           </section>
 
           {(settings?.whyBookWithUs ?? []).length > 0 && (
-            <section className="space-y-2">
-              <h2 className="font-medium">Why book with us?</h2>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {(settings?.whyBookWithUs ?? []).map((w, i) => (
-                  <Card key={i}><CardContent className="p-4"><p className="text-sm font-semibold">{w.title}</p>{w.text && <div className="rich-body mt-1 text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: w.text }} />}</CardContent></Card>
-                ))}
-              </div>
-            </section>
+            <WhyBookDropdown items={settings?.whyBookWithUs ?? []} />
           )}
 
           <AvailabilityCalendar
@@ -359,21 +347,129 @@ export function RoomDetailPage() {
   );
 }
 
-function AmenityChips({ amenities }: { amenities: Array<{ id: string; name: string; imageMediaId: string | null }> }) {
+function TickIcon({ className }: { className?: string }) {
+  return <Check className={className ?? "size-5 shrink-0 text-brand"} strokeWidth={3} aria-hidden />;
+}
+
+/** Why-book-with-us dropdowns, all collapsed by default. */
+function WhyBookDropdown({ items }: { items: Array<{ title: string; text?: string | null }> }) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  return (
+    <section className="space-y-2" aria-label="Why book with us">
+      <h2 className="font-medium">Why book with us?</h2>
+      <div className="divide-y divide-border rounded-xl border border-border">
+        {items.map((w, i) => {
+          const open = openIndex === i;
+          return (
+            <div key={i}>
+              <button
+                type="button"
+                onClick={() => setOpenIndex(open ? null : i)}
+                aria-expanded={open}
+                aria-controls={`why-book-panel-${i}`}
+                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+              >
+                <span className="text-sm font-semibold">{w.title}</span>
+                <ChevronDown className={`size-4 shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />
+              </button>
+              {open && (
+                <div id={`why-book-panel-${i}`} role="region" className="px-4 pb-4">
+                  {w.text ? (
+                    <div className="rich-body text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: w.text }} />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">More details coming soon.</p>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+interface LinkedAmenity {
+  id: string;
+  name: string;
+  group?: string;
+  imageMediaId: string | null;
+  iconUrl?: string | null;
+}
+
+/** Highlights row: upload wins, then icon URL (mock), then default tick. */
+function HighlightRow({ amenities }: { amenities: LinkedAmenity[] }) {
   const { data: photos } = useMediaUrls(amenities.map((a) => a.imageMediaId).filter((id): id is string => Boolean(id)));
   const byId = new Map((photos ?? []).map((p) => [p.id, p]));
   return (
-    <div className="flex flex-wrap gap-2">
+    <ul className="flex flex-wrap gap-x-6 gap-y-3">
       {amenities.map((a) => {
-        const img = a.imageMediaId ? byId.get(a.imageMediaId) : undefined;
+        const uploaded = a.imageMediaId ? byId.get(a.imageMediaId)?.url : undefined;
+        const src = uploaded ?? a.iconUrl ?? null;
         return (
-          <span key={a.id} className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-xs">
-            {img?.url && <img src={img.url} alt="" className="size-5 rounded-full object-cover" loading="lazy" />}
+          <li key={a.id} className="inline-flex items-center gap-2 text-sm text-foreground">
+            {src ? (
+              <img src={src} alt="" className="size-6 shrink-0 object-contain" loading="lazy" />
+            ) : (
+              <TickIcon className="size-6 shrink-0 text-muted-foreground" />
+            )}
             {a.name}
-          </span>
+          </li>
         );
       })}
-    </div>
+    </ul>
+  );
+}
+
+/** Facilities grid: tick + label in columns (legacy text amenities merge in). */
+function FacilityGrid({ amenities, extra }: { amenities: LinkedAmenity[]; extra: string[] }) {
+  if (amenities.length === 0 && extra.length === 0) return null;
+  return (
+    <ul className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+      {amenities.map((a) => (
+        <li key={a.id} className="flex items-center gap-2.5 text-sm text-foreground">
+          <TickIcon />
+          {a.name}
+        </li>
+      ))}
+      {extra.map((name) => (
+        <li key={name} className="flex items-center gap-2.5 text-sm text-foreground">
+          <TickIcon />
+          {name}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Welcome-hamper banner with expandable details. */
+function HamperBanner({ description, imageUrl }: { description: string | null; imageUrl: string | null }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <section aria-label="Welcome hamper" className="overflow-hidden rounded-sm">
+      <div className="flex items-center justify-between gap-3 bg-brand px-4 py-3 text-white">
+        <p className="inline-flex items-center gap-2 text-sm font-medium">
+          <Gift className="size-5" aria-hidden />
+          Welcome hamper included
+        </p>
+        {(description || imageUrl) && (
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            className="shrink-0 text-sm font-medium underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            {open ? "Hide details" : "View details"}
+          </button>
+        )}
+      </div>
+      {open && (description || imageUrl) && (
+        <div className="space-y-3 border border-t-0 border-border bg-card p-4">
+          {description && <p className="whitespace-pre-line text-sm text-muted-foreground">{description}</p>}
+          {imageUrl && <img src={imageUrl} alt="Welcome hamper" className="h-48 w-full rounded-xl object-cover" loading="lazy" />}
+        </div>
+      )}
+    </section>
   );
 }
 

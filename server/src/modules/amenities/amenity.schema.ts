@@ -9,6 +9,7 @@ export const createAmenitySchema = z.object({
   group: z.enum(AMENITY_GROUPS).optional(),
   description: z.string().trim().max(2000).nullable().optional(),
   imageMediaId: objectIdSchema.nullable().optional(),
+  iconUrl: z.string().trim().max(500).nullable().optional(),
   sortOrder: z.number().int().min(0).max(1000).optional(),
   status: z.enum(AMENITY_STATUSES).optional(),
 });

@@ -15,6 +15,8 @@ export interface Amenity {
   group: AmenityGroup;
   description: string | null;
   imageMediaId: string | null;
+  /** External icon URL (mock now, replaced with uploads later). Upload wins. */
+  iconUrl: string | null;
   sortOrder: number;
   status: AmenityStatus;
   createdAt: Date;
@@ -27,6 +29,7 @@ export interface AmenityDocument extends mongoose.Document {
   group: AmenityGroup;
   description: string | null;
   imageMediaId: string | null;
+  iconUrl: string | null;
   sortOrder: number;
   status: AmenityStatus;
   createdAt: Date;
@@ -40,6 +43,7 @@ const amenitySchema = new mongoose.Schema<AmenityDocument>(
     group: { type: String, enum: AMENITY_GROUPS, default: "HIGHLIGHT", required: true },
     description: { type: String, default: null, maxlength: 2000 },
     imageMediaId: { type: String, default: null },
+    iconUrl: { type: String, default: null, maxlength: 500 },
     sortOrder: { type: Number, default: 0 },
     status: { type: String, enum: AMENITY_STATUSES, default: "ACTIVE", required: true },
   },
@@ -59,6 +63,7 @@ export function toAmenity(doc: AmenityDocument): Amenity {
     group: doc.group,
     description: doc.description,
     imageMediaId: doc.imageMediaId,
+    iconUrl: doc.iconUrl ?? null,
     sortOrder: doc.sortOrder,
     status: doc.status,
     createdAt: doc.createdAt,

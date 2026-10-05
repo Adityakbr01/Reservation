@@ -34,6 +34,11 @@ const FACILITIES = [
   "Within walking distance of the pub",
 ];
 
+/** Mock icon per amenity until real icons are uploaded (picsum seeds). */
+function mockIcon(slug: string): string {
+  return `https://picsum.photos/seed/amenity-${slug}/96`;
+}
+
 /** Seeds amenities, the 20% autumn offer + coupon. Idempotent. */
 export async function seedContent() {
   try {
@@ -46,6 +51,13 @@ export async function seedContent() {
         { $setOnInsert: { name, slug, group: "HIGHLIGHT", sortOrder: order++, status: "ACTIVE" } },
         { upsert: true },
       ).exec();
+      // Normalize category for items seeded before groups existed.
+      await AmenityModel.updateOne({ slug, group: { $ne: "HIGHLIGHT" } }, { $set: { group: "HIGHLIGHT" } }).exec();
+      // Fill mock icons only where the admin hasn't set an image yet.
+      await AmenityModel.updateOne(
+        { slug, imageMediaId: null, $or: [{ iconUrl: null }, { iconUrl: "" }] },
+        { $set: { iconUrl: mockIcon(slug) } },
+      ).exec();
     }
     order = 0;
     for (const name of FACILITIES) {
@@ -54,6 +66,12 @@ export async function seedContent() {
         { slug },
         { $setOnInsert: { name, slug, group: "FACILITY", sortOrder: order++, status: "ACTIVE" } },
         { upsert: true },
+      ).exec();
+      // Normalize category for items seeded before groups existed.
+      await AmenityModel.updateOne({ slug, group: { $ne: "FACILITY" } }, { $set: { group: "FACILITY" } }).exec();
+      await AmenityModel.updateOne(
+        { slug, imageMediaId: null, $or: [{ iconUrl: null }, { iconUrl: "" }] },
+        { $set: { iconUrl: mockIcon(slug) } },
       ).exec();
     }
 

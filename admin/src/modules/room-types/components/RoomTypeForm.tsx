@@ -80,7 +80,7 @@ export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: Room
   useEffect(() => {
     void apiClient
       .get<ApiEnvelope<Array<{ id: string; name: string; group: string }>>>("/admin/amenities", {
-        params: { page: 1, limit: 200 },
+        params: { page: 1, limit: 100 },
       })
       .then(({ data }) => {
         const raw = (data as unknown as { data?: unknown }).data ?? data;

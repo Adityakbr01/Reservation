@@ -8,6 +8,7 @@ export interface Amenity {
   group: string;
   description: string | null;
   imageMediaId: string | null;
+  iconUrl: string | null;
 }
 
 export async function fetchAmenities(): Promise<Amenity[]> {
