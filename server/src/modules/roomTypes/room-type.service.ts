@@ -2,6 +2,7 @@ import { AppError } from "../../utils/app-error";
 import { isDuplicateKeyError } from "../../utils/mongo";
 import type { Paginated } from "../../utils/pagination";
 import { slugify } from "../../utils/slug";
+import { sanitizeRichText } from "../cms/cms.types";
 import { ensureProperty } from "../properties/property.service";
 import {
   createRoomType,
@@ -22,11 +23,26 @@ function resolveSlug(name: string, slug?: string): string {
   return value;
 }
 
+/** Rich HTML fields (CKEditor) are sanitized like CMS content before storage. */
+function sanitizeHtmlFields<T extends { layoutHtml?: string | null; surroundingsHtml?: string | null }>(
+  input: T,
+): T {
+  return {
+    ...input,
+    ...(input.layoutHtml !== undefined
+      ? { layoutHtml: input.layoutHtml ? sanitizeRichText(input.layoutHtml) || null : null }
+      : {}),
+    ...(input.surroundingsHtml !== undefined
+      ? { surroundingsHtml: input.surroundingsHtml ? sanitizeRichText(input.surroundingsHtml) || null : null }
+      : {}),
+  };
+}
+
 export async function createRoomTypeRecord(input: CreateRoomTypeInput): Promise<RoomType> {
   const property = await ensureProperty();
   const slug = resolveSlug(input.name, input.slug);
   try {
-    const doc = await createRoomType({ ...input, propertyId: property.id, slug });
+    const doc = await createRoomType({ ...sanitizeHtmlFields(input), propertyId: property.id, slug });
     const created = await findRoomTypeById(doc._id.toString());
     if (!created) {
       throw new AppError("Room type could not be created", 500, "ROOM_TYPE_CREATE_FAILED");
@@ -54,7 +70,8 @@ export async function updateRoomTypeRecord(id: string, input: UpdateRoomTypeInpu
     ? resolveSlug(input.name ?? current.name, input.slug)
     : undefined;
   try {
-    const updated = await updateRoomTypeById(id, slug ? { ...input, slug } : input);
+    const safeInput = sanitizeHtmlFields(input);
+    const updated = await updateRoomTypeById(id, slug ? { ...safeInput, slug } : safeInput);
     if (!updated) {
       throw new AppError("Room type not found", 404, "ROOM_TYPE_NOT_FOUND");
     }

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { MediaPicker } from "@/components/common/MediaPicker";
 import { ImageField } from "@/components/common/ImageField";
+import { CkEditorField } from "@/components/common/CkEditorField";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { apiClient } from "@/lib/api-client";
 import type { ApiEnvelope } from "@/lib/api-client";
@@ -387,20 +388,22 @@ export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: Room
         />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="rt-layout">Layout</Label>
-          <textarea id="rt-layout" value={layoutHtml} onChange={(e) => setLayoutHtml(e.target.value)} rows={3} placeholder="Ground floor: kitchen, lounge…" className="flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="rt-location">Location</Label>
-          <textarea id="rt-location" value={locationText} onChange={(e) => setLocationText(e.target.value)} rows={3} placeholder="Village, near pub…" className="flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring" />
-        </div>
-      </div>
+      <CkEditorField
+        label="Layout"
+        value={layoutHtml}
+        onChange={setLayoutHtml}
+        placeholder="Ground floor: kitchen, lounge…"
+      />
       <div className="space-y-2">
-        <Label htmlFor="rt-surround">Surrounding local area</Label>
-        <textarea id="rt-surround" value={surroundingsHtml} onChange={(e) => setSurroundingsHtml(e.target.value)} rows={3} placeholder="Walks, bird watching, golf…" className="flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+        <Label htmlFor="rt-location">Location</Label>
+        <textarea id="rt-location" value={locationText} onChange={(e) => setLocationText(e.target.value)} rows={3} placeholder="Village, near pub…" className="flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring" />
       </div>
+      <CkEditorField
+        label="Surrounding local area"
+        value={surroundingsHtml}
+        onChange={setSurroundingsHtml}
+        placeholder="Walks, golf, Stonehenge… Use bold for place names."
+      />
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="space-y-2">
           <Label htmlFor="rt-lat">Map latitude</Label>

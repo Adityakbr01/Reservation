@@ -25,6 +25,11 @@
 .rich-body strong {
   font-weight: 600;
 }
+.rich-body-gold strong,
+.rich-body-gold a,
+.rich-body-gold em {
+  color: #8a6d3b;
+}
 
 @custom-variant dark (&:is(.dark *));
 

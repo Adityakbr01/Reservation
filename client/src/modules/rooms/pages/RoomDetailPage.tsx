@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RoomTypeImage } from "@/components/common/RoomTypeImage";
+import { LocationMap } from "@/components/common/LocationMap";
 import { useMediaUrls } from "@/modules/media";
 import {
   AvailabilityCalendar,
@@ -238,16 +239,38 @@ export function RoomDetailPage() {
             <h2 className="font-medium">Property details</h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {roomType.layoutHtml && (
-                <Card><CardContent className="p-4"><h3 className="text-sm font-semibold">Layout</h3><p className="mt-1 whitespace-pre-line text-sm text-muted-foreground">{roomType.layoutHtml}</p></CardContent></Card>
+                <Card><CardContent className="p-4"><h3 className="text-sm font-semibold">Layout</h3><div className="rich-body mt-1 text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: roomType.layoutHtml }} /></CardContent></Card>
               )}
               {(floorplanPhotos ?? []).length > 0 && (
                 <Card><CardContent className="space-y-2 p-4"><h3 className="text-sm font-semibold">Floorplan</h3>{(floorplanPhotos ?? []).map((f) => (<img key={f.id} src={f.url} alt={f.alt ?? "Floorplan"} className="w-full rounded-lg border border-border" loading="lazy" />))}</CardContent></Card>
               )}
-              {(roomType.locationText || mapUrl) && (
-                <Card><CardContent className="space-y-2 p-4"><h3 className="text-sm font-semibold">Location</h3>{roomType.locationText && <p className="text-sm text-muted-foreground">{roomType.locationText}</p>}{mapUrl && (<iframe title="Map" src={mapUrl} className="h-56 w-full rounded-lg border border-border" loading="lazy" />)}</CardContent></Card>
-              )}
-              {roomType.surroundingsHtml && (
-                <Card><CardContent className="p-4"><h3 className="text-sm font-semibold">Surrounding local area</h3><p className="mt-1 whitespace-pre-line text-sm text-muted-foreground">{roomType.surroundingsHtml}</p></CardContent></Card>
+              {((roomType.locationText || roomType.mapLat != null || mapUrl) || roomType.surroundingsHtml) && (
+                <div className="grid gap-8 sm:col-span-2 lg:grid-cols-2" aria-label="Location and surroundings">
+                  <div>
+                    <h3 className="font-display text-2xl font-light tracking-tight">Location</h3>
+                    <div className="mt-2 border-t-2 border-brand pt-4">
+                      {roomType.mapLat != null && roomType.mapLng != null ? (
+                        <LocationMap lat={roomType.mapLat} lng={roomType.mapLng} label={roomType.name} />
+                      ) : mapUrl ? (
+                        <iframe title="Map" src={mapUrl} className="h-80 w-full rounded-sm border border-border" loading="lazy" />
+                      ) : null}
+                      {roomType.locationText && (
+                        <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">{roomType.locationText}</p>
+                      )}
+                    </div>
+                  </div>
+                  {roomType.surroundingsHtml && (
+                    <div>
+                      <h3 className="font-display text-2xl font-light tracking-tight">Surrounding local area</h3>
+                      <div className="mt-2 border-t-2 border-brand pt-4">
+                        <div
+                          className="rich-body rich-body-gold text-center text-sm leading-relaxed text-foreground"
+                          dangerouslySetInnerHTML={{ __html: roomType.surroundingsHtml }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </section>
