@@ -9,6 +9,7 @@ export function toProperty(doc: PropertyDocument): Property {
     slug: doc.slug,
     description: doc.description,
     contact: doc.contact,
+    mapEmbedUrl: doc.mapEmbedUrl ?? null,
     checkInTime: doc.checkInTime,
     checkOutTime: doc.checkOutTime,
     timezone: doc.timezone,
@@ -26,6 +27,7 @@ export async function findProperty(): Promise<PropertyDocument | null> {
 export interface UpdatePropertyInput {
   name?: string;
   description?: string | null;
+  mapEmbedUrl?: string | null;
   contact?: Partial<Property["contact"]>;
   checkInTime?: string;
   checkOutTime?: string;

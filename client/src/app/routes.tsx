@@ -41,6 +41,7 @@ const OffersPage = lazy(() =>
 const PolicyPage = lazy(() =>
   import("@/modules/cms/pages/CmsPages").then((m) => ({ default: m.PolicyPage })),
 );
+const EnquirePage = lazy(() => import("@/modules/enquiry/pages/EnquirePage"));
 
 function PageFallback() {
   return (
@@ -63,6 +64,7 @@ export function AppRoutes() {
           <Route path="faqs" element={<FaqsPage />} />
           <Route path="offers" element={<OffersPage />} />
           <Route path="policies/:key" element={<PolicyPage />} />
+          <Route path="enquire" element={<EnquirePage />} />
           <Route
             path="booking/new"
             element={

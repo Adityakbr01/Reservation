@@ -9,6 +9,7 @@ export interface RoomTypeImage {
   mediaId: string;
   url?: string | null;
   altText: string | null;
+  kind?: "image" | "video";
 }
 
 export interface RoomType {
@@ -25,6 +26,20 @@ export interface RoomType {
   amenities: string[];
   status: RoomTypeStatus;
   images: RoomTypeImage[];
+  media?: Array<{ mediaId: string; kind: "image" | "video"; altText: string | null; sortOrder: number }>;
+  layoutHtml?: string | null;
+  floorplanMediaIds?: string[];
+  locationText?: string | null;
+  surroundingsHtml?: string | null;
+  mapLat?: number | null;
+  mapLng?: number | null;
+  mapEmbedUrl?: string | null;
+  welcomeHamperIncluded?: boolean;
+  welcomeHamperDescription?: string | null;
+  welcomeHamperImageMediaId?: string | null;
+  amenityIds?: string[];
+  bedrooms?: number | null;
+  maxDogs?: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -47,6 +62,20 @@ export interface CreateRoomTypePayload {
   beds?: RoomTypeBed[];
   amenities?: string[];
   images?: Array<{ mediaId: string; altText: string | null; sortOrder: number }>;
+  media?: Array<{ mediaId: string; kind: "image" | "video"; altText: string | null; sortOrder: number }>;
+  layoutHtml?: string | null;
+  floorplanMediaIds?: string[];
+  locationText?: string | null;
+  surroundingsHtml?: string | null;
+  mapLat?: number | null;
+  mapLng?: number | null;
+  mapEmbedUrl?: string | null;
+  welcomeHamperIncluded?: boolean;
+  welcomeHamperDescription?: string | null;
+  welcomeHamperImageMediaId?: string | null;
+  amenityIds?: string[];
+  bedrooms?: number | null;
+  maxDogs?: number | null;
   status?: RoomTypeStatus;
 }
 

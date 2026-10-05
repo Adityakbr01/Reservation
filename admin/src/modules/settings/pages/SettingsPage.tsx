@@ -27,6 +27,7 @@ interface Settings {
   checkInTime: string | null;
   checkOutTime: string | null;
   reminderHoursBefore: number;
+  whyBookWithUs?: Array<{ title: string; text?: string | null }>;
 }
 
 export function SettingsPage() {
@@ -205,6 +206,42 @@ function SettingsForm({ initial }: { initial: Settings }) {
                 }
               />
             </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Why book with us?</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {(form.whyBookWithUs ?? []).map((item, i) => (
+              <div key={i} className="grid gap-2 sm:grid-cols-2">
+                <Input
+                  value={item.title}
+                  onChange={(e) =>
+                    set("whyBookWithUs", (form.whyBookWithUs ?? []).map((w, j) => (j === i ? { ...w, title: e.target.value } : w)))
+                  }
+                  placeholder="Local knowledge"
+                  aria-label={`Why book title ${i + 1}`}
+                />
+                <Input
+                  value={item.text ?? ""}
+                  onChange={(e) =>
+                    set("whyBookWithUs", (form.whyBookWithUs ?? []).map((w, j) => (j === i ? { ...w, text: e.target.value || null } : w)))
+                  }
+                  placeholder="Short line (optional)"
+                  aria-label={`Why book text ${i + 1}`}
+                />
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-full"
+              onClick={() => set("whyBookWithUs", [...(form.whyBookWithUs ?? []), { title: "", text: null }])}
+            >
+              Add reason
+            </Button>
           </CardContent>
         </Card>
         <Button

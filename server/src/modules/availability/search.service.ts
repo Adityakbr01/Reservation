@@ -37,16 +37,42 @@ export function isPlanApplicable(
   return true;
 }
 
-function pricePlan(plan: RatePlan, nights: number): SearchRate {
-  const total = plan.pricing.type === "PER_NIGHT" ? plan.pricing.amount * nights : plan.pricing.amount;
-  return {
-    ratePlanId: plan.id,
-    name: plan.name,
-    pricingType: plan.pricing.type,
-    perNight: plan.pricing.type === "PER_NIGHT" ? plan.pricing.amount : Math.round(total / nights),
-    total,
-    currency: plan.pricing.currency,
-  };
+async function pricePlan(plan: RatePlan, nights: number, checkIn: Date, checkOut: Date): Promise<SearchRate> {
+  // Date-wise pricing: sum nightly overrides with fallback to base per-night.
+  // PER_STAY plans keep flat amount (nightly shown as averaged breakdown).
+  try {
+    const { getDailyPriceMap, stayDayKeys, sumNightlyTotal } = await import(
+      "../ratePlans/daily-price.model"
+    );
+    const days = stayDayKeys(checkIn, checkOut);
+    const overrides = await getDailyPriceMap(plan.id, checkIn, checkOut);
+    const { total, nightly } = sumNightlyTotal(
+      days,
+      overrides,
+      plan.pricing.amount,
+      plan.pricing.type,
+      plan.pricing.type === "PER_NIGHT" ? plan.pricing.amount * nights : plan.pricing.amount,
+    );
+    return {
+      ratePlanId: plan.id,
+      name: plan.name,
+      pricingType: plan.pricing.type,
+      perNight: plan.pricing.type === "PER_NIGHT" ? Math.round(total / Math.max(1, nights)) : Math.round(total / Math.max(1, nights)),
+      total,
+      currency: plan.pricing.currency,
+      nightly,
+    };
+  } catch {
+    const total = plan.pricing.type === "PER_NIGHT" ? plan.pricing.amount * nights : plan.pricing.amount;
+    return {
+      ratePlanId: plan.id,
+      name: plan.name,
+      pricingType: plan.pricing.type,
+      perNight: plan.pricing.type === "PER_NIGHT" ? plan.pricing.amount : Math.round(total / nights),
+      total,
+      currency: plan.pricing.currency,
+    };
+  }
 }
 
 /**
@@ -107,9 +133,8 @@ export async function searchAvailability(input: SearchAvailabilityInput): Promis
       roomTypeId: roomType.id,
       status: "ACTIVE",
     });
-    const rates = plansPage.data
-      .filter((plan) => isPlanApplicable(plan, checkIn, checkOut, nights))
-      .map((plan) => pricePlan(plan, nights));
+    const applicable = plansPage.data.filter((plan) => isPlanApplicable(plan, checkIn, checkOut, nights));
+    const rates = await Promise.all(applicable.map((plan) => pricePlan(plan, nights, checkIn, checkOut)));
     if (rates.length === 0) continue;
 
     results.push({ roomType, availableCount: availableIds.length, rates });

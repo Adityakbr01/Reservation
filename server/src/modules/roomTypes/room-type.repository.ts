@@ -7,6 +7,15 @@ import type { RoomTypeDocument } from "./room-type.model";
 import type { RoomType, RoomTypeStatus } from "./room-type.types";
 
 export function toRoomType(doc: RoomTypeDocument): RoomType {
+  const media =
+    doc.media && doc.media.length > 0
+      ? doc.media.map((m) => ({ mediaId: m.mediaId, kind: m.kind ?? "image", altText: m.altText, sortOrder: m.sortOrder }))
+      : (doc.images ?? []).map((image) => ({
+          mediaId: image.mediaId,
+          kind: "image" as const,
+          altText: image.altText,
+          sortOrder: image.sortOrder,
+        }));
   return {
     id: doc._id.toString(),
     propertyId: doc.propertyId.toString(),
@@ -18,12 +27,26 @@ export function toRoomType(doc: RoomTypeDocument): RoomType {
     maxChildren: doc.maxChildren,
     maxOccupancy: doc.maxOccupancy,
     beds: doc.beds.map((bed) => ({ type: bed.type, quantity: bed.quantity })),
-    amenities: [...doc.amenities],
-    images: doc.images.map((image) => ({
+    amenities: [...(doc.amenities ?? [])],
+    images: (doc.images ?? []).map((image) => ({
       mediaId: image.mediaId,
       altText: image.altText,
       sortOrder: image.sortOrder,
     })),
+    media,
+    layoutHtml: doc.layoutHtml ?? null,
+    floorplanMediaIds: [...(doc.floorplanMediaIds ?? [])],
+    locationText: doc.locationText ?? null,
+    surroundingsHtml: doc.surroundingsHtml ?? null,
+    mapLat: doc.mapLat ?? null,
+    mapLng: doc.mapLng ?? null,
+    mapEmbedUrl: doc.mapEmbedUrl ?? null,
+    welcomeHamperIncluded: doc.welcomeHamperIncluded ?? false,
+    welcomeHamperDescription: doc.welcomeHamperDescription ?? null,
+    welcomeHamperImageMediaId: doc.welcomeHamperImageMediaId ?? null,
+    amenityIds: (doc.amenityIds ?? []).map((id) => id.toString()),
+    bedrooms: doc.bedrooms ?? null,
+    maxDogs: doc.maxDogs ?? null,
     status: doc.status,
     seo: doc.seo,
     createdAt: doc.createdAt,
@@ -43,6 +66,20 @@ export interface CreateRoomTypeInput {
   beds?: RoomType["beds"];
   amenities?: string[];
   images?: RoomType["images"];
+  media?: RoomType["media"];
+  layoutHtml?: string | null;
+  floorplanMediaIds?: string[];
+  locationText?: string | null;
+  surroundingsHtml?: string | null;
+  mapLat?: number | null;
+  mapLng?: number | null;
+  mapEmbedUrl?: string | null;
+  welcomeHamperIncluded?: boolean;
+  welcomeHamperDescription?: string | null;
+  welcomeHamperImageMediaId?: string | null;
+  amenityIds?: string[];
+  bedrooms?: number | null;
+  maxDogs?: number | null;
   status?: RoomTypeStatus;
   seo?: RoomType["seo"];
 }
@@ -116,6 +153,20 @@ export type UpdateRoomTypeInput = Partial<
     | "beds"
     | "amenities"
     | "images"
+    | "media"
+    | "layoutHtml"
+    | "floorplanMediaIds"
+    | "locationText"
+    | "surroundingsHtml"
+    | "mapLat"
+    | "mapLng"
+    | "mapEmbedUrl"
+    | "welcomeHamperIncluded"
+    | "welcomeHamperDescription"
+    | "welcomeHamperImageMediaId"
+    | "amenityIds"
+    | "bedrooms"
+    | "maxDogs"
     | "status"
     | "seo"
   >

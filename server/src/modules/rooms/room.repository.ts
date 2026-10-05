@@ -15,6 +15,7 @@ export function toRoom(doc: RoomDocument): Room {
     roomNumber: doc.roomNumber,
     floor: doc.floor,
     status: doc.status,
+    condition: doc.condition ?? null,
     notes: doc.notes,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
@@ -28,6 +29,7 @@ export interface CreateRoomInput {
   roomNumber: string;
   floor?: string | null;
   status?: RoomStatus;
+  condition?: string | null;
   notes?: string | null;
 }
 
@@ -72,7 +74,7 @@ export async function listRooms(filter: ListRoomsFilter): Promise<Paginated<Room
 }
 
 export type UpdateRoomInput = Partial<
-  Pick<CreateRoomInput, "name" | "roomNumber" | "roomTypeId" | "floor" | "status" | "notes">
+  Pick<CreateRoomInput, "name" | "roomNumber" | "roomTypeId" | "floor" | "status" | "condition" | "notes">
 >;
 
 export async function updateRoomById(id: string, input: UpdateRoomInput): Promise<Room | null> {

@@ -1,5 +1,6 @@
 import { ensureProperty } from "../modules/properties/property.service";
 import { seedAdminFromEnv } from "./admin.seed";
+import { seedContent } from "./content.seed";
 
 /**
  * Boot-time data seeding, called once from server.ts.
@@ -10,4 +11,5 @@ import { seedAdminFromEnv } from "./admin.seed";
 export async function runStartupSeeds(): Promise<void> {
   await seedAdminFromEnv();
   await ensureProperty();
+  await seedContent();
 }

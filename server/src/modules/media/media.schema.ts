@@ -4,6 +4,7 @@ import { paginationQuerySchema } from "../../utils/pagination";
 
 export const listMediaQuerySchema = paginationQuerySchema.extend({
   q: z.string().trim().max(120).optional(),
+  kind: z.enum(["image", "video"]).optional(),
 });
 
 export const updateMediaSchema = z.object({

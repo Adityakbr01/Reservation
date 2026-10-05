@@ -9,6 +9,8 @@ export interface RoomDocument extends mongoose.Document {
   roomNumber: string;
   floor: string | null;
   status: RoomStatus;
+  /** Physical condition note, nullable. e.g. refurbishment state. */
+  condition: string | null;
   notes: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -22,6 +24,7 @@ const roomSchema = new mongoose.Schema<RoomDocument>(
     roomNumber: { type: String, required: true, trim: true, minlength: 1, maxlength: 20 },
     floor: { type: String, default: null },
     status: { type: String, enum: ROOM_STATUSES, default: "ACTIVE", required: true },
+    condition: { type: String, default: null, maxlength: 1000 },
     notes: { type: String, default: null },
   },
   { timestamps: true },

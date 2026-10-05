@@ -29,17 +29,17 @@ export function MediaPage() {
         <div>
           <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">Media</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {data ? `${data.total} files` : "JPEG, PNG, WebP, AVIF up to 8 MB"}
+            {data ? `${data.total} files` : "Images up to 8 MB · Video MP4/WebM up to 50 MB"}
           </p>
         </div>
         <div>
           <Label htmlFor="media-file" className="sr-only">
-            Upload image
+            Upload image or video
           </Label>
           <Input
             id="media-file"
             type="file"
-            accept="image/jpeg,image/png,image/webp,image/avif"
+            accept="image/jpeg,image/png,image/webp,image/avif,video/mp4,video/webm"
             disabled={uploadMutation.isPending}
             onChange={(e) => {
               const file = e.target.files?.[0];
@@ -84,12 +84,16 @@ export function MediaPage() {
             {items.map((item) => (
               <Card key={item.id}>
                 <CardContent className="space-y-3 p-4">
-                  <img
-                    src={item.url}
-                    alt={item.alt ?? item.fileName}
-                    className="h-40 w-full rounded-lg object-cover"
-                    loading="lazy"
-                  />
+                  {(item as { kind?: string }).kind === "video" || item.url.match(/\.(mp4|webm)($|\?)/i) ? (
+                    <video src={item.url} className="h-40 w-full rounded-lg bg-black object-cover" controls preload="metadata" />
+                  ) : (
+                    <img
+                      src={item.url}
+                      alt={item.alt ?? item.fileName}
+                      className="h-40 w-full rounded-lg object-cover"
+                      loading="lazy"
+                    />
+                  )}
                   <p className="truncate text-sm font-medium">{item.fileName}</p>
                   <div className="flex gap-2">
                     <Input

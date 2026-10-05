@@ -29,6 +29,10 @@ export const updateSettingsSchema = z.object({
       ogImageMediaId: objectIdSchema.nullable().optional(),
     })
     .optional(),
+  whyBookWithUs: z
+    .array(z.object({ title: z.string().trim().min(1).max(120), text: z.string().trim().max(500).nullable().optional() }))
+    .max(10)
+    .optional(),
 });
 
 export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>;

@@ -29,6 +29,7 @@ export function RoomForm({ initial, submitLabel, isPending, onSubmit }: RoomForm
   const [roomNumber, setRoomNumber] = useState(initial?.roomNumber ?? "");
   const [floor, setFloor] = useState(initial?.floor ?? "");
   const [status, setStatus] = useState<RoomStatus>(initial?.status ?? "ACTIVE");
+  const [condition, setCondition] = useState(initial?.condition ?? "");
   const [notes, setNotes] = useState(initial?.notes ?? "");
   const { data: typesData } = useRoomTypes({ page: 1, limit: 100 });
   const roomTypes = typesData?.items ?? [];
@@ -44,6 +45,7 @@ export function RoomForm({ initial, submitLabel, isPending, onSubmit }: RoomForm
       roomNumber: roomNumber.trim(),
       floor: floor.trim() || null,
       status,
+      condition: condition.trim() || null,
       notes: notes.trim() || null,
     });
   }
@@ -126,6 +128,18 @@ export function RoomForm({ initial, submitLabel, isPending, onSubmit }: RoomForm
           aria-label="Under maintenance"
         />
       </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="room-condition">Condition (optional, can be empty)</Label>
+        <textarea
+          id="room-condition"
+          value={condition}
+          onChange={(e) => setCondition(e.target.value)}
+          rows={2}
+          placeholder="Excellent — refurbished Oct 2026"
+          className="flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
+        />
       </div>
 
       <div className="space-y-2">

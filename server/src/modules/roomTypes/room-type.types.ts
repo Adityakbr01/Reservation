@@ -13,6 +13,15 @@ export interface RoomTypeImage {
   sortOrder: number;
 }
 
+export type RoomTypeMediaKind = "image" | "video";
+
+export interface RoomTypeMedia {
+  mediaId: string;
+  kind: RoomTypeMediaKind;
+  altText: string | null;
+  sortOrder: number;
+}
+
 export interface RoomTypeSeo {
   title: string | null;
   description: string | null;
@@ -36,6 +45,22 @@ export interface RoomType {
   beds: RoomTypeBed[];
   amenities: string[];
   images: RoomTypeImage[];
+  /** Ordered gallery incl. video. Preferred over legacy images when non-empty. */
+  media: RoomTypeMedia[];
+  // Detail-page content (all nullable for backward compat).
+  layoutHtml: string | null;
+  floorplanMediaIds: string[];
+  locationText: string | null;
+  surroundingsHtml: string | null;
+  mapLat: number | null;
+  mapLng: number | null;
+  mapEmbedUrl: string | null;
+  welcomeHamperIncluded: boolean;
+  welcomeHamperDescription: string | null;
+  welcomeHamperImageMediaId: string | null;
+  amenityIds: string[];
+  bedrooms: number | null;
+  maxDogs: number | null;
   status: RoomTypeStatus;
   seo: RoomTypeSeo | null;
   createdAt: Date;

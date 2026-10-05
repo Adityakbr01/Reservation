@@ -29,6 +29,8 @@ export interface Quote {
   quoteId: string;
   pricing: QuotePricing;
   expiresAt: string;
+  nightly?: Array<{ date: string; price: number }>;
+  nights?: number;
 }
 
 export type BookingStatus = "HELD" | "PAYMENT_PENDING" | "CONFIRMED" | "CANCELLED" | "EXPIRED";

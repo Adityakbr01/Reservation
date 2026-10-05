@@ -66,6 +66,10 @@ const PoliciesPage = lazy(() => import("@/modules/cms/pages/PoliciesPage"));
 const MediaPage = lazy(() => import("@/modules/media/pages/MediaPage"));
 const SettingsPage = lazy(() => import("@/modules/settings/pages/SettingsPage"));
 const AuditLogsPage = lazy(() => import("@/modules/audit/pages/AuditLogsPage"));
+const AmenitiesPage = lazy(() => import("@/modules/amenities/pages/AmenitiesPage"));
+const EnquiriesPage = lazy(() => import("@/modules/enquiries/pages/EnquiriesPage"));
+const NewsletterPage = lazy(() => import("@/modules/newsletter/pages/NewsletterPage"));
+const ReviewsPage = lazy(() => import("@/modules/reviews/pages/ReviewsPage"));
 
 function PageFallback() {
   return (
@@ -391,6 +395,38 @@ export function AppRoutes() {
               element={
                 <RequireAdmin>
                   <MediaPage />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path="amenities"
+              element={
+                <RequireAdmin>
+                  <AmenitiesPage />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path="enquiries"
+              element={
+                <RequireAdmin>
+                  <EnquiriesPage />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path="newsletter"
+              element={
+                <RequireAdmin>
+                  <NewsletterPage />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path="reviews"
+              element={
+                <RequireAdmin>
+                  <ReviewsPage />
                 </RequireAdmin>
               }
             />

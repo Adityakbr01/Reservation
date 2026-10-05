@@ -73,6 +73,28 @@ function nightlySchedule(checkIn: Date, nights: number, perNight: number): Array
   return schedule;
 }
 
+async function nightlyScheduleForPlan(
+  ratePlanId: string,
+  checkIn: Date,
+  checkOut: Date,
+  nights: number,
+  basePerNight: number,
+  pricingType: "PER_NIGHT" | "PER_STAY",
+  baseStayAmount: number,
+): Promise<Array<{ date: Date; amount: number }>> {
+  try {
+    const { getDailyPriceMap, stayDayKeys, sumNightlyTotal } = await import(
+      "../ratePlans/daily-price.model"
+    );
+    const days = stayDayKeys(checkIn, checkOut);
+    const overrides = await getDailyPriceMap(ratePlanId, checkIn, checkOut);
+    const { nightly } = sumNightlyTotal(days, overrides, basePerNight, pricingType, baseStayAmount);
+    return nightly.map((n) => ({ date: new Date(`${n.date}T00:00:00Z`), amount: n.price }));
+  } catch {
+    return nightlySchedule(checkIn, nights, basePerNight);
+  }
+}
+
 interface PricedLine {
   roomTypeId: string;
   roomTypeName: string;
@@ -134,7 +156,19 @@ export async function createBooking(
       throw new AppError("Rate plan is not applicable to these dates", 400, "RATE_PLAN_INACTIVE");
     }
 
-    const unitSubtotal = plan.pricing.type === "PER_NIGHT" ? plan.pricing.amount * nights : plan.pricing.amount;
+    const { stayDayKeys: stayKeys, getDailyPriceMap: getMap, sumNightlyTotal: sumTotal } = await import(
+      "../ratePlans/daily-price.model"
+    );
+    const stayDays = stayKeys(checkIn, checkOut);
+    const priceOverrides = await getMap(plan.id, checkIn, checkOut);
+    const baseStayForLine = plan.pricing.type === "PER_NIGHT" ? plan.pricing.amount * nights : plan.pricing.amount;
+    const { total: unitSubtotal, nightly: lineNightly } = sumTotal(
+      stayDays,
+      priceOverrides,
+      plan.pricing.amount,
+      plan.pricing.type,
+      baseStayForLine,
+    );
     const lineSubtotal = unitSubtotal * line.quantity;
     let lineDiscount = 0;
     let couponId: string | null = null;
@@ -150,7 +184,17 @@ export async function createBooking(
       lineDiscount = evaluation.discount;
       couponId = evaluation.couponId ?? null;
     }
-    const perNight = plan.pricing.type === "PER_NIGHT" ? plan.pricing.amount : Math.round(lineSubtotal / nights);
+    const perNight = plan.pricing.type === "PER_NIGHT" ? Math.round(unitSubtotal / Math.max(1, nights)) : Math.round(lineSubtotal / nights);
+    const nightlyForItems = await nightlyScheduleForPlan(
+      plan.id,
+      checkIn,
+      checkOut,
+      nights,
+      plan.pricing.type === "PER_NIGHT" ? plan.pricing.amount : perNight,
+      plan.pricing.type,
+      baseStayForLine,
+    );
+    void lineNightly;
     lines.push({
       roomTypeId: roomType.id,
       roomTypeName: roomType.name,
@@ -162,7 +206,7 @@ export async function createBooking(
       lineSubtotal,
       lineDiscount,
       couponId,
-      nightlyRates: nightlySchedule(checkIn, nights, perNight),
+      nightlyRates: nightlyForItems,
       allocated: [],
     });
   }

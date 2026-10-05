@@ -38,13 +38,16 @@ export async function uploadMedia(input: UploadMediaInput): Promise<Media> {
     logger.error("Media upload failed", { message });
     throw new AppError("Media upload failed, please try again", 502, "MEDIA_UPLOAD_FAILED");
   }
+  const kind = input.mime.startsWith("video/") ? "video" : "image";
   const doc = await MediaModel.create({
     fileName: input.fileName,
     url: result.url,
     storageKey: result.fileId,
     mime: input.mime,
+    kind,
     width: result.width ?? null,
     height: result.height ?? null,
+    durationSec: null,
     alt: input.alt ?? null,
     caption: input.caption ?? null,
     size: input.size,
@@ -139,6 +142,8 @@ export interface ResolvedMedia {
   id: string;
   url: string;
   alt: string | null;
+  mime: string;
+  kind: "image" | "video";
 }
 
 /** Batch URL resolution for editors/renderers. Skips unknown ids silently. */
@@ -146,11 +151,13 @@ export async function resolveMedia(ids: string[]): Promise<ResolvedMedia[]> {
   const unique = [...new Set(ids)].filter((id) => mongoose.Types.ObjectId.isValid(id)).slice(0, 50);
   if (unique.length === 0) return [];
   const docs = await MediaModel.find({ _id: { $in: unique } })
-    .select("url alt")
+    .select("url alt mime kind")
     .exec();
   return docs.map((doc) => ({
     id: doc._id.toString(),
     url: doc.url,
     alt: doc.alt,
+    mime: doc.mime,
+    kind: doc.mime?.startsWith("video/") || doc.kind === "video" ? "video" : "image",
   }));
 }

@@ -28,6 +28,10 @@ import { adminRatePlansRouter } from "./modules/ratePlans/rate-plan.routes";
 import { adminRoomTypesRouter, publicRoomTypesRouter } from "./modules/roomTypes/room-type.routes";
 import { adminRoomsRouter } from "./modules/rooms/room.routes";
 import { healthRouter } from "./routes/health.routes";
+import { adminAmenitiesRouter, publicAmenitiesRouter } from "./modules/amenities/index";
+import { adminEnquiriesRouter, publicEnquiriesRouter } from "./modules/enquiries/index";
+import { adminNewsletterRouter, publicNewsletterRouter } from "./modules/newsletter/index";
+import { adminReviewsRouter, publicReviewsRouter, reviewsRouter } from "./modules/reviews/index";
 
 export function createApp() {
   const app = express();
@@ -88,6 +92,15 @@ export function createApp() {
   app.use("/api/v1/admin/rooms", adminRoomsRouter);
   app.use("/api/v1/admin/rate-plans", adminRatePlansRouter);
   app.use("/api/v1/admin/availability", adminAvailabilityRouter);
+  app.use("/api/v1/admin/amenities", adminAmenitiesRouter);
+  app.use("/api/public/amenities", publicAmenitiesRouter);
+  app.use("/api/v1/admin/enquiries", adminEnquiriesRouter);
+  app.use("/api/public/enquiries", publicEnquiriesRouter);
+  app.use("/api/v1/admin/newsletter", adminNewsletterRouter);
+  app.use("/api/public/newsletter", publicNewsletterRouter);
+  app.use("/api/v1/admin/reviews", adminReviewsRouter);
+  app.use("/api/public/reviews", publicReviewsRouter);
+  app.use("/api/v1/reviews", reviewsRouter);
   // Future domain routers mount under /api/v1 (see docs 05_DATABASE_AND_API_SPEC).
 
   app.use(notFound);

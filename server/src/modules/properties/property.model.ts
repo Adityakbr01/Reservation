@@ -7,6 +7,7 @@ export interface PropertyDocument extends mongoose.Document {
   slug: string;
   description: string | null;
   contact: PropertyContact;
+  mapEmbedUrl: string | null;
   checkInTime: string;
   checkOutTime: string;
   timezone: string;
@@ -37,6 +38,7 @@ const propertySchema = new mongoose.Schema<PropertyDocument>(
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true },
     description: { type: String, default: null },
     contact: { type: contactSchema, default: () => ({}) },
+    mapEmbedUrl: { type: String, default: null, maxlength: 1000 },
     checkInTime: { type: String, required: true, default: "14:00" },
     checkOutTime: { type: String, required: true, default: "12:00" },
     timezone: { type: String, required: true, default: "Asia/Kolkata" },

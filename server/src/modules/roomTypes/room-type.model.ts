@@ -3,6 +3,7 @@ import { ROOM_TYPE_STATUSES } from "./room-type.types";
 import type {
   RoomTypeBed,
   RoomTypeImage,
+  RoomTypeMedia,
   RoomTypeSeo,
   RoomTypeStatus,
 } from "./room-type.types";
@@ -19,6 +20,20 @@ export interface RoomTypeDocument extends mongoose.Document {
   beds: RoomTypeBed[];
   amenities: string[];
   images: RoomTypeImage[];
+  media: RoomTypeMedia[];
+  layoutHtml: string | null;
+  floorplanMediaIds: string[];
+  locationText: string | null;
+  surroundingsHtml: string | null;
+  mapLat: number | null;
+  mapLng: number | null;
+  mapEmbedUrl: string | null;
+  welcomeHamperIncluded: boolean;
+  welcomeHamperDescription: string | null;
+  welcomeHamperImageMediaId: string | null;
+  amenityIds: mongoose.Types.ObjectId[];
+  bedrooms: number | null;
+  maxDogs: number | null;
   status: RoomTypeStatus;
   seo: RoomTypeSeo | null;
   createdAt: Date;
@@ -37,6 +52,16 @@ const bedSchema = new mongoose.Schema<RoomTypeBed>(
 const imageSchema = new mongoose.Schema<RoomTypeImage>(
   {
     mediaId: { type: String, required: true },
+    altText: { type: String, default: null },
+    sortOrder: { type: Number, required: true, default: 0 },
+  },
+  { _id: false },
+);
+
+const mediaSchema = new mongoose.Schema<RoomTypeMedia>(
+  {
+    mediaId: { type: String, required: true },
+    kind: { type: String, enum: ["image", "video"], default: "image" },
     altText: { type: String, default: null },
     sortOrder: { type: Number, required: true, default: 0 },
   },
@@ -69,6 +94,20 @@ const roomTypeSchema = new mongoose.Schema<RoomTypeDocument>(
     beds: { type: [bedSchema], default: [] },
     amenities: { type: [String], default: [] },
     images: { type: [imageSchema], default: [] },
+    media: { type: [mediaSchema], default: [] },
+    layoutHtml: { type: String, default: null },
+    floorplanMediaIds: { type: [String], default: [] },
+    locationText: { type: String, default: null },
+    surroundingsHtml: { type: String, default: null },
+    mapLat: { type: Number, default: null },
+    mapLng: { type: Number, default: null },
+    mapEmbedUrl: { type: String, default: null },
+    welcomeHamperIncluded: { type: Boolean, default: false },
+    welcomeHamperDescription: { type: String, default: null },
+    welcomeHamperImageMediaId: { type: String, default: null },
+    amenityIds: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Amenity" }], default: [] },
+    bedrooms: { type: Number, default: null },
+    maxDogs: { type: Number, default: null },
     status: { type: String, enum: ROOM_TYPE_STATUSES, default: "DRAFT", required: true },
     seo: { type: seoSchema, default: null },
   },

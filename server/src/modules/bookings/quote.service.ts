@@ -19,13 +19,21 @@ export interface QuotePricing {
   currency: string;
 }
 
+export interface QuoteNightly {
+  date: string;
+  price: number;
+}
+
 export interface Quote {
   quoteId: string;
   expiresAt: string;
   pricing: QuotePricing;
+  nightly?: QuoteNightly[];
+  nights?: number;
 }
 
 interface StoredQuote extends Quote {
+  // StoredQuote inherits nightly/nights for booking-flow reuse.
   request: {
     checkIn: string;
     checkOut: string;
@@ -68,7 +76,19 @@ export async function createQuote(input: QuoteRequest): Promise<Quote> {
     throw new AppError("Rate plan is not applicable to these dates", 400, "RATE_PLAN_INACTIVE");
   }
 
-  const unitTotal = plan.pricing.type === "PER_NIGHT" ? plan.pricing.amount * nights : plan.pricing.amount;
+  const { getDailyPriceMap, stayDayKeys, sumNightlyTotal } = await import(
+    "../ratePlans/daily-price.model"
+  );
+  const days = stayDayKeys(checkIn, checkOut);
+  const overrides = await getDailyPriceMap(plan.id, checkIn, checkOut);
+  const baseStay = plan.pricing.type === "PER_NIGHT" ? plan.pricing.amount * nights : plan.pricing.amount;
+  const { total: unitTotal, nightly } = sumNightlyTotal(
+    days,
+    overrides,
+    plan.pricing.amount,
+    plan.pricing.type,
+    baseStay,
+  );
   const subtotal = unitTotal * quantity;
 
   let discount = 0;
@@ -92,10 +112,13 @@ export async function createQuote(input: QuoteRequest): Promise<Quote> {
   };
   const quoteId = `quote_${randomBytes(9).toString("hex")}`;
   const expiresAt = new Date(Date.now() + QUOTE_TTL_SECONDS * 1000).toISOString();
+  const quote: Quote = { quoteId, expiresAt, pricing, nightly, nights };
   const stored: StoredQuote = {
     quoteId,
     expiresAt,
     pricing,
+    nightly,
+    nights,
     request: {
       checkIn: checkIn.toISOString(),
       checkOut: checkOut.toISOString(),
@@ -106,5 +129,5 @@ export async function createQuote(input: QuoteRequest): Promise<Quote> {
     },
   };
   cacheStore.set(`quote:${quoteId}`, stored, QUOTE_TTL_SECONDS);
-  return { quoteId, expiresAt, pricing };
+  return quote;
 }

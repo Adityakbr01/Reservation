@@ -3,14 +3,18 @@ import type { QueryFilter } from "mongoose";
 import { paginatedResponse } from "../../utils/pagination";
 import type { Paginated } from "../../utils/pagination";
 
+export type MediaKind = "image" | "video";
+
 export interface Media {
   id: string;
   fileName: string;
   url: string;
   storageKey: string;
   mime: string;
+  kind: MediaKind;
   width: number | null;
   height: number | null;
+  durationSec: number | null;
   alt: string | null;
   caption: string | null;
   size: number;
@@ -24,8 +28,10 @@ export interface MediaDocument extends mongoose.Document {
   url: string;
   storageKey: string;
   mime: string;
+  kind: MediaKind;
   width: number | null;
   height: number | null;
+  durationSec: number | null;
   alt: string | null;
   caption: string | null;
   size: number;
@@ -40,8 +46,10 @@ const mediaSchema = new mongoose.Schema<MediaDocument>(
     url: { type: String, required: true },
     storageKey: { type: String, required: true, unique: true },
     mime: { type: String, required: true },
+    kind: { type: String, enum: ["image", "video"], default: "image" },
     width: { type: Number, default: null },
     height: { type: Number, default: null },
+    durationSec: { type: Number, default: null },
     alt: { type: String, default: null, maxlength: 200 },
     caption: { type: String, default: null, maxlength: 300 },
     size: { type: Number, required: true, min: 0 },
@@ -56,6 +64,11 @@ mediaSchema.index({ createdAt: -1 });
 export const MediaModel =
   mongoose.models.Media ?? mongoose.model<MediaDocument>("Media", mediaSchema);
 
+export function mediaKindFor(mime: string, kind?: string | null): MediaKind {
+  if (kind === "video") return "video";
+  return mime.startsWith("video/") ? "video" : "image";
+}
+
 export function toMedia(doc: MediaDocument): Media {
   return {
     id: doc._id.toString(),
@@ -63,8 +76,10 @@ export function toMedia(doc: MediaDocument): Media {
     url: doc.url,
     storageKey: doc.storageKey,
     mime: doc.mime,
+    kind: mediaKindFor(doc.mime, (doc as MediaDocument).kind),
     width: doc.width,
     height: doc.height,
+    durationSec: doc.durationSec ?? null,
     alt: doc.alt,
     caption: doc.caption,
     size: doc.size,
@@ -78,11 +93,19 @@ export interface ListMediaFilter {
   page: number;
   limit: number;
   q?: string;
+  kind?: MediaKind;
 }
 
 export async function listMedia(filter: ListMediaFilter): Promise<Paginated<Media>> {
   const query: QueryFilter<MediaDocument> = {};
   if (filter.q) query.fileName = { $regex: filter.q, $options: "i" };
+  if (filter.kind) {
+    if (filter.kind === "video") {
+      query.$or = [{ kind: "video" }, { mime: { $regex: "^video/" } }];
+    } else {
+      query.kind = "image";
+    }
+  }
   const [total, docs] = await Promise.all([
     MediaModel.countDocuments(query).exec(),
     MediaModel.find(query)

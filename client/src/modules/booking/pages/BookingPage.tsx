@@ -144,6 +144,7 @@ export function BookingPage() {
     phone: "",
   });
   const idempotencyKey = useRef(newIdempotencyKey());
+  const [newsletterOptIn, setNewsletterOptIn] = useState(true);
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [stripePromise] = useState(getStripePromise);
@@ -229,6 +230,18 @@ export function BookingPage() {
       setBookingId(created.booking.id);
       setClientSecret(intent.clientSecret);
       setStep(2);
+      if (newsletterOptIn && guest.email) {
+        try {
+          const { publicApiClient } = await import("@/lib/api-client");
+          await publicApiClient.post("/public/newsletter/subscribe", {
+            email: guest.email.trim(),
+            name: `${guest.firstName.trim()} ${guest.lastName.trim()}`.trim() || null,
+            source: "checkout",
+          });
+        } catch {
+          // Newsletter must never block booking.
+        }
+      }
     } catch {
       // Toasts are shown by the mutation hooks; stay on this step to retry.
     }
@@ -281,22 +294,42 @@ export function BookingPage() {
                 </Button>
               </div>
             ) : (
-              <dl className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Subtotal</dt>
-                  <dd>{formatMoney(quote.pricing.subtotal, quote.pricing.currency)}</dd>
-                </div>
-                {quote.pricing.discount > 0 && (
-                  <div className="flex justify-between text-success">
-                    <dt>Coupon {appliedCoupon}</dt>
-                    <dd>−{formatMoney(quote.pricing.discount, quote.pricing.currency)}</dd>
+              <div className="space-y-3">
+                <dl className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">Subtotal (base rent)</dt>
+                    <dd>{formatMoney(quote.pricing.subtotal, quote.pricing.currency)}</dd>
                   </div>
+                  {quote.pricing.discount > 0 && (
+                    <div className="flex justify-between text-success">
+                      <dt>Coupon {appliedCoupon}</dt>
+                      <dd>−{formatMoney(quote.pricing.discount, quote.pricing.currency)}</dd>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">Taxes and fees</dt>
+                    <dd>{formatMoney(quote.pricing.tax ?? 0, quote.pricing.currency)}</dd>
+                  </div>
+                  <div className="flex justify-between border-t border-border pt-2 text-base font-semibold">
+                    <dt>Total</dt>
+                    <dd>{formatMoney(quote.pricing.total, quote.pricing.currency)}</dd>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Including taxes and fees</p>
+                </dl>
+                {quote.nightly && quote.nightly.length > 0 && (
+                  <details className="rounded-xl border border-border p-3 text-sm">
+                    <summary className="cursor-pointer font-medium">Price details — {quote.nightly.length} nights</summary>
+                    <ul className="mt-2 divide-y divide-border">
+                      {quote.nightly.map((n) => (
+                        <li key={n.date} className="flex justify-between py-1 text-sm">
+                          <span className="text-muted-foreground">{n.date}</span>
+                          <span>{formatMoney(n.price, quote.pricing.currency)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
                 )}
-                <div className="flex justify-between border-t border-border pt-2 text-base font-semibold">
-                  <dt>Total</dt>
-                  <dd>{formatMoney(quote.pricing.total, quote.pricing.currency)}</dd>
-                </div>
-              </dl>
+              </div>
             )}
             <div className="flex gap-2">
               <Input
@@ -377,6 +410,15 @@ export function BookingPage() {
                 onChange={(e) => setGuest((g) => ({ ...g, phone: e.target.value }))}
               />
             </div>
+            <label className="flex items-start gap-2 text-sm text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={newsletterOptIn}
+                onChange={(e) => setNewsletterOptIn(e.target.checked)}
+                className="mt-1"
+              />
+              Yes, I would like to receive newsletters and special offers by email.
+            </label>
             <div className="flex gap-2">
               <Button
                 type="button"

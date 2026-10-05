@@ -2,6 +2,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RatePlanForm } from "../components/RatePlanForm";
+import { DailyPriceGrid } from "../components/DailyPriceGrid";
 import { useRatePlan, useUpdateRatePlan } from "../hooks/use-rate-plans";
 
 export function RatePlanEditPage() {
@@ -64,6 +65,7 @@ export function RatePlanEditPage() {
           />
         </CardContent>
       </Card>
+      <DailyPriceGrid ratePlanId={plan.id} basePrice={plan.pricing.amount} currency={plan.pricing.currency} />
     </div>
   );
 }

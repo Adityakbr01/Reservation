@@ -8,6 +8,11 @@ export interface SearchRequest {
   rooms: number;
 }
 
+export interface NightlyPrice {
+  date: string;
+  price: number;
+}
+
 export interface SearchRate {
   ratePlanId: string;
   name: string;
@@ -16,6 +21,8 @@ export interface SearchRate {
   perNight: number;
   total: number;
   currency: string;
+  /** Per-night breakdown for date-wise pricing display + total verification. */
+  nightly?: NightlyPrice[];
 }
 
 export interface SearchResultItem {

@@ -13,6 +13,16 @@ import {
   listRatePlansQuerySchema,
   updateRatePlanSchema,
 } from "./rate-plan.schema";
+import {
+  deleteDailyPriceHandler,
+  listDailyPricesHandler,
+  upsertDailyPricesHandler,
+} from "./daily-price.controller";
+import {
+  listDailyPricesQuerySchema,
+  ratePlanPriceParamsSchema,
+  upsertDailyPricesSchema,
+} from "./daily-price.schema";
 
 export const adminRatePlansRouter = Router();
 
@@ -25,3 +35,14 @@ adminRatePlansRouter.patch(
   validate({ params: idParamsSchema, body: updateRatePlanSchema }),
   updateRatePlanHandler,
 );
+adminRatePlansRouter.get(
+  "/:id/prices",
+  validate({ params: ratePlanPriceParamsSchema, query: listDailyPricesQuerySchema }),
+  listDailyPricesHandler,
+);
+adminRatePlansRouter.put(
+  "/:id/prices",
+  validate({ params: ratePlanPriceParamsSchema, body: upsertDailyPricesSchema }),
+  upsertDailyPricesHandler,
+);
+adminRatePlansRouter.delete("/:id/prices/:date", deleteDailyPriceHandler);

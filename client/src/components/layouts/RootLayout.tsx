@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -60,6 +61,43 @@ export function RootLayout() {
 
   const initial = user?.name.trim().charAt(0).toUpperCase() || "?";
 
+function NewsletterFooterForm() {
+  const [email, setEmail] = useState("");
+  const [done, setDone] = useState(false);
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    if (!/.+@.+\..+/.test(email)) {
+      toast.error("Enter a valid email");
+      return;
+    }
+    try {
+      const { publicApiClient } = await import("@/lib/api-client");
+      await publicApiClient.post("/public/newsletter/subscribe", { email: email.trim(), source: "footer" });
+      setDone(true);
+      toast.success("Subscribed — welcome!");
+    } catch {
+      toast.error("Could not subscribe");
+    }
+  }
+  if (done) return <p className="text-sm">Subscribed — thank you.</p>;
+  return (
+    <form onSubmit={(e) => void submit(e)} className="space-y-2">
+      <p className="font-medium text-foreground">Newsletter</p>
+      <div className="flex gap-2">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com"
+          aria-label="Email for newsletter"
+          className="h-10 min-w-0 flex-1 rounded-full border border-input bg-background px-4 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        />
+        <Button type="submit" className="h-10 rounded-full px-5">Join</Button>
+      </div>
+    </form>
+  );
+}
+
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground">
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
@@ -85,6 +123,9 @@ export function RootLayout() {
             </NavLink>
             <NavLink to="/faqs" className={navLinkClass}>
               FAQs
+            </NavLink>
+            <NavLink to="/enquire" className={navLinkClass}>
+              Enquire
             </NavLink>
           </div>
           <div className="hidden flex-1 md:block" />
@@ -255,9 +296,17 @@ export function RootLayout() {
         <Outlet />
       </main>
       <footer className="border-t border-border bg-surface-2">
-        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-2 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:px-6">
-          <p>© 2026 Reservation. All rights reserved.</p>
-          <p>Single property · Multiple room types</p>
+        <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 text-sm text-muted-foreground sm:px-6 lg:grid-cols-3">
+          <div>
+            <p>© 2026 Reservation. All rights reserved.</p>
+            <p className="mt-1">Single property · Multiple room types</p>
+            <p className="mt-2"><Link to="/enquire" className="underline">Enquire</Link> · <Link to="/offers" className="underline">Offers</Link></p>
+          </div>
+          <div>
+            <p className="font-medium text-foreground">Why book with us?</p>
+            <p className="mt-1">Local knowledge · Quality checked · Customer Satisfaction · 24/7 support</p>
+          </div>
+          <NewsletterFooterForm />
         </div>
       </footer>
     </div>

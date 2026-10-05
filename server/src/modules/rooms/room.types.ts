@@ -10,6 +10,7 @@ export interface Room {
   roomNumber: string;
   floor: string | null;
   status: RoomStatus;
+  condition: string | null;
   notes: string | null;
   createdAt: Date;
   updatedAt: Date;

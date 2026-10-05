@@ -20,6 +20,8 @@ export interface Property {
   slug: string;
   description: string | null;
   contact: PropertyContact;
+  /** OpenStreetMap embed URL override (no API key). Falls back to lat/lng embed. */
+  mapEmbedUrl: string | null;
   checkInTime: string;
   checkOutTime: string;
   timezone: string;

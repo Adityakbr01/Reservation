@@ -14,6 +14,9 @@ export interface CalendarDay {
   available: number;
   booked: number;
   blocked: number;
+  /** Cheapest nightly price (minor units) for the day, null when no ACTIVE plan. */
+  price?: number | null;
+  currency?: string;
 }
 
 export interface CalendarRoomType {
@@ -183,11 +186,48 @@ export async function getAvailabilityCalendar(
     roomsByType.set(room.roomTypeId, list);
   }
 
+  // Cheapest nightly price per room-type per day (ACTIVE plans + daily overrides).
+  const priceByTypeDay = new Map<string, Map<string, { price: number; currency: string }>>();
+  try {
+    const { DailyPriceModel } = await import("../ratePlans/daily-price.model");
+    const { listRatePlans } = await import("../ratePlans/rate-plan.repository");
+    for (const type of types) {
+      const plansPage = await listRatePlans({ page: 1, limit: 50, roomTypeId: type.id, status: "ACTIVE" });
+      const active = plansPage.data.filter((p) => p.pricing.type === "PER_NIGHT");
+      const perDay = new Map<string, { price: number; currency: string }>();
+      if (active.length > 0) {
+        const rangeEnd = new Date(to.getTime() + DAY_MS);
+        const overrides = await DailyPriceModel.find({
+          ratePlanId: { $in: active.map((p) => p.id) },
+          date: { $gte: from, $lt: rangeEnd },
+        })
+          .select("ratePlanId date price")
+          .exec();
+        const overrideByPlanDay = new Map<string, number>();
+        for (const o of overrides) {
+          overrideByPlanDay.set(`${o.ratePlanId.toString()}|${o.date.toISOString().slice(0, 10)}`, o.price);
+        }
+        for (const day of dayKeys) {
+          let best: { price: number; currency: string } | null = null;
+          for (const plan of active) {
+            const price = overrideByPlanDay.get(`${plan.id}|${day}`) ?? plan.pricing.amount;
+            if (!best || price < best.price) best = { price, currency: plan.pricing.currency };
+          }
+          if (best) perDay.set(day, best);
+        }
+      }
+      priceByTypeDay.set(type.id, perDay);
+    }
+  } catch {
+    // Pricing overlay is best-effort; availability counts stay authoritative.
+  }
+
   return {
     from: toDayKey(from),
     to: toDayKey(to),
     types: types.map((type) => {
       const typeRooms = roomsByType.get(type.id) ?? [];
+      const perDay = priceByTypeDay.get(type.id);
       return {
         roomTypeId: type.id,
         name: type.name,
@@ -202,7 +242,16 @@ export async function getAvailabilityCalendar(
             }
           }
           const total = typeRooms.length;
-          return { date: day, total, available: total - booked - blocked, booked, blocked };
+          const priced = perDay?.get(day);
+          return {
+            date: day,
+            total,
+            available: total - booked - blocked,
+            booked,
+            blocked,
+            price: priced?.price ?? null,
+            currency: priced?.currency,
+          };
         }),
       };
     }),

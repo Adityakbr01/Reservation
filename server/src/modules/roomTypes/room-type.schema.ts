@@ -14,6 +14,13 @@ const imageSchema = z.object({
   sortOrder: z.number().int().min(0).default(0),
 });
 
+const mediaItemSchema = z.object({
+  mediaId: z.string().trim().min(1).max(120),
+  kind: z.enum(["image", "video"]).default("image"),
+  altText: z.string().trim().max(160).nullable().default(null),
+  sortOrder: z.number().int().min(0).default(0),
+});
+
 const seoSchema = z.object({
   title: z.string().trim().max(160).nullable().default(null),
   description: z.string().trim().max(320).nullable().default(null),
@@ -44,6 +51,20 @@ export const createRoomTypeSchema = occupancySchema.extend({
   beds: z.array(bedSchema).max(10).optional(),
   amenities: z.array(z.string().trim().min(1).max(60)).max(50).optional(),
   images: z.array(imageSchema).max(30).optional(),
+  media: z.array(mediaItemSchema).max(30).optional(),
+  layoutHtml: z.string().max(20000).nullable().optional(),
+  floorplanMediaIds: z.array(objectIdSchema).max(10).optional(),
+  locationText: z.string().max(5000).nullable().optional(),
+  surroundingsHtml: z.string().max(20000).nullable().optional(),
+  mapLat: z.number().min(-90).max(90).nullable().optional(),
+  mapLng: z.number().min(-180).max(180).nullable().optional(),
+  mapEmbedUrl: z.string().max(1000).nullable().optional(),
+  welcomeHamperIncluded: z.boolean().optional(),
+  welcomeHamperDescription: z.string().max(5000).nullable().optional(),
+  welcomeHamperImageMediaId: objectIdSchema.nullable().optional(),
+  amenityIds: z.array(objectIdSchema).max(100).optional(),
+  bedrooms: z.number().int().min(0).max(20).nullable().optional(),
+  maxDogs: z.number().int().min(0).max(10).nullable().optional(),
   status: z.enum(ROOM_TYPE_STATUSES).optional(),
   seo: seoSchema.nullable().optional(),
 });

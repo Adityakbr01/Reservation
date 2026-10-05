@@ -25,7 +25,12 @@ export function RoomTypeCard({
 }) {
   const { roomType, availableCount, rates } = item;
   const lowStock = availableCount <= 2;
-  const coverId = [...(roomType.images ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)[0]?.mediaId;
+  const galleryMedia = (roomType as unknown as { media?: Array<{ mediaId: string; kind: string; sortOrder: number }> }).media;
+  const coverId =
+    galleryMedia && galleryMedia.length > 0
+      ? (([...galleryMedia].sort((a, b) => a.sortOrder - b.sortOrder).find((m) => m.kind !== "video") ??
+        [...galleryMedia].sort((a, b) => a.sortOrder - b.sortOrder)[0])?.mediaId)
+      : [...(roomType.images ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)[0]?.mediaId;
   const { data: photos } = useMediaUrls(coverId ? [coverId] : []);
   const coverPhoto = photos?.[0];
   const detailTo = {
@@ -78,6 +83,9 @@ export function RoomTypeCard({
             {roomType.amenities.slice(0, 3).join(" · ") || "Standard amenities"}
           </span>
         </div>
+        <p className="text-xs font-medium text-muted-foreground">
+          From {formatMoney(Math.min(...rates.map((r) => r.total)), rates[0]?.currency ?? "GBP")} total for {search.checkIn} → {search.checkOut} · incl. taxes & fees
+        </p>
         <ul className="divide-y divide-border rounded-xl border border-border">
           {rates.map((rate) => (
             <li key={rate.ratePlanId} className="flex items-center justify-between gap-3 px-4 py-3">
@@ -86,12 +94,14 @@ export function RoomTypeCard({
                 <p className="text-xs text-muted-foreground">
                   {formatMoney(rate.perNight, rate.currency)}
                   {rate.pricingType === "PER_NIGHT" ? " / night" : " / stay"}
+                  {rate.nightly && rate.nightly.length > 0 ? ` · ${rate.nightly.length} nights` : ""}
                 </p>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1.5">
                 <p className="font-display text-lg font-light">
                   {formatMoney(rate.total, rate.currency)}
                 </p>
+                <p className="text-[11px] text-muted-foreground">Total</p>
                 <Button asChild size="sm" className="btn-shine rounded-full">
                   <Link
                     to={`/booking/new?roomTypeId=${item.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&roomName=${encodeURIComponent(item.roomType.name)}&rateName=${encodeURIComponent(rate.name)}`}

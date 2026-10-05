@@ -14,6 +14,7 @@ export interface SearchRate {
   perNight: number;
   total: number;
   currency: string;
+  nightly?: Array<{ date: string; price: number }>;
 }
 
 export interface SearchResultRoomType {
@@ -26,6 +27,7 @@ export interface SearchResultRoomType {
   shortDescription: string | null;
   amenities: string[];
   images?: Array<{ mediaId: string; altText: string | null; sortOrder: number }>;
+  media?: Array<{ mediaId: string; kind: "image" | "video"; altText: string | null; sortOrder: number }>;
 }
 
 export interface SearchResultItem {

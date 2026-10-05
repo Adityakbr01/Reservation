@@ -19,6 +19,7 @@ export const updatePropertySchema = z.object({
   name: z.string().trim().min(2).max(120).optional(),
   description: z.string().trim().max(2000).nullable().optional(),
   contact: contactSchema.optional(),
+  mapEmbedUrl: z.string().trim().max(1000).nullable().optional(),
   checkInTime: timeSchema.optional(),
   checkOutTime: timeSchema.optional(),
   timezone: z.string().trim().max(60).optional(),

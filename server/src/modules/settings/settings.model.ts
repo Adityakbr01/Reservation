@@ -1,5 +1,10 @@
 import mongoose from "mongoose";
 
+export interface WhyBookItem {
+  title: string;
+  text?: string | null;
+}
+
 export interface SiteSettings {
   id: string;
   propertyName: string;
@@ -20,6 +25,8 @@ export interface SiteSettings {
     description: string | null;
     ogImageMediaId: string | null;
   };
+  /** "Why book with us?" trust badges shown on detail pages. */
+  whyBookWithUs: WhyBookItem[];
   updatedAt: Date;
 }
 
@@ -38,6 +45,7 @@ export interface SiteSettingsDocument extends mongoose.Document {
   reminderHoursBefore: number;
   social: { facebook: string | null; instagram: string | null; x: string | null };
   defaultSeo: { title: string | null; description: string | null; ogImageMediaId: mongoose.Types.ObjectId | null };
+  whyBookWithUs: WhyBookItem[];
   updatedAt: Date;
 }
 
@@ -64,6 +72,16 @@ const settingsSchema = new mongoose.Schema<SiteSettingsDocument>(
       title: { type: String, default: null, maxlength: 160 },
       description: { type: String, default: null, maxlength: 300 },
       ogImageMediaId: { type: mongoose.Schema.Types.ObjectId, ref: "Media", default: null },
+    },
+    whyBookWithUs: {
+      type: [{ title: { type: String, required: true, maxlength: 120 }, text: { type: String, default: null, maxlength: 500 } }],
+      default: [
+        { title: "Local knowledge", text: null },
+        { title: "Property", text: null },
+        { title: "Quality checked", text: null },
+        { title: "Customer Satisfaction", text: null },
+        { title: "24/7 support", text: null },
+      ],
     },
   },
   { timestamps: { createdAt: false, updatedAt: true } },
@@ -94,6 +112,7 @@ export function toSiteSettings(doc: SiteSettingsDocument): SiteSettings {
       description: doc.defaultSeo?.description ?? null,
       ogImageMediaId: doc.defaultSeo?.ogImageMediaId ? doc.defaultSeo.ogImageMediaId.toString() : null,
     },
+    whyBookWithUs: (doc.whyBookWithUs ?? []).map((w) => ({ title: w.title, text: w.text ?? null })),
     updatedAt: doc.updatedAt,
   };
 }
@@ -119,6 +138,7 @@ export async function updateSiteSettings(patch: {
   reminderHoursBefore?: number;
   social?: { facebook?: string | null; instagram?: string | null; x?: string | null };
   defaultSeo?: { title?: string | null; description?: string | null; ogImageMediaId?: string | null };
+  whyBookWithUs?: WhyBookItem[];
 }): Promise<SiteSettings> {
   const doc = await SiteSettingsModel.findOneAndUpdate(
     { key: "site" },

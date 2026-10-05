@@ -19,6 +19,19 @@ function monthLabel(year: number, month: number): string {
   });
 }
 
+function formatPrice(minor: number | null | undefined, currency?: string): string | null {
+  if (minor == null) return null;
+  try {
+    return new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency: currency ?? "GBP",
+      maximumFractionDigits: minor % 100 === 0 ? 0 : 2,
+    }).format(minor / 100);
+  } catch {
+    return `£${(minor / 100).toFixed(0)}`;
+  }
+}
+
 interface AvailabilityCalendarProps {
   roomTypeId: string;
   selectedCheckIn?: string | null;
@@ -123,11 +136,11 @@ export function AvailabilityCalendar({
                       ? day.date
                       : state === "full"
                         ? `${day.date}: full`
-                        : `${day.date}: ${day.available} of ${day.total} free`
+                        : `${day.date}: ${day.available} of ${day.total} free${formatPrice(day.price, day.currency) ? ` · ${formatPrice(day.price, day.currency)}` : ""}`
                   }
                   aria-label={`${day.date}: ${state === "free" ? `${day.available} free` : state}`}
                   className={cn(
-                    "flex h-10 flex-col items-center justify-center rounded-lg text-[13px] font-medium transition-colors",
+                    "flex min-h-12 flex-col items-center justify-center rounded-lg px-1 py-1 text-[13px] font-medium transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     state === "past" && "text-muted-foreground/30",
                     state === "full" && "bg-destructive/[0.07] text-destructive/70 line-through",
@@ -137,7 +150,10 @@ export function AvailabilityCalendar({
                     isEndpoint && "bg-brand font-semibold text-white hover:bg-brand",
                   )}
                 >
-                  {Number(day.date.slice(8))}
+                  <span>{Number(day.date.slice(8))}</span>
+                  {state !== "past" && formatPrice(day.price, day.currency) && (
+                    <span className="text-[10px] font-semibold leading-none opacity-90">{formatPrice(day.price, day.currency)}</span>
+                  )}
                   {!isEndpoint && state !== "past" && (
                     <span
                       aria-hidden

@@ -23,5 +23,19 @@ export interface RoomTypeDetail {
   beds: RoomTypeBed[];
   amenities: string[];
   images: RoomTypeImageRef[];
+  media?: Array<{ mediaId: string; kind: "image" | "video"; altText: string | null; sortOrder: number }>;
+  layoutHtml?: string | null;
+  floorplanMediaIds?: string[];
+  locationText?: string | null;
+  surroundingsHtml?: string | null;
+  mapLat?: number | null;
+  mapLng?: number | null;
+  mapEmbedUrl?: string | null;
+  welcomeHamperIncluded?: boolean;
+  welcomeHamperDescription?: string | null;
+  welcomeHamperImageMediaId?: string | null;
+  amenityIds?: string[];
+  bedrooms?: number | null;
+  maxDogs?: number | null;
   status: "DRAFT" | "ACTIVE" | "INACTIVE";
 }

@@ -8,6 +8,7 @@ export interface Room {
   roomNumber: string;
   floor: string | null;
   status: RoomStatus;
+  condition: string | null;
   notes: string | null;
   createdAt: string;
   updatedAt: string;
@@ -27,6 +28,7 @@ export interface CreateRoomPayload {
   roomNumber: string;
   floor?: string | null;
   status?: RoomStatus;
+  condition?: string | null;
   notes?: string | null;
 }
 

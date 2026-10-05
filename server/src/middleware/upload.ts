@@ -45,24 +45,41 @@ export function avatarUpload(req: Request, res: Response, next: NextFunction): v
 }
 
 const MAX_MEDIA_BYTES = 8 * 1024 * 1024;
-const ALLOWED_MEDIA_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
+const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
+const ALLOWED_MEDIA_MIME = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+  "video/mp4",
+  "video/webm",
+]);
 
 const mediaUploadMulter = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: MAX_MEDIA_BYTES, files: 1 },
+  limits: { fileSize: MAX_VIDEO_BYTES, files: 1 },
   fileFilter: (_req, file, cb) => {
     if (ALLOWED_MEDIA_MIME.has(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new AppError("Only JPEG, PNG, WebP, or AVIF images are allowed", 400, "INVALID_FILE_TYPE"));
+      cb(new AppError("Only JPEG, PNG, WebP, AVIF images or MP4/WebM video are allowed", 400, "INVALID_FILE_TYPE"));
     }
   },
 });
 
-/** Parses a single `file` field for the media library (docs 08 §41-42). */
+/** Parses a single `file` field for the media library (docs 08 §41-42). Images ≤8MB, video ≤50MB. */
 export function mediaUpload(req: Request, res: Response, next: NextFunction): void {
   mediaUploadMulter.single("file")(req, res, (error: unknown) => {
     if (!error) {
+      const file = (req as Request & { file?: Express.Multer.File }).file;
+      if (file?.mimetype.startsWith("video/") && file.size > MAX_VIDEO_BYTES) {
+        next(new AppError("Video must be smaller than 50 MB", 400, "FILE_TOO_LARGE"));
+        return;
+      }
+      if (file?.mimetype.startsWith("image/") && file.size > MAX_MEDIA_BYTES) {
+        next(new AppError("Image must be smaller than 8 MB", 400, "FILE_TOO_LARGE"));
+        return;
+      }
       next();
       return;
     }
@@ -72,7 +89,7 @@ export function mediaUpload(req: Request, res: Response, next: NextFunction): vo
       "code" in error &&
       (error as { code?: unknown }).code === "LIMIT_FILE_SIZE"
     ) {
-      next(new AppError("File must be smaller than 8 MB", 400, "FILE_TOO_LARGE"));
+      next(new AppError("File must be smaller than 50 MB (images 8 MB)", 400, "FILE_TOO_LARGE"));
       return;
     }
     next(error);
