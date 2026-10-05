@@ -76,10 +76,15 @@ export async function cancelBooking(id: string): Promise<Booking> {
   return unwrapResponse(response);
 }
 
-export async function validateCouponCode(code: string): Promise<CouponCheck> {
-  const response = await publicApiClient.post<ApiEnvelope<CouponCheck>>("/public/coupons/validate", {
-    code,
-  });
+export interface ValidateCouponRequest {
+  code: string;
+  roomTypeId?: string;
+  subtotal?: number;
+}
+
+export async function validateCouponCode(input: string | ValidateCouponRequest): Promise<CouponCheck> {
+  const body = typeof input === "string" ? { code: input } : input;
+  const response = await publicApiClient.post<ApiEnvelope<CouponCheck>>("/public/coupons/validate", body);
   return unwrapResponse(response);
 }
 

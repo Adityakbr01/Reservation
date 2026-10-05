@@ -512,7 +512,11 @@ async function performCancel(
     );
   }
   const cancelledAt = new Date();
-  const notifyCancelled = async (finalBooking: Booking, refundProviderId: string | null) => {
+  const notifyCancelled = async (
+    finalBooking: Booking,
+    refundProviderId: string | null,
+    refundPaymentId: string | null,
+  ) => {
     await enqueueNotification({
       type: "BOOKING_CANCELLED",
       recipient: finalBooking.contact.email,
@@ -529,6 +533,7 @@ async function performCancel(
         type: "REFUND_UPDATED",
         recipient: finalBooking.contact.email,
         bookingId: finalBooking.id,
+        paymentId: refundPaymentId,
         idempotencyKey: notificationKeys.refundUpdated(refundProviderId),
       });
     }
@@ -542,6 +547,7 @@ async function performCancel(
       throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
     }
     let refundProviderRefundId: string | null = null;
+    let refundPaymentId: string | null = null;
     try {
       const payments = await listPaymentsByBooking(booking.id);
       const source = payments.find((p) => p.status === "PAID" || p.status === "PARTIALLY_REFUNDED");
@@ -550,6 +556,7 @@ async function performCancel(
       }
       const { refund } = await refundPayment(source.id, evaluation.refundAmount, actorId);
       refundProviderRefundId = refund.providerRefundId;
+      refundPaymentId = source.id;
     } catch (error) {
       // Booking stays REFUND_PENDING: safe to retry via the refund action.
       // Webhook completion (charge.refunded) moves it to CANCELLED.
@@ -560,7 +567,7 @@ async function performCancel(
     if (!pending) {
       throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
     }
-    await notifyCancelled(pending, refundProviderRefundId);
+    await notifyCancelled(pending, refundProviderRefundId, refundPaymentId);
     return pending;
   }
   const cancelled = await setBookingStatus(booking.id, "CANCELLED", {
@@ -570,7 +577,7 @@ async function performCancel(
   if (!cancelled) {
     throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
   }
-  await notifyCancelled(cancelled, null);
+  await notifyCancelled(cancelled, null, null);
   return cancelled;
 }
 

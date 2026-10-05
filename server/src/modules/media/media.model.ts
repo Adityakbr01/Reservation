@@ -117,6 +117,22 @@ export function normalizeFolderPath(raw: string | null | undefined): string | nu
   return cleaned.length > 0 ? cleaned : null;
 }
 
+/**
+ * Folder filter value → Mongo predicate. Exact path matches one folder;
+ * a trailing "/*" matches the whole subtree (sidebar parent rows).
+ * Pure — unit-tested.
+ */
+export function folderQuery(folder: string): null | string | { $regex: string } {
+  if (folder === "__root__") return null;
+  if (folder.endsWith("/*")) {
+    const prefix = folder
+      .slice(0, -2)
+      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return { $regex: `^${prefix}/` };
+  }
+  return folder;
+}
+
 /** Distinct folders for the library sidebar, sorted. */
 export async function listMediaFolders(): Promise<string[]> {
   const folders = await MediaModel.distinct("folder").exec();
@@ -136,7 +152,7 @@ export async function listMedia(filter: ListMediaFilter): Promise<Paginated<Medi
     }
   }
   if (filter.folder !== undefined) {
-    query.folder = filter.folder === "__root__" ? null : filter.folder;
+    query.folder = folderQuery(filter.folder) as QueryFilter<MediaDocument>["folder"];
   }
   const [total, docs] = await Promise.all([
     MediaModel.countDocuments(query).exec(),

@@ -255,9 +255,17 @@ export async function processDueNotification(now: Date = new Date()): Promise<bo
 
 async function renderNotification(notification: Notification): Promise<RenderedEmail | null> {
   if (notification.type === "REFUND_UPDATED") {
-    if (!notification.paymentId) return null;
+    if (!notification.paymentId) {
+      throw new Error(
+        `REFUND_UPDATED ${notification.id} carries no paymentId — re-enqueue with the refunded payment`,
+      );
+    }
     const refund = await findLatestRefundForPayment(notification.paymentId);
-    if (!refund) return null;
+    if (!refund) {
+      throw new Error(
+        `Refund row not recorded yet for payment ${notification.paymentId} — retrying later`,
+      );
+    }
     const booking = notification.bookingId ? await findBookingById(notification.bookingId) : null;
     return refundUpdatedEmail({
       guestName: booking

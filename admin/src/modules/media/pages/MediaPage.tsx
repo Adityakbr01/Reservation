@@ -10,6 +10,39 @@ import { useDeleteMedia, useFolders, useMedia, useUpdateMedia, useUploadMedia } 
 
 const ACCEPT = "image/jpeg,image/png,image/webp,image/avif,video/mp4,video/webm";
 
+interface FolderGroup {
+  /** Row label + filter value, e.g. "Cottage" → "Cottage/*". */
+  label: string;
+  value: string;
+  children: Array<{ label: string; value: string }>;
+}
+
+/** Groups "Cottage/Oakwood Cottage" under parent "Cottage" for the tree. */
+function groupFolders(folders: string[]): FolderGroup[] {
+  const groups = new Map<string, FolderGroup>();
+  const order: string[] = [];
+  for (const path of folders) {
+    const parts = path.split("/");
+    if (parts.length === 1) {
+      groups.set(path, { label: path, value: path, children: [] });
+      order.push(path);
+      continue;
+    }
+    const parent = parts.slice(0, -1).join("/");
+    let group = groups.get(parent);
+    if (!group) {
+      group = { label: parent, value: `${parent}/*`, children: [] };
+      groups.set(parent, group);
+      order.push(parent);
+    }
+    const name = parts[parts.length - 1] as string;
+    if (!group.children.some((c) => c.value === path)) {
+      group.children.push({ label: name, value: path });
+    }
+  }
+  return order.map((key) => groups.get(key) as FolderGroup);
+}
+
 export function MediaPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -70,7 +103,7 @@ export function MediaPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
+      <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
         <Card className="h-fit">
           <CardContent className="space-y-1 p-3">
             <p className="px-2 py-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
@@ -92,23 +125,31 @@ export function MediaPage() {
             >
               Root (unfiled)
             </Button>
-            {(folders ?? []).map((f) => {
-              const depth = f.split("/").length - 1;
-              const name = f.split("/").pop() ?? f;
-              return (
+            {groupFolders(folders ?? []).map((group) => (
+              <div key={group.value} className="space-y-1 pt-1">
                 <Button
-                  key={f}
-                  variant={!showAll && folder === f ? "default" : "ghost"}
+                  variant={!showAll && folder === group.value ? "default" : "ghost"}
                   size="sm"
-                  className="w-full justify-start rounded-full"
-                  style={{ paddingLeft: `${0.75 + depth * 0.9}rem` }}
-                  onClick={() => pickFolder(f, false)}
-                  title={f}
+                  className={`w-full justify-start rounded-full ${group.children.length > 0 ? "font-semibold" : ""}`}
+                  onClick={() => pickFolder(group.value, false)}
+                  title={group.children.length > 0 ? `All files under ${group.label}` : group.label}
                 >
-                  <span className="truncate">{depth > 0 ? `↳ ${name}` : name}</span>
+                  <span className="truncate">{group.label}</span>
                 </Button>
-              );
-            })}
+                {group.children.map((child) => (
+                  <Button
+                    key={child.value}
+                    variant={!showAll && folder === child.value ? "default" : "ghost"}
+                    size="sm"
+                    className="w-full justify-start rounded-full pl-8"
+                    onClick={() => pickFolder(child.value, false)}
+                    title={child.value}
+                  >
+                    <span className="truncate">{child.label}</span>
+                  </Button>
+                ))}
+              </div>
+            ))}
             <div className="space-y-2 px-1 pt-3">
               <Label htmlFor="new-folder">New folder</Label>
               <Input
@@ -124,23 +165,24 @@ export function MediaPage() {
 
         <div className="min-w-0 space-y-4">
           <Card>
-            <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
+            <CardContent className="grid gap-4 p-4 sm:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="target-folder">Upload into</Label>
                 <select
                   id="target-folder"
                   value={targetFolder}
                   onChange={(e) => setTargetFolder(e.target.value)}
-                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm sm:w-56"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                 >
                   <option value="">{newFolder.trim() ? `New: ${newFolder.trim()}` : "Root (no folder)"}</option>
                   {(folders ?? []).map((f) => (
                     <option key={f} value={f}>{f}</option>
                   ))}
                 </select>
+                <p className="text-[11px] text-muted-foreground">Target for the file upload.</p>
               </div>
-              <div>
-                <Label htmlFor="media-files" className="sr-only">Upload files</Label>
+              <div className="space-y-2">
+                <Label htmlFor="media-files">Upload files</Label>
                 <Input
                   id="media-files"
                   type="file"
@@ -151,10 +193,12 @@ export function MediaPage() {
                     handleFiles(e.target.files, uploadTarget(), false);
                     e.target.value = "";
                   }}
+                  className="h-10"
                 />
+                <p className="text-[11px] text-muted-foreground">Pick many files at once.</p>
               </div>
-              <div>
-                <Label htmlFor="media-folder" className="sr-only">Upload folder</Label>
+              <div className="space-y-2">
+                <Label htmlFor="media-folder">Upload a folder</Label>
                 <Input
                   id="media-folder"
                   ref={(el) => {
@@ -168,8 +212,9 @@ export function MediaPage() {
                     handleFiles(e.target.files, targetFolder || "Cottage", true);
                     e.target.value = "";
                   }}
+                  className="h-10"
                 />
-                <p className="mt-1 text-[11px] text-muted-foreground">Folder upload keeps subfolder names.</p>
+                <p className="text-[11px] text-muted-foreground">Subfolder names are kept.</p>
               </div>
             </CardContent>
           </Card>

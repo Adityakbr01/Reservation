@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,9 @@ import { useAuthStore } from "@/stores/auth-store";
 import {
   checkGuestEmail,
   createGuestBooking,
+  validateCouponCode,
 } from "../api/booking.api";
+import { fetchRoomOffers } from "@/modules/rooms/api/rooms.api";
 import {
   useCreateBooking,
   usePaymentIntent,
@@ -104,7 +106,7 @@ function PayButton({ bookingId, totalLabel }: { bookingId: string; totalLabel: s
         disabled={paying}
         onClick={() => void handlePay()}
       >
-        {paying ? "Processing…" : `Confirm booking — pay ${totalLabel}`}
+        {paying ? "Processing…" : `Pay ${totalLabel} now`}
       </Button>
     </div>
   );
@@ -120,9 +122,11 @@ export function BookingPage() {
 
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<string | undefined>(undefined);
+  const [autoCoupon, setAutoCoupon] = useState<string | null>(null);
+  const autoTried = useRef(false);
 
   // Contact info (guest-visible account creation happens silently in the background).
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState("Mr");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
@@ -178,6 +182,12 @@ export function BookingPage() {
       createGuestBooking(vars, idempotencyKey.current),
   });
   const quoteQuery = useQuote(quoteInput);
+  const { data: roomOffers } = useQuery({
+    queryKey: ["room-offers", selection?.roomTypeId],
+    queryFn: () => fetchRoomOffers(selection?.roomTypeId as string),
+    enabled: !!selection,
+    staleTime: 300_000,
+  });
 
   const missingSelection = !selection;
   useEffect(() => {
@@ -185,6 +195,53 @@ export function BookingPage() {
       toast.error("Choose a room and dates first");
     }
   }, [missingSelection]);
+
+  // Scroll to payment once the hold is created and the card appears.
+  useEffect(() => {
+    if (bookingId) {
+      document.getElementById("checkout-payment")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [bookingId]);
+
+  // Auto-apply the room's offer (e.g. AUTUMN20) so guests never type codes.
+  // Runs once: validates against this stay, then applies silently.
+  useEffect(() => {
+    if (!selection || !roomOffers || roomOffers.length === 0) return;
+    if (autoTried.current || appliedCoupon !== undefined || couponInput.trim() !== "") return;
+    const offer = roomOffers[0];
+    if (!offer) return;
+    const from = offer.validFrom?.slice(0, 10) ?? null;
+    const until = offer.validUntil?.slice(0, 10) ?? null;
+    if (from && selection.checkOut <= from) return;
+    if (until && selection.checkIn > until) return;
+    autoTried.current = true;
+    void (async () => {
+      try {
+        const check = await validateCouponCode({
+          code: offer.couponCode,
+          roomTypeId: selection.roomTypeId,
+          subtotal: quoteQuery.data?.pricing.subtotal,
+        });
+        if (check.valid) {
+          setCouponInput(offer.couponCode);
+          setAppliedCoupon(offer.couponCode);
+          setAutoCoupon(offer.couponCode);
+          toast.success(`${offer.couponCode} applied automatically`);
+        }
+      } catch {
+        // Advisory only — checkout works fine without the offer.
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomOffers, selection]);
+
+  // Self-heal: a coupon the server rejects must never block pricing.
+  useEffect(() => {
+    if (quoteQuery.isError && appliedCoupon !== undefined) {
+      setAppliedCoupon(undefined);
+      setAutoCoupon(null);
+    }
+  }, [quoteQuery.isError, appliedCoupon]);
 
   if (!selection) {
     return <Navigate to="/" replace />;
@@ -230,6 +287,22 @@ export function BookingPage() {
   function passwordValid(): boolean {
     if (!createAccount) return true;
     return password.length >= 8 && password === confirmPassword;
+  }
+
+  const emailBlocked = emailExists && !isAuthed;
+  const canContinue =
+    !!quote && !busy && contactValid() && passwordValid() && acceptPrivacy && acceptTerms && !emailBlocked;
+
+  /** First missing item, shown as a hint under the disabled buttons. */
+  function continueHint(): string | null {
+    if (!quote) return "Loading price…";
+    if (busy) return "Working…";
+    if (!contactValid()) return "Complete contact info above to continue.";
+    if (emailBlocked) return "This email has an account — sign in or use a different email.";
+    if (!passwordValid())
+      return password.length < 8 ? "Password must be at least 8 characters." : "Passwords do not match.";
+    if (!acceptPrivacy || !acceptTerms) return "Accept the Privacy Terms and Booking Conditions to continue.";
+    return null;
   }
 
   async function handleContinueToPayment() {
@@ -333,7 +406,6 @@ export function BookingPage() {
           );
         }
       }
-      document.getElementById("checkout-payment")?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (error) {
       const normalized = normalizeApiError(error);
       if (normalized.code === "EMAIL_HAS_ACCOUNT") {
@@ -493,7 +565,7 @@ export function BookingPage() {
                     type="checkbox"
                     checked={createAccount}
                     onChange={(e) => setCreateAccount(e.target.checked)}
-                    className="size-4"
+                    className="size-4 shrink-0 accent-brand"
                   />
                   I would like to create an account.
                 </label>
@@ -555,59 +627,39 @@ export function BookingPage() {
             </CardContent>
           </Card>
 
-          <Card id="checkout-payment" className="scroll-mt-24">
-            <CardHeader>
-              <CardTitle className="text-base tracking-wide">Payment</CardTitle>
-              <CardDescription>We use secure transmission and encrypted storage to protect your personal information.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {quote && (
-                <p className="text-sm font-semibold">{totalLabel} deposit due now.</p>
-              )}
-              <div className="flex flex-wrap gap-1.5" aria-label="Accepted cards">
-                {["VISA", "MC", "AMEX", "DISC", "JCB", "UNION"].map((brand) => (
-                  <span key={brand} className="rounded border border-border px-2 py-1 text-[10px] font-bold text-muted-foreground">
-                    {brand}
-                  </span>
-                ))}
-              </div>
-              {!stripePromise ? (
-                <p role="alert" className="text-sm text-destructive">
-                  Payments are not configured (missing publishable key). Please try again later.
-                </p>
-              ) : !clientSecret || !bookingId ? (
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    Complete contact info above, then continue — your room is held before any payment is taken.
+          {bookingId && (clientSecret || holdFailed) && (
+            <Card id="checkout-payment" className="scroll-mt-24 border-brand/50">
+              <CardHeader>
+                <CardTitle className="text-base tracking-wide">Payment</CardTitle>
+                <CardDescription>
+                  Your room is held{quote ? ` — pay ${totalLabel} securely to confirm.` : "."}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {!stripePromise ? (
+                  <p role="alert" className="text-sm text-destructive">
+                    Payments are not configured (missing publishable key). Please try again later.
                   </p>
-                  <Button
-                    type="button"
-                    className="btn-shine h-11 w-full rounded-full"
-                    disabled={busy || !quote}
-                    onClick={() => void handleContinueToPayment()}
+                ) : clientSecret ? (
+                  <Elements
+                    key={clientSecret}
+                    stripe={stripePromise}
+                    options={{ clientSecret, appearance: { theme: "stripe" } }}
                   >
-                    {busy ? "Holding your room…" : "Continue to payment"}
-                  </Button>
-                </div>
-              ) : (
-                <Elements
-                  key={clientSecret}
-                  stripe={stripePromise}
-                  options={{ clientSecret, appearance: { theme: "stripe" } }}
-                >
-                  <PayButton bookingId={bookingId} totalLabel={totalLabel} />
-                </Elements>
-              )}
-              {holdFailed && (
-                <div className="space-y-2 rounded-md border border-amber-300 bg-amber-50 p-3">
-                  <p role="alert" className="text-sm">{holdFailed}</p>
-                  <Button type="button" variant="outline" className="rounded-full" disabled={paymentIntent.isPending} onClick={() => void handleRetryIntent()}>
-                    {paymentIntent.isPending ? "Retrying…" : "Retry payment setup"}
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    <PayButton bookingId={bookingId} totalLabel={totalLabel} />
+                  </Elements>
+                ) : null}
+                {holdFailed && (
+                  <div className="space-y-2 rounded-md border border-amber-300 bg-amber-50 p-3">
+                    <p role="alert" className="text-sm">{holdFailed}</p>
+                    <Button type="button" variant="outline" className="rounded-full" disabled={paymentIntent.isPending} onClick={() => void handleRetryIntent()}>
+                      {paymentIntent.isPending ? "Retrying…" : "Retry payment setup"}
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           <Card>
             <CardHeader>
@@ -631,26 +683,31 @@ export function BookingPage() {
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <label className="flex items-start gap-2">
-                <input type="checkbox" checked={newsletterOptIn} onChange={(e) => setNewsletterOptIn(e.target.checked)} className="mt-1 size-4" />
+                <input type="checkbox" checked={newsletterOptIn} onChange={(e) => setNewsletterOptIn(e.target.checked)} className="mt-1 size-4 shrink-0 accent-brand" />
                 Yes, I would like to receive newsletters and special offers by email.
               </label>
               <label className="flex items-start gap-2">
-                <input type="checkbox" checked={acceptPrivacy} onChange={(e) => setAcceptPrivacy(e.target.checked)} className="mt-1 size-4" />
+                <input type="checkbox" checked={acceptPrivacy} onChange={(e) => setAcceptPrivacy(e.target.checked)} className="mt-1 size-4 shrink-0 accent-brand" />
                 <span>* I agree with the Privacy Terms. <Link to="/policies/PRIVACY" target="_blank" className="underline">Privacy Notice</Link></span>
               </label>
               <label className="flex items-start gap-2">
-                <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} className="mt-1 size-4" />
+                <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} className="mt-1 size-4 shrink-0 accent-brand" />
                 I agree with the Booking Conditions.
               </label>
               {!bookingId && (
-                <Button
-                  type="button"
-                  className="h-12 w-full rounded-full text-base"
-                  disabled={busy || !quote}
-                  onClick={() => void handleContinueToPayment()}
-                >
-                  {busy ? "Holding your room…" : "Confirm booking"}
-                </Button>
+                <>
+                  <Button
+                    type="button"
+                    className="h-12 w-full rounded-full text-base disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={!canContinue}
+                    onClick={() => void handleContinueToPayment()}
+                  >
+                    {busy ? "Holding your room…" : "Confirm booking"}
+                  </Button>
+                  {!canContinue && continueHint() && (
+                    <p className="text-center text-xs text-muted-foreground">{continueHint()}</p>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>
@@ -731,6 +788,9 @@ export function BookingPage() {
                   Apply
                 </Button>
               </div>
+              {autoCoupon && appliedCoupon === autoCoupon && (
+                <p className="text-xs text-success">{autoCoupon} auto-applied from this room&apos;s offer.</p>
+              )}
               <Button asChild variant="outline" className="w-full rounded-none">
                 <Link to={addRoomTarget}>Add a room</Link>
               </Button>

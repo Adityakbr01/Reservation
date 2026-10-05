@@ -3,6 +3,7 @@ import { AmenityModel } from "../modules/amenities/amenity.model";
 import { CouponModel } from "../modules/coupons/coupon.model";
 import { OfferModel } from "../modules/cms/cms.model";
 import { ensureProperty } from "../modules/properties/property.service";
+import { RoomTypeModel } from "../modules/roomTypes/room-type.model";
 import { SiteSettingsModel } from "../modules/settings/settings.model";
 import { UserModel } from "../modules/users/user.model";
 import { slugify } from "../utils/slug";
@@ -37,6 +38,64 @@ const FACILITIES = [
 /** Mock icon per amenity until real icons are uploaded (picsum seeds). */
 function mockIcon(slug: string): string {
   return `https://picsum.photos/seed/amenity-${slug}/96`;
+}
+
+/**
+ * One-time differentiation for the pre-split state (global AUTUMN20, no
+ * WINTER15): Oakwood keeps 20% OFF, Fern gets a new 15% OFF, the rest show
+ * no badge. Skipped once differentiated or customized — admin edits win.
+ */
+async function alignOfferScoping(propertyId: string): Promise<void> {
+  const [autumn, winter] = await Promise.all([
+    CouponModel.findOne({ propertyId, normalizedCode: "AUTUMN20" }).exec(),
+    CouponModel.findOne({ propertyId, normalizedCode: "WINTER15" }).exec(),
+  ]);
+  if (!autumn || winter || (autumn.applicableRoomTypeIds ?? []).length > 0) return;
+  const [oakwood, fern] = await Promise.all([
+    RoomTypeModel.findOne({ slug: "oakwood-cottage" }).select("_id").exec(),
+    RoomTypeModel.findOne({ slug: "fern-cottage" }).select("_id").exec(),
+  ]);
+  if (!oakwood || !fern) return;
+  autumn.applicableRoomTypeIds = [oakwood._id];
+  await autumn.save();
+  const adminUser = await UserModel.findOne({ role: "admin" }).select("_id").exec();
+  const created = await CouponModel.create({
+    propertyId,
+    code: "WINTER15",
+    normalizedCode: "WINTER15",
+    discountType: "PERCENTAGE",
+    discountValue: 15,
+    maxDiscount: null,
+    minimumBookingAmount: null,
+    validFrom: new Date("2026-09-30T00:00:00Z"),
+    validUntil: new Date("2027-01-04T23:59:59Z"),
+    usageLimit: null,
+    usageCount: 0,
+    perUserLimit: null,
+    applicableRoomTypeIds: [fern._id],
+    status: "ACTIVE",
+    createdBy: adminUser?._id ?? propertyId,
+  });
+  await OfferModel.updateOne(
+    { slug: "15-percent-off-winter" },
+    {
+      $setOnInsert: {
+        title: "15% OFF Winter Stays",
+        slug: "15-percent-off-winter",
+        description:
+          "15% off for holidays taken between Wed 30th September 2026 and Mon 4th January 2027.\nMinimum of 2 nights booking with a maximum of 28 nights.\n* Discount applies to base rent only\n* The discount will be applied at checkout",
+        validFrom: new Date("2026-09-30T00:00:00Z"),
+        validUntil: new Date("2027-01-04T23:59:59Z"),
+        ctaLabel: "Book now",
+        ctaUrl: "/",
+        couponId: created._id,
+        status: "PUBLISHED",
+        version: 1,
+        publishedAt: new Date(),
+      },
+    },
+    { upsert: true },
+  ).exec();
 }
 
 /** Seeds amenities, the 20% autumn offer + coupon. Idempotent. */
@@ -159,6 +218,7 @@ export async function seedContent() {
       },
       { upsert: true },
     ).exec();
+    await alignOfferScoping(property.id);
     logger.info("Content seed complete (amenities + AUTUMN20 offer)");
   } catch (error) {
     logger.warn("Content seed skipped", { message: error instanceof Error ? error.message : String(error) });
