@@ -19,6 +19,12 @@ function monthLabel(year: number, month: number): string {
   });
 }
 
+function prettyDay(date: string): string {
+  const parsed = new Date(`${date}T00:00:00Z`);
+  if (Number.isNaN(parsed.getTime())) return date;
+  return parsed.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+}
+
 function formatPrice(minor: number | null | undefined, currency?: string): string | null {
   if (minor == null) return null;
   try {
@@ -47,6 +53,7 @@ export function AvailabilityCalendar({
 }: AvailabilityCalendarProps) {
   const [now] = useState(() => new Date());
   const [offset, setOffset] = useState(0);
+  const [hoverDate, setHoverDate] = useState<string | null>(null);
   const base = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + offset, 1));
   const year = base.getUTCFullYear();
   const month = base.getUTCMonth();
@@ -68,9 +75,25 @@ export function AvailabilityCalendar({
     return "free";
   }
 
+  /** Confirmed from→to range (both endpoints chosen). */
   function inRange(date: string): boolean {
     if (!selectedCheckIn || !selectedCheckOut) return false;
     return date > selectedCheckIn && date < selectedCheckOut;
+  }
+
+  /** Live hover preview while choosing check-out after check-in. */
+  function inPreview(date: string): boolean {
+    if (!selectedCheckIn || selectedCheckOut || !hoverDate) return false;
+    if (hoverDate <= selectedCheckIn) return false;
+    return date > selectedCheckIn && date <= hoverDate;
+  }
+
+  function tooltipFor(day: CalendarDay, state: ReturnType<typeof stateOf>): string {
+    const price = formatPrice(day.price, day.currency);
+    if (state === "past") return day.date;
+    if (state === "full") return `${prettyDay(day.date)}: fully booked`;
+    const stay = day.minNights != null && day.minNights > 1 ? ` · ${day.minNights}-night minimum stay` : "";
+    return `${prettyDay(day.date)}${price ? `: ${price}` : ""} · ${day.available} of ${day.total} free${stay}`;
   }
 
   return (
@@ -115,55 +138,78 @@ export function AvailabilityCalendar({
         {isPending ? (
           <div className="grid grid-cols-7 gap-1" aria-label="Loading calendar">
             {Array.from({ length: 35 }).map((_, i) => (
-              <div key={i} className="h-10 animate-pulse rounded-lg bg-muted" />
+              <div key={i} className="h-12 animate-pulse rounded-lg bg-muted" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-7 gap-1">
+          <div className="grid grid-cols-7 gap-1" onMouseLeave={() => setHoverDate(null)}>
             {cells.map((day, i) => {
               if (day === null) return <span key={`blank-${i}`} />;
               const state = stateOf(day);
-              const isEndpoint = selectedCheckIn === day.date || selectedCheckOut === day.date;
-              const clickable = onPickDate !== undefined && state === "free";
+              const isCheckIn = selectedCheckIn === day.date;
+              const isCheckOut = selectedCheckOut === day.date;
+              const isEndpoint = isCheckIn || isCheckOut;
+              const preview = inPreview(day.date);
+              const ranged = inRange(day.date);
+              const clickable = onPickDate !== undefined && (state === "free" || state === "few");
+              const price = state === "full" ? null : formatPrice(day.price, day.currency);
               return (
                 <button
                   key={day.date}
                   type="button"
                   disabled={!clickable}
                   onClick={() => onPickDate?.(day.date)}
-                  title={
-                    state === "past"
-                      ? day.date
-                      : state === "full"
-                        ? `${day.date}: full`
-                        : `${day.date}: ${day.available} of ${day.total} free${formatPrice(day.price, day.currency) ? ` · ${formatPrice(day.price, day.currency)}` : ""}`
-                  }
-                  aria-label={`${day.date}: ${state === "free" ? `${day.available} free` : state}`}
+                  onMouseEnter={() => setHoverDate(day.date)}
+                  onFocus={() => setHoverDate(day.date)}
+                  title={tooltipFor(day, state)}
+                  aria-label={`${prettyDay(day.date)}: ${state === "free" || state === "few" ? `${day.available} of ${day.total} free${price ? `, ${price}` : ""}${day.minNights != null && day.minNights > 1 ? `, ${day.minNights}-night minimum stay` : ""}` : state === "full" ? "fully booked" : state}${isCheckIn ? ", check-in" : ""}${isCheckOut ? ", check-out" : ""}`}
                   className={cn(
-                    "flex min-h-12 flex-col items-center justify-center rounded-lg px-1 py-1 text-[13px] font-medium transition-colors",
+                    "group relative flex min-h-12 flex-col items-center justify-center rounded-lg px-1 py-1 text-[13px] font-medium transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     state === "past" && "text-muted-foreground/30",
-                    state === "full" && "bg-destructive/[0.07] text-destructive/70 line-through",
-                    state === "few" && "bg-amber-400/15 text-amber-800 dark:text-amber-200",
-                    state === "free" && !isEndpoint && !inRange(day.date) && "bg-emerald-500/[0.08] text-emerald-800 hover:bg-emerald-500/20 dark:text-emerald-200",
-                    inRange(day.date) && "rounded-none bg-brand/10 text-foreground",
-                    isEndpoint && "bg-brand font-semibold text-white hover:bg-brand",
+                    state === "full" && "bg-destructive/[0.07] text-destructive/70",
+                    state === "few" && !isEndpoint && !ranged && !preview && "bg-amber-400/15 text-amber-800 hover:bg-amber-400/25 dark:text-amber-200",
+                    state === "free" && !isEndpoint && !ranged && !preview && "bg-emerald-500/[0.08] text-emerald-800 hover:bg-emerald-500/20 dark:text-emerald-200",
+                    (ranged || preview) && !isEndpoint && "rounded-none bg-brand/10 text-foreground",
+                    preview && "border-y border-dashed border-brand/40",
+                    isCheckIn && "rounded-l-lg bg-brand font-semibold text-white hover:bg-brand",
+                    isCheckOut && "rounded-r-lg bg-brand font-semibold text-white hover:bg-brand",
                   )}
                 >
-                  <span>{Number(day.date.slice(8))}</span>
-                  {state !== "past" && formatPrice(day.price, day.currency) && (
-                    <span className="text-[10px] font-semibold leading-none opacity-90">{formatPrice(day.price, day.currency)}</span>
+                  {state === "full" ? (
+                    <span aria-hidden className="text-lg font-bold leading-none text-destructive/70">✕</span>
+                  ) : (
+                    <>
+                      <span>{Number(day.date.slice(8))}</span>
+                      {price && (
+                        <span className="text-[10px] font-semibold leading-none opacity-90">{price}</span>
+                      )}
+                    </>
                   )}
-                  {!isEndpoint && state !== "past" && (
+                  {!isEndpoint && state !== "past" && state !== "full" && (
                     <span
                       aria-hidden
                       className={cn(
                         "mt-0.5 size-1 rounded-full",
-                        state === "full" && "bg-destructive/60",
                         state === "few" && "bg-amber-500",
                         state === "free" && "bg-emerald-500",
                       )}
                     />
+                  )}
+                  {/* Hover tooltip: price, availability, minimum stay */}
+                  {state !== "past" && (
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1 hidden w-max max-w-44 -translate-x-1/2 rounded-md bg-night px-2.5 py-1.5 text-center text-[11px] font-medium leading-snug text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                    >
+                      <span className="block font-semibold">{prettyDay(day.date)}{price ? ` · ${price}` : ""}</span>
+                      <span className="block opacity-90">
+                        {state === "full" ? "Fully booked" : `${day.available} of ${day.total} free`}
+                      </span>
+                      {state !== "full" && day.minNights != null && day.minNights > 1 && (
+                        <span className="block opacity-90">{day.minNights}-night minimum stay</span>
+                      )}
+                    </span>
                   )}
                 </button>
               );
@@ -178,12 +224,15 @@ export function AvailabilityCalendar({
             <span className="size-2 rounded-full bg-amber-500" /> Few left
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-destructive/60" /> Full
+            <span className="font-bold text-destructive/70">✕</span> Booked
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="size-2 rounded-sm bg-brand" /> Selected
           </span>
         </div>
         <p className="text-xs text-muted-foreground">
-          Tap a free date to start your stay — tap a second date for check-out. Final
-          availability is always rechecked at booking.
+          Tap a free date for check-in, then a later date for check-out — hover to
+          preview your stay. Final availability is always rechecked at booking.
         </p>
       </CardContent>
     </Card>

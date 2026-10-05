@@ -271,7 +271,7 @@ export function RoomDetailPage() {
           <AvailabilityCalendar
             roomTypeId={roomType.id}
             selectedCheckIn={picked[0] ?? search?.checkIn ?? null}
-            selectedCheckOut={picked[1] ?? search?.checkOut ?? null}
+            selectedCheckOut={picked[1] ?? (picked.length === 1 ? null : (search?.checkOut ?? null))}
             onPickDate={pickDate}
           />
 
@@ -391,20 +391,16 @@ function ReviewsBlock({ roomTypeId, reviewsQuery }: { roomTypeId: string; review
     },
     onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "Only guests with a completed stay can review"),
   });
+  // Show the section only when reviews exist — no empty state, no form.
+  if (reviewsQuery.isPending || data.items.length === 0) return null;
   return (
     <section className="space-y-3">
       <h2 className="font-medium">Reviews {data.count > 0 ? `· ${data.average} ★ (${data.count})` : ""}</h2>
-      {reviewsQuery.isPending ? (
-        <Skeleton className="h-24 w-full rounded-xl" />
-      ) : data.items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No reviews yet — be the first after your stay.</p>
-      ) : (
-        <div className="grid gap-3">
-          {data.items.map((r) => (
-            <Card key={r.id}><CardContent className="p-4"><p className="text-sm font-medium">{r.authorName} · {"★".repeat(r.rating)}</p><p className="mt-1 text-sm text-muted-foreground">{r.title ? `${r.title} — ` : ""}{r.body}</p></CardContent></Card>
-          ))}
-        </div>
-      )}
+      <div className="grid gap-3">
+        {data.items.map((r) => (
+          <Card key={r.id}><CardContent className="p-4"><p className="text-sm font-medium">{r.authorName} · {"★".repeat(r.rating)}</p><p className="mt-1 text-sm text-muted-foreground">{r.title ? `${r.title} — ` : ""}{r.body}</p></CardContent></Card>
+        ))}
+      </div>
       <div className="grid gap-2 rounded-xl border border-border p-4">
         <p className="text-sm font-medium">Write a review (completed stays only)</p>
         <div className="flex gap-2">

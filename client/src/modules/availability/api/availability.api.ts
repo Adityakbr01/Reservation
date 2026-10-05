@@ -27,6 +27,7 @@ export interface CalendarDay {
   blocked: number;
   price?: number | null;
   currency?: string;
+  minNights?: number | null;
 }
 
 export interface AvailabilityCalendarResponse {

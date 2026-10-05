@@ -17,6 +17,11 @@ export interface CalendarDay {
   /** Cheapest nightly price (minor units) for the day, null when no ACTIVE plan. */
   price?: number | null;
   currency?: string;
+  /**
+   * Smallest minimum-stay among ACTIVE plans valid that day, for the
+   * "N-night minimum stay" tooltip. Null when no plan enforces one.
+   */
+  minNights?: number | null;
 }
 
 export interface CalendarRoomType {
@@ -186,15 +191,19 @@ export async function getAvailabilityCalendar(
     roomsByType.set(room.roomTypeId, list);
   }
 
-  // Cheapest nightly price per room-type per day (ACTIVE plans + daily overrides).
-  const priceByTypeDay = new Map<string, Map<string, { price: number; currency: string }>>();
+  // Cheapest nightly price + minimum stay per room-type per day
+  // (ACTIVE plans + daily overrides). Best-effort overlay only.
+  const priceByTypeDay = new Map<
+    string,
+    Map<string, { price: number; currency: string; minNights: number | null }>
+  >();
   try {
     const { DailyPriceModel } = await import("../ratePlans/daily-price.model");
     const { listRatePlans } = await import("../ratePlans/rate-plan.repository");
     for (const type of types) {
       const plansPage = await listRatePlans({ page: 1, limit: 50, roomTypeId: type.id, status: "ACTIVE" });
       const active = plansPage.data.filter((p) => p.pricing.type === "PER_NIGHT");
-      const perDay = new Map<string, { price: number; currency: string }>();
+      const perDay = new Map<string, { price: number; currency: string; minNights: number | null }>();
       if (active.length > 0) {
         const rangeEnd = new Date(to.getTime() + DAY_MS);
         const overrides = await DailyPriceModel.find({
@@ -207,13 +216,23 @@ export async function getAvailabilityCalendar(
         for (const o of overrides) {
           overrideByPlanDay.set(`${o.ratePlanId.toString()}|${o.date.toISOString().slice(0, 10)}`, o.price);
         }
+        const inWindow = (day: string, validFrom: Date | null, validUntil: Date | null): boolean => {
+          if (validFrom && day < validFrom.toISOString().slice(0, 10)) return false;
+          if (validUntil && day > validUntil.toISOString().slice(0, 10)) return false;
+          return true;
+        };
         for (const day of dayKeys) {
           let best: { price: number; currency: string } | null = null;
+          let minNights: number | null = null;
           for (const plan of active) {
             const price = overrideByPlanDay.get(`${plan.id}|${day}`) ?? plan.pricing.amount;
             if (!best || price < best.price) best = { price, currency: plan.pricing.currency };
+            const rule = plan.restrictions.minNights;
+            if (rule != null && inWindow(day, plan.restrictions.validFrom, plan.restrictions.validUntil)) {
+              minNights = minNights == null ? rule : Math.min(minNights, rule);
+            }
           }
-          if (best) perDay.set(day, best);
+          if (best) perDay.set(day, { ...best, minNights });
         }
       }
       priceByTypeDay.set(type.id, perDay);
@@ -251,6 +270,7 @@ export async function getAvailabilityCalendar(
             blocked,
             price: priced?.price ?? null,
             currency: priced?.currency,
+            minNights: priced?.minNights ?? null,
           };
         }),
       };

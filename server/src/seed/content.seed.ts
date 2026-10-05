@@ -81,19 +81,44 @@ export async function seedContent() {
       });
       couponId = created._id;
     }
-    await SiteSettingsModel.updateOne(
-      { key: "site", $or: [{ whyBookWithUs: { $exists: false } }, { whyBookWithUs: { $size: 0 } }] },
+    // Why book with us? Bodies are seeded only where missing or empty,
+    // so admin edits in Settings are never overwritten.
+    const whyBookDefaults: Array<{ title: string; text: string }> = [
       {
-        $set: {
-          whyBookWithUs: [
-            { title: "Local knowledge", text: null },
-            { title: "Property", text: null },
-            { title: "Quality checked", text: null },
-            { title: "Customer Satisfaction", text: null },
-            { title: "24/7 support", text: null },
-          ],
-        },
+        title: "Local knowledge",
+        text: "<p>We live and work in the area, so ask us anything — the best walks, pubs, beaches and rainy-day plans.</p>",
       },
+      {
+        title: "Property",
+        text: "<p>A single hand-picked property, prepared to the same high standard for every arrival.</p>",
+      },
+      {
+        title: "Quality checked",
+        text: "<p>Checked and cleaned before every stay, so everything works the way it should when you walk in.</p>",
+      },
+      {
+        title: "Customer Satisfaction",
+        text: "<p>Most of our guests come back or send friends. If anything falls short during your stay, tell us and we will make it right.</p>",
+      },
+      {
+        title: "24/7 support",
+        text: "<p>A real person is on call around the clock during your stay — call any time, day or night.</p>",
+      },
+    ];
+    const settingsDoc = await SiteSettingsModel.findOne({ key: "site" }).exec();
+    const current: Array<{ title: string; text?: string | null }> =
+      settingsDoc?.whyBookWithUs ?? [];
+    const merged = whyBookDefaults.map((seed) => {
+      const existingItem = current.find((item) => item.title === seed.title);
+      if (existingItem && existingItem.text && existingItem.text.trim().length > 0) {
+        return { title: existingItem.title, text: existingItem.text };
+      }
+      return seed;
+    });
+    await SiteSettingsModel.updateOne(
+      { key: "site" },
+      { $set: { whyBookWithUs: merged } },
+      { upsert: true },
     ).exec();
     const offerSlug = "20-percent-off-autumn-winter";
     await OfferModel.updateOne(
