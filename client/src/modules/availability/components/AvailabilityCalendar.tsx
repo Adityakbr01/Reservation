@@ -97,7 +97,7 @@ export function AvailabilityCalendar({
   }
 
   return (
-    <Card className="mx-auto w-full max-w-md">
+    <Card className="mx-auto w-full max-w-4xl">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-lg">Availability</CardTitle>
         <div className="flex items-center gap-1">

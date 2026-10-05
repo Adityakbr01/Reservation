@@ -70,6 +70,11 @@ export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: Room
       ? String((initial as unknown as Record<string, number | null>)?.maxDogs)
       : "",
   );
+  const [bathrooms, setBathrooms] = useState(
+    (initial as unknown as Record<string, number | null>)?.bathrooms != null
+      ? String((initial as unknown as Record<string, number | null>)?.bathrooms)
+      : "",
+  );
   const [hamperOn, setHamperOn] = useState(Boolean((initial as unknown as Record<string, boolean>)?.welcomeHamperIncluded));
   const [hamperDesc, setHamperDesc] = useState((initial as unknown as Record<string, string | null>)?.welcomeHamperDescription ?? "");
   const [hamperImage, setHamperImage] = useState<string | null>(
@@ -151,6 +156,7 @@ export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: Room
       maxOccupancy: Math.max(1, Number(maxOccupancy) || 1),
       ...(bedrooms.trim() ? { bedrooms: Math.max(0, Number(bedrooms) || 0) } : { bedrooms: null }),
       ...(maxDogs.trim() ? { maxDogs: Math.max(0, Number(maxDogs) || 0) } : { maxDogs: null }),
+      ...(bathrooms.trim() ? { bathrooms: Math.max(0, Number(bathrooms) || 0) } : { bathrooms: null }),
       beds: beds.filter((bed) => bed.type.trim().length > 0),
       amenities: amenities
         .split(",")
@@ -239,6 +245,10 @@ export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: Room
         <div className="space-y-2">
           <Label htmlFor="rt-dogs">Max dogs</Label>
           <Input id="rt-dogs" type="number" min={0} value={maxDogs} onChange={(e) => setMaxDogs(e.target.value)} placeholder="1" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="rt-bathrooms">Bathrooms</Label>
+          <Input id="rt-bathrooms" type="number" min={0} value={bathrooms} onChange={(e) => setBathrooms(e.target.value)} placeholder="1" />
         </div>
       </div>
 

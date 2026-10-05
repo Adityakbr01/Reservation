@@ -12,6 +12,8 @@ export interface Media {
   storageKey: string;
   mime: string;
   kind: MediaKind;
+  /** Logical folder, e.g. "Cottage/Oakwood Cottage". Null = library root. */
+  folder: string | null;
   width: number | null;
   height: number | null;
   durationSec: number | null;
@@ -29,6 +31,7 @@ export interface MediaDocument extends mongoose.Document {
   storageKey: string;
   mime: string;
   kind: MediaKind;
+  folder: string | null;
   width: number | null;
   height: number | null;
   durationSec: number | null;
@@ -47,6 +50,7 @@ const mediaSchema = new mongoose.Schema<MediaDocument>(
     storageKey: { type: String, required: true, unique: true },
     mime: { type: String, required: true },
     kind: { type: String, enum: ["image", "video"], default: "image" },
+    folder: { type: String, default: null, maxlength: 200 },
     width: { type: Number, default: null },
     height: { type: Number, default: null },
     durationSec: { type: Number, default: null },
@@ -77,6 +81,7 @@ export function toMedia(doc: MediaDocument): Media {
     storageKey: doc.storageKey,
     mime: doc.mime,
     kind: mediaKindFor(doc.mime, (doc as MediaDocument).kind),
+    folder: doc.folder ?? null,
     width: doc.width,
     height: doc.height,
     durationSec: doc.durationSec ?? null,
@@ -94,6 +99,29 @@ export interface ListMediaFilter {
   limit: number;
   q?: string;
   kind?: MediaKind;
+  /** Exact folder match; "__root__" lists only unfiled items. */
+  folder?: string;
+}
+
+/** Folder path segment rules shared by upload + move. Pure — unit-tested. */
+export function normalizeFolderPath(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const cleaned = raw
+    .split("/")
+    .map((part) => part.trim().replace(/\s+/g, " "))
+    .filter((part) => part.length > 0 && part !== "." && part !== "..")
+    .slice(0, 3)
+    .map((part) => part.slice(0, 60))
+    .join("/");
+  return cleaned.length > 0 ? cleaned : null;
+}
+
+/** Distinct folders for the library sidebar, sorted. */
+export async function listMediaFolders(): Promise<string[]> {
+  const folders = await MediaModel.distinct("folder").exec();
+  return (folders as unknown[])
+    .filter((f): f is string => typeof f === "string" && f.length > 0)
+    .sort((a, b) => a.localeCompare(b));
 }
 
 export async function listMedia(filter: ListMediaFilter): Promise<Paginated<Media>> {
@@ -105,6 +133,9 @@ export async function listMedia(filter: ListMediaFilter): Promise<Paginated<Medi
     } else {
       query.kind = "image";
     }
+  }
+  if (filter.folder !== undefined) {
+    query.folder = filter.folder === "__root__" ? null : filter.folder;
   }
   const [total, docs] = await Promise.all([
     MediaModel.countDocuments(query).exec(),

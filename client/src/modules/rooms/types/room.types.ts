@@ -36,6 +36,7 @@ export interface RoomTypeDetail {
   welcomeHamperImageMediaId?: string | null;
   amenityIds?: string[];
   bedrooms?: number | null;
+  bathrooms?: number | null;
   maxDogs?: number | null;
   status: "DRAFT" | "ACTIVE" | "INACTIVE";
 }

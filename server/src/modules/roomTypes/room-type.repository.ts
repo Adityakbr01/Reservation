@@ -46,6 +46,7 @@ export function toRoomType(doc: RoomTypeDocument): RoomType {
     welcomeHamperImageMediaId: doc.welcomeHamperImageMediaId ?? null,
     amenityIds: (doc.amenityIds ?? []).map((id) => id.toString()),
     bedrooms: doc.bedrooms ?? null,
+    bathrooms: doc.bathrooms ?? null,
     maxDogs: doc.maxDogs ?? null,
     status: doc.status,
     seo: doc.seo,
@@ -79,6 +80,7 @@ export interface CreateRoomTypeInput {
   welcomeHamperImageMediaId?: string | null;
   amenityIds?: string[];
   bedrooms?: number | null;
+  bathrooms?: number | null;
   maxDogs?: number | null;
   status?: RoomTypeStatus;
   seo?: RoomType["seo"];
@@ -166,6 +168,7 @@ export type UpdateRoomTypeInput = Partial<
     | "welcomeHamperImageMediaId"
     | "amenityIds"
     | "bedrooms"
+    | "bathrooms"
     | "maxDogs"
     | "status"
     | "seo"

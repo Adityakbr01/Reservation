@@ -33,6 +33,7 @@ export interface RoomTypeDocument extends mongoose.Document {
   welcomeHamperImageMediaId: string | null;
   amenityIds: mongoose.Types.ObjectId[];
   bedrooms: number | null;
+  bathrooms: number | null;
   maxDogs: number | null;
   status: RoomTypeStatus;
   seo: RoomTypeSeo | null;
@@ -107,6 +108,7 @@ const roomTypeSchema = new mongoose.Schema<RoomTypeDocument>(
     welcomeHamperImageMediaId: { type: String, default: null },
     amenityIds: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Amenity" }], default: [] },
     bedrooms: { type: Number, default: null },
+    bathrooms: { type: Number, default: null, min: 0, max: 20 },
     maxDogs: { type: Number, default: null },
     status: { type: String, enum: ROOM_TYPE_STATUSES, default: "DRAFT", required: true },
     seo: { type: seoSchema, default: null },

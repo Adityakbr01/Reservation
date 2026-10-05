@@ -39,6 +39,7 @@ export interface RoomType {
   welcomeHamperImageMediaId?: string | null;
   amenityIds?: string[];
   bedrooms?: number | null;
+  bathrooms?: number | null;
   maxDogs?: number | null;
   createdAt: string;
   updatedAt: string;
@@ -75,6 +76,7 @@ export interface CreateRoomTypePayload {
   welcomeHamperImageMediaId?: string | null;
   amenityIds?: string[];
   bedrooms?: number | null;
+  bathrooms?: number | null;
   maxDogs?: number | null;
   status?: RoomTypeStatus;
 }

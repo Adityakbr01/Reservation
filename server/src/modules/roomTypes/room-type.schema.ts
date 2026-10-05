@@ -64,6 +64,7 @@ export const createRoomTypeSchema = occupancySchema.extend({
   welcomeHamperImageMediaId: objectIdSchema.nullable().optional(),
   amenityIds: z.array(objectIdSchema).max(100).optional(),
   bedrooms: z.number().int().min(0).max(20).nullable().optional(),
+  bathrooms: z.number().int().min(0).max(20).nullable().optional(),
   maxDogs: z.number().int().min(0).max(10).nullable().optional(),
   status: z.enum(ROOM_TYPE_STATUSES).optional(),
   seo: seoSchema.nullable().optional(),

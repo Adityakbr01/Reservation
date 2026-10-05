@@ -10,6 +10,7 @@ import {
   listRoomTypesHandler,
   updateRoomTypeHandler,
 } from "./room-type.controller";
+import { listRoomOffersHandler } from "./room-offers.controller";
 import {
   createRoomTypeSchema,
   listRoomTypesQuerySchema,
@@ -36,4 +37,5 @@ publicRoomTypesRouter.get(
   validate({ query: publicRoomTypesQuerySchema }),
   listPublicRoomTypesHandler,
 );
+publicRoomTypesRouter.get("/:id/offers", validate({ params: idParamsSchema }), listRoomOffersHandler);
 publicRoomTypesRouter.get("/:slug", getPublicRoomTypeHandler);
