@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { useMedia } from "@/modules/media";
+import { useFolders, useMedia } from "@/modules/media/hooks/use-media";
 
 interface MediaPickerProps {
   open: boolean;
@@ -16,12 +16,19 @@ interface MediaPickerProps {
 export function MediaPicker({ open, onClose, onSelect, title = "Choose image" }: MediaPickerProps) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [folder, setFolder] = useState("");
   const debouncedSearch = useDebouncedValue(search);
   const filters = useMemo(
-    () => ({ page, limit: 12, ...(debouncedSearch.trim() ? { q: debouncedSearch.trim() } : {}) }),
-    [page, debouncedSearch],
+    () => ({
+      page,
+      limit: 12,
+      ...(debouncedSearch.trim() ? { q: debouncedSearch.trim() } : {}),
+      ...(folder ? { folder: folder === "__root__" ? "__root__" : folder } : {}),
+    }),
+    [page, debouncedSearch, folder],
   );
   const { data, isPending } = useMedia(filters);
+  const { data: folders } = useFolders();
   const items = data?.items ?? [];
 
   if (!open) return null;
@@ -45,15 +52,33 @@ export function MediaPicker({ open, onClose, onSelect, title = "Choose image" }:
           </Button>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Input
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            placeholder="Search file name…"
-            aria-label="Search media"
-          />
+          <div className="flex gap-2">
+            <Input
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              placeholder="Search file name…"
+              aria-label="Search media"
+              className="flex-1"
+            />
+            <select
+              value={folder}
+              onChange={(e) => {
+                setFolder(e.target.value);
+                setPage(1);
+              }}
+              className="h-9 max-w-40 rounded-md border border-input bg-background px-2 text-sm"
+              aria-label="Filter by folder"
+            >
+              <option value="">All folders</option>
+              <option value="__root__">Root</option>
+              {(folders ?? []).map((f) => (
+                <option key={f} value={f}>{f}</option>
+              ))}
+            </select>
+          </div>
           {isPending ? (
             <div className="grid grid-cols-3 gap-2" aria-label="Loading media">
               {[0, 1, 2, 3, 4, 5].map((i) => (

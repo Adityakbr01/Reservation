@@ -67,6 +67,33 @@ const mediaUploadMulter = multer({
   },
 });
 
+/** Request carrying multer's file array (multi-upload). */
+export interface RequestWithFiles {
+  files?: Express.Multer.File[] | Record<string, Express.Multer.File[]>;
+}
+
+/** Per-file size guard shared by single + multi uploads. Null when ok. */
+export function mediaFileSizeError(file: Express.Multer.File): AppError | null {
+  if (file.mimetype.startsWith("video/") && file.size > MAX_VIDEO_BYTES) {
+    return new AppError(`Video ${file.originalname} must be smaller than 50 MB`, 400, "FILE_TOO_LARGE");
+  }
+  if (file.mimetype.startsWith("image/") && file.size > MAX_MEDIA_BYTES) {
+    return new AppError(`Image ${file.originalname} must be smaller than 8 MB`, 400, "FILE_TOO_LARGE");
+  }
+  return null;
+}
+
+function multerErrorMessage(error: unknown): string | null {
+  if (typeof error === "object" && error !== null && "code" in error) {
+    const code = (error as { code?: unknown }).code;
+    if (code === "LIMIT_FILE_SIZE") return "File must be smaller than 50 MB (images 8 MB)";
+    if (code === "LIMIT_FILE_COUNT" || code === "LIMIT_UNEXPECTED_FILE") {
+      return "Upload with the `file` (single) or `files` (up to 10) field";
+    }
+  }
+  return null;
+}
+
 /** Parses a single `file` field for the media library (docs 08 §41-42). Images ≤8MB, video ≤50MB. */
 export function mediaUpload(req: Request, res: Response, next: NextFunction): void {
   mediaUploadMulter.single("file")(req, res, (error: unknown) => {
@@ -93,5 +120,36 @@ export function mediaUpload(req: Request, res: Response, next: NextFunction): vo
       return;
     }
     next(error);
+  });
+}
+
+/**
+ * Parses `file` (single, legacy) or `files` (up to 10) for the media
+ * library. Per-file type/size rules match the single upload.
+ */
+export function mediaUploadMany(req: Request, res: Response, next: NextFunction): void {
+  mediaUploadMulter.fields([
+    { name: "file", maxCount: 1 },
+    { name: "files", maxCount: 10 },
+  ])(req, res, (error: unknown) => {
+    if (error) {
+      const message = multerErrorMessage(error);
+      next(message ? new AppError(message, 400, "INVALID_UPLOAD") : error);
+      return;
+    }
+    const grouped = (req as Request & RequestWithFiles).files;
+    const list: Express.Multer.File[] = Array.isArray(grouped)
+      ? grouped
+      : [...(grouped?.file ?? []), ...(grouped?.files ?? [])];
+    const single = (req as Request & { file?: Express.Multer.File }).file;
+    if (single) list.unshift(single);
+    for (const file of list) {
+      const sizeError = mediaFileSizeError(file);
+      if (sizeError) {
+        next(sizeError);
+        return;
+      }
+    }
+    next();
   });
 }

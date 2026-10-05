@@ -63,6 +63,7 @@ const mediaSchema = new mongoose.Schema<MediaDocument>(
 );
 
 mediaSchema.index({ createdAt: -1 });
+mediaSchema.index({ folder: 1, createdAt: -1 });
 
 // Guarded for --hot reloads.
 export const MediaModel =

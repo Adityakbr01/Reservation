@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 import { logger } from "../../config/logger";
 import { AppError } from "../../utils/app-error";
+import { slugify } from "../../utils/slug";
 import { getImageKit } from "../../integrations/imagekit/imagekit.client";
 import { BlogPostModel, OfferModel, PageModel } from "../cms/cms.model";
-import { MediaModel, findMediaById, listMedia, toMedia } from "./media.model";
+import { MediaModel, findMediaById, listMedia, normalizeFolderPath, toMedia } from "./media.model";
 import type { ListMediaFilter, Media } from "./media.model";
 
 const MEDIA_FOLDER = "reservation/media";
@@ -15,17 +16,24 @@ export interface UploadMediaInput {
   size: number;
   alt?: string | null;
   caption?: string | null;
+  folder?: string | null;
   createdBy?: string | null;
 }
 
 /** Validate → external store → URL/key → Mongo metadata (docs 08 §41). */
 export async function uploadMedia(input: UploadMediaInput): Promise<Media> {
+  // Human-readable folder stays in Mongo ("Cottage/Fern Cottage");
+  // ImageKit paths must be URL-safe, so segments are slugified there.
+  const folder = normalizeFolderPath(input.folder);
+  const storageFolder = folder
+    ? `${MEDIA_FOLDER}/${folder.split("/").map((part) => slugify(part) || "misc").join("/")}`
+    : MEDIA_FOLDER;
   let result: { url: string; fileId: string; width?: number; height?: number };
   try {
     const uploaded = await getImageKit().upload({
       file: input.data,
       fileName: `${Date.now()}-${input.fileName}`,
-      folder: MEDIA_FOLDER,
+      folder: storageFolder,
     });
     result = {
       url: uploaded.url,
@@ -45,6 +53,7 @@ export async function uploadMedia(input: UploadMediaInput): Promise<Media> {
     storageKey: result.fileId,
     mime: input.mime,
     kind,
+    folder,
     width: result.width ?? null,
     height: result.height ?? null,
     durationSec: null,
@@ -58,7 +67,7 @@ export async function uploadMedia(input: UploadMediaInput): Promise<Media> {
 
 export async function updateMediaMeta(
   id: string,
-  patch: { alt?: string | null; caption?: string | null },
+  patch: { alt?: string | null; caption?: string | null; folder?: string | null },
 ): Promise<Media> {
   const doc = await MediaModel.findByIdAndUpdate(
     id,
@@ -66,6 +75,9 @@ export async function updateMediaMeta(
       $set: {
         ...(patch.alt !== undefined ? { alt: patch.alt } : {}),
         ...(patch.caption !== undefined ? { caption: patch.caption } : {}),
+        // Logical move only: the stored file URL stays valid, the library
+        // grouping changes. Physical re-upload is never required.
+        ...(patch.folder !== undefined ? { folder: normalizeFolderPath(patch.folder) } : {}),
       },
     },
     { returnDocument: "after" },

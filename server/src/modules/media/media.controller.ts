@@ -1,26 +1,50 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/async-handler";
 import { requireUser } from "../../middleware/auth";
-import type { RequestWithFile } from "../../middleware/upload";
+import type { RequestWithFile, RequestWithFiles } from "../../middleware/upload";
 import type { RequestWithValidatedQuery } from "../../middleware/validate";
 import { AppError } from "../../utils/app-error";
 import { deleteMedia, listAllMedia, resolveMedia, updateMediaMeta, uploadMedia } from "./media.service";
-import type { ListMediaQuery, UpdateMediaInput } from "./media.schema";
+import { listMediaFolders } from "./media.model";
+import type { ListMediaQuery, UpdateMediaInput, UploadMediaBody } from "./media.schema";
 
-/** POST /api/v1/admin/media — multipart `file` (docs 08 §41). */
+/**
+ * POST /api/v1/admin/media — multipart `file` (single) or `files` (up to 10)
+ * plus optional text `folder` (docs 08 §41). Always returns an array so
+ * multi-upload needs no second call shape.
+ */
 export const adminUploadMediaHandler = asyncHandler(async (req: Request, res: Response) => {
-  const file = (req as Request & RequestWithFile).file;
-  if (!file) {
-    throw new AppError("Attach an image as the `file` field", 400, "FILE_REQUIRED");
+  const single = (req as Request & RequestWithFile).file;
+  const grouped = (req as Request & RequestWithFiles).files;
+  const files: Express.Multer.File[] = [
+    ...(single ? [single] : []),
+    ...(Array.isArray(grouped) ? grouped : [...(grouped?.file ?? []), ...(grouped?.files ?? [])]),
+  ];
+  if (files.length === 0) {
+    throw new AppError("Attach files with the `file` or `files` field", 400, "FILE_REQUIRED");
   }
-  const result = await uploadMedia({
-    data: file.buffer,
-    fileName: file.originalname,
-    mime: file.mimetype,
-    size: file.size,
-    createdBy: requireUser(req).id,
-  });
-  res.status(201).json({ success: true, data: result });
+  const body = (req.body ?? {}) as UploadMediaBody;
+  const userId = requireUser(req).id;
+  const results = [];
+  for (const file of files) {
+    results.push(
+      await uploadMedia({
+        data: file.buffer,
+        fileName: file.originalname,
+        mime: file.mimetype,
+        size: file.size,
+        folder: body.folder ?? null,
+        createdBy: userId,
+      }),
+    );
+  }
+  res.status(201).json({ success: true, data: results });
+});
+
+/** GET /api/v1/admin/media/folders — distinct folder paths for the sidebar. */
+export const adminListFoldersHandler = asyncHandler(async (_req: Request, res: Response) => {
+  const result = await listMediaFolders();
+  res.status(200).json({ success: true, data: result });
 });
 
 /** GET /api/v1/admin/media — library list. */
