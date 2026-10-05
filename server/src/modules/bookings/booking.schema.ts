@@ -9,10 +9,18 @@ const guestsSchema = z.object({
 });
 
 const contactSchema = z.object({
+  title: z.string().trim().max(20).nullable().optional(),
   firstName: z.string().trim().min(1).max(80),
   lastName: z.string().trim().min(1).max(80),
   email: z.string().trim().toLowerCase().email().max(160),
   phone: z.string().trim().min(4).max(40),
+  mobile: z.string().trim().max(40).nullable().optional(),
+  address1: z.string().trim().max(200).nullable().optional(),
+  address2: z.string().trim().max(200).nullable().optional(),
+  city: z.string().trim().max(80).nullable().optional(),
+  county: z.string().trim().max(80).nullable().optional(),
+  postcode: z.string().trim().max(20).nullable().optional(),
+  country: z.string().trim().max(80).nullable().optional(),
 });
 
 const roomLineSchema = z.object({

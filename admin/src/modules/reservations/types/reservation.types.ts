@@ -19,6 +19,14 @@ export interface ReservationContact {
   lastName: string;
   email: string;
   phone: string;
+  title?: string | null;
+  mobile?: string | null;
+  address1?: string | null;
+  address2?: string | null;
+  city?: string | null;
+  county?: string | null;
+  postcode?: string | null;
+  country?: string | null;
 }
 
 export interface ReservationPricing {

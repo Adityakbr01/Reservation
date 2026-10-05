@@ -118,12 +118,6 @@ function NewsletterFooterForm() {
             <NavLink to="/offers" className={navLinkClass}>
               Offers
             </NavLink>
-            <NavLink to="/blogs" className={navLinkClass}>
-              Blog
-            </NavLink>
-            <NavLink to="/faqs" className={navLinkClass}>
-              FAQs
-            </NavLink>
             <NavLink to="/enquire" className={navLinkClass}>
               Enquire
             </NavLink>
@@ -234,11 +228,8 @@ function NewsletterFooterForm() {
               <NavLink to="/offers" className={mobileLinkClass} onClick={closeMenu}>
                 Offers
               </NavLink>
-              <NavLink to="/blogs" className={mobileLinkClass} onClick={closeMenu}>
-                Blog
-              </NavLink>
-              <NavLink to="/faqs" className={mobileLinkClass} onClick={closeMenu}>
-                FAQs
+              <NavLink to="/enquire" className={mobileLinkClass} onClick={closeMenu}>
+                Enquire
               </NavLink>
               {user && (
                 <>

@@ -13,6 +13,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatMoney } from "@/lib/money";
 import {
   RoomTypeCard,
   SearchForm,
@@ -298,6 +299,18 @@ export function HomePage() {
               Extraordinary stays for unforgettable moments.
             </p>
           </div>
+          {(() => {
+            const totals = results.flatMap((item) => item.rates.map((rate) => ({ total: rate.total, currency: rate.currency })));
+            if (totals.length === 0) return null;
+            const best = totals.reduce((a, b) => (b.total < a.total ? b : a));
+            return (
+              <p className="text-sm text-muted-foreground">
+                From <span className="font-semibold text-foreground">{formatMoney(best.total, best.currency)} total for {data.search.nights} night{data.search.nights === 1 ? "" : "s"}</span>
+                <br />
+                <span className="text-xs">Including taxes and fees</span>
+              </p>
+            );
+          })()}
           <div className="grid items-stretch gap-4 sm:gap-5 lg:grid-cols-2">
             {results.map((item) => (
               <RoomTypeCard

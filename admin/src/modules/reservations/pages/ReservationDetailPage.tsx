@@ -192,9 +192,27 @@ export function ReservationDetailPage() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <p>
-              {booking.contact.firstName} {booking.contact.lastName} · {booking.contact.email} ·{" "}
-              {booking.contact.phone}
+              {[booking.contact.title, booking.contact.firstName, booking.contact.lastName]
+                .filter(Boolean)
+                .join(" ")}{" "}
+              · {booking.contact.email} · {booking.contact.phone}
+              {booking.contact.mobile ? ` · ${booking.contact.mobile}` : ""}
             </p>
+            {[booking.contact.address1, booking.contact.address2, booking.contact.city, booking.contact.county, booking.contact.postcode, booking.contact.country]
+              .filter(Boolean).length > 0 && (
+              <p className="text-muted-foreground">
+                {[
+                  booking.contact.address1,
+                  booking.contact.address2,
+                  booking.contact.city,
+                  booking.contact.county,
+                  booking.contact.postcode,
+                  booking.contact.country,
+                ]
+                  .filter(Boolean)
+                  .join(", ")}
+              </p>
+            )}
             <p className="text-muted-foreground">
               {formatDate(booking.checkIn)} → {formatDate(booking.checkOut)} ·{" "}
               {booking.guests.adults + booking.guests.children} guest

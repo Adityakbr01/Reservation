@@ -9,11 +9,15 @@ import type { AvailabilitySearchParams, SearchResultItem } from "../types/availa
 import { toSearchRecord } from "../utils/search-params";
 
 function formatMoney(minor: number, currency: string): string {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 2,
-  }).format(minor / 100);
+  try {
+    return new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 2,
+    }).format(minor / 100);
+  } catch {
+    return `${(minor / 100).toFixed(2)} ${currency}`;
+  }
 }
 
 export function RoomTypeCard({
@@ -83,6 +87,9 @@ export function RoomTypeCard({
             {roomType.amenities.slice(0, 3).join(" · ") || "Standard amenities"}
           </span>
         </div>
+        <p className="text-sm text-muted-foreground">
+          From <span className="text-base font-bold text-foreground">{formatMoney(Math.min(...rates.map((r) => r.perNight)), rates[0]?.currency ?? "GBP")}</span> Per Night
+        </p>
         <p className="text-xs font-medium text-muted-foreground">
           From {formatMoney(Math.min(...rates.map((r) => r.total)), rates[0]?.currency ?? "GBP")} total for {search.checkIn} → {search.checkOut} · incl. taxes & fees
         </p>

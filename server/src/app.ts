@@ -9,6 +9,7 @@ import { requestLogger } from "./middleware/request-logger";
 import { adminUsersRouter, authRouter } from "./modules/auth/auth.routes";
 import { adminAvailabilityRouter, publicAvailabilityRouter } from "./modules/availability/availability.routes";
 import { bookingsRouter, meBookingsRouter } from "./modules/bookings/bookings.routes";
+import { publicBookingsRouter } from "./modules/bookings/guest.routes";
 import { adminCouponsRouter, publicCouponsRouter } from "./modules/coupons/coupon.routes";
 import { adminPaymentsRouter } from "./modules/payments/admin-payments.routes";
 import { paymentsRouter } from "./modules/payments/payment.routes";
@@ -70,6 +71,7 @@ export function createApp() {
   app.use("/api/public/availability", publicAvailabilityRouter);
   app.use("/api/public/coupons", publicCouponsRouter);
   app.use("/api/v1/bookings", bookingsRouter);
+  app.use("/api/public/bookings", publicBookingsRouter);
   app.use("/api/me/bookings", meBookingsRouter);
   app.use("/api/v1/payments", paymentsRouter);
   app.use("/api/v1/admin/coupons", adminCouponsRouter);

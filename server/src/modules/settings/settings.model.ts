@@ -74,7 +74,7 @@ const settingsSchema = new mongoose.Schema<SiteSettingsDocument>(
       ogImageMediaId: { type: mongoose.Schema.Types.ObjectId, ref: "Media", default: null },
     },
     whyBookWithUs: {
-      type: [{ title: { type: String, required: true, maxlength: 120 }, text: { type: String, default: null, maxlength: 500 } }],
+      type: [{ title: { type: String, required: true, maxlength: 120 }, text: { type: String, default: null, maxlength: 5000 } }],
       default: [
         { title: "Local knowledge", text: null },
         { title: "Property", text: null },
@@ -140,9 +140,22 @@ export async function updateSiteSettings(patch: {
   defaultSeo?: { title?: string | null; description?: string | null; ogImageMediaId?: string | null };
   whyBookWithUs?: WhyBookItem[];
 }): Promise<SiteSettings> {
+  // Why-book bodies are rich HTML from CKEditor — sanitize like CMS content.
+  const { sanitizeRichText } = await import("../cms/cms.types");
+  const safePatch = {
+    ...patch,
+    ...(patch.whyBookWithUs
+      ? {
+          whyBookWithUs: patch.whyBookWithUs.map((item) => ({
+            title: item.title,
+            text: item.text ? sanitizeRichText(item.text) || null : null,
+          })),
+        }
+      : {}),
+  };
   const doc = await SiteSettingsModel.findOneAndUpdate(
     { key: "site" },
-    { $set: patch },
+    { $set: safePatch },
     { returnDocument: "after", upsert: true },
   ).exec();
   if (!doc) throw new Error("Site settings update failed");

@@ -4,6 +4,8 @@ import type {
   Booking,
   CouponCheck,
   CreateBookingResult,
+  GuestBookingPayload,
+  GuestBookingResult,
   GuestDetails,
   PaymentIntentResult,
   Quote,
@@ -78,5 +80,31 @@ export async function validateCouponCode(code: string): Promise<CouponCheck> {
   const response = await publicApiClient.post<ApiEnvelope<CouponCheck>>("/public/coupons/validate", {
     code,
   });
+  return unwrapResponse(response);
+}
+
+/**
+ * Frictionless guest checkout. No login needed — for a new email the
+ * server provisions the account in the background and returns a token
+ * the client stores silently, so the guest never sees a login screen.
+ */
+export async function createGuestBooking(
+  input: GuestBookingPayload,
+  idempotencyKey: string,
+): Promise<GuestBookingResult> {
+  const response = await publicApiClient.post<ApiEnvelope<GuestBookingResult>>(
+    "/public/bookings/guest",
+    input,
+    { headers: { "Idempotency-Key": idempotencyKey } },
+  );
+  return unwrapResponse(response);
+}
+
+/** Returning-guest probe: an existing email gets a sign-in nudge instead of a silent login. */
+export async function checkGuestEmail(email: string): Promise<{ exists: boolean }> {
+  const response = await publicApiClient.post<ApiEnvelope<{ exists: boolean }>>(
+    "/public/bookings/check-email",
+    { email },
+  );
   return unwrapResponse(response);
 }

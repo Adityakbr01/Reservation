@@ -8,6 +8,16 @@ export interface RatePlanPricing {
   currency: string;
 }
 
+export interface RatePlanRestrictions {
+  minNights: number | null;
+  maxNights: number | null;
+  minAdvanceDays: number | null;
+  maxAdvanceDays: number | null;
+  validFrom: string | null;
+  validUntil: string | null;
+  daysOfWeek: number[];
+}
+
 export interface RatePlan {
   id: string;
   propertyId: string;
@@ -16,6 +26,7 @@ export interface RatePlan {
   slug: string;
   description: string | null;
   pricing: RatePlanPricing;
+  restrictions: RatePlanRestrictions;
   status: RatePlanStatus;
   createdAt: string;
   updatedAt: string;
@@ -35,6 +46,15 @@ export interface CreateRatePlanPayload {
   slug?: string;
   description?: string | null;
   pricing: RatePlanPricing;
+  restrictions?: {
+    minNights?: number | null;
+    maxNights?: number | null;
+    minAdvanceDays?: number | null;
+    maxAdvanceDays?: number | null;
+    validFrom?: string | null;
+    validUntil?: string | null;
+    daysOfWeek?: number[];
+  };
   status?: RatePlanStatus;
 }
 

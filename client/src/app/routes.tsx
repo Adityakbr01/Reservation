@@ -65,14 +65,7 @@ export function AppRoutes() {
           <Route path="offers" element={<OffersPage />} />
           <Route path="policies/:key" element={<PolicyPage />} />
           <Route path="enquire" element={<EnquirePage />} />
-          <Route
-            path="booking/new"
-            element={
-              <RequireAuth>
-                <BookingPage />
-              </RequireAuth>
-            }
-          />
+          <Route path="booking/new" element={<BookingPage />} />
           <Route
             path="booking/confirmation/:id"
             element={

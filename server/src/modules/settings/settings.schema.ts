@@ -30,7 +30,7 @@ export const updateSettingsSchema = z.object({
     })
     .optional(),
   whyBookWithUs: z
-    .array(z.object({ title: z.string().trim().min(1).max(120), text: z.string().trim().max(500).nullable().optional() }))
+    .array(z.object({ title: z.string().trim().min(1).max(120), text: z.string().trim().max(5000).nullable().optional() }))
     .max(10)
     .optional(),
 });

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageField } from "@/components/common/ImageField";
+import { CkEditorField } from "@/components/common/CkEditorField";
 import {
   apiClient,
   getApiErrorMessage,
@@ -212,24 +213,42 @@ function SettingsForm({ initial }: { initial: Settings }) {
           <CardHeader>
             <CardTitle className="text-xl">Why book with us?</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-5">
             {(form.whyBookWithUs ?? []).map((item, i) => (
-              <div key={i} className="grid gap-2 sm:grid-cols-2">
-                <Input
-                  value={item.title}
-                  onChange={(e) =>
-                    set("whyBookWithUs", (form.whyBookWithUs ?? []).map((w, j) => (j === i ? { ...w, title: e.target.value } : w)))
-                  }
-                  placeholder="Local knowledge"
-                  aria-label={`Why book title ${i + 1}`}
-                />
-                <Input
+              <div key={i} className="space-y-3 rounded-lg border border-border p-4">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 space-y-2">
+                    <Label htmlFor={`why-title-${i}`}>Title</Label>
+                    <Input
+                      id={`why-title-${i}`}
+                      value={item.title}
+                      onChange={(e) =>
+                        set("whyBookWithUs", (form.whyBookWithUs ?? []).map((w, j) => (j === i ? { ...w, title: e.target.value } : w)))
+                      }
+                      placeholder="Local knowledge"
+                      aria-label={`Why book title ${i + 1}`}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="mt-6 text-destructive"
+                    onClick={() =>
+                      set("whyBookWithUs", (form.whyBookWithUs ?? []).filter((_, j) => j !== i))
+                    }
+                    aria-label={`Remove reason ${i + 1}`}
+                  >
+                    Remove
+                  </Button>
+                </div>
+                <CkEditorField
+                  label={`Body ${i + 1}`}
                   value={item.text ?? ""}
-                  onChange={(e) =>
-                    set("whyBookWithUs", (form.whyBookWithUs ?? []).map((w, j) => (j === i ? { ...w, text: e.target.value || null } : w)))
+                  onChange={(html) =>
+                    set("whyBookWithUs", (form.whyBookWithUs ?? []).map((w, j) => (j === i ? { ...w, text: html || null } : w)))
                   }
-                  placeholder="Short line (optional)"
-                  aria-label={`Why book text ${i + 1}`}
+                  placeholder="What makes booking direct better…"
                 />
               </div>
             ))}

@@ -52,6 +52,13 @@ export function RatePlanForm({ initial, submitLabel, isPending, onSubmit }: Rate
     initial ? toMajorUnits(initial.pricing.amount) : "",
   );
   const [currency, setCurrency] = useState(initial?.pricing.currency ?? "INR");
+  const [minNights, setMinNights] = useState(initial?.restrictions?.minNights != null ? String(initial.restrictions.minNights) : "");
+  const [maxNights, setMaxNights] = useState(initial?.restrictions?.maxNights != null ? String(initial.restrictions.maxNights) : "");
+  const [minAdvanceDays, setMinAdvanceDays] = useState(initial?.restrictions?.minAdvanceDays != null ? String(initial.restrictions.minAdvanceDays) : "");
+  const [maxAdvanceDays, setMaxAdvanceDays] = useState(initial?.restrictions?.maxAdvanceDays != null ? String(initial.restrictions.maxAdvanceDays) : "");
+  const [validFrom, setValidFrom] = useState(initial?.restrictions?.validFrom ? String(initial.restrictions.validFrom).slice(0, 10) : "");
+  const [validUntil, setValidUntil] = useState(initial?.restrictions?.validUntil ? String(initial.restrictions.validUntil).slice(0, 10) : "");
+  const [daysOfWeek, setDaysOfWeek] = useState<number[]>(initial?.restrictions?.daysOfWeek ?? []);
   const [status, setStatus] = useState<RatePlanStatus>(initial?.status ?? "DRAFT");
   const { data: typesData } = useRoomTypes({ page: 1, limit: 100 });
   const roomTypes = typesData?.items ?? [];
@@ -67,6 +74,15 @@ export function RatePlanForm({ initial, submitLabel, isPending, onSubmit }: Rate
       ...(slug.trim() ? { slug: slug.trim().toLowerCase() } : {}),
       description: description.trim() || null,
       pricing: { type: pricingType, amount: toMinorUnits(amount), currency: currency.trim() || "INR" },
+      restrictions: {
+        minNights: minNights.trim() ? Math.max(1, Number(minNights) || 1) : null,
+        maxNights: maxNights.trim() ? Math.max(1, Number(maxNights) || 1) : null,
+        minAdvanceDays: minAdvanceDays.trim() ? Math.max(0, Number(minAdvanceDays) || 0) : null,
+        maxAdvanceDays: maxAdvanceDays.trim() ? Math.max(0, Number(maxAdvanceDays) || 0) : null,
+        validFrom: validFrom.trim() ? new Date(`${validFrom}T00:00:00Z`).toISOString() : null,
+        validUntil: validUntil.trim() ? new Date(`${validUntil}T00:00:00Z`).toISOString() : null,
+        daysOfWeek: [...daysOfWeek].sort(),
+      },
       status,
     });
   }
@@ -155,13 +171,60 @@ export function RatePlanForm({ initial, submitLabel, isPending, onSubmit }: Rate
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="rp-desc">Description (optional)</Label>
+        <Label htmlFor="rp-desc">Description (optional — shown as rate policy at checkout)</Label>
         <Input
           id="rp-desc"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Free cancellation up to 48h before check-in"
+          placeholder="Advance Purchase — fully prepaid, non refundable"
         />
+      </div>
+
+      <div className="space-y-3 rounded-md border border-input p-4">
+        <p className="text-sm font-medium">Stay rules (e.g. min 2 / max 28 nights, Sep 2026 – Jan 2027)</p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="rp-min-nights">Min nights (optional)</Label>
+            <Input id="rp-min-nights" type="number" min={1} value={minNights} onChange={(e) => setMinNights(e.target.value)} placeholder="2" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="rp-max-nights">Max nights (optional)</Label>
+            <Input id="rp-max-nights" type="number" min={1} value={maxNights} onChange={(e) => setMaxNights(e.target.value)} placeholder="28" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="rp-valid-from">Stay valid from (optional)</Label>
+            <Input id="rp-valid-from" type="date" value={validFrom} onChange={(e) => setValidFrom(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="rp-valid-until">Stay valid until (optional)</Label>
+            <Input id="rp-valid-until" type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="rp-min-adv">Min advance days (optional)</Label>
+            <Input id="rp-min-adv" type="number" min={0} value={minAdvanceDays} onChange={(e) => setMinAdvanceDays(e.target.value)} placeholder="0" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="rp-max-adv">Max advance days (optional)</Label>
+            <Input id="rp-max-adv" type="number" min={0} value={maxAdvanceDays} onChange={(e) => setMaxAdvanceDays(e.target.value)} placeholder="365" />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label>Arrival days (empty = all days)</Label>
+          <div className="flex flex-wrap gap-2">
+            {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((label, day) => (
+              <label key={day} className="flex items-center gap-1.5 rounded-full border border-input px-3 py-1.5 text-xs">
+                <input
+                  type="checkbox"
+                  checked={daysOfWeek.includes(day)}
+                  onChange={(e) =>
+                    setDaysOfWeek((prev) => (e.target.checked ? [...prev, day] : prev.filter((d) => d !== day)))
+                  }
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="flex items-center justify-between gap-4 rounded-md border border-input px-4 py-3">
