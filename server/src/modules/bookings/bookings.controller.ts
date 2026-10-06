@@ -3,7 +3,7 @@ import { requireUser } from "../../middleware/auth";
 import { asyncHandler } from "../../utils/async-handler";
 import type { RequestWithValidatedQuery } from "../../middleware/validate";
 import { bookingSnapshot, recordAudit } from "../audit/audit.service";
-import { cancelBooking, createBooking, getBooking, listMyBookings } from "./booking.service";
+import { cancelBooking, createBooking, getBooking, getBookingReceipt, listMyBookings } from "./booking.service";
 import { createQuote } from "./quote.service";
 import type { QuoteRequest } from "./quote.schema";
 import type {
@@ -43,6 +43,12 @@ export const createBookingHandler = asyncHandler(async (req: Request, res: Respo
 /** GET /api/v1/bookings/:id — owner only (others get 404, no leakage). */
 export const getBookingHandler = asyncHandler(async (req: Request, res: Response) => {
   const result = await getBooking(req.params.id as string, requireUser(req).id);
+  res.status(200).json({ success: true, data: result });
+});
+
+/** GET /api/v1/bookings/:id/receipt — owner only, printable safe subset. */
+export const getBookingReceiptHandler = asyncHandler(async (req: Request, res: Response) => {
+  const result = await getBookingReceipt(req.params.id as string, requireUser(req).id);
   res.status(200).json({ success: true, data: result });
 });
 

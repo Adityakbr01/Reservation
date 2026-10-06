@@ -43,7 +43,7 @@ import type {
   CreateBookingInput,
   MyBookingsQuery,
 } from "./booking.schema";
-import type { Booking, BookingItem, BookingStatus } from "./booking.types";
+import type { Booking, BookingItem, BookingStatus, PaymentStatus } from "./booking.types";
 import type { Payment } from "../payments/payment.types";
 import type { Paginated } from "../../utils/pagination";
 
@@ -401,6 +401,128 @@ export async function listMyBookings(
 ): Promise<Paginated<Booking>> {
   await expireOverdueHolds();
   return listBookingsByUser(userId, query);
+}
+
+export interface ReceiptItem {
+  roomName: string;
+  roomNumber: string | null;
+  ratePlanName: string;
+  checkIn: Date;
+  checkOut: Date;
+  guests: { adults: number; children: number };
+  nightlyRates: Array<{ date: Date; amount: number }>;
+  subtotal: number;
+  discount: number;
+  taxes: number;
+  fees: number;
+  total: number;
+  currency: string;
+}
+
+export interface ReceiptPayment {
+  provider: string;
+  amount: number;
+  currency: string;
+  status: PaymentStatus;
+  paidAt: Date | null;
+}
+
+export interface BookingReceipt {
+  bookingNumber: string;
+  status: BookingStatus;
+  paymentStatus: PaymentStatus;
+  checkIn: Date;
+  checkOut: Date;
+  guests: { adults: number; children: number };
+  guestName: string;
+  guestEmail: string;
+  guestPhone: string;
+  pricing: {
+    currency: string;
+    subtotal: number;
+    discount: number;
+    taxes: number;
+    fees: number;
+    total: number;
+    couponCode: string | null;
+  };
+  items: ReceiptItem[];
+  payments: ReceiptPayment[];
+  property: { name: string; currency: string; checkInTime: string; checkOutTime: string };
+  bookedAt: Date;
+}
+
+/**
+ * Guest-facing receipt — a deliberate safe subset for the printable ticket.
+ * Owner only (others get 404, no leakage). Never exposes: mongo ids,
+ * provider intent/session ids, failure codes/messages, payment metadata,
+ * hold/cancellation internals, notes, or address blocks. Only captured
+ * (PAID / PARTIALLY_REFUNDED) payments are included.
+ */
+export async function getBookingReceipt(id: string, userId: string): Promise<BookingReceipt> {
+  const booking = await findBookingById(id);
+  if (!booking || booking.userId !== userId) {
+    throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
+  }
+  const [items, payments, property] = await Promise.all([
+    findBookingItems(booking.id),
+    listPaymentsByBooking(booking.id),
+    ensureProperty(),
+  ]);
+  return {
+    bookingNumber: booking.bookingNumber,
+    status: booking.status,
+    paymentStatus: booking.paymentStatus,
+    checkIn: booking.checkIn,
+    checkOut: booking.checkOut,
+    guests: { adults: booking.guests.adults, children: booking.guests.children },
+    guestName: `${booking.contact.firstName} ${booking.contact.lastName}`.trim(),
+    guestEmail: booking.contact.email,
+    guestPhone: booking.contact.phone,
+    pricing: {
+      currency: booking.pricing.currency,
+      subtotal: booking.pricing.subtotal,
+      discount: booking.pricing.discount,
+      taxes: booking.pricing.taxes,
+      fees: booking.pricing.fees,
+      total: booking.pricing.total,
+      couponCode: booking.pricing.couponCode,
+    },
+    items: items.map((item) => ({
+      roomName: item.roomNameSnapshot,
+      roomNumber: item.roomNumberSnapshot,
+      ratePlanName: item.ratePlanNameSnapshot,
+      checkIn: item.checkIn,
+      checkOut: item.checkOut,
+      guests: { adults: item.guests.adults, children: item.guests.children },
+      nightlyRates: item.pricing.nightlyRates.map((night) => ({
+        date: night.date,
+        amount: night.amount,
+      })),
+      subtotal: item.pricing.subtotal,
+      discount: item.pricing.discount,
+      taxes: item.pricing.taxes,
+      fees: item.pricing.fees,
+      total: item.pricing.total,
+      currency: item.pricing.currency,
+    })),
+    payments: payments
+      .filter((payment) => payment.status === "PAID" || payment.status === "PARTIALLY_REFUNDED")
+      .map((payment) => ({
+        provider: payment.provider,
+        amount: payment.amount,
+        currency: payment.currency,
+        status: payment.status,
+        paidAt: payment.paidAt,
+      })),
+    property: {
+      name: property.name,
+      currency: property.currency,
+      checkInTime: property.checkInTime,
+      checkOutTime: property.checkOutTime,
+    },
+    bookedAt: booking.createdAt,
+  };
 }
 
 export async function listAllBookings(query: ListBookingsFilter): Promise<Paginated<Booking>> {

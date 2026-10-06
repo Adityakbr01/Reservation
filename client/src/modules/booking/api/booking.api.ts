@@ -2,6 +2,7 @@ import { apiClient, publicApiClient, unwrapResponse } from "@/lib/api-client";
 import type { ApiEnvelope } from "@/lib/api-client";
 import type {
   Booking,
+  BookingReceipt,
   CouponCheck,
   CreateBookingResult,
   GuestBookingPayload,
@@ -69,6 +70,11 @@ export async function fetchBooking(id: string): Promise<Booking> {
   // Server returns `{ booking, items }` — unwrap so callers always see a Booking.
   const response = await apiClient.get<ApiEnvelope<{ booking: Booking }>>(`/bookings/${id}`);
   return unwrapResponse(response).booking;
+}
+
+export async function fetchBookingReceipt(id: string): Promise<BookingReceipt> {
+  const response = await apiClient.get<ApiEnvelope<BookingReceipt>>(`/bookings/${id}/receipt`);
+  return unwrapResponse(response);
 }
 
 export async function cancelBooking(id: string): Promise<Booking> {

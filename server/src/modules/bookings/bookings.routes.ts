@@ -7,6 +7,7 @@ import {
   createBookingHandler,
   createQuoteHandler,
   getBookingHandler,
+  getBookingReceiptHandler,
   getMyBookingHandler,
   listMyBookingsHandler,
 } from "./bookings.controller";
@@ -24,6 +25,12 @@ export const bookingsRouter = Router();
 // The quote endpoint ships now because pricing must exist before booking.
 bookingsRouter.post("/quote", validate({ body: quoteRequestSchema }), createQuoteHandler);
 bookingsRouter.post("/", authenticate, validate({ body: createBookingSchema }), createBookingHandler);
+bookingsRouter.get(
+  "/:id/receipt",
+  authenticate,
+  validate({ params: bookingIdParamsSchema }),
+  getBookingReceiptHandler,
+);
 bookingsRouter.get(
   "/:id",
   authenticate,

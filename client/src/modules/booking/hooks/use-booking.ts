@@ -7,6 +7,7 @@ import {
   createBooking,
   createPaymentIntent,
   fetchBooking,
+  fetchBookingReceipt,
   fetchMyBookings,
   fetchQuote,
   validateCouponCode,
@@ -101,5 +102,18 @@ export function useBookingStatus(id: string | null) {
       if (!status) return 2500;
       return (TERMINAL_STATUSES as readonly string[]).includes(status) ? false : 2500;
     },
+  });
+}
+
+export function useBookingReceipt(id: string | null, enabled: boolean) {
+  return useQuery({
+    queryKey: [...bookingKeys.detail(id ?? "none"), "receipt"],
+    queryFn: () => {
+      if (!id) throw new Error("Missing booking id");
+      return fetchBookingReceipt(id);
+    },
+    enabled: enabled && id !== null,
+    retry: false,
+    staleTime: 300_000,
   });
 }

@@ -234,7 +234,23 @@
   display: none;
 }
 
-/* Booking ticket receipt printing — only the ticket prints, not site chrome. */
+/* Ticket scalloped bottom edge — dense continuous wave of punched notches. */
+.ticket-scallop {
+  height: 10px;
+  background-color: var(--card);
+  background-image: radial-gradient(circle at 5px 10px, var(--background) 5px, transparent 5.5px);
+  background-size: 10px 10px;
+  background-repeat: repeat-x;
+}
+
+/* Booking ticket receipt printing — only the ticket prints, not site chrome.
+   `@page { margin: 0 }` suppresses the browser's own header/footer
+   (date, page title, URL, page number) in Chrome/Edge. Firefox users may
+   still need to uncheck "Headers and footers" in the print dialog. */
+@page {
+  size: auto;
+  margin: 0;
+}
 @media print {
   body * {
     visibility: hidden;
@@ -248,6 +264,7 @@
     left: 0;
     right: 0;
     top: 0;
+    margin: 12mm 10mm;
     box-shadow: none;
   }
   .no-print {

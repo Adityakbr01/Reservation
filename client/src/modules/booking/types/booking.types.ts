@@ -100,3 +100,49 @@ export interface CouponCheck {
   code: string;
   reason?: string;
 }
+
+/** Printable receipt — deliberate safe subset from GET /bookings/:id/receipt. */
+export interface BookingReceipt {
+  bookingNumber: string;
+  status: BookingStatus;
+  paymentStatus: string;
+  checkIn: string;
+  checkOut: string;
+  guests: { adults: number; children: number };
+  guestName: string;
+  guestEmail: string;
+  guestPhone: string;
+  pricing: {
+    currency: string;
+    subtotal: number;
+    discount: number;
+    taxes: number;
+    fees: number;
+    total: number;
+    couponCode: string | null;
+  };
+  items: Array<{
+    roomName: string;
+    roomNumber: string | null;
+    ratePlanName: string;
+    checkIn: string;
+    checkOut: string;
+    guests: { adults: number; children: number };
+    nightlyRates: Array<{ date: string; amount: number }>;
+    subtotal: number;
+    discount: number;
+    taxes: number;
+    fees: number;
+    total: number;
+    currency: string;
+  }>;
+  payments: Array<{
+    provider: string;
+    amount: number;
+    currency: string;
+    status: string;
+    paidAt: string | null;
+  }>;
+  property: { name: string; currency: string; checkInTime: string; checkOutTime: string };
+  bookedAt: string;
+}
