@@ -51,26 +51,41 @@ export async function listFolders(): Promise<string[]> {
   return data.data;
 }
 
+export interface UploadProgress {
+  done: number;
+  total: number;
+}
+
 /** Groups entries by folder and uploads in chunks of 10. Returns total uploaded. */
-async function uploadMedia(entries: UploadEntry[]): Promise<number> {
+async function uploadMedia(
+  entries: UploadEntry[],
+  onProgress?: (progress: UploadProgress) => void,
+): Promise<number> {
   const byFolder = new Map<string | null, File[]>();
   for (const entry of entries) {
     const list = byFolder.get(entry.folder) ?? [];
     list.push(entry.file);
     byFolder.set(entry.folder, list);
   }
-  let total = 0;
+  const chunks: Array<{ folder: string | null; files: File[] }> = [];
   for (const [folder, files] of byFolder) {
     for (let i = 0; i < files.length; i += BATCH_SIZE) {
-      const chunk = files.slice(i, i + BATCH_SIZE);
-      const form = new FormData();
-      for (const file of chunk) form.append("files", file);
-      if (folder) form.append("folder", folder);
-      const response = await apiClient.post<ApiEnvelope<MediaItem[]>>("/admin/media", form, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      total += unwrapResponse(response).length;
+      chunks.push({ folder, files: files.slice(i, i + BATCH_SIZE) });
     }
+  }
+  onProgress?.({ done: 0, total: chunks.length });
+  let total = 0;
+  let done = 0;
+  for (const { folder, files } of chunks) {
+    const form = new FormData();
+    for (const file of files) form.append("files", file);
+    if (folder) form.append("folder", folder);
+    const response = await apiClient.post<ApiEnvelope<MediaItem[]>>("/admin/media", form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    total += unwrapResponse(response).length;
+    done += 1;
+    onProgress?.({ done, total: chunks.length });
   }
   return total;
 }
@@ -95,7 +110,13 @@ export function useFolders() {
 export function useUploadMedia() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (entries: UploadEntry[]) => uploadMedia(entries),
+    mutationFn: ({
+      entries,
+      onProgress,
+    }: {
+      entries: UploadEntry[];
+      onProgress?: (progress: UploadProgress) => void;
+    }) => uploadMedia(entries, onProgress),
     onSuccess: (total) => {
       void queryClient.invalidateQueries({ queryKey: mediaKeys.all });
       toast.success(total === 1 ? "1 file uploaded" : `${total} files uploaded`);

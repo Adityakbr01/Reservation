@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -52,6 +53,11 @@ export function MediaPage() {
   const [moves, setMoves] = useState<Record<string, string>>({});
   const [targetFolder, setTargetFolder] = useState("");
   const [newFolder, setNewFolder] = useState("");
+  const [uploadStatus, setUploadStatus] = useState<{
+    names: string[];
+    done: number;
+    total: number;
+  } | null>(null);
   const dirInputRef = useRef<HTMLInputElement>(null);
   const debouncedSearch = useDebouncedValue(search);
   const filters = useMemo(
@@ -91,8 +97,28 @@ export function MediaPage() {
       const dir = relative.split("/").slice(0, -1).join("/");
       return { file, folder: dir ? (base ? `${base}/${dir}` : dir) : base };
     });
-    uploadMutation.mutate(entries);
+    const names = entries.map((e) => e.file.name);
+    setUploadStatus({ names, done: 0, total: 1 });
+    uploadMutation.mutate(
+      {
+        entries,
+        onProgress: ({ done, total }) =>
+          setUploadStatus((prev) => (prev ? { ...prev, done, total } : prev)),
+      },
+      {
+        onSuccess: () => {
+          setUploadStatus(null);
+          setNewFolder("");
+        },
+        onError: () => setUploadStatus(null),
+      },
+    );
   }
+
+  const isUploading = uploadMutation.isPending || uploadStatus !== null;
+  const uploadDone = uploadStatus?.done ?? 0;
+  const uploadTotal = Math.max(1, uploadStatus?.total ?? 1);
+  const uploadPercent = Math.min(100, Math.round((uploadDone / uploadTotal) * 100));
 
   return (
     <div className="space-y-6">
@@ -188,7 +214,7 @@ export function MediaPage() {
                   type="file"
                   multiple
                   accept={ACCEPT}
-                  disabled={uploadMutation.isPending}
+                  disabled={isUploading}
                   onChange={(e) => {
                     handleFiles(e.target.files, uploadTarget(), false);
                     e.target.value = "";
@@ -207,9 +233,9 @@ export function MediaPage() {
                   }}
                   type="file"
                   accept={ACCEPT}
-                  disabled={uploadMutation.isPending}
+                  disabled={isUploading}
                   onChange={(e) => {
-                    handleFiles(e.target.files, targetFolder || "Cottage", true);
+                    handleFiles(e.target.files, uploadTarget() ?? "Cottage", true);
                     e.target.value = "";
                   }}
                   className="h-10"
@@ -230,8 +256,44 @@ export function MediaPage() {
             aria-label="Search media"
           />
 
-          {uploadMutation.isPending && (
-            <p className="text-sm text-muted-foreground" role="status">Uploading…</p>
+          {isUploading && uploadStatus && (
+            <Card role="status" aria-live="polite" aria-label="Uploading files">
+              <CardContent className="space-y-3 p-4">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="size-5 shrink-0 animate-spin text-brand" aria-hidden />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">
+                      Uploading {uploadStatus.names.length}{" "}
+                      {uploadStatus.names.length === 1 ? "file" : "files"}…
+                      {uploadTotal > 1 && (
+                        <span className="text-muted-foreground">
+                          {" "}
+                          (batch {Math.min(uploadDone + 1, uploadTotal)} of {uploadTotal})
+                        </span>
+                      )}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {uploadStatus.names.slice(0, 3).join(", ")}
+                      {uploadStatus.names.length > 3 &&
+                        ` +${uploadStatus.names.length - 3} more`}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-sm font-medium tabular-nums">{uploadPercent}%</span>
+                </div>
+                <div
+                  className="h-2 w-full overflow-hidden rounded-full bg-muted"
+                  role="progressbar"
+                  aria-valuenow={uploadPercent}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <div
+                    className="h-full rounded-full bg-brand transition-all"
+                    style={{ width: `${uploadPercent}%` }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
           )}
 
           {isPending ? (
