@@ -76,6 +76,7 @@ export interface CmsOffer {
   ctaLabel: string | null;
   ctaUrl: string | null;
   hasCoupon: boolean;
+  couponId: string | null;
   status: ContentStatus;
   version: number;
 }

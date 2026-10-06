@@ -96,6 +96,16 @@ async function alignOfferScoping(propertyId: string): Promise<void> {
     },
     { upsert: true },
   ).exec();
+  // Same backfill as the autumn offer — pre-existing docs keep couponId null.
+  await OfferModel.updateOne(
+    {
+      slug: "15-percent-off-winter",
+      couponId: null,
+      description:
+        "15% off for holidays taken between Wed 30th September 2026 and Mon 4th January 2027.\nMinimum of 2 nights booking with a maximum of 28 nights.\n* Discount applies to base rent only\n* The discount will be applied at checkout",
+    },
+    { $set: { couponId: created._id } },
+  ).exec();
 }
 
 /** Seeds amenities, the 20% autumn offer + coupon. Idempotent. */
@@ -198,14 +208,15 @@ export async function seedContent() {
       { upsert: true },
     ).exec();
     const offerSlug = "20-percent-off-autumn-winter";
+    const autumnDescription =
+      "20% off for holidays taken between Wed 30th September 2026 and Mon 4th January 2027.\nMinimum of 2 nights booking with a maximum of 28 nights.\n* Discount applies to base rent only\n* The discount will be applied at checkout";
     await OfferModel.updateOne(
       { slug: offerSlug },
       {
         $setOnInsert: {
           title: "20% OFF Autumn & Winter Stays",
           slug: offerSlug,
-          description:
-            "20% off for holidays taken between Wed 30th September 2026 and Mon 4th January 2027.\nMinimum of 2 nights booking with a maximum of 28 nights.\n* Discount applies to base rent only\n* The discount will be applied at checkout",
+          description: autumnDescription,
           validFrom: new Date("2026-09-30T00:00:00Z"),
           validUntil: new Date("2027-01-04T23:59:59Z"),
           ctaLabel: "Book now",
@@ -218,6 +229,15 @@ export async function seedContent() {
       },
       { upsert: true },
     ).exec();
+    // Backfill the coupon link for offers seeded before coupon-linking
+    // existed ($setOnInsert never touches pre-existing docs). Only pristine
+    // seed text is touched — customized offers (admin edits) always win.
+    if (couponId) {
+      await OfferModel.updateOne(
+        { slug: offerSlug, couponId: null, description: autumnDescription },
+        { $set: { couponId } },
+      ).exec();
+    }
     await alignOfferScoping(property.id);
     logger.info("Content seed complete (amenities + AUTUMN20 offer)");
   } catch (error) {

@@ -333,7 +333,7 @@ export function PageFields({
         <Label htmlFor="cms-excerpt">Excerpt</Label>
         <textarea className={TEXTAREA_CLASS}
           id="cms-excerpt"
-          rows={2}
+          rows={4}
           value={excerpt}
           onChange={(e) => onExcerpt(e.target.value)}
         />

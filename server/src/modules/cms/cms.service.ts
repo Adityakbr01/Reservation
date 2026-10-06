@@ -576,6 +576,7 @@ export async function listOffers(filter: CmsListFilter) {
   if (filter.q) textSearch(query, filter.q, ["title", "slug"]);
   return paginateModel(OfferModel, query, filter, { updatedAt: -1 }, (doc) => ({
     ...toPublicOffer(doc),
+    couponId: doc.couponId ? doc.couponId.toString() : null,
     status: doc.status,
     version: doc.version,
   }));

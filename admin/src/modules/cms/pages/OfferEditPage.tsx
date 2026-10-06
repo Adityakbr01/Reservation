@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,11 +14,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { StatusButtons } from "../components/StatusButtons";
 import { ImageField } from "@/components/common/ImageField";
 import { PageFields, SubmitBar } from "../components/PageForm";
-import { useOffer, useSaveOffer, useSetOfferStatus } from "../hooks/use-cms";
-import { useCoupons } from "@/modules/coupons/hooks/use-coupons";
+import { getApiErrorMessage } from "@/lib/api-client";
+import { cmsKeys, couponKeys } from "@/lib/query-keys";
+import { useOffer, useOffers, useSaveOffer, useSetOfferStatus } from "../hooks/use-cms";
+import { updateOffer } from "../api/cms.api";
+import { useCoupon, useCoupons, useUpdateCoupon } from "@/modules/coupons/hooks/use-coupons";
+import { updateCoupon } from "@/modules/coupons/api/coupons.api";
+import { useRoomTypes } from "@/modules/room-types";
 import type { ContentStatus } from "../types/cms.types";
 
 function toDateInput(value: string | null): string {
@@ -80,8 +96,26 @@ interface OfferInitial {
   version: number;
 }
 
+interface RoomConflict {
+  roomId: string;
+  roomName: string;
+  oldCouponId: string;
+  oldCouponCode: string;
+  offerId: string;
+  offerTitle: string;
+  offerStatus: ContentStatus;
+}
+
+interface OverridePlan {
+  targetCoupon: string;
+  effectiveRooms: string[];
+  conflicts: RoomConflict[];
+  oldCouponIds: string[];
+}
+
 function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string; initial?: OfferInitial }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [title, setTitle] = useState(initial?.title ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
@@ -93,6 +127,7 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
   const [imageMediaId, setImageMediaId] = useState<string | null>(initial?.imageMediaId ?? null);
   const { mutate, isPending } = useSaveOffer();
   const statusMutation = useSetOfferStatus();
+  const roomsMutation = useUpdateCoupon();
   const { data: couponsData, isPending: isCouponsLoading } = useCoupons({ page: 1, limit: 100 });
   const coupons = [...(couponsData?.items ?? [])].sort((a, b) => {
     const rank = (s: string) => (s === "ACTIVE" ? 0 : 1);
@@ -102,27 +137,166 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
     `${c.code} — ${c.discountType === "PERCENTAGE" ? `${c.discountValue}%` : `₹${c.discountValue / 100}`} off${c.status === "ACTIVE" ? "" : ` · ${c.status}`}`;
   const couponMissing =
     couponId !== "" && !coupons.some((c) => c.id === couponId);
+  const selectedCoupon = coupons.find((c) => c.id === couponId) ?? null;
+
+  // Room targeting lives on the linked coupon (server: coupon.applicableRoomTypeIds,
+  // empty = all rooms). Managed here so the offer section is the single place.
+  const { data: typesData } = useRoomTypes({ page: 1, limit: 100 });
+  const roomTypes = typesData?.items ?? [];
+  const { data: couponDetail } = useCoupon(couponId);
+  const detailForCoupon =
+    couponDetail && couponDetail.id === couponId ? couponDetail : null;
+  const sourceRooms =
+    detailForCoupon?.applicableRoomTypeIds ??
+    selectedCoupon?.applicableRoomTypeIds ??
+    [];
+  const sourceKey = `${couponId}|${detailForCoupon ? "d" : "l"}`;
+  const [roomIds, setRoomIds] = useState<string[]>([]);
+  const [roomsKey, setRoomsKey] = useState<string | null>(null);
+  if (roomsKey !== sourceKey && (couponId === "" || detailForCoupon || selectedCoupon)) {
+    setRoomsKey(sourceKey);
+    setRoomIds([...sourceRooms]);
+  }
+  const roomsChanged =
+    JSON.stringify([...roomIds].sort()) !== JSON.stringify([...sourceRooms].sort());
+
+  function toggleRoom(id: string) {
+    setRoomIds((prev) => (prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]));
+  }
+
+  // One room type → one offer. Rooms already claimed by another coupon's
+  // offer must be confirmed before this save steals them (override).
+  const { data: offersData } = useOffers({ page: 1, limit: 100 });
+  const [overridePlan, setOverridePlan] = useState<OverridePlan | null>(null);
+  const [surgeryPending, setSurgeryPending] = useState(false);
+
+  function findConflicts(targetCouponId: string, claimedRoomIds: string[]): RoomConflict[] {
+    const allRoomIds = roomTypes.map((r) => r.id);
+    const selected = claimedRoomIds.length > 0 ? claimedRoomIds : allRoomIds;
+    if (selected.length === 0) return [];
+    const roomName = new Map(roomTypes.map((r) => [r.id, r.name]));
+    const offers = offersData?.items ?? [];
+    return coupons
+      .filter((c) => c.id !== targetCouponId)
+      .flatMap((c) => {
+        const scope = c.applicableRoomTypeIds.length > 0 ? c.applicableRoomTypeIds : allRoomIds;
+        const overlap = scope.filter((rid) => selected.includes(rid));
+        if (overlap.length === 0) return [];
+        const linked = offers.filter(
+          (o) =>
+            o.couponId === c.id &&
+            o.status !== "ARCHIVED" &&
+            (mode === "create" || o.id !== id),
+        );
+        if (linked.length === 0) return [];
+        return overlap.flatMap((rid) =>
+          linked.map((o) => ({
+            roomId: rid,
+            roomName: roomName.get(rid) ?? `…${rid.slice(-6)}`,
+            oldCouponId: c.id,
+            oldCouponCode: c.code,
+            offerId: o.id,
+            offerTitle: o.title,
+            offerStatus: o.status,
+          })),
+        );
+      });
+  }
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    mutate(
-      {
-        ...(mode === "edit" ? { id } : {}),
-        payload: {
-          ...(mode === "edit" && initial ? { version: initial.version } : {}),
-          title: title.trim(),
-          slug: slug.trim(),
-          description,
-          validFrom: validFrom ? new Date(`${validFrom}T00:00:00Z`).toISOString() : null,
-          validUntil: validUntil ? new Date(`${validUntil}T00:00:00Z`).toISOString() : null,
-          ctaLabel: ctaLabel.trim() || null,
-          ctaUrl: ctaUrl.trim() || null,
-          couponId: couponId.trim() || null,
-          imageMediaId,
+    const target = couponId.trim();
+    // No coupon → offer never appears on room pages, so nothing to clash.
+    if (!target) {
+      persistSave(null);
+      return;
+    }
+    if (!offersData || roomTypes.length === 0) {
+      toast.error("Lists still loading — wait a moment and retry");
+      return;
+    }
+    const conflicts = findConflicts(target, roomIds);
+    if (conflicts.length === 0) {
+      persistSave(null);
+      return;
+    }
+    setOverridePlan({
+      targetCoupon: target,
+      effectiveRooms: roomIds.length > 0 ? [...roomIds] : roomTypes.map((r) => r.id),
+      conflicts,
+      oldCouponIds: [...new Set(conflicts.map((c) => c.oldCouponId))],
+    });
+  }
+
+  /** Strip overridden rooms from old coupons (unlinking offers that would
+   * otherwise flip to global), then save this offer + its own room list. */
+  async function persistSave(plan: OverridePlan | null) {
+    setSurgeryPending(true);
+    try {
+      if (plan) {
+        for (const oldId of plan.oldCouponIds) {
+          const old = coupons.find((c) => c.id === oldId);
+          if (!old) continue;
+          const base =
+            old.applicableRoomTypeIds.length > 0
+              ? old.applicableRoomTypeIds
+              : roomTypes.map((r) => r.id);
+          const kept = base.filter((rid) => !plan.effectiveRooms.includes(rid));
+          if (kept.length > 0) {
+            await updateCoupon(oldId, { applicableRoomTypeIds: kept });
+          } else {
+            // Old coupon was scoped only to overridden rooms — empty means
+            // ALL rooms, so unlink its offers instead of flipping it global.
+            const linkedIds = [
+              ...new Set(
+                plan.conflicts.filter((c) => c.oldCouponId === oldId).map((c) => c.offerId),
+              ),
+            ];
+            for (const oid of linkedIds) {
+              const o = offersData?.items.find((x) => x.id === oid);
+              if (!o) continue;
+              await updateOffer(oid, { version: o.version, couponId: null });
+            }
+          }
+        }
+        await queryClient.invalidateQueries({ queryKey: couponKeys.all });
+        await queryClient.invalidateQueries({ queryKey: cmsKeys.all });
+        toast.success("Old offer removed from overridden rooms");
+      }
+      mutate(
+        {
+          ...(mode === "edit" ? { id } : {}),
+          payload: {
+            ...(mode === "edit" && initial ? { version: initial.version } : {}),
+            title: title.trim(),
+            slug: slug.trim(),
+            description,
+            validFrom: validFrom ? new Date(`${validFrom}T00:00:00Z`).toISOString() : null,
+            validUntil: validUntil ? new Date(`${validUntil}T00:00:00Z`).toISOString() : null,
+            ctaLabel: ctaLabel.trim() || null,
+            ctaUrl: ctaUrl.trim() || null,
+            couponId: couponId.trim() || null,
+            imageMediaId,
+          },
         },
-      },
-      { onSuccess: () => navigate("/cms/offers") },
-    );
+        {
+          onSuccess: () => {
+            if (couponId.trim() && roomsChanged) {
+              roomsMutation.mutate(
+                { id: couponId.trim(), payload: { applicableRoomTypeIds: roomIds } },
+                { onSuccess: () => navigate("/cms/offers") },
+              );
+            } else {
+              navigate("/cms/offers");
+            }
+          },
+          onSettled: () => setSurgeryPending(false),
+        },
+      );
+    } catch (err) {
+      setSurgeryPending(false);
+      toast.error(err instanceof Error ? err.message : getApiErrorMessage(err));
+    }
   }
 
   return (
@@ -217,13 +391,96 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
                 </Select>
               </div>
               <div className="space-y-2 sm:col-span-2">
+                <Label>Applies to room types</Label>
+                {couponId === "" ? (
+                  <p className="text-sm text-muted-foreground">
+                    Link a coupon above to choose rooms — an offer without a
+                    coupon never appears on room pages.
+                  </p>
+                ) : roomTypes.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Loading room types…</p>
+                ) : (
+                  <>
+                    <div className="flex flex-wrap gap-2">
+                      {roomTypes.map((rt) => {
+                        const on = roomIds.includes(rt.id);
+                        return (
+                          <button
+                            key={rt.id}
+                            type="button"
+                            aria-pressed={on}
+                            onClick={() => toggleRoom(rt.id)}
+                            className={`rounded-full border px-3 py-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                              on
+                                ? "border-brand bg-brand/10 font-medium"
+                                : "border-input text-muted-foreground hover:border-brand"
+                            }`}
+                          >
+                            {rt.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {roomIds.length === 0
+                        ? `All rooms — the ${selectedCoupon?.code ?? "coupon"} badge shows on every cottage page.`
+                        : `Only on ${roomIds.length} selected room type${roomIds.length === 1 ? "" : "s"}. Deselect all for every cottage.`}{" "}
+                      Saved on coupon {selectedCoupon?.code ?? "…"}.
+                    </p>
+                  </>
+                )}
+              </div>
+              <div className="space-y-2 sm:col-span-2">
                 <ImageField label="Offer image" mediaId={imageMediaId} onChange={setImageMediaId} />
               </div>
             </div>
           </CardContent>
         </Card>
-        <SubmitBar label={mode === "create" ? "Create offer" : "Save changes"} pending={isPending} />
+        <SubmitBar label={mode === "create" ? "Create offer" : "Save changes"} pending={isPending || roomsMutation.isPending || surgeryPending} />
       </form>
+      <AlertDialog
+        open={overridePlan !== null}
+        onOpenChange={(open) => {
+          if (!open && !surgeryPending && !isPending) setOverridePlan(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Room already has an offer — override?</AlertDialogTitle>
+            <AlertDialogDescription>
+              These rooms already show another offer. Overriding removes the old
+              offer from them and applies this one instead.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <ul className="max-h-48 space-y-1.5 overflow-y-auto text-sm">
+            {(overridePlan?.conflicts ?? []).map((c, i) => (
+              <li
+                key={`${c.roomId}-${c.offerId}-${i}`}
+                className="rounded-lg border border-border px-3 py-2"
+              >
+                <span className="font-medium">{c.roomName}</span>
+                <span className="text-muted-foreground">
+                  {" "}— “{c.offerTitle}” ({c.oldCouponCode}
+                  {c.offerStatus !== "PUBLISHED" ? ` · ${c.offerStatus}` : ""})
+                </span>
+              </li>
+            ))}
+          </ul>
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <AlertDialogCancel disabled={surgeryPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={surgeryPending}
+              onClick={() => {
+                const plan = overridePlan;
+                setOverridePlan(null);
+                void persistSave(plan);
+              }}
+            >
+              {surgeryPending ? "Overriding…" : "Yes, override"}
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
