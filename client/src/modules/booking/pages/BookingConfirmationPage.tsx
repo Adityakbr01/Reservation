@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Loader } from "lucide-react";
+import { BadgeCheck, Loader, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatMoney } from "@/lib/money";
@@ -70,29 +70,72 @@ export function BookingConfirmationPage() {
   if (booking.status === "CONFIRMED") {
     return (
       <div className="mx-auto w-full max-w-md space-y-4 py-8">
-        <Card className="shadow-card">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Booking confirmed</CardTitle>
-            <CardDescription>Show this reference at check-in</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-center">
-            <p className="font-display text-3xl font-light tracking-tight">{booking.bookingNumber}</p>
-            <dl className="space-y-1 text-left text-sm">
-              <div className="flex justify-between">
+        <div className="ticket-print relative overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+          {/* Header */}
+          <div className="space-y-2 p-6 pb-5 text-center">
+            <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-brand/10">
+              <BadgeCheck className="size-7 text-brand" aria-hidden />
+            </span>
+            <h1 className="font-display text-3xl font-light tracking-tight">
+              Booking confirmed
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Show this reference at check-in
+            </p>
+            <p className="pt-1 font-display text-3xl font-light tracking-tight">
+              {booking.bookingNumber}
+            </p>
+          </div>
+
+          {/* Perforation with side notches */}
+          <div className="relative px-6" aria-hidden="true">
+            <div className="border-t-2 border-dashed border-border" />
+            <span className="absolute -left-4 top-1/2 size-8 -translate-y-1/2 rounded-full border border-border bg-background" />
+            <span className="absolute -right-4 top-1/2 size-8 -translate-y-1/2 rounded-full border border-border bg-background" />
+          </div>
+
+          {/* Details stub */}
+          <div className="space-y-3 p-6">
+            <h2 className="text-sm font-semibold">Booking details</h2>
+            <dl className="space-y-2 text-sm">
+              <div className="flex items-center justify-between gap-4">
                 <dt className="text-muted-foreground">Check-in</dt>
-                <dd>{formatDate(booking.checkIn)}</dd>
+                <dd className="font-medium">{formatDate(booking.checkIn)}</dd>
               </div>
-              <div className="flex justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <dt className="text-muted-foreground">Check-out</dt>
-                <dd>{formatDate(booking.checkOut)}</dd>
+                <dd className="font-medium">{formatDate(booking.checkOut)}</dd>
               </div>
-              <div className="flex justify-between border-t border-border pt-2 font-semibold">
-                <dt>Total paid</dt>
-                <dd>{formatMoney(booking.pricing.total, booking.pricing.currency)}</dd>
+              <div className="flex items-center justify-between gap-4">
+                <dt className="text-muted-foreground">Payment status</dt>
+                <dd>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2.5 py-0.5 text-xs font-semibold text-success">
+                    <span className="size-1.5 rounded-full bg-success" aria-hidden />
+                    {booking.paymentStatus || "Paid"}
+                  </span>
+                </dd>
+              </div>
+              <div className="flex items-center justify-between gap-4 border-t border-border pt-3">
+                <dt className="font-semibold">Total paid</dt>
+                <dd className="font-display text-2xl font-light">
+                  {formatMoney(booking.pricing.total, booking.pricing.currency)}
+                </dd>
               </div>
             </dl>
+          </div>
+
+          {/* Actions */}
+          <div className="no-print space-y-2 px-6 pb-6">
             <Button asChild variant="outline" className="w-full rounded-full">
               <Link to="/">Book another stay</Link>
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full rounded-full text-muted-foreground"
+              onClick={() => window.print()}
+            >
+              <Printer className="size-4" aria-hidden />
+              Print receipt
             </Button>
             {confirmingCancel ? (
               <div className="flex gap-2">
@@ -121,8 +164,8 @@ export function BookingConfirmationPage() {
                 Cancel this booking
               </Button>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }

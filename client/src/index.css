@@ -234,6 +234,27 @@
   display: none;
 }
 
+/* Booking ticket receipt printing — only the ticket prints, not site chrome. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .ticket-print,
+  .ticket-print * {
+    visibility: visible;
+  }
+  .ticket-print {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    box-shadow: none;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+
 /* Lenis smooth scroll: let the library own the wheel, keep native anchors instant. */
 html.lenis,
 html.lenis body {
