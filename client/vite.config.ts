@@ -46,34 +46,6 @@ export default defineConfig({
     },
   },
   build: {
-    chunkSizeWarningLimit: 600,
-    rollupOptions: {
-      output: {
-        codeSplitting: {
-          groups: [
-            {
-              name: 'react-vendor',
-              test: /node_modules[\\/](react|react-dom|react-router-dom|scheduler)[\\/]/,
-            },
-            {
-              name: 'query-vendor',
-              test: /node_modules[\\/]((@tanstack)[\\/]react-query|axios|zustand)[\\/]/,
-            },
-            {
-              name: 'stripe-vendor',
-              test: /node_modules[\\/]((@stripe)[\\/][^\\/]+)[\\/]/,
-            },
-            {
-              name: 'date-vendor',
-              test: /node_modules[\\/](date-fns|react-day-picker)[\\/]/,
-            },
-            {
-              name: 'ui-vendor',
-              test: /node_modules[\\/]((lucide-react|class-variance-authority|clsx|tailwind-merge|react-hot-toast)|(@radix-ui)[\\/][^\\/]+)[\\/]/,
-            },
-          ],
-        },
-      },
-    },
+    chunkSizeWarningLimit: 1000,
   },
 })

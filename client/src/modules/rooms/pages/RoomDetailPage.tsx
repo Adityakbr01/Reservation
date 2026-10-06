@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -9,6 +9,8 @@ import {
   BedDouble,
   Check,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Dog,
   Gift,
   Info,
@@ -78,6 +80,10 @@ export function RoomDetailPage() {
   );
   const [picked, setPicked] = useState<string[]>([]);
   const [galleryIndex, setGalleryIndex] = useState(0);
+  const railRef = useRef<HTMLDivElement>(null);
+  const thumbRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const touchStartX = useRef<number | null>(null);
+  const [galleryPaused, setGalleryPaused] = useState(false);
   const gallery = useMemo(() => {
     const media = (
       roomType as unknown as {
@@ -107,6 +113,31 @@ export function RoomDetailPage() {
           gallery[Math.min(galleryIndex, gallery.length - 1)]?.mediaId ?? "",
         )
       : undefined;
+
+  // Reset to first slide when switching rooms.
+  useEffect(() => {
+    setGalleryIndex(0);
+  }, [slug]);
+
+  // Infinite autoplay — loops 0 → last → 0. Pauses on hover/focus and on video.
+  useEffect(() => {
+    if (gallery.length <= 1 || galleryPaused) return;
+    if (gallery[Math.min(galleryIndex, gallery.length - 1)]?.kind === "video")
+      return;
+    const t = setInterval(() => {
+      setGalleryIndex((i) => (i + 1) % gallery.length);
+    }, 3500);
+    return () => clearInterval(t);
+  }, [gallery, galleryIndex, galleryPaused]);
+
+  // Keep the active thumbnail in view as autoplay advances.
+  useEffect(() => {
+    thumbRefs.current[galleryIndex]?.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+  }, [galleryIndex]);
   const { data: amenities } = useQuery({
     queryKey: ["amenities-public"],
     queryFn: fetchAmenities,
@@ -243,7 +274,28 @@ export function RoomDetailPage() {
       )}
 
       <div className="overflow-hidden rounded-xl border border-border">
-        <div className="aspect-[21/9] w-full bg-muted">
+        <div
+          className="group relative aspect-[21/9] w-full bg-muted"
+          onMouseEnter={() => setGalleryPaused(true)}
+          onMouseLeave={() => setGalleryPaused(false)}
+          onFocus={() => setGalleryPaused(true)}
+          onBlur={() => setGalleryPaused(false)}
+          onTouchStart={(e) => {
+            touchStartX.current = e.touches[0]?.clientX ?? null;
+          }}
+          onTouchEnd={(e) => {
+            if (touchStartX.current == null || gallery.length <= 1) return;
+            const dx =
+              (e.changedTouches[0]?.clientX ?? 0) - touchStartX.current;
+            touchStartX.current = null;
+            if (Math.abs(dx) < 40) return;
+            setGalleryIndex((i) =>
+              dx < 0
+                ? (i + 1) % gallery.length
+                : (i - 1 + gallery.length) % gallery.length,
+            );
+          }}
+        >
           {gallery[galleryIndex]?.kind === "video" && coverPhoto?.url ? (
             <video
               src={coverPhoto.url}
@@ -258,38 +310,93 @@ export function RoomDetailPage() {
               alt={coverPhoto?.alt}
             />
           )}
+          {gallery.length > 1 && (
+            <>
+              <button
+                type="button"
+                aria-label="Previous image"
+                onClick={() =>
+                  setGalleryIndex(
+                    (galleryIndex - 1 + gallery.length) % gallery.length,
+                  )
+                }
+                className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-black/70 focus-visible:opacity-100 focus-visible:outline-none group-hover:opacity-100"
+              >
+                <ChevronLeft className="size-5" aria-hidden />
+              </button>
+              <button
+                type="button"
+                aria-label="Next image"
+                onClick={() =>
+                  setGalleryIndex((galleryIndex + 1) % gallery.length)
+                }
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-black/70 focus-visible:opacity-100 focus-visible:outline-none group-hover:opacity-100"
+              >
+                <ChevronRight className="size-5" aria-hidden />
+              </button>
+            </>
+          )}
         </div>
         {gallery.length > 1 && (
-          <div className="flex gap-2 overflow-x-auto p-2">
-            {gallery.map((g, i) => {
-              const p = photoById.get(g.mediaId);
-              return (
-                <button
-                  key={`${g.mediaId}-${i}`}
-                  type="button"
-                  onClick={() => setGalleryIndex(i)}
-                  className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-lg border ${i === galleryIndex ? "border-brand ring-1 ring-brand" : "border-border"}`}
-                  aria-label={`Show media ${i + 1}`}
-                >
-                  {g.kind === "video" ? (
-                    <span className="flex h-full w-full items-center justify-center bg-black text-xs text-white">
-                      ▶ Video
-                    </span>
-                  ) : p?.url ? (
-                    <img
-                      src={p.url}
-                      alt={g.altText ?? ""}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <span className="flex h-full w-full items-center justify-center bg-muted text-xs">
-                      {g.mediaId.slice(-6)}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+          <div className="relative">
+            <div
+              ref={railRef}
+              className="no-scrollbar flex gap-2 overflow-x-auto scroll-smooth p-2"
+            >
+              {gallery.map((g, i) => {
+                const p = photoById.get(g.mediaId);
+                return (
+                  <button
+                    key={`${g.mediaId}-${i}`}
+                    ref={(el) => {
+                      thumbRefs.current[i] = el;
+                    }}
+                    type="button"
+                    onClick={() => setGalleryIndex(i)}
+                    aria-label={`Show media ${i + 1}`}
+                    aria-current={i === galleryIndex}
+                    className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-lg border ${i === galleryIndex ? "border-brand ring-1 ring-brand" : "border-border"}`}
+                  >
+                    {g.kind === "video" ? (
+                      <span className="flex h-full w-full items-center justify-center bg-black text-xs text-white">
+                        ▶ Video
+                      </span>
+                    ) : p?.url ? (
+                      <img
+                        src={p.url}
+                        alt={g.altText ?? ""}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span className="flex h-full w-full items-center justify-center bg-muted text-xs">
+                        {g.mediaId.slice(-6)}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              aria-label="Scroll thumbnails left"
+              onClick={() =>
+                railRef.current?.scrollBy({ left: -320, behavior: "smooth" })
+              }
+              className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-1 shadow-card hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <ChevronLeft className="size-4" aria-hidden />
+            </button>
+            <button
+              type="button"
+              aria-label="Scroll thumbnails right"
+              onClick={() =>
+                railRef.current?.scrollBy({ left: 320, behavior: "smooth" })
+              }
+              className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-1 shadow-card hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <ChevronRight className="size-4" aria-hidden />
+            </button>
           </div>
         )}
       </div>

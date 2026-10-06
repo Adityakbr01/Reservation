@@ -225,6 +225,15 @@
   }
 }
 
+/* Scrollable without a visible scrollbar (gallery thumbnail rail). */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Lenis smooth scroll: let the library own the wheel, keep native anchors instant. */
 html.lenis,
 html.lenis body {
