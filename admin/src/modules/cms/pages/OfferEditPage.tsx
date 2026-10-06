@@ -5,10 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { StatusButtons } from "../components/StatusButtons";
 import { ImageField } from "@/components/common/ImageField";
 import { PageFields, SubmitBar } from "../components/PageForm";
 import { useOffer, useSaveOffer, useSetOfferStatus } from "../hooks/use-cms";
+import { useCoupons } from "@/modules/coupons/hooks/use-coupons";
 import type { ContentStatus } from "../types/cms.types";
 
 function toDateInput(value: string | null): string {
@@ -85,6 +93,15 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
   const [imageMediaId, setImageMediaId] = useState<string | null>(initial?.imageMediaId ?? null);
   const { mutate, isPending } = useSaveOffer();
   const statusMutation = useSetOfferStatus();
+  const { data: couponsData, isPending: isCouponsLoading } = useCoupons({ page: 1, limit: 100 });
+  const coupons = [...(couponsData?.items ?? [])].sort((a, b) => {
+    const rank = (s: string) => (s === "ACTIVE" ? 0 : 1);
+    return rank(a.status) - rank(b.status) || a.code.localeCompare(b.code);
+  });
+  const couponLabel = (c: { code: string; discountType: string; discountValue: number; status: string }) =>
+    `${c.code} — ${c.discountType === "PERCENTAGE" ? `${c.discountValue}%` : `₹${c.discountValue / 100}`} off${c.status === "ACTIVE" ? "" : ` · ${c.status}`}`;
+  const couponMissing =
+    couponId !== "" && !coupons.some((c) => c.id === couponId);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -173,13 +190,31 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
                 <Input id="offer-url" value={ctaUrl} onChange={(e) => setCtaUrl(e.target.value)} />
               </div>
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="offer-coupon">Linked coupon ID (optional — discount only via coupon)</Label>
-                <Input
-                  id="offer-coupon"
-                  value={couponId}
-                  onChange={(e) => setCouponId(e.target.value)}
-                  placeholder="Mongo ObjectId of an ACTIVE coupon"
-                />
+                <Label htmlFor="offer-coupon">Linked coupon (optional — discount only via coupon)</Label>
+                <Select
+                  value={couponId === "" ? "none" : couponId}
+                  onValueChange={(value) => setCouponId(value === "none" ? "" : value)}
+                  disabled={isCouponsLoading}
+                >
+                  <SelectTrigger id="offer-coupon">
+                    <SelectValue
+                      placeholder={isCouponsLoading ? "Loading coupons…" : "Select a coupon"}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No coupon</SelectItem>
+                    {coupons.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {couponLabel(c)}
+                      </SelectItem>
+                    ))}
+                    {couponMissing && (
+                      <SelectItem value={couponId}>
+                        Currently linked: …{couponId.slice(-6)} (not in list)
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <ImageField label="Offer image" mediaId={imageMediaId} onChange={setImageMediaId} />
