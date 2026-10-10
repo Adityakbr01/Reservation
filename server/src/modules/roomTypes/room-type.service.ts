@@ -13,7 +13,7 @@ import {
 } from "./room-type.repository";
 import type { CreateRoomTypeInput, ListRoomTypesQuery, UpdateRoomTypeInput } from "./room-type.schema";
 import type { PublicRoomTypesQuery } from "./room-type.schema";
-import type { RoomType } from "./room-type.types";
+import type { NearbyAttraction, RoomType } from "./room-type.types";
 
 function resolveSlug(name: string, slug?: string): string {
   const value = (slug ?? slugify(name)).trim();
@@ -24,18 +24,41 @@ function resolveSlug(name: string, slug?: string): string {
 }
 
 /** Rich HTML fields (CKEditor) are sanitized like CMS content before storage. */
-function sanitizeHtmlFields<T extends { layoutHtml?: string | null; surroundingsHtml?: string | null }>(
-  input: T,
-): T {
-  return {
-    ...input,
-    ...(input.layoutHtml !== undefined
-      ? { layoutHtml: input.layoutHtml ? sanitizeRichText(input.layoutHtml) || null : null }
-      : {}),
-    ...(input.surroundingsHtml !== undefined
-      ? { surroundingsHtml: input.surroundingsHtml ? sanitizeRichText(input.surroundingsHtml) || null : null }
-      : {}),
-  };
+function sanitizeHtmlFields<T extends Record<string, unknown>>(input: T): T {
+  const out: Record<string, unknown> = { ...input };
+  const html = (v: unknown): string | null =>
+    typeof v === "string" && v.trim() ? sanitizeRichText(v) || null : null;
+  if ("propertyDetailsHtml" in input) out.propertyDetailsHtml = html(input.propertyDetailsHtml);
+  if ("layoutHtml" in input) out.layoutHtml = html(input.layoutHtml);
+  if ("surroundingsHtml" in input) out.surroundingsHtml = html(input.surroundingsHtml);
+  if ("welcomeHamperHtml" in input) out.welcomeHamperHtml = html(input.welcomeHamperHtml);
+  if ("nearbyAttractions" in input) {
+    const list = Array.isArray(input.nearbyAttractions) ? input.nearbyAttractions : [];
+    out.nearbyAttractions = (
+      list as Array<{
+        name: string;
+        description?: string | null;
+        imageMediaId?: string | null;
+        url?: string | null;
+      }>
+    ).map(
+      (a): NearbyAttraction => ({
+        name: a.name.trim(),
+        description: a.description?.trim() || null,
+        imageMediaId: a.imageMediaId ?? null,
+        url: sanitizeAttractionUrl(a.url),
+      }),
+    );
+  }
+  return out as T;
+}
+
+/** Attraction links: https/http or site-relative only; anything else is dropped. */
+function sanitizeAttractionUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const value = url.trim();
+  if (/^(https?:\/\/|\/[^/])/.test(value)) return value;
+  return null;
 }
 
 export async function createRoomTypeRecord(input: CreateRoomTypeInput): Promise<RoomType> {

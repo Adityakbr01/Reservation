@@ -32,6 +32,13 @@ export interface RoomTypeSeo {
   noIndex: boolean;
 }
 
+export interface NearbyAttraction {
+  name: string;
+  description: string | null;
+  imageMediaId: string | null;
+  url: string | null;
+}
+
 export interface RoomType {
   id: string;
   propertyId: string;
@@ -48,6 +55,7 @@ export interface RoomType {
   /** Ordered gallery incl. video. Preferred over legacy images when non-empty. */
   media: RoomTypeMedia[];
   // Detail-page content (all nullable for backward compat).
+  propertyDetailsHtml: string | null;
   layoutHtml: string | null;
   floorplanMediaIds: string[];
   locationText: string | null;
@@ -58,6 +66,8 @@ export interface RoomType {
   welcomeHamperIncluded: boolean;
   welcomeHamperDescription: string | null;
   welcomeHamperImageMediaId: string | null;
+  welcomeHamperHtml: string | null;
+  nearbyAttractions: NearbyAttraction[];
   amenityIds: string[];
   bedrooms: number | null;
   bathrooms: number | null;

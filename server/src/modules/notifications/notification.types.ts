@@ -17,6 +17,7 @@ export const NOTIFICATION_TYPES = [
   "ADMIN_NEW_BOOKING",
   "ADMIN_PAYMENT_FAILURE",
   "ADMIN_CANCELLATION",
+  "ADMIN_SOLD_OUT",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -87,4 +88,6 @@ export const notificationKeys = {
     idempotencyKeyFor("ADMIN_PAYMENT_FAILURE", paymentIntentId, eventId),
   adminCancellation: (bookingId: string) =>
     idempotencyKeyFor("ADMIN_CANCELLATION", bookingId),
+  soldOut: (checkIn: Date, checkOut: Date) =>
+    idempotencyKeyFor("ADMIN_SOLD_OUT", toDateKey(checkIn), toDateKey(checkOut)),
 };

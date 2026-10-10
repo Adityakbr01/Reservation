@@ -4,7 +4,7 @@ import { requireUser } from "../../middleware/auth";
 import type { RequestWithValidatedQuery } from "../../middleware/validate";
 import { recordAudit } from "../audit/audit.service";
 import { ReviewModel, listReviews, reviewSummary, toReview } from "./review.model";
-import { createCustomerReview, listReviewRecords } from "./review.service";
+import { createCustomerReview, checkReviewEligibility, listReviewRecords } from "./review.service";
 import type { CreateReviewInput } from "./review.schema";
 
 export const publicListReviewsHandler = asyncHandler(async (req: Request, res: Response) => {
@@ -24,6 +24,13 @@ export const createReviewHandler = asyncHandler(async (req: Request, res: Respon
   const result = await createCustomerReview(user.id, fullName, req.body as CreateReviewInput);
   await recordAudit(req, "REVIEW_CREATED", "review", { entityId: result.id });
   res.status(201).json({ success: true, data: result });
+});
+
+export const getReviewEligibilityHandler = asyncHandler(async (req: Request, res: Response) => {
+  const user = requireUser(req);
+  const query = (req as Request & RequestWithValidatedQuery).validatedQuery as { roomTypeId: string };
+  const eligible = await checkReviewEligibility(user.id, query.roomTypeId);
+  res.status(200).json({ success: true, data: { eligible } });
 });
 
 export const adminListReviewsHandler = asyncHandler(async (req: Request, res: Response) => {

@@ -21,8 +21,14 @@ const mediaItemSchema = z.object({
   sortOrder: z.number().int().min(0).default(0),
 });
 
-const seoSchema = z.object({
-  title: z.string().trim().max(160).nullable().default(null),
+const nearbyAttractionSchema = z.object({
+  name: z.string().trim().min(1).max(120),
+  description: z.string().trim().max(300).nullable().optional(),
+  imageMediaId: objectIdSchema.nullable().optional(),
+  url: z.string().trim().max(500).nullable().optional(),
+});
+
+const seoSchema = z.object({  title: z.string().trim().max(160).nullable().default(null),
   description: z.string().trim().max(320).nullable().default(null),
   canonicalUrl: z.string().trim().max(300).nullable().default(null),
   ogTitle: z.string().trim().max(160).nullable().default(null),
@@ -52,6 +58,7 @@ export const createRoomTypeSchema = occupancySchema.extend({
   amenities: z.array(z.string().trim().min(1).max(60)).max(50).optional(),
   images: z.array(imageSchema).max(30).optional(),
   media: z.array(mediaItemSchema).max(30).optional(),
+  propertyDetailsHtml: z.string().max(20000).nullable().optional(),
   layoutHtml: z.string().max(20000).nullable().optional(),
   floorplanMediaIds: z.array(objectIdSchema).max(10).optional(),
   locationText: z.string().max(5000).nullable().optional(),
@@ -62,6 +69,8 @@ export const createRoomTypeSchema = occupancySchema.extend({
   welcomeHamperIncluded: z.boolean().optional(),
   welcomeHamperDescription: z.string().max(5000).nullable().optional(),
   welcomeHamperImageMediaId: objectIdSchema.nullable().optional(),
+  welcomeHamperHtml: z.string().max(30000).nullable().optional(),
+  nearbyAttractions: z.array(nearbyAttractionSchema).max(8).nullable().optional(),
   amenityIds: z.array(objectIdSchema).max(100).optional(),
   bedrooms: z.number().int().min(0).max(20).nullable().optional(),
   bathrooms: z.number().int().min(0).max(20).nullable().optional(),

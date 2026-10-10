@@ -6,20 +6,34 @@ import {
   ClassicEditor,
   Essentials,
   Heading,
+  Image,
+  ImageCaption,
+  ImageStyle,
+  ImageToolbar,
+  ImageUpload,
   Italic,
   Link,
+  LinkImage,
   List,
   Paragraph,
   Underline,
 } from "ckeditor5";
 import "ckeditor5/ckeditor5.css";
 import { Label } from "@/components/ui/label";
+import {
+  MediaUploadAdapterPlugin,
+  setMediaUploadFolder,
+} from "./ckeditor-upload-adapter";
 
 interface CkEditorFieldProps {
   label: string;
   value: string;
   onChange: (html: string) => void;
   placeholder?: string;
+  /** Image button (uploads to the Media library) + caption/alt toolbar. */
+  enableImages?: boolean;
+  /** Media library folder for uploads from this field. */
+  uploadFolder?: string;
 }
 
 /**
@@ -27,9 +41,17 @@ interface CkEditorFieldProps {
  * descriptions, anywhere admins need formatted body copy).
  * Output HTML is sanitized again on the server before storage.
  */
-export function CkEditorField({ label, value, onChange, placeholder }: CkEditorFieldProps) {
+export function CkEditorField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  enableImages = false,
+  uploadFolder = "ckeditor",
+}: CkEditorFieldProps) {
   const current = useRef(value);
   current.current = value;
+  if (enableImages) setMediaUploadFolder(uploadFolder);
 
   return (
     <div className="space-y-2">
@@ -41,7 +63,28 @@ export function CkEditorField({ label, value, onChange, placeholder }: CkEditorF
           config={{
             licenseKey: "GPL",
             placeholder: placeholder ?? "Write something…",
-            plugins: [Essentials, Paragraph, Heading, Bold, Italic, Underline, Link, List, BlockQuote],
+            plugins: [
+              Essentials,
+              Paragraph,
+              Heading,
+              Bold,
+              Italic,
+              Underline,
+              Link,
+              List,
+              BlockQuote,
+              ...(enableImages
+                ? [
+                    Image,
+                    ImageToolbar,
+                    ImageCaption,
+                    ImageStyle,
+                    ImageUpload,
+                    LinkImage,
+                    MediaUploadAdapterPlugin,
+                  ]
+                : []),
+            ],
             toolbar: [
               "heading",
               "|",
@@ -49,6 +92,7 @@ export function CkEditorField({ label, value, onChange, placeholder }: CkEditorF
               "italic",
               "underline",
               "link",
+              ...(enableImages ? ["uploadImage"] : []),
               "|",
               "bulletedList",
               "numberedList",
@@ -57,6 +101,17 @@ export function CkEditorField({ label, value, onChange, placeholder }: CkEditorF
               "undo",
               "redo",
             ],
+            ...(enableImages
+              ? {
+                  image: {
+                    toolbar: [
+                      "imageTextAlternative",
+                      "toggleImageCaption",
+                      "linkImage",
+                    ],
+                  },
+                }
+              : {}),
           }}
           onChange={(_event, editor) => {
             const html = editor.getData();
@@ -65,7 +120,9 @@ export function CkEditorField({ label, value, onChange, placeholder }: CkEditorF
         />
       </div>
       <p className="text-xs text-muted-foreground">
-        Formatted text is saved as HTML and sanitized on the server.
+        {enableImages
+          ? "Headings, lists, links and images supported. Images upload to the Media library. Saved as HTML and sanitized on the server."
+          : "Formatted text is saved as HTML and sanitized on the server."}
       </p>
     </div>
   );

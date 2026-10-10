@@ -19,7 +19,11 @@ export interface SiteSettings {
   checkOutTime: string | null;
   /** Hours before check-in the reminder sweep fires (docs 06 §41). */
   reminderHoursBefore: number;
-  social: { facebook: string | null; instagram: string | null; x: string | null };
+  social: {
+    facebook: string | null;
+    instagram: string | null;
+    x: string | null;
+  };
   defaultSeo: {
     title: string | null;
     description: string | null;
@@ -43,8 +47,16 @@ export interface SiteSettingsDocument extends mongoose.Document {
   checkInTime: string | null;
   checkOutTime: string | null;
   reminderHoursBefore: number;
-  social: { facebook: string | null; instagram: string | null; x: string | null };
-  defaultSeo: { title: string | null; description: string | null; ogImageMediaId: mongoose.Types.ObjectId | null };
+  social: {
+    facebook: string | null;
+    instagram: string | null;
+    x: string | null;
+  };
+  defaultSeo: {
+    title: string | null;
+    description: string | null;
+    ogImageMediaId: mongoose.Types.ObjectId | null;
+  };
   whyBookWithUs: WhyBookItem[];
   updatedAt: Date;
 }
@@ -53,8 +65,16 @@ const settingsSchema = new mongoose.Schema<SiteSettingsDocument>(
   {
     key: { type: String, required: true, unique: true, default: "site" },
     propertyName: { type: String, default: "Reservation", maxlength: 120 },
-    logoMediaId: { type: mongoose.Schema.Types.ObjectId, ref: "Media", default: null },
-    faviconMediaId: { type: mongoose.Schema.Types.ObjectId, ref: "Media", default: null },
+    logoMediaId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Media",
+      default: null,
+    },
+    faviconMediaId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Media",
+      default: null,
+    },
     phone: { type: String, default: null, maxlength: 40 },
     supportEmail: { type: String, default: null, maxlength: 160 },
     address: { type: String, default: null, maxlength: 300 },
@@ -71,10 +91,19 @@ const settingsSchema = new mongoose.Schema<SiteSettingsDocument>(
     defaultSeo: {
       title: { type: String, default: null, maxlength: 160 },
       description: { type: String, default: null, maxlength: 300 },
-      ogImageMediaId: { type: mongoose.Schema.Types.ObjectId, ref: "Media", default: null },
+      ogImageMediaId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Media",
+        default: null,
+      },
     },
     whyBookWithUs: {
-      type: [{ title: { type: String, required: true, maxlength: 120 }, text: { type: String, default: null, maxlength: 5000 } }],
+      type: [
+        {
+          title: { type: String, required: true, maxlength: 120 },
+          text: { type: String, default: null, maxlength: 5000 },
+        },
+      ],
       default: [
         { title: "Local knowledge", text: null },
         { title: "Property", text: null },
@@ -110,9 +139,14 @@ export function toSiteSettings(doc: SiteSettingsDocument): SiteSettings {
     defaultSeo: {
       title: doc.defaultSeo?.title ?? null,
       description: doc.defaultSeo?.description ?? null,
-      ogImageMediaId: doc.defaultSeo?.ogImageMediaId ? doc.defaultSeo.ogImageMediaId.toString() : null,
+      ogImageMediaId: doc.defaultSeo?.ogImageMediaId
+        ? doc.defaultSeo.ogImageMediaId.toString()
+        : null,
     },
-    whyBookWithUs: (doc.whyBookWithUs ?? []).map((w) => ({ title: w.title, text: w.text ?? null })),
+    whyBookWithUs: (doc.whyBookWithUs ?? []).map((w) => ({
+      title: w.title,
+      text: w.text ?? null,
+    })),
     updatedAt: doc.updatedAt,
   };
 }
@@ -136,8 +170,16 @@ export async function updateSiteSettings(patch: {
   checkInTime?: string | null;
   checkOutTime?: string | null;
   reminderHoursBefore?: number;
-  social?: { facebook?: string | null; instagram?: string | null; x?: string | null };
-  defaultSeo?: { title?: string | null; description?: string | null; ogImageMediaId?: string | null };
+  social?: {
+    facebook?: string | null;
+    instagram?: string | null;
+    x?: string | null;
+  };
+  defaultSeo?: {
+    title?: string | null;
+    description?: string | null;
+    ogImageMediaId?: string | null;
+  };
   whyBookWithUs?: WhyBookItem[];
 }): Promise<SiteSettings> {
   // Why-book bodies are rich HTML from CKEditor — sanitize like CMS content.

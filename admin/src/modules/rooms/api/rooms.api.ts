@@ -29,3 +29,17 @@ export async function updateRoom(id: string, payload: UpdateRoomPayload): Promis
   const response = await apiClient.patch<ApiEnvelope<Room>>(`${BASE}/${id}`, payload);
   return unwrapResponse(response);
 }
+
+export interface RoomOccupancy {
+  roomId: string;
+  status: "FREE" | "OCCUPIED" | "BLOCKED" | "HELD";
+  bookingNumber: string | null;
+}
+
+/** Live per-room status for a date range (blocks, stays, payment holds). */
+export async function getRoomsOccupancy(checkIn: string, checkOut: string): Promise<RoomOccupancy[]> {
+  const response = await apiClient.get<ApiEnvelope<RoomOccupancy[]>>(`${BASE}/occupancy`, {
+    params: { checkIn, checkOut },
+  });
+  return unwrapResponse(response);
+}

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -22,9 +23,31 @@ import { StatusBadge } from "@/components/common/StatusBadge";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useRoomTypes } from "@/modules/room-types";
 import { useRooms } from "../hooks/use-rooms";
+import { useRoomsOccupancy } from "../hooks/use-rooms";
 import type { RoomStatus } from "../types/room.types";
 
 const STATUS_FILTERS = ["all", "ACTIVE", "INACTIVE", "MAINTENANCE"] as const;
+
+function toInputValue(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function defaultRange(): { checkIn: string; checkOut: string } {
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return { checkIn: toInputValue(today), checkOut: toInputValue(tomorrow) };
+}
+
+const OCCUPANCY_PILL: Record<string, string> = {
+  FREE: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200",
+  OCCUPIED: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-200",
+  BLOCKED: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200",
+  HELD: "bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200",
+};
 
 export function RoomsPage() {
   const [search, setSearch] = useState("");
@@ -52,6 +75,12 @@ export function RoomsPage() {
   const { data, isPending, isError, refetch } = useRooms(filters);
   const items = data?.items ?? [];
   const totalPages = data?.totalPages ?? 0;
+  const [range, setRange] = useState(defaultRange);
+  const occupancy = useRoomsOccupancy(range.checkIn, range.checkOut);
+  const occupancyByRoom = useMemo(
+    () => new Map((occupancy.data ?? []).map((o) => [o.roomId, o])),
+    [occupancy.data],
+  );
 
   return (
     <div className="space-y-6">
@@ -117,6 +146,33 @@ export function RoomsPage() {
         </Select>
       </div>
 
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="space-y-2">
+          <Label htmlFor="rooms-checkin">Occupancy from</Label>
+          <Input
+            id="rooms-checkin"
+            type="date"
+            value={range.checkIn}
+            onChange={(e) => setRange((r) => ({ ...r, checkIn: e.target.value }))}
+            className="sm:w-44"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="rooms-checkout">to</Label>
+          <Input
+            id="rooms-checkout"
+            type="date"
+            min={range.checkIn}
+            value={range.checkOut}
+            onChange={(e) => setRange((r) => ({ ...r, checkOut: e.target.value }))}
+            className="sm:w-44"
+          />
+        </div>
+        <p className="pb-2 text-xs text-muted-foreground">
+          Live occupancy for these dates — blocked, booked, on hold or free.
+        </p>
+      </div>
+
       {isPending ? (
         <div className="space-y-2" aria-busy="true" aria-label="Loading rooms">
           {[0, 1, 2].map((row) => (
@@ -148,11 +204,14 @@ export function RoomsPage() {
                 <TableHead>Room</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Occupancy</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((room) => (
+              {items.map((room) => {
+                const occ = occupancyByRoom.get(room.id);
+                return (
                 <TableRow key={room.id}>
                   <TableCell>
                     <div className="font-medium">{room.roomNumber}</div>
@@ -162,13 +221,28 @@ export function RoomsPage() {
                   <TableCell>
                     <StatusBadge status={room.status} />
                   </TableCell>
+                  <TableCell>
+                    {occ ? (
+                      <span className="inline-flex flex-col items-start gap-0.5">
+                        <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${OCCUPANCY_PILL[occ.status] ?? OCCUPANCY_PILL.FREE}`}>
+                          {occ.status === "FREE" ? "Free" : occ.status === "OCCUPIED" ? "Occupied" : occ.status === "BLOCKED" ? "Blocked" : "On hold"}
+                        </span>
+                        {occ.bookingNumber && (
+                          <span className="text-[11px] text-muted-foreground">{occ.bookingNumber}</span>
+                        )}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
                   <TableCell className="text-right">
                     <Button asChild variant="ghost" size="sm" className="rounded-full">
                       <Link to={`/rooms/${room.id}/edit`}>Edit</Link>
                     </Button>
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
           <PaginationControls page={data?.page ?? 1} totalPages={totalPages} onPage={setPage} />

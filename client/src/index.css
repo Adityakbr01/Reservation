@@ -333,6 +333,26 @@ html.lenis body {
   }
 }
 
+/* Detail-page gallery: brand-matched thumbnail strip. Main-slider arrows
+   and counter are custom React controls (no default Swiper chrome). */
+.detail-gallery-main img {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+/* Arrows reveal on hover/focus; touch devices have no hover — always show. */
+@media (hover: none) {
+  .detail-gallery-main .gallery-nav {
+    opacity: 1;
+  }
+}
+.detail-gallery-thumbs .thumb-slide {
+  flex-shrink: 0;
+}
+.detail-gallery-thumbs .swiper-slide-thumb-active button {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 1px var(--color-brand);
+}
+
 /* Rendered CMS rich text (blog posts, policy pages). Server-sanitized HTML. */
 .rich-text h2 {
   @apply mt-6 font-display text-2xl font-light tracking-tight first:mt-0;

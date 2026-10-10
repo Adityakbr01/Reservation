@@ -56,7 +56,7 @@ const OVERVIEW_LINKS = [
 const MANAGE_LINKS = [
   { to: "/reservations", label: "Reservations", Icon: CalendarCheck },
   { to: "/customers", label: "Customers", Icon: Users },
-  { to: "/room-types", label: "Room types", Icon: Building2 },
+  { to: "/room-types", label: "Cottage types", Icon: Building2 },
   { to: "/rooms", label: "Rooms", Icon: BedDouble },
   { to: "/rate-plans", label: "Rate plans", Icon: Tags },
   { to: "/availability", label: "Availability", Icon: CalendarDays },
@@ -113,15 +113,32 @@ export function AdminShell() {
       <Link
         to="/dashboard"
         onClick={() => setOpen(false)}
-        className="px-6 pb-2 pt-6 font-display text-lg font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        aria-label="Hamptworth Stays Admin — dashboard"
+        className="flex items-center gap-2 px-6 pb-2 pt-5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
       >
-        Reservation · Admin
+        <img
+          src="/logo.png"
+          alt="Hamptworth Stays"
+          className="h-10 w-auto rounded-sm mix-blend-multiply"
+          loading="eager"
+        />
       </Link>
-      <nav className="no-scrollbar flex-1 space-y-5 overflow-y-auto px-3 py-4" aria-label="Management">
+      <nav
+        className="no-scrollbar flex-1 space-y-5 overflow-y-auto px-3 py-4"
+        aria-label="Management"
+      >
         <div className="space-y-1">
           <SectionLabel>Overview</SectionLabel>
           {OVERVIEW_LINKS.map(({ to, label, Icon }) => (
-            <NavLink key={to} to={to} end={to === "/dashboard"} onClick={() => setOpen(false)} onMouseEnter={() => prefetchRoute(to)} onFocus={() => prefetchRoute(to)} className={sideLinkClass}>
+            <NavLink
+              key={to}
+              to={to}
+              end={to === "/dashboard"}
+              onClick={() => setOpen(false)}
+              onMouseEnter={() => prefetchRoute(to)}
+              onFocus={() => prefetchRoute(to)}
+              className={sideLinkClass}
+            >
               <Icon className="size-4 shrink-0" aria-hidden />
               {label}
             </NavLink>
@@ -130,7 +147,14 @@ export function AdminShell() {
         <div className="space-y-1">
           <SectionLabel>Manage</SectionLabel>
           {MANAGE_LINKS.map(({ to, label, Icon }) => (
-            <NavLink key={to} to={to} onClick={() => setOpen(false)} onMouseEnter={() => prefetchRoute(to)} onFocus={() => prefetchRoute(to)} className={sideLinkClass}>
+            <NavLink
+              key={to}
+              to={to}
+              onClick={() => setOpen(false)}
+              onMouseEnter={() => prefetchRoute(to)}
+              onFocus={() => prefetchRoute(to)}
+              className={sideLinkClass}
+            >
               <Icon className="size-4 shrink-0" aria-hidden />
               {label}
             </NavLink>
@@ -139,7 +163,14 @@ export function AdminShell() {
         <div className="space-y-1">
           <SectionLabel>Content</SectionLabel>
           {CONTENT_LINKS.map(({ to, label, Icon }) => (
-            <NavLink key={to} to={to} onClick={() => setOpen(false)} onMouseEnter={() => prefetchRoute(to)} onFocus={() => prefetchRoute(to)} className={sideLinkClass}>
+            <NavLink
+              key={to}
+              to={to}
+              onClick={() => setOpen(false)}
+              onMouseEnter={() => prefetchRoute(to)}
+              onFocus={() => prefetchRoute(to)}
+              className={sideLinkClass}
+            >
               <Icon className="size-4 shrink-0" aria-hidden />
               {label}
             </NavLink>
@@ -147,7 +178,11 @@ export function AdminShell() {
         </div>
         <div className="space-y-1">
           <SectionLabel>Account</SectionLabel>
-          <NavLink to="/profile" onClick={() => setOpen(false)} className={sideLinkClass}>
+          <NavLink
+            to="/profile"
+            onClick={() => setOpen(false)}
+            className={sideLinkClass}
+          >
             <User className="size-4 shrink-0" aria-hidden />
             Profile
           </NavLink>
@@ -155,7 +190,11 @@ export function AdminShell() {
       </nav>
       <div className="p-3">
         <Separator className="mb-3" />
-        <Button variant="destructive" className="w-full justify-start rounded-full text-white!" onClick={() => setConfirmLogout(true)}>
+        <Button
+          variant="destructive"
+          className="w-full justify-start rounded-full text-white!"
+          onClick={() => setConfirmLogout(true)}
+        >
           <LogOut aria-hidden />
           Logout
         </Button>
@@ -170,7 +209,12 @@ export function AdminShell() {
       </aside>
 
       {open && (
-        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
+        <div
+          className="fixed inset-0 z-50 lg:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu"
+        >
           <button
             aria-label="Close menu"
             className="absolute inset-0 bg-black/40"
@@ -178,7 +222,12 @@ export function AdminShell() {
           />
           <aside className="absolute inset-y-0 left-0 w-72 max-w-[85vw] border-r border-border bg-background">
             <div className="flex justify-end p-2">
-              <Button variant="ghost" size="sm" className="rounded-full" onClick={() => setOpen(false)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="rounded-full"
+                onClick={() => setOpen(false)}
+              >
                 <X aria-hidden />
                 <span className="sr-only">Close menu</span>
               </Button>
@@ -200,9 +249,12 @@ export function AdminShell() {
               <Menu aria-hidden />
               <span className="sr-only">Open menu</span>
             </Button>
-            <span className="font-display text-base font-semibold tracking-tight lg:hidden">
-              Reservation · Admin
-            </span>
+            <img
+              src="/logo.png"
+              alt="Hamptworth Stays"
+              className="h-9 w-auto rounded-sm mix-blend-multiply lg:hidden"
+              loading="lazy"
+            />
             <div className="flex-1" />
             {user && (
               <DropdownMenu>
@@ -212,7 +264,9 @@ export function AdminShell() {
                     aria-label="Account menu"
                   >
                     <Avatar>
-                      {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.name} />}
+                      {user.avatarUrl && (
+                        <AvatarImage src={user.avatarUrl} alt={user.name} />
+                      )}
                       <AvatarFallback>{initial}</AvatarFallback>
                     </Avatar>
                     <span className="hidden max-w-32 truncate text-sm font-medium sm:inline">
@@ -223,13 +277,17 @@ export function AdminShell() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>
                     <span className="block truncate">{user.name}</span>
-                    <span className="block truncate font-normal capitalize">{user.role}</span>
+                    <span className="block truncate font-normal capitalize">
+                      {user.role}
+                    </span>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link to="/profile">Profile</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => setConfirmLogout(true)}>Logout</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setConfirmLogout(true)}>
+                    Logout
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}

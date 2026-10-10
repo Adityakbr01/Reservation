@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/async-handler";
 import type { RequestWithValidatedQuery } from "../../middleware/validate";
 import { recordAudit } from "../audit/audit.service";
-import { createRoomRecord, getRoom, listRoomRecords, updateRoomRecord } from "./room.service";
+import { createRoomRecord, getRoom, getRoomsOccupancy, listRoomRecords, updateRoomRecord } from "./room.service";
 import type { CreateRoomInput, ListRoomsQuery, UpdateRoomInput } from "./room.schema";
 
 /** POST /api/v1/admin/rooms — 201. */
@@ -20,6 +20,16 @@ export const listRoomsHandler = asyncHandler(async (req: Request, res: Response)
   const query = (req as Request & RequestWithValidatedQuery).validatedQuery as ListRoomsQuery;
   const result = await listRoomRecords(query);
   res.status(200).json({ success: true, data: result.data, meta: result.meta });
+});
+
+/** GET /api/v1/admin/rooms/occupancy — live per-room status for a date range. */
+export const getRoomsOccupancyHandler = asyncHandler(async (req: Request, res: Response) => {
+  const query = (req as Request & RequestWithValidatedQuery).validatedQuery as {
+    checkIn: Date;
+    checkOut: Date;
+  };
+  const result = await getRoomsOccupancy(new Date(query.checkIn), new Date(query.checkOut));
+  res.status(200).json({ success: true, data: result });
 });
 
 /** GET /api/v1/admin/rooms/:id. */

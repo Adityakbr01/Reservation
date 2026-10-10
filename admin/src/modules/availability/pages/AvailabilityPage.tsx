@@ -21,6 +21,7 @@ import { PaginationControls } from "@/components/common/PaginationControls";
 import { ConfirmButton } from "@/components/common/ConfirmButton";
 import { useRooms } from "@/modules/rooms";
 import { BlockForm } from "../components/BlockForm";
+import { InventoryStatus } from "../components/InventoryStatus";
 import { AdminCalendar } from "../components/AdminCalendar";
 import { useBlocks, useDeleteBlock } from "../hooks/use-availability";
 
@@ -63,6 +64,8 @@ export function AvailabilityPage() {
           {data ? `${data.total} manual blocks` : "Block rooms out of inventory"}
         </p>
       </div>
+
+      <InventoryStatus />
 
       <div className="grid gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-2">

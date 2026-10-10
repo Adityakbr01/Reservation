@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { ROOM_TYPE_STATUSES } from "./room-type.types";
 import type {
+  NearbyAttraction,
   RoomTypeBed,
   RoomTypeImage,
   RoomTypeMedia,
@@ -21,6 +22,7 @@ export interface RoomTypeDocument extends mongoose.Document {
   amenities: string[];
   images: RoomTypeImage[];
   media: RoomTypeMedia[];
+  propertyDetailsHtml: string | null;
   layoutHtml: string | null;
   floorplanMediaIds: string[];
   locationText: string | null;
@@ -31,6 +33,9 @@ export interface RoomTypeDocument extends mongoose.Document {
   welcomeHamperIncluded: boolean;
   welcomeHamperDescription: string | null;
   welcomeHamperImageMediaId: string | null;
+  /** Rich hamper content (full CKEditor: headings, lists, links, images). */
+  welcomeHamperHtml: string | null;
+  nearbyAttractions: NearbyAttraction[];
   amenityIds: mongoose.Types.ObjectId[];
   bedrooms: number | null;
   bathrooms: number | null;
@@ -69,8 +74,17 @@ const mediaSchema = new mongoose.Schema<RoomTypeMedia>(
   { _id: false },
 );
 
-const seoSchema = new mongoose.Schema<RoomTypeSeo>(
+const nearbyAttractionSchema = new mongoose.Schema<NearbyAttraction>(
   {
+    name: { type: String, required: true, trim: true, maxlength: 120 },
+    description: { type: String, default: null, maxlength: 300 },
+    imageMediaId: { type: String, default: null },
+    url: { type: String, default: null, maxlength: 500 },
+  },
+  { _id: false },
+);
+
+const seoSchema = new mongoose.Schema<RoomTypeSeo>(  {
     title: { type: String, default: null },
     description: { type: String, default: null },
     canonicalUrl: { type: String, default: null },
@@ -96,6 +110,7 @@ const roomTypeSchema = new mongoose.Schema<RoomTypeDocument>(
     amenities: { type: [String], default: [] },
     images: { type: [imageSchema], default: [] },
     media: { type: [mediaSchema], default: [] },
+    propertyDetailsHtml: { type: String, default: null },
     layoutHtml: { type: String, default: null },
     floorplanMediaIds: { type: [String], default: [] },
     locationText: { type: String, default: null },
@@ -106,6 +121,8 @@ const roomTypeSchema = new mongoose.Schema<RoomTypeDocument>(
     welcomeHamperIncluded: { type: Boolean, default: false },
     welcomeHamperDescription: { type: String, default: null },
     welcomeHamperImageMediaId: { type: String, default: null },
+    welcomeHamperHtml: { type: String, default: null },
+    nearbyAttractions: { type: [nearbyAttractionSchema], default: [] },
     amenityIds: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Amenity" }], default: [] },
     bedrooms: { type: Number, default: null },
     bathrooms: { type: Number, default: null, min: 0, max: 20 },

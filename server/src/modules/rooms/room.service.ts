@@ -1,6 +1,11 @@
 import { AppError } from "../../utils/app-error";
+import { isValidStayRange } from "../../utils/availability";
 import { isDuplicateKeyError } from "../../utils/mongo";
 import type { Paginated } from "../../utils/pagination";
+import { BookingModel } from "../bookings/booking.model";
+import { BookingItemModel } from "../bookings/booking-item.model";
+import { findOverlappingBlockedRoomIds } from "../availability/availability-block.repository";
+import { findHeldRoomIds } from "../bookings/hold.store";
 import { ensureProperty } from "../properties/property.service";
 import { findRoomTypeById } from "../roomTypes/room-type.repository";
 import { createRoom, findRoomById, listRooms, updateRoomById } from "./room.repository";
@@ -61,4 +66,63 @@ export async function updateRoomRecord(id: string, input: UpdateRoomInput): Prom
 
 export async function listRoomRecords(query: ListRoomsQuery): Promise<Paginated<Room>> {
   return listRooms(query);
+}
+
+export type RoomOccupancyStatus = "FREE" | "OCCUPIED" | "BLOCKED" | "HELD";
+
+export interface RoomOccupancy {
+  roomId: string;
+  status: RoomOccupancyStatus;
+  bookingNumber: string | null;
+}
+
+/**
+ * Live per-room occupancy for the admin rooms list: manual blocks,
+ * confirmed/checked-in stays, and live payment holds for a date range.
+ */
+export async function getRoomsOccupancy(checkIn: Date, checkOut: Date): Promise<RoomOccupancy[]> {
+  if (!isValidStayRange(checkIn, checkOut)) {
+    throw new AppError("Check-out must be after check-in", 400, "INVALID_DATE_RANGE");
+  }
+  const page = await listRooms({ page: 1, limit: 2000 });
+  const rooms = page.data;
+  const ids = rooms.map((room) => room.id);
+  const [blocked, bookings] = await Promise.all([
+    findOverlappingBlockedRoomIds(checkIn, checkOut),
+    BookingModel.find({
+      status: { $in: ["CONFIRMED", "CHECKED_IN"] },
+      checkIn: { $lt: checkOut },
+      checkOut: { $gt: checkIn },
+    })
+      .select("_id bookingNumber")
+      .exec(),
+  ]);
+  const bookedByRoom = new Map<string, string>();
+  if (bookings.length > 0 && ids.length > 0) {
+    const items = await BookingItemModel.find({
+      bookingId: { $in: bookings.map((b) => b._id) },
+      roomId: { $in: ids },
+    })
+      .select("roomId bookingId")
+      .exec();
+    const numbers = new Map(bookings.map((b) => [b._id.toString(), b.bookingNumber]));
+    for (const item of items) {
+      if (!item.roomId) continue;
+      const key = item.roomId.toString();
+      if (!bookedByRoom.has(key)) {
+        bookedByRoom.set(key, numbers.get(item.bookingId.toString()) ?? "—");
+      }
+    }
+  }
+  const held = ids.length > 0 ? findHeldRoomIds(ids, checkIn, checkOut) : new Set<string>();
+  return rooms.map((room) => {
+    if (blocked.has(room.id))
+      return { roomId: room.id, status: "BLOCKED" as RoomOccupancyStatus, bookingNumber: null };
+    const bookingNumber = bookedByRoom.get(room.id) ?? null;
+    if (bookingNumber)
+      return { roomId: room.id, status: "OCCUPIED" as RoomOccupancyStatus, bookingNumber };
+    if (held.has(room.id))
+      return { roomId: room.id, status: "HELD" as RoomOccupancyStatus, bookingNumber: null };
+    return { roomId: room.id, status: "FREE" as RoomOccupancyStatus, bookingNumber: null };
+  });
 }

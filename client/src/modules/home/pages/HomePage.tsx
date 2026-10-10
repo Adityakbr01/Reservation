@@ -145,16 +145,19 @@ export function HomePage() {
   return (
     <div ref={rootRef} className="space-y-8 pb-8 sm:pb-12">
       <section className="hero relative left-1/2 -mt-4 w-screen -translate-x-1/2 overflow-hidden sm:-mt-6">
+        {/* Exterior stay photograph (approved repo asset) with subtle ivory overlay
+            so headline + search remain readable. Foreground stays fully opaque. */}
         <img
-          src="/top_banner_image.png"
-          alt=""
+          src="/hero_cottage_bg.jpg"
+          alt="Hamptworth Stays exterior cottage"
           aria-hidden
           className="hero-banner absolute inset-0 h-full w-full object-cover"
           loading="eager"
+          fetchPriority="high"
         />
         {/* Ivory fade: solid text side, open image side */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#FAF7F0]/95 via-[#FAF7F0]/85 to-[#FAF7F0]/40 lg:bg-gradient-to-r lg:from-[#FAF7F0] lg:via-[#FAF7F0]/80 lg:to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#FAF7F0] to-transparent" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-[#FAF7F0]/95 via-[#FAF7F0]/85 to-[#FAF7F0]/40 lg:bg-gradient-to-r lg:from-[#FAF7F0] lg:via-[#FAF7F0]/80 lg:to-transparent" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#FAF7F0] to-transparent" />
         {/* Ambient leaves (true transparency, tucked to edges, clear of text) */}
         <div
           className="hero-leaf-wrap-a pointer-events-none absolute right-2 top-6 w-44 opacity-95 sm:w-80 blur-[0.2px]"

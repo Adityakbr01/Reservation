@@ -23,3 +23,11 @@ export async function submitReview(input: { roomTypeId: string; bookingId?: stri
   const r = await apiClient.post<ApiEnvelope<Review>>("/reviews", input);
   return unwrapResponse(r);
 }
+
+/** Completed-stay probe: only guests who stayed in this room type may review. */
+export async function fetchReviewEligibility(roomTypeId: string): Promise<{ eligible: boolean }> {
+  const r = await apiClient.get<ApiEnvelope<{ eligible: boolean }>>("/reviews/eligibility", {
+    params: { roomTypeId },
+  });
+  return unwrapResponse(r);
+}

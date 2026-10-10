@@ -216,6 +216,16 @@ function renderFor(
         },
         "Booking cancelled",
       );
+    case "ADMIN_SOLD_OUT":
+      return adminAlertEmail(
+        {
+          bookingReference: snapshot.bookingReference,
+          headline: "Fully booked",
+          detail: `All rooms are now sold for ${snapshot.checkIn} → ${snapshot.checkOut}. Triggered by this booking.`,
+          adminUrl: adminUrl(snapshot.bookingId),
+        },
+        "Fully booked",
+      );
     default:
       return null;
   }

@@ -11,9 +11,15 @@ export function AuthLayout() {
         <div className="mx-auto w-full max-w-6xl px-4 py-4 sm:px-6">
           <Link
             to="/login"
-            className="font-display text-lg font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            aria-label="Hamptworth Stays Admin — login"
+            className="inline-flex items-center gap-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
-            Reservation · Admin
+            <img
+              src="/logo.png"
+              alt="Hamptworth Stays"
+              className="h-10 w-auto rounded-sm mix-blend-multiply"
+              loading="eager"
+            />
           </Link>
         </div>
       </header>

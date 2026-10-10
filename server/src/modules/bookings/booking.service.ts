@@ -4,6 +4,8 @@ import { AppError } from "../../utils/app-error";
 import { computeNights, isPlanApplicable } from "../availability/search.service";
 import { isValidStayRange } from "../../utils/availability";
 import { cacheStore } from "../../config/cache";
+import { env } from "../../config/env";
+import { logger } from "../../config/logger";
 import { isDuplicateKeyError } from "../../utils/mongo";
 import { findHeldRoomIds, releaseBookingHolds, writeRoomHold } from "./hold.store";
 import { evaluateCancellation, resolvePolicy } from "../policies/policy.service";
@@ -110,6 +112,45 @@ interface PricedLine {
   allocated: Array<{ id: string; name: string; roomNumber: string }>;
 }
 
+/**
+ * Sold-out watch: after a booking lands, checks whether every sellable
+ * room is now taken for the stay dates and alerts the admin once per
+ * date range (idempotent — no repeat mail on later bookings).
+ * Never throws into the booking flow.
+ */
+async function maybeAlertSoldOut(
+  checkIn: Date,
+  checkOut: Date,
+  booking: Booking,
+): Promise<void> {
+  if (!env.ADMIN_NOTIFICATION_EMAIL) return;
+  try {
+    const page = await listRooms({ page: 1, limit: 2000 });
+    const sellable = page.data.filter((room) => room.status === "ACTIVE");
+    if (sellable.length === 0) return;
+    const ids = sellable.map((room) => room.id);
+    const [blocked, conflicts] = await Promise.all([
+      findOverlappingBlockedRoomIds(checkIn, checkOut),
+      findConflictingBookingRoomIds(ids, checkIn, checkOut),
+    ]);
+    const held = findHeldRoomIds(ids, checkIn, checkOut);
+    const free = sellable.filter(
+      (room) => !blocked.has(room.id) && !conflicts.has(room.id) && !held.has(room.id),
+    );
+    if (free.length === 0) {
+      await enqueueAdminAlert({
+        type: "ADMIN_SOLD_OUT",
+        bookingId: booking.id,
+        idempotencyKey: notificationKeys.soldOut(checkIn, checkOut),
+      });
+    }
+  } catch (error) {
+    logger.warn("Sold-out check skipped", {
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
 export async function createBooking(
   userId: string,
   input: CreateBookingInput,
@@ -134,17 +175,15 @@ export async function createBooking(
 
   // Price + validate every line first: fail before touching inventory.
   const lines: PricedLine[] = [];
+  let totalMaxAdults = 0;
+  let totalMaxOccupancy = 0;
   for (const line of input.rooms) {
     const roomType = await findRoomTypeById(line.roomTypeId);
     if (!roomType || roomType.status !== "ACTIVE" || roomType.propertyId !== property.id) {
       throw new AppError("Room type not found", 404, "ROOM_TYPE_NOT_FOUND");
     }
-    if (
-      input.guests.adults > roomType.maxAdults ||
-      input.guests.adults + input.guests.children > roomType.maxOccupancy
-    ) {
-      throw new AppError(`Guests exceed ${roomType.name} occupancy`, 400, "OCCUPANCY_EXCEEDED");
-    }
+    totalMaxAdults += roomType.maxAdults * line.quantity;
+    totalMaxOccupancy += roomType.maxOccupancy * line.quantity;
     const plan = await findRatePlanById(line.ratePlanId);
     if (!plan) {
       throw new AppError("Rate plan not found", 404, "RATE_PLAN_NOT_FOUND");
@@ -209,6 +248,13 @@ export async function createBooking(
       nightlyRates: nightlyForItems,
       allocated: [],
     });
+  }
+
+  if (
+    input.guests.adults > totalMaxAdults ||
+    input.guests.adults + input.guests.children > totalMaxOccupancy
+  ) {
+    throw new AppError("Total guests exceed the combined capacity of the selected rooms", 400, "OCCUPANCY_EXCEEDED");
   }
 
   const currency = lines[0]?.currency ?? "INR";
@@ -360,6 +406,7 @@ export async function createBooking(
         bookingId: booking.id,
         idempotencyKey: notificationKeys.bookingReceived(booking.id),
       });
+      await maybeAlertSoldOut(checkIn, checkOut, booking);
       return { booking, items, idempotentReplay: false };
     } catch (error) {
       if (isDuplicateKeyError(error)) {

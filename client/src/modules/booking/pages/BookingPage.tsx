@@ -16,16 +16,30 @@ import { useAuthStore } from "@/stores/auth-store";
 import {
   checkGuestEmail,
   createGuestBooking,
+  fetchQuote,
   validateCouponCode,
 } from "../api/booking.api";
 import { fetchRoomOffers } from "@/modules/rooms/api/rooms.api";
+import { useAvailabilitySearch } from "@/modules/availability";
 import {
   useCreateBooking,
   usePaymentIntent,
-  useQuote,
   useValidateCoupon,
 } from "../hooks/use-booking";
 import type { BookingSelection } from "../types/booking.types";
+
+interface BookedRoom {
+  key: string;
+  roomTypeId: string;
+  ratePlanId: string;
+  quantity: number;
+  roomName: string;
+  rateName: string;
+}
+
+function roomKey(roomTypeId: string, ratePlanId: string): string {
+  return `${roomTypeId}__${ratePlanId}`;
+}
 
 const TITLES = ["Mr", "Mrs", "Ms", "Miss", "Dr", "Other"];
 
@@ -159,21 +173,107 @@ export function BookingPage() {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [holdFailed, setHoldFailed] = useState<string | null>(null);
   const [stripePromise] = useState(getStripePromise);
+  const [showAddRoom, setShowAddRoom] = useState(false);
+  const [roomError, setRoomError] = useState<string | null>(null);
 
-  const quoteInput = useMemo(
+  // Multi-room selection. Starts with the room from the URL; guests can add more.
+  const [rooms, setRooms] = useState<BookedRoom[]>(() =>
+    selection
+      ? [
+          {
+            key: roomKey(selection.roomTypeId, selection.ratePlanId),
+            roomTypeId: selection.roomTypeId,
+            ratePlanId: selection.ratePlanId,
+            quantity: 1,
+            roomName: selection.roomName,
+            rateName: selection.rateName,
+          },
+        ]
+      : [],
+  );
+
+  // Live inventory for the same dates — drives quantity caps + Add-room picker.
+  const availabilityParams = useMemo(
     () =>
       selection
         ? {
-            roomTypeId: selection.roomTypeId,
-            ratePlanId: selection.ratePlanId,
             checkIn: selection.checkIn,
             checkOut: selection.checkOut,
-            quantity: 1,
-            ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
+            adults: 1,
+            children: 0,
+            rooms: 1,
           }
         : null,
-    [selection, appliedCoupon],
+    [selection?.checkIn, selection?.checkOut],
   );
+  const availabilityQuery = useAvailabilitySearch(availabilityParams);
+  const availabilityByRoom = useMemo(() => {
+    const map = new Map<
+      string,
+      { availableCount: number; maxAdults: number; maxOccupancy: number; name: string }
+    >();
+    for (const item of availabilityQuery.data?.results ?? []) {
+      map.set(item.roomType.id, {
+        availableCount: item.availableCount,
+        maxAdults: item.roomType.maxAdults,
+        maxOccupancy: item.roomType.maxOccupancy,
+        name: item.roomType.name,
+      });
+    }
+    return map;
+  }, [availabilityQuery.data]);
+
+  // Authoritative pricing: one server quote per room line, summed. Never trust card prices.
+  const quoteKey = useMemo(
+    () =>
+      selection
+        ? [
+            "multi-quote",
+            selection.checkIn,
+            selection.checkOut,
+            rooms.map((r) => `${r.roomTypeId}:${r.ratePlanId}:${r.quantity}`).join("|"),
+            appliedCoupon ?? "no-coupon",
+          ].join("~")
+        : "no-quote",
+    [selection, rooms, appliedCoupon],
+  );
+  const quoteQuery = useQuery({
+    queryKey: [quoteKey],
+    queryFn: async () => {
+      if (!selection) throw new Error("Missing selection");
+      if (rooms.length === 0) throw new Error("Add at least one room");
+      const parts = await Promise.all(
+        rooms.map((r) =>
+          fetchQuote({
+            roomTypeId: r.roomTypeId,
+            ratePlanId: r.ratePlanId,
+            checkIn: selection.checkIn,
+            checkOut: selection.checkOut,
+            quantity: r.quantity,
+            ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
+          }),
+        ),
+      );
+      const currency = parts[0]?.pricing.currency ?? "GBP";
+      return {
+        quoteId: parts.map((p) => p.quoteId).join("+"),
+        expiresAt: parts[0]?.expiresAt ?? new Date().toISOString(),
+        pricing: {
+          subtotal: parts.reduce((s, p) => s + p.pricing.subtotal, 0),
+          discount: parts.reduce((s, p) => s + p.pricing.discount, 0),
+          tax: parts.reduce((s, p) => s + (p.pricing.tax ?? 0), 0),
+          total: parts.reduce((s, p) => s + p.pricing.total, 0),
+          currency,
+        },
+        nightly: parts[0]?.nightly,
+        nights: parts[0]?.nights,
+        parts,
+      };
+    },
+    enabled: !!selection && rooms.length > 0,
+    staleTime: 30_000,
+    retry: false,
+  });
   const validateCoupon = useValidateCoupon();
   const createBooking = useCreateBooking();
   const paymentIntent = usePaymentIntent();
@@ -181,13 +281,61 @@ export function BookingPage() {
     mutationFn: (vars: Parameters<typeof createGuestBooking>[0]) =>
       createGuestBooking(vars, idempotencyKey.current),
   });
-  const quoteQuery = useQuote(quoteInput);
   const { data: roomOffers } = useQuery({
     queryKey: ["room-offers", selection?.roomTypeId],
     queryFn: () => fetchRoomOffers(selection?.roomTypeId as string),
     enabled: !!selection,
     staleTime: 300_000,
   });
+
+  function setRoomQuantity(key: string, quantity: number) {
+    setRoomError(null);
+    setRooms((prev) =>
+      prev.map((r) => {
+        if (r.key !== key) return r;
+        const cap = Math.min(10, availabilityByRoom.get(r.roomTypeId)?.availableCount ?? 10);
+        const next = Math.max(1, Math.min(cap, Math.floor(quantity) || 1));
+        return { ...r, quantity: next };
+      }),
+    );
+  }
+
+  function removeRoom(key: string) {
+    setRoomError(null);
+    setRooms((prev) => {
+      if (prev.length <= 1) {
+        setRoomError("At least one room is required.");
+        return prev;
+      }
+      return prev.filter((r) => r.key !== key);
+    });
+  }
+
+  function addRoom(roomTypeId: string, ratePlanId: string, roomName: string, rateName: string) {
+    setRoomError(null);
+    const key = roomKey(roomTypeId, ratePlanId);
+    const info = availabilityByRoom.get(roomTypeId);
+    const cap = Math.min(10, info?.availableCount ?? 1);
+    if (rooms.length >= 5) {
+      setRoomError("Maximum 5 room lines per booking. Increase quantity instead.");
+      return;
+    }
+    const existingQty = rooms.find((r) => r.key === key)?.quantity ?? 0;
+    // Per-room-type inventory cap across all lines.
+    const typeTotal = rooms.filter((r) => r.roomTypeId === roomTypeId).reduce((s, r) => s + r.quantity, 0);
+    if (typeTotal >= cap) {
+      setRoomError(`Only ${cap} ${info?.name ?? "room"} left for these dates.`);
+      return;
+    }
+    setRooms((prev) => {
+      const found = prev.find((r) => r.key === key);
+      if (found) return prev.map((r) => (r.key === key ? { ...r, quantity: Math.min(cap, r.quantity + 1) } : r));
+      void existingQty;
+      return [...prev, { key, roomTypeId, ratePlanId, quantity: 1, roomName, rateName }];
+    });
+    setShowAddRoom(false);
+    toast.success(`${roomName} added`);
+  }
 
   const missingSelection = !selection;
   useEffect(() => {
@@ -290,11 +438,52 @@ export function BookingPage() {
   }
 
   const emailBlocked = emailExists && !isAuthed;
+
+  /** Multi-room validation: positive ints, combined capacity, dates, inventory, no stale lines. */
+  function roomsValid(): string | null {
+    if (rooms.length === 0) return "Add at least one room.";
+    if (rooms.length > 5) return "Maximum 5 room lines per booking.";
+    if (!selection) return "Choose a room and dates first.";
+    if (selection.checkOut <= selection.checkIn) return "Check-out must be after check-in.";
+    if (!Number.isInteger(selection.adults) || selection.adults < 1) return "Adults must be at least 1.";
+    if (!Number.isInteger(selection.children) || selection.children < 0) return "Children cannot be negative.";
+    let totalMaxAdults = 0;
+    let totalMaxOccupancy = 0;
+    for (const r of rooms) {
+      if (!Number.isInteger(r.quantity) || r.quantity < 1) return `Quantity for ${r.roomName} must be a positive integer.`;
+      if (r.quantity > 10) return `Maximum 10 per room line (${r.roomName}).`;
+      const info = availabilityByRoom.get(r.roomTypeId);
+      if (info) {
+        totalMaxAdults += (info.maxAdults || 2) * r.quantity;
+        totalMaxOccupancy += (info.maxOccupancy || 2) * r.quantity;
+        const typeTotal = rooms.filter((x) => x.roomTypeId === r.roomTypeId).reduce((s, x) => s + x.quantity, 0);
+        if (typeTotal > info.availableCount)
+          return `Only ${info.availableCount} ${info.name} left for these dates.`;
+      }
+    }
+    if (totalMaxAdults > 0 && selection.adults > totalMaxAdults) {
+      return `Selected rooms accommodate up to ${totalMaxAdults} adults. Please add another room or reduce adults.`;
+    }
+    if (totalMaxOccupancy > 0 && selection.adults + selection.children > totalMaxOccupancy) {
+      return `Selected rooms sleep up to ${totalMaxOccupancy} guests total. Please add another room or reduce guests.`;
+    }
+    return null;
+  }
+
+  const roomsError = roomsValid();
   const canContinue =
-    !!quote && !busy && contactValid() && passwordValid() && acceptPrivacy && acceptTerms && !emailBlocked;
+    !!quote &&
+    !busy &&
+    !roomsError &&
+    contactValid() &&
+    passwordValid() &&
+    acceptPrivacy &&
+    acceptTerms &&
+    !emailBlocked;
 
   /** First missing item, shown as a hint under the disabled buttons. */
   function continueHint(): string | null {
+    if (roomsError) return roomsError;
     if (!quote) return "Loading price…";
     if (busy) return "Working…";
     if (!contactValid()) return "Complete contact info above to continue.";
@@ -307,6 +496,11 @@ export function BookingPage() {
 
   async function handleContinueToPayment() {
     if (!selection || !quote) return;
+    const roomsProblem = roomsValid();
+    if (roomsProblem) {
+      toast.error(roomsProblem);
+      return;
+    }
     if (!contactValid()) {
       toast.error("Please complete contact info with a valid email and phone");
       return;
@@ -342,7 +536,7 @@ export function BookingPage() {
       if (isAuthed) {
         const created = await createBooking.mutateAsync({
           input: {
-            rooms: [{ roomTypeId: selection.roomTypeId, ratePlanId: selection.ratePlanId, quantity: 1 }],
+            rooms: rooms.map((r) => ({ roomTypeId: r.roomTypeId, ratePlanId: r.ratePlanId, quantity: r.quantity })),
             checkIn: selection.checkIn,
             checkOut: selection.checkOut,
             guests: { adults: selection.adults, children: selection.children },
@@ -369,7 +563,7 @@ export function BookingPage() {
         }
       } else {
         const result = await guestBooking.mutateAsync({
-          rooms: [{ roomTypeId: selection.roomTypeId, ratePlanId: selection.ratePlanId, quantity: 1 }],
+          rooms: rooms.map((r) => ({ roomTypeId: r.roomTypeId, ratePlanId: r.ratePlanId, quantity: r.quantity })),
           checkIn: selection.checkIn,
           checkOut: selection.checkOut,
           guests: { adults: selection.adults, children: selection.children },
@@ -430,7 +624,6 @@ export function BookingPage() {
 
   const totalLabel = quote ? formatMoney(quote.pricing.total, quote.pricing.currency) : "";
   const signInTarget = `${location.pathname}${location.search}`;
-  const addRoomTarget = `/?checkIn=${encodeURIComponent(selection.checkIn)}&checkOut=${encodeURIComponent(selection.checkOut)}&adults=${selection.adults}&children=${selection.children}&rooms=1`;
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 pb-8">
@@ -457,7 +650,7 @@ export function BookingPage() {
         </Card>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="min-w-0 space-y-6">
           <Card>
             <CardHeader>
@@ -670,9 +863,11 @@ export function BookingPage() {
                 <p><span className="font-semibold">Check-in</span><br />after 4:00 pm</p>
                 <p><span className="font-semibold">Check-out</span><br />before 11:00 am</p>
               </div>
-              <p className="font-semibold uppercase">Room | {selection.roomName}</p>
+              <p className="font-semibold uppercase">
+                Room{rooms.length === 1 ? "" : "s"} | {rooms.map((r) => `${r.roomName} × ${r.quantity}`).join(", ")}
+              </p>
               <p className="text-muted-foreground">
-                {selection.rateName}. {totalLabel && `${totalLabel} due at booking (hotel local time).`} Cancellations and amendments are per the rate conditions.
+                {rooms.map((r) => r.rateName).join(" + ")}. {totalLabel && `${totalLabel} due at booking (hotel local time).`} Cancellations and amendments are per the rate conditions.
               </p>
             </CardContent>
           </Card>
@@ -702,7 +897,7 @@ export function BookingPage() {
                     disabled={!canContinue}
                     onClick={() => void handleContinueToPayment()}
                   >
-                    {busy ? "Holding your room…" : "Confirm booking"}
+                    {busy ? "Holding your rooms…" : "Confirm booking"}
                   </Button>
                   {!canContinue && continueHint() && (
                     <p className="text-center text-xs text-muted-foreground">{continueHint()}</p>
@@ -717,25 +912,105 @@ export function BookingPage() {
           <Card className="shadow-card lg:sticky lg:top-24">
             <CardHeader>
               <CardTitle className="text-base tracking-wide">Price details</CardTitle>
+              <CardDescription>
+                {rooms.length} room line{rooms.length === 1 ? "" : "s"} · {nights} night{nights === 1 ? "" : "s"}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
+              <div className="space-y-3">
+                {rooms.map((r) => {
+                  const info = availabilityByRoom.get(r.roomTypeId);
+                  const cap = Math.min(10, info?.availableCount ?? 10);
+                  return (
+                    <div key={r.key} className="rounded-md border border-border p-3 text-sm">
+                      <div className="flex min-w-0 items-start justify-between gap-2">
+                        <p className="min-w-0 font-medium">
+                          <span className="block truncate">{r.roomName}</span>
+                          <span className="block truncate font-normal text-muted-foreground">{r.rateName}</span>
+                        </p>
+                        {rooms.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="shrink-0 text-destructive"
+                            onClick={() => removeRoom(r.key)}
+                            aria-label={`Remove ${r.roomName}`}
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2" role="group" aria-label={`Quantity for ${r.roomName}`}>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-8 w-8 rounded-full p-0"
+                            disabled={r.quantity <= 1}
+                            onClick={() => setRoomQuantity(r.key, r.quantity - 1)}
+                            aria-label={`Decrease quantity for ${r.roomName}`}
+                          >
+                            −
+                          </Button>
+                          <label className="sr-only" htmlFor={`qty-${r.key}`}>
+                            Quantity for {r.roomName}
+                          </label>
+                          <Input
+                            id={`qty-${r.key}`}
+                            type="number"
+                            min={1}
+                            max={cap}
+                            value={r.quantity}
+                            onChange={(e) => setRoomQuantity(r.key, Number(e.target.value))}
+                            className="h-8 w-16 text-center"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-8 w-8 rounded-full p-0"
+                            disabled={r.quantity >= cap}
+                            onClick={() => setRoomQuantity(r.key, r.quantity + 1)}
+                            aria-label={`Increase quantity for ${r.roomName}`}
+                          >
+                            +
+                          </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground">max {cap}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {roomError && (
+                <p role="alert" className="text-xs text-destructive">
+                  {roomError}
+                </p>
+              )}
+              {roomsError && (
+                <p role="alert" className="text-xs text-destructive">
+                  {roomsError}
+                </p>
+              )}
               <div className="rounded-md border border-border p-4 text-sm">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="font-medium">{selection.roomName}<br /><span className="font-normal text-muted-foreground">{selection.rateName}</span><br /><span className="text-muted-foreground underline">{nights} Nights stay</span></p>
-                  {quote && <p className="font-semibold">{formatMoney(quote.pricing.subtotal, quote.pricing.currency)}</p>}
-                </div>
                 {quoteQuery.isPending ? (
-                  <div className="mt-3 space-y-2" aria-busy="true" aria-label="Loading price">
+                  <div className="space-y-2" aria-busy="true" aria-label="Loading price">
                     <Skeleton className="h-5 w-2/3" />
                     <Skeleton className="h-5 w-1/2" />
                   </div>
                 ) : quoteQuery.isError || !quote ? (
-                  <div className="mt-3 space-y-2">
+                  <div className="space-y-2">
                     <p className="text-sm text-destructive">Could not price this selection.</p>
                     <Button variant="outline" size="sm" className="rounded-full" onClick={() => void quoteQuery.refetch()}>Retry pricing</Button>
                   </div>
                 ) : (
-                  <div className="mt-3 space-y-1">
+                  <div className="space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Subtotal ({nights} nights)</span>
+                      <span className="font-semibold">{formatMoney(quote.pricing.subtotal, quote.pricing.currency)}</span>
+                    </div>
                     {quote.pricing.discount > 0 && (
                       <div className="flex justify-between text-success">
                         <span>Coupon {appliedCoupon}</span>
@@ -752,7 +1027,7 @@ export function BookingPage() {
                     </p>
                     {quote.nightly && quote.nightly.length > 0 && (
                       <details className="pt-1 text-xs">
-                        <summary className="cursor-pointer text-muted-foreground">Nightly breakdown</summary>
+                        <summary className="cursor-pointer text-muted-foreground">Nightly breakdown (first room)</summary>
                         <ul className="mt-1 divide-y divide-border">
                           {quote.nightly.map((n) => (
                             <li key={n.date} className="flex justify-between py-0.5">
@@ -791,9 +1066,55 @@ export function BookingPage() {
               {autoCoupon && appliedCoupon === autoCoupon && (
                 <p className="text-xs text-success">{autoCoupon} auto-applied from this room&apos;s offer.</p>
               )}
-              <Button asChild variant="outline" className="w-full rounded-none">
-                <Link to={addRoomTarget}>Add a room</Link>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full rounded-full"
+                onClick={() => setShowAddRoom((v) => !v)}
+                aria-expanded={showAddRoom}
+              >
+                {showAddRoom ? "Close room picker" : "Add a room"}
               </Button>
+              {showAddRoom && (
+                <div className="max-h-72 space-y-2 overflow-y-auto rounded-md border border-border p-2">
+                  {availabilityQuery.isPending ? (
+                    <p className="p-2 text-xs text-muted-foreground">Checking live availability…</p>
+                  ) : (availabilityQuery.data?.results ?? []).length === 0 ? (
+                    <p className="p-2 text-xs text-muted-foreground">Nothing else available for these dates.</p>
+                  ) : (
+                    (availabilityQuery.data?.results ?? []).flatMap((item) =>
+                      item.rates.map((rate) => {
+                        const key = roomKey(item.roomType.id, rate.ratePlanId);
+                        const added = rooms.some((r) => r.key === key);
+                        const typeTotal = rooms
+                          .filter((r) => r.roomTypeId === item.roomType.id)
+                          .reduce((s, r) => s + r.quantity, 0);
+                        const full = typeTotal >= Math.min(10, item.availableCount);
+                        return (
+                          <div key={key} className="flex items-center justify-between gap-2 rounded-md p-2 text-xs hover:bg-muted/50">
+                            <p className="min-w-0">
+                              <span className="block truncate font-medium">{item.roomType.name}</span>
+                              <span className="block truncate text-muted-foreground">
+                                {rate.name} · {item.availableCount} left
+                              </span>
+                            </p>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              className="shrink-0 rounded-full"
+                              disabled={full || rooms.length >= 5}
+                              onClick={() => addRoom(item.roomType.id, rate.ratePlanId, item.roomType.name, rate.name)}
+                            >
+                              {full ? "Full" : added ? "+1" : "Add"}
+                            </Button>
+                          </div>
+                        );
+                      }),
+                    )
+                  )}
+                </div>
+              )}
               <p className="text-[11px] text-muted-foreground">Availability and price are confirmed again at booking.</p>
             </CardContent>
           </Card>

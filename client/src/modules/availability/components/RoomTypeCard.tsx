@@ -1,6 +1,5 @@
 import { ArrowRight, BedDouble, Users } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RoomTypeImage } from "@/components/common/RoomTypeImage";
@@ -28,7 +27,7 @@ export function RoomTypeCard({
   search: AvailabilitySearchParams;
 }) {
   const { roomType, availableCount, rates } = item;
-  const lowStock = availableCount <= 2;
+  const soldOut = availableCount <= 0;
   const galleryMedia = (roomType as unknown as { media?: Array<{ mediaId: string; kind: string; sortOrder: number }> }).media;
   const coverId =
     galleryMedia && galleryMedia.length > 0
@@ -52,13 +51,6 @@ export function RoomTypeCard({
             alt={coverPhoto?.alt}
             className="absolute inset-0"
           />
-          <Badge
-            variant={lowStock ? "default" : "success"}
-            className="absolute right-3 top-3 gap-1 whitespace-nowrap shadow-md"
-          >
-            <BedDouble className="size-3.5" aria-hidden />
-            {availableCount} room{availableCount === 1 ? "" : "s"} left
-          </Badge>
         </div>
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
@@ -93,6 +85,11 @@ export function RoomTypeCard({
         <p className="text-xs font-medium text-muted-foreground">
           From {formatMoney(Math.min(...rates.map((r) => r.total)), rates[0]?.currency ?? "GBP")} total for {search.checkIn} → {search.checkOut} · incl. taxes & fees
         </p>
+        {soldOut && (
+          <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+            Fully booked for these dates — try different dates, or view details.
+          </p>
+        )}
         <ul className="divide-y divide-border rounded-xl border border-border">
           {rates.map((rate) => (
             <li key={rate.ratePlanId} className="flex items-center justify-between gap-3 px-4 py-3">
@@ -109,13 +106,19 @@ export function RoomTypeCard({
                   {formatMoney(rate.total, rate.currency)}
                 </p>
                 <p className="text-[11px] text-muted-foreground">Total</p>
-                <Button asChild size="sm" className="btn-shine rounded-full">
-                  <Link
-                    to={`/booking/new?roomTypeId=${item.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&roomName=${encodeURIComponent(item.roomType.name)}&rateName=${encodeURIComponent(rate.name)}`}
-                  >
-                    Book now
-                  </Link>
-                </Button>
+                {soldOut ? (
+                  <Button size="sm" disabled className="rounded-full">
+                    Sold out
+                  </Button>
+                ) : (
+                  <Button asChild size="sm" className="btn-shine rounded-full">
+                    <Link
+                      to={`/booking/new?roomTypeId=${item.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&roomName=${encodeURIComponent(item.roomType.name)}&rateName=${encodeURIComponent(rate.name)}`}
+                    >
+                      Book now
+                    </Link>
+                  </Button>
+                )}
               </div>
             </li>
           ))}

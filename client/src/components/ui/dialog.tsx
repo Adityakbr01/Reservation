@@ -9,6 +9,8 @@ interface DialogProps {
   labelledBy: string;
   children: ReactNode;
   className?: string;
+  /** Extra classes for the close button (e.g. white on a dark header). */
+  closeClassName?: string;
 }
 
 /**
@@ -16,7 +18,7 @@ interface DialogProps {
  * overlay-click + Escape close, body scroll lock, initial focus,
  * role=dialog with aria-modal.
  */
-export function Dialog({ open, onClose, labelledBy, children, className }: DialogProps) {
+export function Dialog({ open, onClose, labelledBy, children, className, closeClassName }: DialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -59,7 +61,10 @@ export function Dialog({ open, onClose, labelledBy, children, className }: Dialo
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-3 top-3 flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className={cn(
+            "absolute right-3 top-3 flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            closeClassName,
+          )}
         >
           <X className="size-4" aria-hidden />
         </button>

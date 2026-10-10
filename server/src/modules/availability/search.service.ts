@@ -77,8 +77,9 @@ async function pricePlan(plan: RatePlan, nights: number, checkIn: Date, checkOut
 
 /**
  * Availability search (docs 06 §5). Informational only — never a reservation.
- * Excludes manual blocks, conflicting reservations/holds, and non-ACTIVE
- * rooms. The final recheck + hold at booking time stays mandatory.
+ * Fully-booked types stay visible with availableCount 0 (guests see what
+ * exists; booking rechecks + holds stay mandatory). Excludes manual blocks,
+ * conflicting reservations/holds, and non-ACTIVE rooms from the count.
  */
 export async function searchAvailability(input: SearchAvailabilityInput): Promise<SearchResponse> {
   const { checkIn, checkOut, adults, children, rooms: roomsWanted } = input;
@@ -125,7 +126,9 @@ export async function searchAvailability(input: SearchAvailabilityInput): Promis
   for (const roomType of typesPage.data) {
     if (adults > roomType.maxAdults || guests > roomType.maxOccupancy) continue;
     const availableIds = roomsByType.get(roomType.id) ?? [];
-    if (availableIds.length === 0 || availableIds.length < roomsWanted) continue;
+    // Sold-out types remain listed (availableCount 0) so guests can see
+    // every cottage; only insufficient-for-request counts stay hidden.
+    if (availableIds.length > 0 && availableIds.length < roomsWanted) continue;
 
     const plansPage = await listRatePlans({
       page: 1,
@@ -139,6 +142,8 @@ export async function searchAvailability(input: SearchAvailabilityInput): Promis
 
     results.push({ roomType, availableCount: availableIds.length, rates });
   }
+  // Bookable first, sold-out last — stable otherwise.
+  results.sort((a, b) => Number(a.availableCount === 0) - Number(b.availableCount === 0));
 
   return {
     results,

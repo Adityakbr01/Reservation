@@ -9,6 +9,13 @@ export interface RoomTypeImageRef {
   sortOrder: number;
 }
 
+export interface NearbyAttraction {
+  name: string;
+  description: string | null;
+  imageMediaId: string | null;
+  url: string | null;
+}
+
 /** Full room-type detail as returned by GET /api/public/room-types/:slug. */
 export interface RoomTypeDetail {
   id: string;
@@ -24,6 +31,7 @@ export interface RoomTypeDetail {
   amenities: string[];
   images: RoomTypeImageRef[];
   media?: Array<{ mediaId: string; kind: "image" | "video"; altText: string | null; sortOrder: number }>;
+  propertyDetailsHtml?: string | null;
   layoutHtml?: string | null;
   floorplanMediaIds?: string[];
   locationText?: string | null;
@@ -34,6 +42,8 @@ export interface RoomTypeDetail {
   welcomeHamperIncluded?: boolean;
   welcomeHamperDescription?: string | null;
   welcomeHamperImageMediaId?: string | null;
+  welcomeHamperHtml?: string | null;
+  nearbyAttractions?: NearbyAttraction[] | null;
   amenityIds?: string[];
   bedrooms?: number | null;
   bathrooms?: number | null;

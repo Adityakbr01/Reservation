@@ -33,4 +33,6 @@ export const publicListReviewsQuerySchema = paginationQuerySchema.extend({
 
 export const reviewIdParamsSchema = z.object({ id: objectIdSchema });
 
+export const eligibilityQuerySchema = z.object({ roomTypeId: objectIdSchema });
+
 export type CreateReviewInput = z.infer<typeof createReviewSchema>;

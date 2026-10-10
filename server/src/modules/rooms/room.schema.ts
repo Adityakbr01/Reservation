@@ -23,6 +23,11 @@ export const listRoomsQuerySchema = paginationQuerySchema.extend({
 
 export const roomIdParamsSchema = z.object({ id: objectIdSchema });
 
+export const occupancyQuerySchema = z.object({
+  checkIn: z.coerce.date(),
+  checkOut: z.coerce.date(),
+});
+
 export type CreateRoomInput = z.infer<typeof createRoomSchema>;
 export type UpdateRoomInput = z.infer<typeof updateRoomSchema>;
 export type ListRoomsQuery = z.infer<typeof listRoomsQuerySchema>;

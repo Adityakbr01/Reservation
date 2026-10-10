@@ -6,11 +6,13 @@ import {
   adminListReviewsHandler,
   adminModerateReviewHandler,
   createReviewHandler,
+  getReviewEligibilityHandler,
   publicListReviewsHandler,
 } from "./review.controller";
 import {
   adminCreateReviewSchema,
   createReviewSchema,
+  eligibilityQuerySchema,
   listReviewsQuerySchema,
   moderateReviewSchema,
   publicListReviewsQuerySchema,
@@ -28,4 +30,5 @@ publicReviewsRouter.get("/", validate({ query: publicListReviewsQuerySchema }), 
 
 export const reviewsRouter = Router();
 reviewsRouter.use(authenticate);
+reviewsRouter.get("/eligibility", validate({ query: eligibilityQuerySchema }), getReviewEligibilityHandler);
 reviewsRouter.post("/", validate({ body: createReviewSchema }), createReviewHandler);

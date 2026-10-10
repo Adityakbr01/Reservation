@@ -30,6 +30,19 @@ export async function assertReviewEligible(userId: string, roomTypeId: string, b
   return null;
 }
 
+/** Non-throwing eligibility probe for the room page: completed stay in this room type. */
+export async function checkReviewEligibility(userId: string, roomTypeId: string): Promise<boolean> {
+  const bookings = await BookingModel.find({ userId, status: "CHECKED_OUT" }).select("_id").exec();
+  if (bookings.length === 0) return false;
+  const item = await BookingItemModel.findOne({
+    bookingId: { $in: bookings.map((b) => b._id) },
+    roomTypeId,
+  })
+    .select("_id")
+    .exec();
+  return item !== null;
+}
+
 export async function createCustomerReview(userId: string, authorName: string, input: CreateReviewInput) {
   const booking = await assertReviewEligible(userId, input.roomTypeId, input.bookingId ?? null);
   const doc = await ReviewModel.create({
