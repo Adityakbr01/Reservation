@@ -1,45 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import toast from "react-hot-toast";
 import {
-  Baby,
-  BadgePercent,
-  Bath,
-  BedDouble,
-  Bike,
-  Bird,
-  Building2,
   CalendarDays,
   Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  CircleParking,
-  Dog,
-  Flag,
-  Flame,
-  Footprints,
-  Gift,
-  Headphones,
   Heart,
-  Leaf,
-  Map as MapIcon,
   MapPin,
-  Minus,
-  PawPrint,
-  Plus,
   Share2,
   ShieldCheck,
-  Sparkles,
   Star,
   Users,
-  Wifi,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, FreeMode, Keyboard, Thumbs } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
@@ -54,8 +31,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RoomTypeImage } from "@/components/common/RoomTypeImage";
 import { LocationMap } from "@/components/common/LocationMap";
@@ -72,14 +47,22 @@ import {
 import {
   fetchReviews,
   fetchReviewEligibility,
-  submitReview,
 } from "@/modules/reviews/api/reviews.api";
-import { Dialog } from "@/components/ui/dialog";
 import { useAuthStore } from "@/stores/auth-store";
 import { fetchRoomOffers } from "../api/rooms.api";
 import type { RoomOffer } from "../api/rooms.api";
 import { useRoomTypeBySlug } from "../hooks/use-room-type";
-import EnquireAboutRoom from "../components/EnquireAboutRoom";
+import {
+  AmenityStrip,
+  CottageStats,
+  EnquireAboutRoom,
+  FacilityGrid,
+  GuestStepper,
+  HamperBanner,
+  OfferDialog,
+  ReviewsBlock,
+  WhyBookWithUsCard,
+} from "../components";
 
 function formatMoney(minor: number, currency: string): string {
   try {
@@ -134,36 +117,6 @@ const TABS = [
   { id: "location", label: "Location" },
   { id: "reviews", label: "Reviews" },
 ] as const;
-
-function amenityIconFor(name: string): LucideIcon {
-  const n = name.toLowerCase();
-  if (n.includes("dog")) return PawPrint;
-  if (n.includes("wifi")) return Wifi;
-  if (n.includes("park")) return CircleParking;
-  if (n.includes("baby")) return Baby;
-  if (n.includes("family") || n.includes("child")) return Users;
-  if (n.includes("bird")) return Bird;
-  if (n.includes("ground") || n.includes("bedroom") || n.includes("bed"))
-    return BedDouble;
-  if (n.includes("cycl") || n.includes("bik")) return Bike;
-  if (n.includes("romant") || n.includes("honey")) return Heart;
-  if (n.includes("golf")) return Flag;
-  if (n.includes("walk")) return Footprints;
-  if (n.includes("garden") || n.includes("plant")) return Leaf;
-  if (n.includes("bbq") || n.includes("barbecue") || n.includes("grill"))
-    return Flame;
-  return Check;
-}
-
-function whyIconFor(title: string): LucideIcon {
-  const t = title.toLowerCase();
-  if (t.includes("local") || t.includes("knowledge")) return MapIcon;
-  if (t.includes("propert")) return Building2;
-  if (t.includes("quality") || t.includes("check")) return ShieldCheck;
-  if (t.includes("satisf") || t.includes("guest")) return Heart;
-  if (t.includes("24/7") || t.includes("support")) return Headphones;
-  return Sparkles;
-}
 
 export function RoomDetailPage() {
   const { slug = "" } = useParams();
@@ -1389,539 +1342,8 @@ export function RoomDetailPage() {
             </CardContent>
           </Card>
 
-          {(settings?.whyBookWithUs ?? []).length > 0 && (
-            <Card className="relative overflow-hidden shadow-card">
-              {/* Subtle ambient leaf accent at the bottom corner */}
-              <div
-                className="pointer-events-none absolute -bottom-4 -right-2 w-16 select-none opacity-85"
-                aria-hidden
-              >
-                <img
-                  src="/sunflower.gif"
-                  alt=""
-                  className="w-full"
-                  loading="lazy"
-                />
-              </div>
-              <CardContent className="relative z-10 space-y-4 p-5">
-                <h2 className="font-display text-xl font-medium tracking-tight">
-                  Why book with us?
-                </h2>
-                <ul className="space-y-4">
-                  {(settings?.whyBookWithUs ?? []).map((w, i) => {
-                    const Icon = whyIconFor(w.title);
-                    return (
-                      <li key={i} className="flex gap-3">
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand/10 text-brand-dark">
-                          <Icon className="size-5" aria-hidden />
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block text-sm font-semibold">
-                            {w.title}
-                          </span>
-                          {w.text ? (
-                            <span
-                              className="rich-body mt-0.5 block text-xs leading-relaxed text-muted-foreground"
-                              dangerouslySetInnerHTML={{ __html: w.text }}
-                            />
-                          ) : null}
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
+          <WhyBookWithUsCard items={settings?.whyBookWithUs ?? []} />
         </aside>
-      </div>
-    </div>
-  );
-}
-
-function GuestStepper({
-  label,
-  value,
-  min,
-  max,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  onChange: (v: number) => void;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-sm font-medium">{label}</span>
-      <span className="inline-flex items-center gap-2">
-        <button
-          type="button"
-          aria-label={`Fewer ${label.toLowerCase()}`}
-          disabled={value <= min}
-          onClick={() => onChange(value - 1)}
-          className="flex size-8 items-center justify-center rounded-full border border-input transition hover:border-brand disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <Minus className="size-4" aria-hidden />
-        </button>
-        <span
-          className="w-6 text-center text-sm font-semibold tabular-nums"
-          aria-live="polite"
-        >
-          {value}
-        </span>
-        <button
-          type="button"
-          aria-label={`More ${label.toLowerCase()}`}
-          disabled={value >= max}
-          onClick={() => onChange(value + 1)}
-          className="flex size-8 items-center justify-center rounded-full border border-input transition hover:border-brand disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <Plus className="size-4" aria-hidden />
-        </button>
-      </span>
-    </div>
-  );
-}
-
-function TickIcon({ className }: { className?: string }) {
-  return (
-    <Check
-      className={className ?? "size-5 shrink-0 text-brand"}
-      strokeWidth={3}
-      aria-hidden
-    />
-  );
-}
-
-function StatTip({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <span className="group relative inline-flex items-center gap-1.5 text-sm text-foreground">
-      {children}
-      <span
-        role="tooltip"
-        className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1 hidden w-max max-w-44 -translate-x-1/2 rounded-md bg-night px-2.5 py-1.5 text-center text-[11px] font-medium leading-snug text-white opacity-0 shadow-lg transition-opacity group-hover:block group-hover:opacity-100 group-focus-visible:block group-focus-visible:opacity-100"
-      >
-        {label}
-      </span>
-    </span>
-  );
-}
-
-/** Cottage stats icon row (sleeps · bedrooms · bathrooms · dogs) with tooltips. */
-function CottageStats({
-  sleeps,
-  adults,
-  children,
-  bedrooms,
-  bathrooms,
-  dogs,
-}: {
-  sleeps: number;
-  adults: number;
-  children: number;
-  bedrooms: number | null;
-  bathrooms: number | null;
-  dogs: number | null;
-}) {
-  return (
-    <p className="flex flex-wrap items-center gap-x-5 gap-y-2">
-      <StatTip
-        label={`Guests — sleeps up to ${sleeps} (${adults} adults, ${children} children)`}
-      >
-        <BedDouble className="size-4 text-muted-foreground" aria-hidden />
-        <span aria-hidden>{sleeps} guests</span>
-        <span className="sr-only">Guests: sleeps up to {sleeps}</span>
-      </StatTip>
-      {bedrooms != null && (
-        <StatTip label={bedrooms === 1 ? "1 bedroom" : `${bedrooms} bedrooms`}>
-          <BedDouble className="size-4 text-muted-foreground" aria-hidden />
-          <span aria-hidden>
-            {bedrooms} bedroom{bedrooms === 1 ? "" : "s"}
-          </span>
-          <span className="sr-only">{bedrooms} bedrooms</span>
-        </StatTip>
-      )}
-      {bathrooms != null && (
-        <StatTip
-          label={bathrooms === 1 ? "1 bathroom" : `${bathrooms} bathrooms`}
-        >
-          <Bath className="size-4 text-muted-foreground" aria-hidden />
-          <span aria-hidden>
-            {bathrooms} bathroom{bathrooms === 1 ? "" : "s"}
-          </span>
-          <span className="sr-only">{bathrooms} bathrooms</span>
-        </StatTip>
-      )}
-      {dogs != null && dogs > 0 && (
-        <StatTip
-          label={
-            dogs === 1
-              ? "Dog friendly — 1 dog allowed"
-              : `Dog friendly — ${dogs} dogs allowed`
-          }
-        >
-          <Dog className="size-4 text-muted-foreground" aria-hidden />
-          <span aria-hidden>{dogs}</span>
-          <span className="sr-only">Dog friendly</span>
-        </StatTip>
-      )}
-    </p>
-  );
-}
-
-interface LinkedAmenity {
-  id: string;
-  name: string;
-  group?: string;
-  imageMediaId: string | null;
-  iconUrl?: string | null;
-}
-
-/** Amenity strip: gold icon + label chips in a bordered box. */
-function AmenityStrip({ amenities }: { amenities: LinkedAmenity[] }) {
-  const { data: photos } = useMediaUrls(
-    amenities
-      .map((a) => a.imageMediaId)
-      .filter((id): id is string => Boolean(id)),
-  );
-  const byId = new Map((photos ?? []).map((p) => [p.id, p]));
-  return (
-    <ul className="flex flex-wrap gap-x-8 gap-y-4">
-      {amenities.map((a) => {
-        const uploaded = a.imageMediaId
-          ? byId.get(a.imageMediaId)?.url
-          : undefined;
-        const icon =
-          a.iconUrl && !a.iconUrl.startsWith("https://picsum.photos")
-            ? a.iconUrl
-            : null;
-        const src = uploaded ?? icon ?? null;
-        const Icon = amenityIconFor(a.name);
-        return (
-          <li
-            key={a.id}
-            className="inline-flex min-w-20 flex-col items-center gap-1.5 text-center"
-          >
-            {src ? (
-              <img
-                src={src}
-                alt=""
-                className="size-6 object-contain"
-                loading="lazy"
-              />
-            ) : (
-              <Icon className="size-6 text-brand-dark" aria-hidden />
-            )}
-            <span className="max-w-24 text-xs text-foreground">{a.name}</span>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-/** Facilities grid: tick + label in columns (legacy text amenities merge in). */
-function FacilityGrid({
-  amenities,
-  extra,
-}: {
-  amenities: LinkedAmenity[];
-  extra: string[];
-}) {
-  if (amenities.length === 0 && extra.length === 0) return null;
-  return (
-    <ul className="mx-auto grid max-w-md grid-cols-2 gap-x-6 gap-y-2.5 sm:max-w-none sm:grid-cols-2 lg:grid-cols-3">
-      {amenities.map((a) => (
-        <li
-          key={a.id}
-          className="flex w-full items-center justify-self-start gap-2.5 text-sm text-foreground"
-        >
-          <TickIcon />
-          {a.name}
-        </li>
-      ))}
-      {extra.map((name) => (
-        <li
-          key={name}
-          className="flex w-full items-center justify-self-start gap-2.5 text-sm text-foreground"
-        >
-          <TickIcon />
-          {name}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/** Welcome-hamper banner — View details opens a dialog (like offers). */
-function HamperBanner({ html }: { html: string }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <>
-      <section
-        aria-label="Welcome hamper"
-        className="relative my-8 overflow-hidden rounded-xl border border-brand/30 bg-gradient-to-r from-brand/15 via-brand/5 to-surface-2/60 p-4"
-      >
-        {/* Wildflower botanical sprig accent peeking from the far right */}
-        <div
-          className="pointer-events-none absolute -right-2 -bottom-5 w-24 select-none opacity-80 sm:w-28"
-          aria-hidden
-        >
-          <img
-            src="/wildflower1.webp"
-            alt=""
-            className="detail-wildflower w-full rotate-[-12deg]"
-            loading="lazy"
-          />
-        </div>
-        {/* Animated flying butterfly hovering near the wildflowers */}
-        <div
-          className="pointer-events-none absolute right-22 top-22 sm:top-10 w-8 select-none sm:right-20  sm:w-6"
-          aria-hidden
-        >
-          <img
-            src="/butterfly_flying.gif"
-            alt=""
-            className="detail-flying-butterfly-1 w-full drop-shadow-sm rotate-[-12deg]"
-            loading="lazy"
-          />
-        </div>
-        <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 sm:pr-24">
-          <div className="flex items-center gap-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand text-white shadow-sm">
-              <Gift className="size-5" aria-hidden />
-            </span>
-            <div>
-              <p className="text-sm font-semibold text-brand-dark">
-                Welcome hamper included
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Artisanal local goods &amp; countryside treats waiting in your
-                cottage
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            aria-haspopup="dialog"
-            className="relative z-20 inline-flex shrink-0 items-center gap-1.5 rounded-full border border-brand/40 bg-card px-4 py-1.5 text-xs font-semibold text-brand-dark shadow-xs transition hover:border-brand hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            View details
-            <span aria-hidden>→</span>
-          </button>
-        </div>
-      </section>
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        labelledBy="hamper-dialog-title"
-      >
-        <h2
-          id="hamper-dialog-title"
-          className="pr-10 font-display text-2xl font-light tracking-tight"
-        >
-          Welcome hamper included
-        </h2>
-        <div
-          className="rich-text mt-3 text-sm leading-relaxed text-foreground"
-          dangerouslySetInnerHTML={{ __html: enhanceRichLinks(html) }}
-        />
-      </Dialog>
-    </>
-  );
-}
-
-function formatOfferDate(value: string | null): string | null {
-  if (!value) return null;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  const day = date.getUTCDate();
-  const suffix =
-    day % 10 === 1 && day !== 11
-      ? "st"
-      : day % 10 === 2 && day !== 12
-        ? "nd"
-        : day % 10 === 3 && day !== 13
-          ? "rd"
-          : "th";
-  const month = date.toLocaleDateString("en-GB", {
-    month: "short",
-    timeZone: "UTC",
-  });
-  return `${day}${suffix} ${month} ${date.getUTCFullYear()}`;
-}
-
-/** Clickable-offer dialog ("1 OFFER" with terms). */
-function OfferDialog({
-  offers,
-  open,
-  onClose,
-}: {
-  offers: RoomOffer[];
-  open: boolean;
-  onClose: () => void;
-}) {
-  return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      labelledBy="offers-dialog-title"
-      closeClassName="text-white hover:bg-white/15 hover:text-white focus-visible:ring-white"
-    >
-      <div className="-m-5 mb-4 flex items-center justify-between bg-destructive px-5 py-3 text-white sm:-m-6 sm:mb-4 sm:px-6">
-        <h2
-          id="offers-dialog-title"
-          className="py-0.5 pr-8 text-sm font-bold tracking-wide"
-        >
-          {offers.length} OFFER{offers.length === 1 ? "" : "S"}
-        </h2>
-      </div>
-      <div className="space-y-6">
-        {offers.map((offer) => {
-          const from = formatOfferDate(offer.validFrom);
-          const until = formatOfferDate(offer.validUntil);
-          return (
-            <div key={offer.id} className="space-y-2">
-              <p className="flex items-center gap-2 text-lg font-bold">
-                <BadgePercent
-                  className="size-6 text-muted-foreground"
-                  aria-hidden
-                />
-                {offer.badgeLabel}
-                <span className="text-base font-medium text-muted-foreground">
-                  {from && until ? `${from} to ${until}` : offer.title}
-                </span>
-              </p>
-              {offer.description && (
-                <p className="whitespace-pre-line text-sm leading-relaxed text-foreground">
-                  {offer.description}
-                </p>
-              )}
-              <p className="text-xs text-muted-foreground">
-                Use code {offer.couponCode} at checkout.
-              </p>
-            </div>
-          );
-        })}
-      </div>
-    </Dialog>
-  );
-}
-
-function ReviewsBlock({
-  roomTypeId,
-  reviewsQuery,
-}: {
-  roomTypeId: string;
-  reviewsQuery: ReturnType<typeof useQuery>;
-}) {
-  const queryClient = useQueryClient();
-  const data = (reviewsQuery.data ?? { items: [], average: 0, count: 0 }) as {
-    items: Array<{
-      id: string;
-      authorName: string;
-      rating: number;
-      title: string | null;
-      body: string;
-    }>;
-    average: number;
-    count: number;
-  };
-  const [rating, setRating] = useState("5");
-  const [body, setBody] = useState("");
-  const mutation = useMutation({
-    mutationFn: () =>
-      submitReview({ roomTypeId, rating: Number(rating), body: body.trim() }),
-    onSuccess: () => {
-      setBody("");
-      void queryClient.invalidateQueries({ queryKey: ["reviews", roomTypeId] });
-      toast.success(
-        "Review submitted for moderation — only completed stays are eligible",
-      );
-    },
-    onError: (e: unknown) =>
-      toast.error(
-        e instanceof Error
-          ? e.message
-          : "Only guests with a completed stay can review",
-      ),
-  });
-  return (
-    <div className="space-y-3">
-      <h2 className="font-display text-2xl font-medium tracking-tight">
-        Reviews{" "}
-        {data.count > 0 ? (
-          <span className="font-display text-base italic text-muted-foreground">
-            · {data.average} ★ ({data.count})
-          </span>
-        ) : (
-          <span className="font-display text-base italic text-muted-foreground">
-            · Be the first to review
-          </span>
-        )}
-      </h2>
-      {reviewsQuery.isPending ? (
-        <Skeleton className="h-24 w-full rounded-xl" />
-      ) : data.items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          No reviews yet — only guests with a completed stay can leave one.
-        </p>
-      ) : (
-        <div className="grid gap-3">
-          {data.items.map((r) => (
-            <Card key={r.id}>
-              <CardContent className="p-4">
-                <p className="text-sm font-medium">
-                  {r.authorName} · {"★".repeat(r.rating)}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {r.title ? `${r.title} — ` : ""}
-                  {r.body}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-      <div className="grid gap-2 rounded-xl border border-border p-4">
-        <p className="text-sm font-medium">
-          Write a review (completed stays only)
-        </p>
-        <div className="flex gap-2">
-          <div className="space-y-1">
-            <Label htmlFor="rev-rating">Rating</Label>
-            <Input
-              id="rev-rating"
-              type="number"
-              min={1}
-              max={5}
-              value={rating}
-              onChange={(e) => setRating(e.target.value)}
-              className="w-24"
-            />
-          </div>
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor="rev-body">Review</Label>
-          <textarea
-            id="rev-body"
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            rows={3}
-            className="flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            placeholder="How was your stay?"
-          />
-        </div>
-        <Button
-          className="w-fit rounded-full"
-          disabled={mutation.isPending || body.trim().length < 4}
-          onClick={() => mutation.mutate()}
-        >
-          {mutation.isPending ? "Submitting…" : "Submit review"}
-        </Button>
       </div>
     </div>
   );

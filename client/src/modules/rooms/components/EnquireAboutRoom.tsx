@@ -3,7 +3,7 @@ import Dialog from "@/components/ui/dialog";
 import EnquiryForm from "@/modules/enquiry/components/EnquiryForm";
 import { useState } from "react";
 
-function EnquireAboutRoom({
+export function EnquireAboutRoom({
   roomTypeId,
   roomName,
 }: {
