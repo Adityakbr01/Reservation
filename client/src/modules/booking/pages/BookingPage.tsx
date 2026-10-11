@@ -129,6 +129,7 @@ function PayButton({ bookingId, totalLabel }: { bookingId: string; totalLabel: s
 export function BookingPage() {
   const [params, setSearchParams] = useSearchParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const selection = useMemo(() => parseSelection(params), [params]);
   const [dateError, setDateError] = useState<string | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -677,15 +678,36 @@ export function BookingPage() {
   const totalLabel = quote ? formatMoney(quote.pricing.total, quote.pricing.currency) : "";
   const signInTarget = `${location.pathname}${location.search}`;
 
+  const roomSlug = params.get("roomSlug") || (location.state as { roomSlug?: string } | null)?.roomSlug;
+  const stateFrom = (location.state as { from?: string } | null)?.from;
+  const backTarget = stateFrom || (roomSlug ? `/rooms/${roomSlug}` : "/");
+  const backLabel = selection?.roomName && selection.roomName !== "Selected room"
+    ? `← Back to ${selection.roomName}`
+    : roomSlug
+      ? "← Back to room details"
+      : "← Back to search";
+
+  function handleBack(e: React.MouseEvent) {
+    e.preventDefault();
+    if (backTarget && backTarget !== "/") {
+      navigate(backTarget);
+    } else if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/");
+    }
+  }
+
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 pb-8">
       <div>
-        <Link
-          to="/"
+        <button
+          type="button"
+          onClick={handleBack}
           className="text-sm font-medium text-brand hover:text-brand-dark focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
-          ← Back to search
-        </Link>
+          {backLabel}
+        </button>
         <h1 className="mt-2 font-display text-3xl font-light tracking-tight sm:text-4xl">Checkout</h1>
       </div>
 

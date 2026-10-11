@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { availabilityKeys } from "@/lib/query-keys";
 import { fetchAvailabilityCalendar, searchAvailability } from "../api/availability.api";
 import type { AvailabilitySearchParams } from "../types/availability.types";
@@ -11,6 +11,7 @@ export function useAvailabilitySearch(params: AvailabilitySearchParams | null) {
       return searchAvailability(params);
     },
     enabled: params !== null,
+    placeholderData: keepPreviousData,
     staleTime: 30_000,
     retry: false,
   });

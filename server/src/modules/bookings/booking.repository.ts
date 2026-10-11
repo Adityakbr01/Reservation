@@ -139,11 +139,11 @@ export async function createBookingWithItems(
   items: CreateBookingItemRecord[],
   session: ClientSession,
 ): Promise<BookingDocument> {
-  const created = await BookingModel.create([booking], { session });
+  const created = await BookingModel.create([booking], { session, ordered: true });
   const doc = created[0];
   await BookingItemModel.create(
     items.map((item) => ({ ...item, bookingId: doc._id })),
-    { session },
+    { session, ordered: true },
   );
   return doc;
 }

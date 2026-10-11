@@ -529,16 +529,47 @@ export function RoomDetailPage() {
     }
   }
 
+  const roomCount = search?.rooms ?? 1;
+  const baseMaxAdults = roomType?.maxAdults ?? 4;
+  const baseMaxChildren = roomType?.maxChildren ?? 4;
+  const baseMaxOccupancy = roomType?.maxOccupancy ?? 6;
+
+  const totalMaxAdults = baseMaxAdults * roomCount;
+  const totalMaxChildren = baseMaxChildren * roomCount;
+  const totalMaxOccupancy = baseMaxOccupancy * roomCount;
+  const currentAdults = search?.adults ?? 2;
+  const currentChildren = search?.children ?? 0;
+  const currentGuests = currentAdults + currentChildren;
+  const maxRoomsAvailable = Math.max(1, Math.min(10, match?.availableCount ?? 10));
+
   function setGuestCount(adults: number, children: number) {
     const next = new URLSearchParams(params);
-    next.set("adults", String(Math.max(1, Math.min(20, adults))));
-    next.set("children", String(Math.max(0, Math.min(20, children))));
+    const safeAdults = Math.max(1, Math.min(totalMaxAdults, adults));
+    const safeChildren = Math.max(0, Math.min(totalMaxChildren, children));
+    let finalAdults = safeAdults;
+    let finalChildren = safeChildren;
+    if (finalAdults + finalChildren > totalMaxOccupancy) {
+      finalChildren = Math.max(0, totalMaxOccupancy - finalAdults);
+    }
+    next.set("adults", String(finalAdults));
+    next.set("children", String(finalChildren));
     setParams(next);
   }
 
-  function setRoomCount(rooms: number) {
+  function setRoomCount(newRooms: number) {
     const next = new URLSearchParams(params);
-    next.set("rooms", String(Math.max(1, Math.min(10, rooms))));
+    const safeRooms = Math.max(1, Math.min(maxRoomsAvailable, newRooms));
+    next.set("rooms", String(safeRooms));
+    const newMaxOccupancy = baseMaxOccupancy * safeRooms;
+    const newMaxAdults = baseMaxAdults * safeRooms;
+    const newMaxChildren = baseMaxChildren * safeRooms;
+    let finalAdults = Math.min(newMaxAdults, currentAdults);
+    let finalChildren = Math.min(newMaxChildren, currentChildren);
+    if (finalAdults + finalChildren > newMaxOccupancy) {
+      finalChildren = Math.max(0, newMaxOccupancy - finalAdults);
+    }
+    next.set("adults", String(finalAdults));
+    next.set("children", String(finalChildren));
     setParams(next);
   }
 
@@ -1157,28 +1188,23 @@ export function RoomDetailPage() {
         <aside className="min-w-0 space-y-5 lg:sticky lg:top-24">
           <Card className="shadow-card">
             <CardContent className="space-y-4 p-5">
-              {leadRate ? (
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    From
-                  </p>
-                  <p className="mt-1 font-display text-3xl font-medium tracking-tight">
+              <div className="min-h-[64px] flex flex-col justify-center">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  {leadRate ? "From" : "Nightly Rate"}
+                </p>
+                {leadRate ? (
+                  <p className="mt-0.5 font-display text-3xl font-medium tracking-tight">
                     {formatMoney(leadRate.perNight, leadRate.currency)}{" "}
                     <span className="font-display text-base font-normal italic text-muted-foreground">
                       / night
                     </span>
                   </p>
-                </div>
-              ) : (
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    From
-                  </p>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                ) : (
+                  <p className="mt-1 text-sm font-medium text-muted-foreground">
                     Select dates to see live rates
                   </p>
-                </div>
-              )}
+                )}
+              </div>
 
               <div className="space-y-2">
                 <p className="text-sm font-semibold">Your stay</p>
@@ -1186,17 +1212,26 @@ export function RoomDetailPage() {
                   type="button"
                   onClick={() => scrollToId("availability")}
                   aria-label="Choose dates from the availability calendar"
-                  className="flex w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm transition hover:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="flex min-h-[50px] w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 py-1.5 text-sm transition hover:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <span className="inline-flex items-center gap-2">
-                    <CalendarDays
-                      className="size-4 text-muted-foreground"
-                      aria-hidden
-                    />
-                    {search
-                      ? `${fmtShort(search.checkIn)} → ${fmtShort(search.checkOut)}`
-                      : "Select dates"}
-                  </span>
+                  <div className="flex min-w-0 flex-col items-start text-left">
+                    <span className="inline-flex items-center gap-2 font-medium">
+                      <CalendarDays
+                        className="size-4 shrink-0 text-muted-foreground"
+                        aria-hidden
+                      />
+                      <span className="truncate">
+                        {search
+                          ? `${fmtShort(search.checkIn)} → ${fmtShort(search.checkOut)}`
+                          : "Select dates"}
+                      </span>
+                    </span>
+                    <span className="pl-6 text-[11px] text-muted-foreground">
+                      {search && stayNights > 0
+                        ? `${stayNights} night${stayNights === 1 ? "" : "s"} stay`
+                        : "Click to select stay dates"}
+                    </span>
+                  </div>
                   <ChevronDown
                     className="size-4 shrink-0 text-muted-foreground"
                     aria-hidden
@@ -1208,15 +1243,22 @@ export function RoomDetailPage() {
                     onClick={() => setGuestsOpen((o) => !o)}
                     aria-expanded={guestsOpen}
                     aria-label="Choose guests"
-                    className="flex w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm transition hover:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="flex min-h-[50px] w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 py-1.5 text-sm transition hover:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
-                    <span className="inline-flex items-center gap-2">
-                      <Users
-                        className="size-4 text-muted-foreground"
-                        aria-hidden
-                      />
-                      {guestCount} guest{guestCount === 1 ? "" : "s"} · {search?.rooms ?? 1} room{(search?.rooms ?? 1) === 1 ? "" : "s"}
-                    </span>
+                    <div className="flex min-w-0 flex-col items-start text-left">
+                      <span className="inline-flex items-center gap-2 font-medium">
+                        <Users
+                          className="size-4 shrink-0 text-muted-foreground"
+                          aria-hidden
+                        />
+                        <span className="truncate">
+                          {guestCount} guest{guestCount === 1 ? "" : "s"} · {roomCount} room{roomCount === 1 ? "" : "s"}
+                        </span>
+                      </span>
+                      <span className="pl-6 text-[11px] text-muted-foreground">
+                        Max {totalMaxOccupancy} guests total
+                      </span>
+                    </div>
                     <ChevronDown
                       className={`size-4 shrink-0 text-muted-foreground transition-transform ${guestsOpen ? "rotate-180" : ""}`}
                       aria-hidden
@@ -1230,45 +1272,97 @@ export function RoomDetailPage() {
                         onClick={() => setGuestsOpen(false)}
                         className="fixed inset-0 z-10 cursor-default bg-transparent"
                       />
-                      <div
-                        role="dialog"
-                        aria-label="Choose guests"
-                        className="absolute inset-x-0 top-full z-20 mt-2 space-y-3 rounded-xl border border-border bg-card p-4 shadow-card"
-                      >
-                        <GuestStepper
-                          label="Adults"
-                          value={search?.adults ?? 2}
-                          min={1}
-                          max={20}
-                          onChange={(v) =>
-                            setGuestCount(v, search?.children ?? 0)
-                          }
-                        />
-                        <GuestStepper
-                          label="Children"
-                          value={search?.children ?? 0}
-                          min={0}
-                          max={20}
-                          onChange={(v) =>
-                            setGuestCount(search?.adults ?? 2, v)
-                          }
-                        />
-                        <GuestStepper
-                          label="Rooms"
-                          value={search?.rooms ?? 1}
-                          min={1}
-                          max={Math.max(1, Math.min(10, match?.availableCount ?? 10))}
-                          onChange={(v) => setRoomCount(v)}
-                        />
-                        <Button
-                          type="button"
-                          size="sm"
-                          className="w-full rounded-full"
-                          onClick={() => setGuestsOpen(false)}
-                        >
-                          Done
-                        </Button>
-                      </div>
+                      {(() => {
+                        const maxAdultsAllowed = Math.min(totalMaxAdults, totalMaxOccupancy - currentChildren);
+                        const isAdultsPlusDisabled = currentAdults >= maxAdultsAllowed || currentGuests >= totalMaxOccupancy;
+                        const isAdultsMinusDisabled = currentAdults <= 1;
+
+                        const maxChildrenAllowed = Math.min(totalMaxChildren, Math.max(0, totalMaxOccupancy - currentAdults));
+                        const isChildrenPlusDisabled = currentChildren >= maxChildrenAllowed || currentGuests >= totalMaxOccupancy;
+                        const isChildrenMinusDisabled = currentChildren <= 0;
+
+                        const isRoomsPlusDisabled = roomCount >= maxRoomsAvailable;
+                        const isRoomsMinusDisabled = roomCount <= 1;
+
+                        return (
+                          <div
+                            role="dialog"
+                            aria-label="Choose guests"
+                            className="absolute inset-x-0 top-full z-20 mt-2 space-y-3 rounded-xl border border-border bg-card p-4 shadow-card"
+                          >
+                            <div className="rounded-lg border border-border/80 bg-muted/40 p-2.5 text-xs space-y-1">
+                              <div className="flex items-center justify-between font-medium text-foreground">
+                                <span>Cottage Capacity</span>
+                                <span className="font-semibold text-brand">Up to {totalMaxOccupancy} guests</span>
+                              </div>
+                              <p className="text-[11px] text-muted-foreground leading-tight">
+                                {roomCount === 1
+                                  ? `Max ${baseMaxOccupancy} guests (${baseMaxAdults} adults, ${baseMaxChildren} children) per room.`
+                                  : `Max ${totalMaxOccupancy} guests across ${roomCount} rooms (${totalMaxAdults} adults, ${totalMaxChildren} children).`}
+                              </p>
+                            </div>
+
+                            <GuestStepper
+                              label="Adults"
+                              sublabel={`Max ${totalMaxAdults} adults`}
+                              value={currentAdults}
+                              min={1}
+                              max={totalMaxAdults}
+                              disabledMinus={isAdultsMinusDisabled}
+                              disabledPlus={isAdultsPlusDisabled}
+                              onChange={(v) =>
+                                setGuestCount(v, currentChildren)
+                              }
+                            />
+                            <GuestStepper
+                              label="Children"
+                              sublabel={baseMaxChildren > 0 ? `Max ${totalMaxChildren} children` : "Adults only"}
+                              value={currentChildren}
+                              min={0}
+                              max={totalMaxChildren}
+                              disabledMinus={isChildrenMinusDisabled}
+                              disabledPlus={isChildrenPlusDisabled || baseMaxChildren <= 0}
+                              onChange={(v) =>
+                                setGuestCount(currentAdults, v)
+                              }
+                            />
+                            <GuestStepper
+                              label="Rooms"
+                              sublabel={`${maxRoomsAvailable} ${maxRoomsAvailable === 1 ? "room" : "rooms"} available`}
+                              value={roomCount}
+                              min={1}
+                              max={maxRoomsAvailable}
+                              disabledMinus={isRoomsMinusDisabled}
+                              disabledPlus={isRoomsPlusDisabled}
+                              onChange={(v) => setRoomCount(v)}
+                            />
+
+                            <div className="min-h-[42px] flex items-center rounded-lg border px-2.5 py-1.5 text-[11px] transition-colors">
+                              {currentGuests >= totalMaxOccupancy ? (
+                                <div className="text-amber-800 dark:text-amber-300 font-medium">
+                                  <span>Maximum capacity reached</span> ({totalMaxOccupancy} guests).
+                                  {roomCount < maxRoomsAvailable && " Add another room above to increase capacity."}
+                                </div>
+                              ) : (
+                                <div className="text-muted-foreground">
+                                  <span>
+                                    {totalMaxOccupancy - currentGuests} more guest{totalMaxOccupancy - currentGuests === 1 ? "" : "s"} can be accommodated.
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            <Button
+                              type="button"
+                              size="sm"
+                              className="w-full rounded-full"
+                              onClick={() => setGuestsOpen(false)}
+                            >
+                              Done
+                            </Button>
+                          </div>
+                        );
+                      })()}
                     </>
                   )}
                 </div>
@@ -1287,74 +1381,87 @@ export function RoomDetailPage() {
                 </p>
               </div>
 
-              {leadRate && match && search && match.availableCount > 0 ? (
-                <div className="space-y-3 rounded-xl border border-border p-4 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Standard Rate</span>
-                    <span className="font-medium">
-                      {formatMoney(leadRate.perNight, leadRate.currency)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      {stayNights} night{stayNights === 1 ? "" : "s"}
-                    </span>
-                    <span className="font-medium">
-                      {formatMoney(leadRate.total, leadRate.currency)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Taxes &amp; fees
-                    </span>
-                    <span className="font-medium">
-                      {formatMoney(0, leadRate.currency)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between border-t border-border pt-3 text-base font-bold">
-                    <span>Total</span>
-                    <span>
-                      {formatMoney(leadRate.total, leadRate.currency)}
-                    </span>
-                  </div>
-                  <div className="space-y-2 pt-1">
-                    {match.rates.map((rate) => (
-                      <div
-                        key={rate.ratePlanId}
-                        className="flex items-center justify-between gap-2 rounded-lg bg-muted/60 px-3 py-2"
-                      >
-                        <div className="min-w-0">
-                          <p className="truncate text-xs font-medium">
-                            {rate.name}
-                          </p>
-                          <p className="text-[11px] text-muted-foreground">
-                            {formatMoney(rate.total, rate.currency)} total
-                          </p>
-                        </div>
-                        <Button
-                          asChild
-                          size="sm"
-                          className="shrink-0 rounded-full"
+              <div className="min-h-[140px]">
+                {leadRate && match && search && match.availableCount > 0 ? (
+                  <div className="space-y-3 rounded-xl border border-border p-4 text-sm animate-in fade-in duration-150">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Standard Rate</span>
+                      <span className="font-medium">
+                        {formatMoney(leadRate.perNight, leadRate.currency)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        {stayNights} night{stayNights === 1 ? "" : "s"}
+                      </span>
+                      <span className="font-medium">
+                        {formatMoney(leadRate.total, leadRate.currency)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Taxes &amp; fees
+                      </span>
+                      <span className="font-medium">
+                        {formatMoney(0, leadRate.currency)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between border-t border-border pt-3 text-base font-bold">
+                      <span>Total</span>
+                      <span>
+                        {formatMoney(leadRate.total, leadRate.currency)}
+                      </span>
+                    </div>
+                    <div className="space-y-2 pt-1">
+                      {match.rates.map((rate) => (
+                        <div
+                          key={rate.ratePlanId}
+                          className="flex items-center justify-between gap-2 rounded-lg bg-muted/60 px-3 py-2"
                         >
-                          <Link
-                            to={`/booking/new?roomTypeId=${match.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&rooms=${search.rooms ?? 1}&roomName=${encodeURIComponent(match.roomType.name)}&rateName=${encodeURIComponent(rate.name)}`}
+                          <div className="min-w-0">
+                            <p className="truncate text-xs font-medium">
+                              {rate.name}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                              {formatMoney(rate.total, rate.currency)} total
+                            </p>
+                          </div>
+                          <Button
+                            asChild
+                            size="sm"
+                            className="shrink-0 rounded-full"
                           >
-                            Book now
-                          </Link>
-                        </Button>
-                      </div>
-                    ))}
+                            <Link
+                              to={`/booking/new?roomTypeId=${match.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&rooms=${search.rooms ?? 1}&roomName=${encodeURIComponent(match.roomType.name)}&rateName=${encodeURIComponent(rate.name)}`}
+                            >
+                              Book now
+                            </Link>
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <p className="text-xs leading-relaxed text-muted-foreground">
-                  {search
-                    ? match && match.availableCount <= 0
-                      ? `Fully booked for ${search.checkIn} → ${search.checkOut}. Try different dates from the calendar.`
-                      : "Not available for these dates. Try different dates from the calendar."
-                    : "Pick dates from the availability calendar to see live rates."}
-                </p>
-              )}
+                ) : (
+                  <div className="rounded-xl border border-dashed border-border/80 bg-muted/20 p-4 text-center flex flex-col items-center justify-center min-h-[140px] space-y-2">
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      {search
+                        ? match && match.availableCount <= 0
+                          ? `Fully booked for ${search.checkIn} → ${search.checkOut}.`
+                          : "Not available for these dates."
+                        : "Pick dates on the availability calendar to see live rates."}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => scrollToId("availability")}
+                      className="text-xs font-medium text-brand hover:underline"
+                    >
+                      {search && match && match.availableCount <= 0
+                        ? "View open dates on calendar →"
+                        : "Open calendar →"}
+                    </button>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
 
