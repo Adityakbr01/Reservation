@@ -536,6 +536,12 @@ export function RoomDetailPage() {
     setParams(next);
   }
 
+  function setRoomCount(rooms: number) {
+    const next = new URLSearchParams(params);
+    next.set("rooms", String(Math.max(1, Math.min(10, rooms))));
+    setParams(next);
+  }
+
   return (
     <div ref={rootRef} className="relative space-y-5 pb-8">
       {/* Ambient countryside framing foliage — crisp & clear of interactive controls */}
@@ -1209,7 +1215,7 @@ export function RoomDetailPage() {
                         className="size-4 text-muted-foreground"
                         aria-hidden
                       />
-                      {guestCount} guest{guestCount === 1 ? "" : "s"}
+                      {guestCount} guest{guestCount === 1 ? "" : "s"} · {search?.rooms ?? 1} room{(search?.rooms ?? 1) === 1 ? "" : "s"}
                     </span>
                     <ChevronDown
                       className={`size-4 shrink-0 text-muted-foreground transition-transform ${guestsOpen ? "rotate-180" : ""}`}
@@ -1246,6 +1252,13 @@ export function RoomDetailPage() {
                           onChange={(v) =>
                             setGuestCount(search?.adults ?? 2, v)
                           }
+                        />
+                        <GuestStepper
+                          label="Rooms"
+                          value={search?.rooms ?? 1}
+                          min={1}
+                          max={Math.max(1, Math.min(10, match?.availableCount ?? 10))}
+                          onChange={(v) => setRoomCount(v)}
                         />
                         <Button
                           type="button"
@@ -1324,7 +1337,7 @@ export function RoomDetailPage() {
                           className="shrink-0 rounded-full"
                         >
                           <Link
-                            to={`/booking/new?roomTypeId=${match.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&roomName=${encodeURIComponent(match.roomType.name)}&rateName=${encodeURIComponent(rate.name)}`}
+                            to={`/booking/new?roomTypeId=${match.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&rooms=${search.rooms ?? 1}&roomName=${encodeURIComponent(match.roomType.name)}&rateName=${encodeURIComponent(rate.name)}`}
                           >
                             Book now
                           </Link>

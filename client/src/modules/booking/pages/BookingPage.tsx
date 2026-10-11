@@ -219,7 +219,7 @@ export function BookingPage() {
             key: roomKey(selection.roomTypeId, selection.ratePlanId),
             roomTypeId: selection.roomTypeId,
             ratePlanId: selection.ratePlanId,
-            quantity: 1,
+            quantity: Math.max(1, Math.min(10, Number(params.get("rooms")) || 1)),
             roomName: selection.roomName,
             rateName: selection.rateName,
           },
@@ -492,8 +492,12 @@ export function BookingPage() {
         totalMaxAdults += (info.maxAdults || 2) * r.quantity;
         totalMaxOccupancy += (info.maxOccupancy || 2) * r.quantity;
         const typeTotal = rooms.filter((x) => x.roomTypeId === r.roomTypeId).reduce((s, x) => s + x.quantity, 0);
-        if (typeTotal > info.availableCount)
-          return `Only ${info.availableCount} ${info.name} left for these dates.`;
+        if (typeTotal > info.availableCount) {
+          if (info.availableCount <= 0) {
+            return `${info.name} is fully booked for these dates.`;
+          }
+          return `Only ${info.availableCount} ${info.name} available for these dates (you selected ${typeTotal}).`;
+        }
       }
     }
     if (totalMaxAdults > 0 && selection.adults > totalMaxAdults) {
@@ -961,7 +965,7 @@ export function BookingPage() {
             <CardHeader>
               <CardTitle className="text-base tracking-wide">Price details</CardTitle>
               <CardDescription>
-                {rooms.length} room line{rooms.length === 1 ? "" : "s"} · {nights} night{nights === 1 ? "" : "s"}
+                {rooms.reduce((s, r) => s + r.quantity, 0)} room{rooms.reduce((s, r) => s + r.quantity, 0) === 1 ? "" : "s"} · {nights} night{nights === 1 ? "" : "s"}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -1051,19 +1055,20 @@ export function BookingPage() {
                 {rooms.map((r) => {
                   const info = availabilityByRoom.get(r.roomTypeId);
                   const cap = Math.min(10, info?.availableCount ?? 10);
+                  const isSoldOut = cap <= 0;
                   return (
-                    <div key={r.key} className="rounded-md border border-border p-3 text-sm">
+                    <div key={r.key} className="rounded-lg border border-border bg-card p-3 text-sm space-y-2.5">
                       <div className="flex min-w-0 items-start justify-between gap-2">
-                        <p className="min-w-0 font-medium">
-                          <span className="block truncate">{r.roomName}</span>
-                          <span className="block truncate font-normal text-muted-foreground">{r.rateName}</span>
-                        </p>
+                        <div className="min-w-0">
+                          <p className="font-medium truncate text-foreground">{r.roomName}</p>
+                          <p className="text-xs text-muted-foreground">{r.rateName}</p>
+                        </div>
                         {rooms.length > 1 && (
                           <Button
                             type="button"
                             variant="ghost"
                             size="sm"
-                            className="shrink-0 text-destructive"
+                            className="h-7 text-xs text-destructive hover:bg-destructive/10"
                             onClick={() => removeRoom(r.key)}
                             aria-label={`Remove ${r.roomName}`}
                           >
@@ -1071,45 +1076,49 @@ export function BookingPage() {
                           </Button>
                         )}
                       </div>
-                      <div className="mt-2 flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2" role="group" aria-label={`Quantity for ${r.roomName}`}>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="h-8 w-8 rounded-full p-0"
-                            disabled={r.quantity <= 1}
-                            onClick={() => setRoomQuantity(r.key, r.quantity - 1)}
-                            aria-label={`Decrease quantity for ${r.roomName}`}
-                          >
-                            −
-                          </Button>
-                          <label className="sr-only" htmlFor={`qty-${r.key}`}>
-                            Quantity for {r.roomName}
-                          </label>
-                          <Input
-                            id={`qty-${r.key}`}
-                            type="number"
-                            min={1}
-                            max={cap}
-                            value={r.quantity}
-                            onChange={(e) => setRoomQuantity(r.key, Number(e.target.value))}
-                            className="h-8 w-16 text-center"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="h-8 w-8 rounded-full p-0"
-                            disabled={r.quantity >= cap}
-                            onClick={() => setRoomQuantity(r.key, r.quantity + 1)}
-                            aria-label={`Increase quantity for ${r.roomName}`}
-                          >
-                            +
-                          </Button>
+
+                      {isSoldOut ? (
+                        <div className="rounded-md border border-destructive/20 bg-destructive/10 px-2.5 py-1.5 text-xs text-destructive font-medium flex items-center justify-between">
+                          <span>Sold out for these dates</span>
+                          <span className="text-[11px] opacity-80">0 available</span>
                         </div>
-                        <p className="text-xs text-muted-foreground">max {cap}</p>
-                      </div>
+                      ) : (
+                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/60">
+                          <div>
+                            <span className="text-xs font-medium text-foreground">Rooms to book</span>
+                            <span className="block text-[11px] text-muted-foreground">
+                              {cap} {cap === 1 ? "room" : "rooms"} available for your dates
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5" role="group" aria-label={`Quantity for ${r.roomName}`}>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-8 w-8 rounded-full p-0"
+                              disabled={r.quantity <= 1}
+                              onClick={() => setRoomQuantity(r.key, r.quantity - 1)}
+                              aria-label={`Decrease quantity for ${r.roomName}`}
+                            >
+                              −
+                            </Button>
+                            <span className="w-8 text-center text-xs font-semibold tabular-nums text-foreground">
+                              {r.quantity}
+                            </span>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-8 w-8 rounded-full p-0"
+                              disabled={r.quantity >= cap}
+                              onClick={() => setRoomQuantity(r.key, r.quantity + 1)}
+                              aria-label={`Increase quantity for ${r.roomName}`}
+                            >
+                              +
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -1172,9 +1181,39 @@ export function BookingPage() {
                 )}
               </div>
               {quote && (
-                <div className="flex items-baseline justify-between">
-                  <p className="font-semibold">Total<br /><span className="text-xs font-normal text-muted-foreground">Including taxes and fees</span></p>
-                  <p className="font-display text-xl">{formatMoney(quote.pricing.total, quote.pricing.currency)}</p>
+                <div
+                  className={`rounded-xl border p-3.5 transition-colors ${
+                    !isDatesAvailable
+                      ? "border-destructive/30 bg-destructive/5"
+                      : "border-border/80 bg-muted/30"
+                  }`}
+                >
+                  <div className="flex items-baseline justify-between">
+                    <div>
+                      <p className="font-semibold text-foreground">Total</p>
+                      <span className="text-xs text-muted-foreground">
+                        {!isDatesAvailable
+                          ? "Dates unavailable for selected cottage"
+                          : "Including taxes and fees"}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <p
+                        className={`font-display text-2xl font-medium ${
+                          !isDatesAvailable
+                            ? "line-through text-muted-foreground"
+                            : "text-foreground"
+                        }`}
+                      >
+                        {formatMoney(quote.pricing.total, quote.pricing.currency)}
+                      </p>
+                      {!isDatesAvailable && (
+                        <span className="text-[11px] font-semibold text-destructive block">
+                          Dates not available
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
               <div className="flex gap-2">
@@ -1199,18 +1238,26 @@ export function BookingPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full rounded-full"
+                className="w-full rounded-full border-dashed hover:border-brand hover:text-brand transition-colors"
                 onClick={() => setShowAddRoom((v) => !v)}
                 aria-expanded={showAddRoom}
               >
-                {showAddRoom ? "Close room picker" : "Add a room"}
+                {showAddRoom ? "Close cottage selector" : "+ Add another cottage to your stay"}
               </Button>
               {showAddRoom && (
-                <div className="max-h-72 space-y-2 overflow-y-auto rounded-md border border-border p-2">
+                <div className="max-h-72 space-y-2 overflow-y-auto rounded-xl border border-border bg-card p-2.5 shadow-sm">
+                  <div className="flex items-center justify-between px-2 pt-1 pb-1 border-b border-border/50">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Available cottages for your dates:
+                    </p>
+                    <span className="text-[11px] text-muted-foreground">
+                      {(availabilityQuery.data?.results ?? []).filter((r) => r.availableCount > 0).length} available
+                    </span>
+                  </div>
                   {availabilityQuery.isPending ? (
-                    <p className="p-2 text-xs text-muted-foreground">Checking live availability…</p>
+                    <p className="p-3 text-xs text-muted-foreground animate-pulse">Checking live availability…</p>
                   ) : (availabilityQuery.data?.results ?? []).length === 0 ? (
-                    <p className="p-2 text-xs text-muted-foreground">Nothing else available for these dates.</p>
+                    <p className="p-3 text-xs text-muted-foreground">No other cottages available for these dates.</p>
                   ) : (
                     (availabilityQuery.data?.results ?? []).flatMap((item) =>
                       item.rates.map((rate) => {
@@ -1220,23 +1267,29 @@ export function BookingPage() {
                           .filter((r) => r.roomTypeId === item.roomType.id)
                           .reduce((s, r) => s + r.quantity, 0);
                         const full = typeTotal >= Math.min(10, item.availableCount);
+                        const isSoldOut = item.availableCount <= 0;
                         return (
-                          <div key={key} className="flex items-center justify-between gap-2 rounded-md p-2 text-xs hover:bg-muted/50">
-                            <p className="min-w-0">
-                              <span className="block truncate font-medium">{item.roomType.name}</span>
+                          <div
+                            key={key}
+                            className={`flex items-center justify-between gap-2 rounded-lg p-2.5 text-xs transition-colors ${
+                              full || isSoldOut ? "bg-muted/30 opacity-70" : "bg-muted/40 hover:bg-muted/70"
+                            }`}
+                          >
+                            <div className="min-w-0">
+                              <span className="block truncate font-medium text-foreground">{item.roomType.name}</span>
                               <span className="block truncate text-muted-foreground">
-                                {rate.name} · {item.availableCount} left
+                                {rate.name} · {item.availableCount > 0 ? `${item.availableCount} ${item.availableCount === 1 ? "room" : "rooms"} left` : "Sold out"}
                               </span>
-                            </p>
+                            </div>
                             <Button
                               type="button"
                               size="sm"
-                              variant="outline"
-                              className="shrink-0 rounded-full"
-                              disabled={full || rooms.length >= 5}
+                              variant={full || isSoldOut ? "outline" : "default"}
+                              className="shrink-0 rounded-full h-7 px-3 text-xs font-medium"
+                              disabled={full || isSoldOut || rooms.length >= 5}
                               onClick={() => addRoom(item.roomType.id, rate.ratePlanId, item.roomType.name, rate.name)}
                             >
-                              {full ? "Full" : added ? "+1" : "Add"}
+                              {isSoldOut || full ? "Sold out" : added ? "+1 more" : "Add"}
                             </Button>
                           </div>
                         );
