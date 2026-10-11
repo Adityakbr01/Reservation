@@ -19,8 +19,10 @@ export async function listBlocks(filters: BlockFilters): Promise<Paged<Availabil
   };
 }
 
-export async function createBlock(payload: CreateBlockPayload): Promise<AvailabilityBlock> {
-  const response = await apiClient.post<ApiEnvelope<AvailabilityBlock>>(`${BASE}/blocks`, payload);
+export async function createBlock(
+  payload: CreateBlockPayload,
+): Promise<AvailabilityBlock | AvailabilityBlock[]> {
+  const response = await apiClient.post<ApiEnvelope<AvailabilityBlock | AvailabilityBlock[]>>(`${BASE}/blocks`, payload);
   return unwrapResponse(response);
 }
 

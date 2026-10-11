@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { ArrowRight, Loader, Search } from "lucide-react";
+import { ArrowRight, Loader, RotateCcw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,6 +71,23 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
     });
   }
 
+  function handleReset() {
+    const dates = defaultSearchDates();
+    setCheckIn(dates.checkIn);
+    setCheckOut(dates.checkOut);
+    setAdults("2");
+    setChildren("0");
+    setRooms("1");
+    setRangeError(null);
+    onSearch({
+      checkIn: dates.checkIn,
+      checkOut: dates.checkOut,
+      adults: 2,
+      children: 0,
+      rooms: 1,
+    });
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
@@ -126,24 +143,36 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
           />
         </div>
         </div>
-        <Button
-          type="submit"
-          className="btn-arrow btn-shine h-12 w-full shrink-0 rounded-full bg-night px-8 text-white hover:bg-night/90 lg:w-auto"
-          disabled={isPending}
-        >
-          {isPending ? (
-            <>
-              <Loader className="size-4 animate-spin" aria-hidden />
-              <span className="sr-only">Searching…</span>
-            </>
-          ) : (
-            <>
-              <Search aria-hidden className="text-gold" />
-              <span className="whitespace-nowrap">Search availability</span>
-              <ArrowRight aria-hidden className="arrow-icon text-gold" />
-            </>
-          )}
-        </Button>
+        <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
+          <Button
+            type="submit"
+            className="btn-arrow btn-shine h-12 w-full shrink-0 rounded-full bg-night px-8 text-white hover:bg-night/90 sm:w-auto"
+            disabled={isPending}
+          >
+            {isPending ? (
+              <>
+                <Loader className="size-4 animate-spin" aria-hidden />
+                <span className="sr-only">Searching…</span>
+              </>
+            ) : (
+              <>
+                <Search aria-hidden className="text-gold" />
+                <span className="whitespace-nowrap">Search availability</span>
+                <ArrowRight aria-hidden className="arrow-icon text-gold" />
+              </>
+            )}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleReset}
+            className="h-12 w-full shrink-0 rounded-full border-border bg-background px-5 text-sm font-medium hover:bg-surface-2 sm:w-auto"
+            title="Reset search to show all cottages"
+          >
+            <RotateCcw className="mr-1.5 size-4 text-muted-foreground" aria-hidden />
+            Reset
+          </Button>
+        </div>
       </div>
       {rangeError && <p className="text-xs text-error">{rangeError}</p>}
     </form>

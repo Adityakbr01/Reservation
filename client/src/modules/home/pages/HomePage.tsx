@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -40,7 +40,16 @@ export function HomePage() {
     restored ?? initial,
   );
   const { data, isFetching, isError, refetch } = useAvailabilitySearch(search);
-  const results = data?.results ?? [];
+  const results = useMemo(() => {
+    const list = data?.results ?? [];
+    return [...list].sort((a, b) => {
+      const soldOutDiff = Number(a.availableCount === 0) - Number(b.availableCount === 0);
+      if (soldOutDiff !== 0) return soldOutDiff;
+      const minA = a.rates.length > 0 ? Math.min(...a.rates.map((r) => r.total)) : Infinity;
+      const minB = b.rates.length > 0 ? Math.min(...b.rates.map((r) => r.total)) : Infinity;
+      return minA - minB;
+    });
+  }, [data?.results]);
   const resultsKey = search
     ? [
         search.checkIn,
@@ -329,6 +338,7 @@ export function HomePage() {
               item.rates.map((rate) => ({
                 total: rate.total,
                 currency: rate.currency,
+                roomName: item.roomType.name,
               })),
             );
             if (totals.length === 0) return null;
@@ -337,7 +347,7 @@ export function HomePage() {
               <p className="text-sm text-muted-foreground">
                 From{" "}
                 <span className="font-semibold text-foreground">
-                  {formatMoney(best.total, best.currency)} total for{" "}
+                  {formatMoney(best.total, best.currency)} ({best.roomName}) total for{" "}
                   {data.search.nights} night
                   {data.search.nights === 1 ? "" : "s"}
                 </span>

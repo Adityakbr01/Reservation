@@ -15,12 +15,14 @@ export interface BlockFilters {
   page: number;
   limit: number;
   roomId?: string;
+  roomTypeId?: string;
   from?: string;
   to?: string;
 }
 
 export interface CreateBlockPayload {
-  roomId: string;
+  roomId?: string;
+  roomTypeId?: string;
   startDate: string;
   endDate: string;
   reason?: string | null;

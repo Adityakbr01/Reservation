@@ -57,14 +57,16 @@ export async function findOverlappingBlockedRoomIds(
 
 export interface ListBlocksFilter extends PaginationQuery {
   roomId?: string;
+  roomIds?: string[];
   from?: Date;
   to?: Date;
 }
 
 export async function listBlocks(filter: ListBlocksFilter): Promise<Paginated<AvailabilityBlock>> {
-  const { page, limit, roomId, from, to } = filter;
+  const { page, limit, roomId, roomIds, from, to } = filter;
   const query: QueryFilter<AvailabilityBlockDocument> = {};
   if (roomId) query.roomId = roomId;
+  else if (roomIds && roomIds.length > 0) query.roomId = { $in: roomIds };
   if (from || to) {
     query.startDate = {};
     if (from) query.startDate.$gte = from;

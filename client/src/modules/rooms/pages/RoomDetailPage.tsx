@@ -93,9 +93,12 @@ function fmtShort(date: string): string {
   });
 }
 
-/** Server HTML is sanitized; this only makes target=_blank links safe. */
+/** Server HTML is sanitized; strips deprecated offers text and makes target=_blank links safe. */
 function enhanceRichLinks(html: string): string {
-  return html.replace(/<a\b([^>]*)>/gi, (tag, attrs: string) => {
+  const stripped = html
+    .replace(/<p[^>]*>[\s\S]*?seasonal offers[\s\S]*?before you book[\s\S]*?<\/p>/gi, "")
+    .replace(/Read our\s*<a[^>]*>\s*seasonal offers\s*<\/a>\s*before you book\.?/gi, "");
+  return stripped.replace(/<a\b([^>]*)>/gi, (tag, attrs: string) => {
     const hasTargetBlank = /target\s*=\s*("|')?_blank\1?/i.test(attrs);
     const hasRel = /rel\s*=/i.test(attrs);
     if (hasTargetBlank && !hasRel)

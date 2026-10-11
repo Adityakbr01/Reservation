@@ -142,8 +142,14 @@ export async function searchAvailability(input: SearchAvailabilityInput): Promis
 
     results.push({ roomType, availableCount: availableIds.length, rates });
   }
-  // Bookable first, sold-out last — stable otherwise.
-  results.sort((a, b) => Number(a.availableCount === 0) - Number(b.availableCount === 0));
+  // Bookable first, sold-out last; within each group, sort ascending by lowest rate price.
+  results.sort((a, b) => {
+    const soldOutDiff = Number(a.availableCount === 0) - Number(b.availableCount === 0);
+    if (soldOutDiff !== 0) return soldOutDiff;
+    const minA = a.rates.length > 0 ? Math.min(...a.rates.map((r) => r.total)) : Infinity;
+    const minB = b.rates.length > 0 ? Math.min(...b.rates.map((r) => r.total)) : Infinity;
+    return minA - minB;
+  });
 
   return {
     results,

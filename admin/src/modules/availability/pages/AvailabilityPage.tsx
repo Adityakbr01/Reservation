@@ -20,6 +20,7 @@ import {
 import { PaginationControls } from "@/components/common/PaginationControls";
 import { ConfirmButton } from "@/components/common/ConfirmButton";
 import { useRooms } from "@/modules/rooms";
+import { useRoomTypes } from "@/modules/room-types";
 import { BlockForm } from "../components/BlockForm";
 import { InventoryStatus } from "../components/InventoryStatus";
 import { AdminCalendar } from "../components/AdminCalendar";
@@ -34,10 +35,19 @@ function formatDate(value: string): string {
 }
 
 export function AvailabilityPage() {
+  const [cottageId, setCottageId] = useState("all");
   const [roomId, setRoomId] = useState("all");
   const [page, setPage] = useState(1);
+  const { data: cottagesData } = useRoomTypes({ page: 1, limit: 100 });
+  const cottages = useMemo(() => cottagesData?.items ?? [], [cottagesData]);
   const { data: roomsData } = useRooms({ page: 1, limit: 100 });
   const rooms = useMemo(() => roomsData?.items ?? [], [roomsData]);
+
+  const filteredRooms = useMemo(() => {
+    if (cottageId === "all") return rooms;
+    return rooms.filter((r) => r.roomTypeId === cottageId);
+  }, [cottageId, rooms]);
+
   const roomLabel = useMemo(() => {
     const map = new Map(rooms.map((room) => [room.id, `${room.roomNumber} · ${room.name}`] as const));
     return (id: string) => map.get(id) ?? id.slice(-6);
@@ -48,8 +58,9 @@ export function AvailabilityPage() {
       page,
       limit: 10,
       ...(roomId !== "all" ? { roomId } : {}),
+      ...(cottageId !== "all" && roomId === "all" ? { roomTypeId: cottageId } : {}),
     }),
-    [page, roomId],
+    [page, roomId, cottageId],
   );
   const { data, isPending, isError, refetch } = useBlocks(filters);
   const { mutate: removeBlock, isPending: isDeleting } = useDeleteBlock();
@@ -74,12 +85,36 @@ export function AvailabilityPage() {
             <CardDescription>End date is exclusive — checkout day stays free</CardDescription>
           </CardHeader>
           <CardContent>
-            <BlockForm />
+            <BlockForm cottages={cottages} rooms={rooms} />
           </CardContent>
         </Card>
 
         <div className="space-y-4 lg:col-span-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="space-y-2">
+              <Label>Cottage</Label>
+              <Select
+                value={cottageId}
+                onValueChange={(value) => {
+                  setCottageId(value);
+                  setRoomId("all");
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="sm:w-48" aria-label="Filter blocks by cottage">
+                  <SelectValue placeholder="All cottages" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All cottages</SelectItem>
+                  {cottages.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="space-y-2">
               <Label>Room</Label>
               <Select
@@ -94,7 +129,7 @@ export function AvailabilityPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All rooms</SelectItem>
-                  {rooms.map((room) => (
+                  {filteredRooms.map((room) => (
                     <SelectItem key={room.id} value={room.id}>
                       {room.roomNumber} · {room.name}
                     </SelectItem>

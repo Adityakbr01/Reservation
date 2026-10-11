@@ -3,7 +3,7 @@ import { Link, Navigate, useLocation, useNavigate, useSearchParams } from "react
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { ChevronDown } from "lucide-react";
+import { AlertCircle, CalendarDays, CheckCircle2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ import {
   validateCouponCode,
 } from "../api/booking.api";
 import { fetchRoomOffers } from "@/modules/rooms/api/rooms.api";
-import { useAvailabilitySearch } from "@/modules/availability";
+import { AvailabilityCalendar, useAvailabilitySearch } from "@/modules/availability";
 import {
   useCreateBooking,
   usePaymentIntent,
@@ -127,9 +127,44 @@ function PayButton({ bookingId, totalLabel }: { bookingId: string; totalLabel: s
 }
 
 export function BookingPage() {
-  const [params] = useSearchParams();
+  const [params, setSearchParams] = useSearchParams();
   const location = useLocation();
   const selection = useMemo(() => parseSelection(params), [params]);
+  const [dateError, setDateError] = useState<string | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [calendarPicks, setCalendarPicks] = useState<string[]>([]);
+  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+
+  function handleDateChange(newIn: string, newOut: string) {
+    if (!newIn || !newOut) return;
+    if (newIn < today) {
+      setDateError("Check-in date cannot be in the past.");
+      return;
+    }
+    if (newOut <= newIn) {
+      setDateError("Check-out date must be after check-in.");
+      return;
+    }
+    setDateError(null);
+    const next = new URLSearchParams(params);
+    next.set("checkIn", newIn);
+    next.set("checkOut", newOut);
+    setSearchParams(next, { replace: true });
+  }
+
+  function handleCalendarPick(d: string) {
+    if (calendarPicks.length === 0 || calendarPicks.length === 2) {
+      setCalendarPicks([d]);
+    } else {
+      const first = calendarPicks[0];
+      if (d <= first) {
+        setCalendarPicks([d]);
+      } else {
+        setCalendarPicks([first, d]);
+        handleDateChange(first, d);
+      }
+    }
+  }
   const sessionUser = useAuthStore((s) => s.user);
   const setSession = useAuthStore((s) => s.setSession);
   const isAuthed = !!sessionUser;
@@ -471,10 +506,21 @@ export function BookingPage() {
   }
 
   const roomsError = roomsValid();
+  const isDatesAvailable = useMemo(() => {
+    if (!selection || dateError) return false;
+    for (const r of rooms) {
+      const info = availabilityByRoom.get(r.roomTypeId);
+      if (info && info.availableCount < r.quantity) return false;
+    }
+    return !roomsError && !quoteQuery.isError;
+  }, [selection, dateError, rooms, availabilityByRoom, roomsError, quoteQuery.isError]);
+
   const canContinue =
     !!quote &&
     !busy &&
     !roomsError &&
+    !dateError &&
+    isDatesAvailable &&
     contactValid() &&
     passwordValid() &&
     acceptPrivacy &&
@@ -483,6 +529,8 @@ export function BookingPage() {
 
   /** First missing item, shown as a hint under the disabled buttons. */
   function continueHint(): string | null {
+    if (dateError) return dateError;
+    if (!isDatesAvailable) return "Selected dates are not available. Please choose different dates.";
     if (roomsError) return roomsError;
     if (!quote) return "Loading price…";
     if (busy) return "Working…";
@@ -917,6 +965,88 @@ export function BookingPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
+              {/* Stay dates selection & live availability validation */}
+              {selection && (
+                <div className="rounded-lg border border-border bg-muted/40 p-3 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                      <CalendarDays className="size-3.5 text-brand" />
+                      Stay Dates
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowCalendar((s) => !s)}
+                      className="text-xs font-medium text-brand hover:underline"
+                    >
+                      {showCalendar ? "Hide calendar" : "View calendar"}
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label htmlFor="book-checkin" className="text-[11px] font-medium text-muted-foreground">
+                        Check-in
+                      </Label>
+                      <Input
+                        id="book-checkin"
+                        type="date"
+                        min={today}
+                        value={selection.checkIn}
+                        onChange={(e) => handleDateChange(e.target.value, selection.checkOut)}
+                        className="h-8 text-xs bg-background"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="book-checkout" className="text-[11px] font-medium text-muted-foreground">
+                        Check-out
+                      </Label>
+                      <Input
+                        id="book-checkout"
+                        type="date"
+                        min={selection.checkIn || today}
+                        value={selection.checkOut}
+                        onChange={(e) => handleDateChange(selection.checkIn, e.target.value)}
+                        className="h-8 text-xs bg-background"
+                      />
+                    </div>
+                  </div>
+
+                  {dateError ? (
+                    <p className="text-xs text-destructive">{dateError}</p>
+                  ) : (availabilityQuery.isPending || quoteQuery.isPending) ? (
+                    <p className="text-xs text-muted-foreground animate-pulse">Checking availability…</p>
+                  ) : isDatesAvailable ? (
+                    <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
+                      <CheckCircle2 className="size-3.5 shrink-0" />
+                      <span>Available: {prettyDate(selection.checkIn)} → {prettyDate(selection.checkOut)} ({nights} night{nights === 1 ? "" : "s"})</span>
+                    </div>
+                  ) : (
+                    <div className="space-y-1 rounded border border-destructive/20 bg-destructive/10 p-2 text-xs text-destructive">
+                      <div className="flex items-center gap-1.5 font-medium">
+                        <AlertCircle className="size-3.5 shrink-0" />
+                        <span>Not available for these dates</span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        Selected cottage is fully booked or unavailable. Click &ldquo;View calendar&rdquo; to see open dates.
+                      </p>
+                    </div>
+                  )}
+
+                  {showCalendar && (
+                    <div className="mt-2 pt-2 border-t border-border">
+                      <p className="mb-2 text-[11px] text-muted-foreground">
+                        Click check-in then check-out on the calendar to update your stay:
+                      </p>
+                      <AvailabilityCalendar
+                        roomTypeId={selection.roomTypeId}
+                        selectedCheckIn={selection.checkIn}
+                        selectedCheckOut={selection.checkOut}
+                        onPickDate={handleCalendarPick}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="space-y-3">
                 {rooms.map((r) => {
                   const info = availabilityByRoom.get(r.roomTypeId);

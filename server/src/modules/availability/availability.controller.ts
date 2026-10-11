@@ -23,9 +23,14 @@ export const listBlocksHandler = asyncHandler(async (req: Request, res: Response
 /** POST /api/v1/admin/availability/blocks — 201. */
 export const createBlockHandler = asyncHandler(async (req: Request, res: Response) => {
   const block = await createBlockRecord(req.body as CreateBlockInput, requireUser(req).id);
+  const isArray = Array.isArray(block);
+  const entityId = isArray ? (block[0]?.id ?? "") : block.id;
   await recordAudit(req, "AVAILABILITY_CHANGED", "availability-block", {
-    entityId: block.id,
-    after: { roomId: String(block.roomId) },
+    entityId,
+    after: {
+      count: isArray ? block.length : 1,
+      roomId: isArray ? block.map((b) => b.roomId).join(",") : String(block.roomId),
+    },
   });
   res.status(201).json({ success: true, data: block });
 });
