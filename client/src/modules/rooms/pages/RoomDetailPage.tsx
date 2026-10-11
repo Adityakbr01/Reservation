@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 import toast from "react-hot-toast";
 import {
   Baby,
@@ -72,12 +74,12 @@ import {
   fetchReviewEligibility,
   submitReview,
 } from "@/modules/reviews/api/reviews.api";
-import { EnquiryForm } from "@/modules/enquiry/components/EnquiryForm";
 import { Dialog } from "@/components/ui/dialog";
 import { useAuthStore } from "@/stores/auth-store";
 import { fetchRoomOffers } from "../api/rooms.api";
 import type { RoomOffer } from "../api/rooms.api";
 import { useRoomTypeBySlug } from "../hooks/use-room-type";
+import EnquireAboutRoom from "../components/EnquireAboutRoom";
 
 function formatMoney(minor: number, currency: string): string {
   try {
@@ -352,6 +354,84 @@ export function RoomDetailPage() {
     staleTime: 300_000,
   });
 
+  // Hooks must stay above early returns — otherwise hook order changes
+  // between loading and loaded renders and React crashes.
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  useGSAP(
+    () => {
+      if (isTypePending || !roomType || !rootRef.current) return;
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      if (reduceMotion) return;
+
+      gsap.to(".detail-butterfly", {
+        y: -4,
+        rotation: 3,
+        duration: 3.5,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut",
+      });
+      gsap.to(".detail-flying-butterfly-1", {
+        x: 16,
+        y: -14,
+        rotation: 8,
+        duration: 3.6,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut",
+      });
+      gsap.to(".detail-flying-butterfly-2", {
+        x: -18,
+        y: -12,
+        rotation: -10,
+        duration: 4.2,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut",
+      });
+      gsap.to(".detail-bird", {
+        y: -6,
+        rotation: -2,
+        duration: 4.8,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut",
+      });
+      gsap.to(".detail-wildflower", {
+        rotation: -6,
+        y: -3,
+        duration: 5.2,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut",
+      });
+      gsap.to(".detail-leaf-top", {
+        x: 6,
+        y: -14,
+        rotation: -4,
+        transformOrigin: "top right",
+        duration: 5,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut",
+      });
+      gsap.to(".detail-leaf-left", {
+        x: -6,
+        y: 14,
+        rotation: 4,
+        transformOrigin: "bottom left",
+        duration: 6,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut",
+      });
+    },
+    { scope: rootRef, dependencies: [isTypePending, roomType?.id] },
+  );
+
   function pickDate(date: string) {
     if (picked.length === 0 || (picked.length === 1 && date <= picked[0])) {
       setPicked([date]);
@@ -501,7 +581,43 @@ export function RoomDetailPage() {
   }
 
   return (
-    <div className="space-y-5 pb-8">
+    <div ref={rootRef} className="relative space-y-5 pb-8">
+      {/* Ambient countryside framing foliage — crisp & clear of interactive controls */}
+      <div
+        className="pointer-events-none absolute -top-16 right-0 z-0 hidden w-48 translate-x-full select-none opacity-90 lg:block xl:w-56"
+        aria-hidden
+      >
+        <div className="relative">
+          <div className="rotate-[159deg]">
+            <img
+              src="/oak_branch1.webp"
+              alt=""
+              className="detail-leaf-top w-full origin-top-right"
+              loading="eager"
+            />
+          </div>
+          {/* Subtle fluttering butterfly near the oak foliage */}
+          <div className="absolute -left-3 top-10 w-7 select-none opacity-90">
+            <img
+              src="/butterfly_flying.gif"
+              alt=""
+              className="detail-flying-butterfly-2 w-full drop-shadow-xs rotate-[15deg]"
+              loading="eager"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        className="pointer-events-none absolute left-0 top-24 z-0 hidden w-44 -translate-x-full rotate-[-15deg] select-none opacity-85 lg:block lg:w-52"
+        aria-hidden
+      >
+        <img
+          src="/leaf4.webp"
+          alt=""
+          className="detail-leaf-left w-full origin-bottom-left"
+          loading="eager"
+        />
+      </div>
       {/* Top row: back + offer ··· wishlist + share */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
@@ -720,9 +836,22 @@ export function RoomDetailPage() {
           {/* Title + rating + save */}
           <div className="mt-5 flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
-              <h1 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">
-                {roomType.name}
-              </h1>
+              <div className="inline-flex items-baseline gap-2.5">
+                <h1 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">
+                  {roomType.name}
+                </h1>
+                <span
+                  className="pointer-events-none relative inline-block select-none"
+                  aria-hidden
+                >
+                  <img
+                    src="/butterfly_perched.gif"
+                    alt=""
+                    className="detail-butterfly inline-block h-[2em] w-auto align-baseline drop-shadow-xs"
+                    loading="eager"
+                  />
+                </span>
+              </div>
               <p className="mt-1 font-display text-base italic text-muted-foreground">
                 {roomType.shortDescription ??
                   `Cottage in Hamptworth, Hampshire — sleeps ${roomType.maxOccupancy}`}
@@ -785,8 +914,20 @@ export function RoomDetailPage() {
           {highlights.length > 0 && (
             <section
               aria-label="Highlights"
-              className="mt-5 rounded-xl  bg-background-light px-4 py-4"
+              className="relative mt-5 rounded-xl bg-background-light px-5 py-4 sm:pr-28"
             >
+              {/* Blue Tit songbird perched on top-right edge in clear dedicated space */}
+              <div
+                className="pointer-events-none absolute -top-6 right-2 hidden w-20 select-none sm:block sm:w-24 opacity-95"
+                aria-hidden
+              >
+                <img
+                  src="/bird2.webp"
+                  alt=""
+                  className="detail-bird w-full drop-shadow-sm"
+                  loading="lazy"
+                />
+              </div>
               <AmenityStrip amenities={highlights} />
             </section>
           )}
@@ -1249,8 +1390,20 @@ export function RoomDetailPage() {
           </Card>
 
           {(settings?.whyBookWithUs ?? []).length > 0 && (
-            <Card className="shadow-card">
-              <CardContent className="space-y-4 p-5">
+            <Card className="relative overflow-hidden shadow-card">
+              {/* Subtle ambient leaf accent at the bottom corner */}
+              <div
+                className="pointer-events-none absolute -bottom-4 -right-2 w-16 select-none opacity-85"
+                aria-hidden
+              >
+                <img
+                  src="/sunflower.gif"
+                  alt=""
+                  className="w-full"
+                  loading="lazy"
+                />
+              </div>
+              <CardContent className="relative z-10 space-y-4 p-5">
                 <h2 className="font-display text-xl font-medium tracking-tight">
                   Why book with us?
                 </h2>
@@ -1479,11 +1632,11 @@ function FacilityGrid({
 }) {
   if (amenities.length === 0 && extra.length === 0) return null;
   return (
-    <ul className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="mx-auto grid max-w-md grid-cols-2 gap-x-6 gap-y-2.5 sm:max-w-none sm:grid-cols-2 lg:grid-cols-3">
       {amenities.map((a) => (
         <li
           key={a.id}
-          className="flex items-center gap-2.5 text-sm text-foreground"
+          className="flex w-full items-center justify-self-start gap-2.5 text-sm text-foreground"
         >
           <TickIcon />
           {a.name}
@@ -1492,7 +1645,7 @@ function FacilityGrid({
       {extra.map((name) => (
         <li
           key={name}
-          className="flex items-center gap-2.5 text-sm text-foreground"
+          className="flex w-full items-center justify-self-start gap-2.5 text-sm text-foreground"
         >
           <TickIcon />
           {name}
@@ -1509,20 +1662,55 @@ function HamperBanner({ html }: { html: string }) {
     <>
       <section
         aria-label="Welcome hamper"
-        className="overflow-hidden rounded-xl border border-brand/40"
+        className="relative my-8 overflow-hidden rounded-xl border border-brand/30 bg-gradient-to-r from-brand/15 via-brand/5 to-surface-2/60 p-4"
       >
-        <div className="flex items-center justify-between gap-3 bg-brand px-4 py-3 text-white">
-          <p className="inline-flex items-center gap-2 text-sm font-medium">
-            <Gift className="size-5" aria-hidden />
-            Welcome hamper included
-          </p>
+        {/* Wildflower botanical sprig accent peeking from the far right */}
+        <div
+          className="pointer-events-none absolute -right-2 -bottom-5 w-24 select-none opacity-80 sm:w-28"
+          aria-hidden
+        >
+          <img
+            src="/wildflower1.webp"
+            alt=""
+            className="detail-wildflower w-full rotate-[-12deg]"
+            loading="lazy"
+          />
+        </div>
+        {/* Animated flying butterfly hovering near the wildflowers */}
+        <div
+          className="pointer-events-none absolute right-22 top-22 sm:top-10 w-8 select-none sm:right-20  sm:w-6"
+          aria-hidden
+        >
+          <img
+            src="/butterfly_flying.gif"
+            alt=""
+            className="detail-flying-butterfly-1 w-full drop-shadow-sm rotate-[-12deg]"
+            loading="lazy"
+          />
+        </div>
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 sm:pr-24">
+          <div className="flex items-center gap-3">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand text-white shadow-sm">
+              <Gift className="size-5" aria-hidden />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-brand-dark">
+                Welcome hamper included
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Artisanal local goods &amp; countryside treats waiting in your
+                cottage
+              </p>
+            </div>
+          </div>
           <button
             type="button"
             onClick={() => setOpen(true)}
             aria-haspopup="dialog"
-            className="shrink-0 text-sm font-medium underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="relative z-20 inline-flex shrink-0 items-center gap-1.5 rounded-full border border-brand/40 bg-card px-4 py-1.5 text-xs font-semibold text-brand-dark shadow-xs transition hover:border-brand hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             View details
+            <span aria-hidden>→</span>
           </button>
         </div>
       </section>
@@ -1736,55 +1924,6 @@ function ReviewsBlock({
         </Button>
       </div>
     </div>
-  );
-}
-
-function EnquireAboutRoom({
-  roomTypeId,
-  roomName,
-}: {
-  roomTypeId: string;
-  roomName: string;
-}) {
-  const [open, setOpen] = useState(false);
-  return (
-    <section className="my-6 rounded-2xl border border-border bg-surface-2 p-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="font-display text-xl font-medium tracking-tight">
-            Enquire about {roomName}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Tell us your dates, party and budget — we reply shortly.
-          </p>
-        </div>
-        <Button className="rounded-lg" onClick={() => setOpen(true)}>
-          Enquire now
-          <span aria-hidden>→</span>
-        </Button>
-      </div>
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        labelledBy="enquiry-dialog-title"
-      >
-        <h2
-          id="enquiry-dialog-title"
-          className="pr-10 font-display text-2xl font-light tracking-tight"
-        >
-          Enquire about {roomName}
-        </h2>
-        <p className="mb-4 mt-1 text-sm text-muted-foreground">
-          Holiday budget, party size, dates, location, dog friendly — anything
-          helps.
-        </p>
-        <EnquiryForm
-          roomTypeId={roomTypeId}
-          roomName={roomName}
-          onSuccess={() => setOpen(false)}
-        />
-      </Dialog>
-    </section>
   );
 }
 

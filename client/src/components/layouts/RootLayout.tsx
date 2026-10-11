@@ -118,7 +118,7 @@ export function RootLayout() {
             className="mr-2 inline-flex min-w-0 shrink-0 items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             <img
-              src="/logo.png"
+              src="/navlogo.webp"
               alt="Hamptworth Stays"
               className="h-10 w-auto shrink-0 rounded-sm mix-blend-multiply sm:h-11"
               loading="eager"
@@ -220,7 +220,7 @@ export function RootLayout() {
         >
           <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-2">
             <img
-              src="/logo.png"
+              src="/logo.webp"
               alt="Hamptworth Stays"
               className="h-9 w-auto rounded-sm mix-blend-multiply"
               loading="lazy"

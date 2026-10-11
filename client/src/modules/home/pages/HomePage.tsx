@@ -156,7 +156,7 @@ export function HomePage() {
         {/* Exterior stay photograph (approved repo asset) with subtle ivory overlay
             so headline + search remain readable. Foreground stays fully opaque. */}
         <img
-          src="/hero_cottage_bg.jpg"
+          src="/hero_cottage_bg.webp"
           alt="Hamptworth Stays exterior cottage"
           aria-hidden
           className="hero-banner absolute inset-0 h-full w-full object-cover"
@@ -178,7 +178,7 @@ export function HomePage() {
           aria-hidden
         >
           <img
-            src="/leaf1.png"
+            src="/leaf1.webp"
             alt=""
             loading="eager"
             className="hero-leaf-a w-full"
@@ -189,7 +189,7 @@ export function HomePage() {
           aria-hidden
         >
           <img
-            src="/leaf4.png"
+            src="/leaf4.webp"
             alt=""
             loading="lazy"
             className="hero-leaf-b w-full"
@@ -200,7 +200,7 @@ export function HomePage() {
           aria-hidden
         >
           <img
-            src="/leaf3.png"
+            src="/leaf3.webp"
             alt=""
             loading="lazy"
             className="hero-leaf-c w-full"
@@ -215,7 +215,7 @@ export function HomePage() {
               A little escape.
               <div className="absolute top-0 right-38">
                 <img
-                  src="/bird1.png"
+                  src="/bird1.webp"
                   alt="Robin perched on a branch"
                   loading="eager"
                   className="hero-bird ml-3 inline-block h-[1.2em] w-auto align-baseline"
