@@ -1018,7 +1018,7 @@ export function BookingPage() {
                   ) : isDatesAvailable ? (
                     <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
                       <CheckCircle2 className="size-3.5 shrink-0" />
-                      <span>Available: {prettyDate(selection.checkIn)} → {prettyDate(selection.checkOut)} ({nights} night{nights === 1 ? "" : "s"})</span>
+                      <span>Available: {nights} night{nights === 1 ? "" : "s"} ({prettyDate(selection.checkIn)} → check-out morning {prettyDate(selection.checkOut)})</span>
                     </div>
                   ) : (
                     <div className="space-y-1 rounded border border-destructive/20 bg-destructive/10 p-2 text-xs text-destructive">
@@ -1039,8 +1039,8 @@ export function BookingPage() {
                       </p>
                       <AvailabilityCalendar
                         roomTypeId={selection.roomTypeId}
-                        selectedCheckIn={selection.checkIn}
-                        selectedCheckOut={selection.checkOut}
+                        selectedCheckIn={calendarPicks.length === 1 ? calendarPicks[0] : selection.checkIn}
+                        selectedCheckOut={calendarPicks.length === 1 ? null : selection.checkOut}
                         onPickDate={handleCalendarPick}
                       />
                     </div>

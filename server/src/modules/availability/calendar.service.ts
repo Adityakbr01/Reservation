@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import { AppError } from "../../utils/app-error";
+import { toDayKey, occupiedDayKeys } from "../../utils/date";
+export { occupiedDayKeys };
 import { AvailabilityBlockModel } from "./availability-block.model";
 import { BookingItemModel } from "../bookings/booking-item.model";
 import { BookingModel } from "../bookings/booking.model";
@@ -38,25 +40,6 @@ export interface AvailabilityCalendar {
 
 const DAY_MS = 86_400_000;
 const MAX_DAYS = 62;
-
-function toDayKey(value: Date): string {
-  return value.toISOString().slice(0, 10);
-}
-
-/** Nights a [checkIn, checkOut) stay occupies, as day keys. Pure — unit-tested. */
-export function occupiedDayKeys(checkIn: Date, checkOut: Date): string[] {
-  const keys: string[] = [];
-  const cursor = new Date(checkIn);
-  cursor.setUTCHours(0, 0, 0, 0);
-  const end = new Date(checkOut);
-  end.setUTCHours(0, 0, 0, 0);
-  while (cursor.getTime() < end.getTime()) {
-    keys.push(toDayKey(cursor));
-    cursor.setTime(cursor.getTime() + DAY_MS);
-    if (keys.length > 366) break;
-  }
-  return keys;
-}
 
 function parseDay(value: string, name: string): Date {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {

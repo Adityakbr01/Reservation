@@ -15,11 +15,14 @@ import { useRooms } from "@/modules/rooms";
 import type { Room } from "@/modules/rooms";
 import { useRoomTypes } from "@/modules/room-types";
 import type { RoomType } from "@/modules/room-types";
+import {
+  toUtcIsoString,
+  formatBlockSummary,
+  formatDisplayDate,
+  toUtcMidnight,
+} from "@/lib/date";
+import { addDays } from "date-fns";
 import { useCreateBlock } from "../hooks/use-availability";
-
-function toISODate(value: string): string {
-  return new Date(`${value}T00:00:00`).toISOString();
-}
 
 export interface BlockFormProps {
   cottages?: RoomType[];
@@ -75,14 +78,14 @@ export function BlockForm({
       blockScope === "all"
         ? {
             roomTypeId: cottageId,
-            startDate: toISODate(startDate),
-            endDate: toISODate(endDate),
+            startDate: toUtcIsoString(startDate),
+            endDate: toUtcIsoString(endDate),
             reason: reason.trim() || null,
           }
         : {
             roomId,
-            startDate: toISODate(startDate),
-            endDate: toISODate(endDate),
+            startDate: toUtcIsoString(startDate),
+            endDate: toUtcIsoString(endDate),
             reason: reason.trim() || null,
           };
 
@@ -214,6 +217,17 @@ export function BlockForm({
           />
         </div>
       </div>
+      {startDate && endDate && startDate < endDate && (
+        <div className="rounded-lg border border-brand/20 bg-brand/5 p-2.5 text-xs text-foreground space-y-1">
+          <div className="flex items-center gap-1.5 font-medium text-brand">
+            <span>Stay impact:</span>
+            <span>{formatBlockSummary(startDate, endDate).nightsText}</span>
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Blocks nights: <strong className="text-foreground">{formatDisplayDate(startDate)}</strong> through <strong className="text-foreground">{formatDisplayDate(addDays(toUtcMidnight(endDate), -1))}</strong>. Guests can still check in on the afternoon of {formatDisplayDate(endDate)}.
+          </p>
+        </div>
+      )}
       {rangeError && <p className="text-xs text-error">{rangeError}</p>}
 
       <div className="space-y-2">

@@ -28,18 +28,12 @@ import type { RoomStatus } from "../types/room.types";
 
 const STATUS_FILTERS = ["all", "ACTIVE", "INACTIVE", "MAINTENANCE"] as const;
 
-function toInputValue(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
+import { addDays } from "date-fns";
+import { toDayKey } from "@/lib/date";
 
 function defaultRange(): { checkIn: string; checkOut: string } {
   const today = new Date();
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  return { checkIn: toInputValue(today), checkOut: toInputValue(tomorrow) };
+  return { checkIn: toDayKey(today), checkOut: toDayKey(addDays(today, 1)) };
 }
 
 const OCCUPANCY_PILL: Record<string, string> = {

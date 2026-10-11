@@ -9,19 +9,15 @@ import type { ApiEnvelope } from "@/lib/api-client";
 import { useRoomTypes } from "@/modules/room-types";
 import { useRooms } from "@/modules/rooms";
 
-function toInputValue(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
+import { addDays } from "date-fns";
+import { toDayKey } from "@/lib/date";
 
 function defaultRange(): { checkIn: string; checkOut: string } {
-  const inDate = new Date();
-  inDate.setDate(inDate.getDate() + 7);
-  const outDate = new Date();
-  outDate.setDate(outDate.getDate() + 9);
-  return { checkIn: toInputValue(inDate), checkOut: toInputValue(outDate) };
+  const today = new Date();
+  return {
+    checkIn: toDayKey(addDays(today, 7)),
+    checkOut: toDayKey(addDays(today, 9)),
+  };
 }
 
 interface SearchHit {

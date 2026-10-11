@@ -1,5 +1,6 @@
 import { AppError } from "../../utils/app-error";
 import type { Paginated } from "../../utils/pagination";
+import { toUtcMidnight } from "../../utils/date";
 import { ensureProperty } from "../properties/property.service";
 import { findRoomById, listRooms } from "../rooms/room.repository";
 import { createBlock, deleteBlockById, findBlockById, listBlocks } from "./availability-block.repository";
@@ -11,7 +12,9 @@ export async function createBlockRecord(
   createdBy: string,
 ): Promise<AvailabilityBlock | AvailabilityBlock[]> {
   const property = await ensureProperty();
-  if (input.startDate.getTime() >= input.endDate.getTime()) {
+  const startDate = toUtcMidnight(input.startDate);
+  const endDate = toUtcMidnight(input.endDate);
+  if (startDate.getTime() >= endDate.getTime()) {
     throw new AppError("Block end date must be after start date", 400, "INVALID_DATE_RANGE");
   }
 
@@ -25,8 +28,8 @@ export async function createBlockRecord(
       const doc = await createBlock({
         propertyId: property.id,
         roomId: room.id,
-        startDate: input.startDate,
-        endDate: input.endDate,
+        startDate,
+        endDate,
         reason: input.reason ?? null,
         createdBy,
       });
@@ -44,8 +47,8 @@ export async function createBlockRecord(
     const doc = await createBlock({
       propertyId: property.id,
       roomId: input.roomId,
-      startDate: input.startDate,
-      endDate: input.endDate,
+      startDate,
+      endDate,
       reason: input.reason ?? null,
       createdBy,
     });

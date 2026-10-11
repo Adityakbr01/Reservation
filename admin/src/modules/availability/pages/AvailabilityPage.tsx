@@ -26,13 +26,7 @@ import { InventoryStatus } from "../components/InventoryStatus";
 import { AdminCalendar } from "../components/AdminCalendar";
 import { useBlocks, useDeleteBlock } from "../hooks/use-availability";
 
-function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
+import { formatDisplayDate, countNights } from "@/lib/date";
 
 export function AvailabilityPage() {
   const [cottageId, setCottageId] = useState("all");
@@ -179,7 +173,12 @@ export function AvailabilityPage() {
                         )}
                       </TableCell>
                       <TableCell>
-                        {formatDate(block.startDate)} → {formatDate(block.endDate)}
+                        <div className="font-medium">
+                          {formatDisplayDate(block.startDate)} → {formatDisplayDate(block.endDate)}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {countNights(block.startDate, block.endDate)} night{countNights(block.startDate, block.endDate) === 1 ? "" : "s"} · checkout {formatDisplayDate(block.endDate)}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <ConfirmButton

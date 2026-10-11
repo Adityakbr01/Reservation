@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import {
+  findFirstBlockedNight,
+  isDayInRange,
+  formatDisplayDate,
+} from "@/lib/date";
 import { useAvailabilityCalendar } from "../hooks/use-availability-search";
 import type { CalendarDay } from "../api/availability.api";
 
@@ -20,9 +25,7 @@ function monthLabel(year: number, month: number): string {
 }
 
 function prettyDay(date: string): string {
-  const parsed = new Date(`${date}T00:00:00Z`);
-  if (Number.isNaN(parsed.getTime())) return date;
-  return parsed.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  return formatDisplayDate(date, "EEE, d MMM");
 }
 
 function formatPrice(minor: number | null | undefined, currency?: string): string | null {
@@ -62,6 +65,19 @@ export function AvailabilityCalendar({
   const days = data?.types[0]?.days ?? [];
   const today = now.toISOString().slice(0, 10);
 
+  const blockedDates = useMemo(() => {
+    const set = new Set<string>();
+    for (const d of days) {
+      if (d.available <= 0) set.add(d.date);
+    }
+    return set;
+  }, [days]);
+
+  const firstBlockedNight = useMemo(() => {
+    if (!selectedCheckIn) return null;
+    return findFirstBlockedNight(selectedCheckIn, blockedDates);
+  }, [selectedCheckIn, blockedDates]);
+
   const leadBlanks = new Date(Date.UTC(year, month, 1)).getUTCDay();
   const cells: Array<CalendarDay | null> = [
     ...Array<CalendarDay | null>(leadBlanks).fill(null),
@@ -75,23 +91,25 @@ export function AvailabilityCalendar({
     return "free";
   }
 
-  /** Confirmed from→to range (both endpoints chosen). */
+  /** Confirmed from→to range (both endpoints chosen), excluding blocked dates. */
   function inRange(date: string): boolean {
     if (!selectedCheckIn || !selectedCheckOut) return false;
-    return date > selectedCheckIn && date < selectedCheckOut;
+    return isDayInRange(date, selectedCheckIn, selectedCheckOut) && !blockedDates.has(date);
   }
 
-  /** Live hover preview while choosing check-out after check-in. */
+  /** Live hover preview while choosing check-out after check-in. Cannot cross blocked dates. */
   function inPreview(date: string): boolean {
     if (!selectedCheckIn || selectedCheckOut || !hoverDate) return false;
     if (hoverDate <= selectedCheckIn) return false;
-    return date > selectedCheckIn && date <= hoverDate;
+    const effectiveHover =
+      firstBlockedNight && hoverDate >= firstBlockedNight ? firstBlockedNight : hoverDate;
+    return date > selectedCheckIn && date < effectiveHover && !blockedDates.has(date);
   }
 
   function tooltipFor(day: CalendarDay, state: ReturnType<typeof stateOf>): string {
     const price = formatPrice(day.price, day.currency);
     if (state === "past") return day.date;
-    if (state === "full") return `${prettyDay(day.date)}: fully booked`;
+    if (state === "full") return `${prettyDay(day.date)}: fully booked night`;
     const stay = day.minNights != null && day.minNights > 1 ? ` · ${day.minNights}-night minimum stay` : "";
     return `${prettyDay(day.date)}${price ? `: ${price}` : ""} · ${day.available} of ${day.total} free${stay}`;
   }
@@ -151,7 +169,13 @@ export function AvailabilityCalendar({
               const isEndpoint = isCheckIn || isCheckOut;
               const preview = inPreview(day.date);
               const ranged = inRange(day.date);
-              const clickable = onPickDate !== undefined && (state === "free" || state === "few");
+              const isPastBlockedWall = Boolean(
+                selectedCheckIn && !selectedCheckOut && firstBlockedNight && day.date >= firstBlockedNight
+              );
+              const clickable =
+                onPickDate !== undefined &&
+                (state === "free" || state === "few") &&
+                !isPastBlockedWall;
               const price = state === "full" ? null : formatPrice(day.price, day.currency);
               return (
                 <button
@@ -167,17 +191,24 @@ export function AvailabilityCalendar({
                     "group relative flex min-h-12 flex-col items-center justify-center rounded-lg px-1 py-1 text-[13px] font-medium transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     state === "past" && "text-muted-foreground/30",
-                    state === "full" && "bg-destructive/[0.07] text-destructive/70",
+                    state === "full" && !isEndpoint && "bg-destructive/[0.07] text-destructive/70 cursor-not-allowed opacity-60",
+                    isPastBlockedWall && !isEndpoint && "cursor-not-allowed opacity-40",
                     state === "few" && !isEndpoint && !ranged && !preview && "bg-amber-400/15 text-amber-800 hover:bg-amber-400/25 dark:text-amber-200",
                     state === "free" && !isEndpoint && !ranged && !preview && "bg-emerald-500/[0.08] text-emerald-800 hover:bg-emerald-500/20 dark:text-emerald-200",
-                    (ranged || preview) && !isEndpoint && "rounded-none bg-brand/10 text-foreground",
-                    preview && "border-y border-dashed border-brand/40",
-                    isCheckIn && "rounded-l-lg bg-brand font-semibold text-white hover:bg-brand",
-                    isCheckOut && "rounded-r-lg bg-brand font-semibold text-white hover:bg-brand",
+                    (ranged || preview) && !isEndpoint && !blockedDates.has(day.date) && "rounded-none bg-brand/20 font-semibold text-brand-900 dark:bg-brand/30 dark:text-brand-100",
+                    preview && !blockedDates.has(day.date) && "border-y border-dashed border-brand/60",
+                    isCheckIn && !isCheckOut && "rounded-l-lg rounded-r-none bg-brand font-semibold text-white hover:bg-brand",
+                    isCheckOut && !isCheckIn && "rounded-r-lg rounded-l-none bg-brand font-semibold text-white hover:bg-brand",
+                    isCheckIn && isCheckOut && "rounded-lg bg-brand font-semibold text-white hover:bg-brand",
                   )}
                 >
-                  {state === "full" ? (
-                    <span aria-hidden className="text-lg font-bold leading-none text-destructive/70">✕</span>
+                  {isEndpoint ? (
+                    <span className="font-semibold">{Number(day.date.slice(8))}</span>
+                  ) : state === "full" ? (
+                    <div className="flex flex-col items-center leading-none">
+                      <span className="text-[11px] font-medium opacity-80">{Number(day.date.slice(8))}</span>
+                      <span aria-hidden className="mt-0.5 text-[10px] font-bold text-destructive/80">✕</span>
+                    </div>
                   ) : (
                     <>
                       <span>{Number(day.date.slice(8))}</span>
@@ -186,7 +217,7 @@ export function AvailabilityCalendar({
                       )}
                     </>
                   )}
-                  {!isEndpoint && state !== "past" && state !== "full" && (
+                  {!isEndpoint && !ranged && !preview && state !== "past" && state !== "full" && (
                     <span
                       aria-hidden
                       className={cn(
@@ -204,7 +235,9 @@ export function AvailabilityCalendar({
                     >
                       <span className="block font-semibold">{prettyDay(day.date)}{price ? ` · ${price}` : ""}</span>
                       <span className="block opacity-90">
-                        {state === "full" ? "Fully booked" : `${day.available} of ${day.total} free`}
+                        {state === "full"
+                          ? "Fully booked night"
+                          : `${day.available} of ${day.total} free`}
                       </span>
                       {state !== "full" && day.minNights != null && day.minNights > 1 && (
                         <span className="block opacity-90">{day.minNights}-night minimum stay</span>
@@ -231,8 +264,7 @@ export function AvailabilityCalendar({
           </span>
         </div>
         <p className="text-xs text-muted-foreground">
-          Tap a free date for check-in, then a later date for check-out — hover to
-          preview your stay. Final availability is always rechecked at booking.
+          Dates represent nights stayed. Check-out is the morning of your departure date. Final availability is always rechecked at booking.
         </p>
       </CardContent>
     </Card>

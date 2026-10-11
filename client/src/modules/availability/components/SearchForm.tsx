@@ -5,19 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DateField } from "@/components/common/DateField";
+import { addDays } from "date-fns";
+import { toDayKey } from "@/lib/date";
 import type { AvailabilitySearchParams } from "../types/availability.types";
 
-function toInputValue(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
 function daysFromNow(days: number): string {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  return toInputValue(date);
+  return toDayKey(addDays(new Date(), days));
 }
 
 export const defaultSearchParams: AvailabilitySearchParams = {
@@ -45,7 +38,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
   const [children, setChildren] = useState(String(initial.children));
   const [rooms, setRooms] = useState(String(initial.rooms));
   const [rangeError, setRangeError] = useState<string | null>(null);
-  const [today] = useState(() => toInputValue(new Date()));
+  const [today] = useState(() => toDayKey(new Date()));
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();

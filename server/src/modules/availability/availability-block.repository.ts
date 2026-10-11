@@ -47,7 +47,7 @@ export async function findOverlappingBlockedRoomIds(
   checkOut: Date,
 ): Promise<Set<string>> {
   const docs = await AvailabilityBlockModel.find({
-    startDate: { $lt: checkOut },
+    startDate: { $lte: checkOut },
     endDate: { $gt: checkIn },
   })
     .select("roomId")
