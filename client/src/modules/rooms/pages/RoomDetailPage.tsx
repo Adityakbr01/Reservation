@@ -16,7 +16,6 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Church,
   CircleParking,
   Dog,
   Flag,
@@ -25,7 +24,6 @@ import {
   Gift,
   Headphones,
   Heart,
-  Landmark,
   Leaf,
   Map as MapIcon,
   MapPin,
@@ -36,7 +34,6 @@ import {
   ShieldCheck,
   Sparkles,
   Star,
-  Trees,
   Users,
   Wifi,
 } from "lucide-react";
@@ -133,7 +130,6 @@ const TABS = [
   { id: "property-details", label: "Property Details" },
   { id: "layout", label: "Layout" },
   { id: "location", label: "Location" },
-  { id: "nearby", label: "Nearby" },
   { id: "reviews", label: "Reviews" },
 ] as const;
 
@@ -165,30 +161,6 @@ function whyIconFor(title: string): LucideIcon {
   if (t.includes("satisf") || t.includes("guest")) return Heart;
   if (t.includes("24/7") || t.includes("support")) return Headphones;
   return Sparkles;
-}
-
-const ATTRACTION_TILES = [
-  "from-emerald-900 via-emerald-700 to-lime-600",
-  "from-lime-800 via-green-700 to-emerald-600",
-  "from-stone-800 via-stone-600 to-amber-500",
-  "from-sky-900 via-slate-700 to-stone-500",
-];
-
-function attractionIconFor(name: string): LucideIcon {
-  const n = name.toLowerCase();
-  if (n.includes("forest") || n.includes("park") || n.includes("garden"))
-    return Trees;
-  if (n.includes("golf") || n.includes("club")) return Flag;
-  if (n.includes("cathedral") || n.includes("church") || n.includes("abbey"))
-    return Church;
-  if (
-    n.includes("stonehenge") ||
-    n.includes("heritage") ||
-    n.includes("historic") ||
-    n.includes("museum")
-  )
-    return Landmark;
-  return MapPin;
 }
 
 export function RoomDetailPage() {
@@ -331,20 +303,6 @@ export function RoomDetailPage() {
   const { data: floorplanPhotos } = useMediaUrls(
     roomType?.floorplanMediaIds ?? [],
   );
-  const nearbyList = roomType?.nearbyAttractions ?? [];
-  const nearbyIds = useMemo(
-    () =>
-      nearbyList
-        .map((a) => a.imageMediaId)
-        .filter((id): id is string => Boolean(id)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [roomType?.id],
-  );
-  const { data: nearbyPhotos } = useMediaUrls(nearbyIds);
-  const nearbyPhotoById = useMemo(
-    () => new Map((nearbyPhotos ?? []).map((p) => [p.id, p])),
-    [nearbyPhotos],
-  );
   const sessionUser = useAuthStore((s) => s.user);
   const reviewsQuery = useQuery({
     queryKey: ["reviews", roomType?.id],
@@ -360,20 +318,19 @@ export function RoomDetailPage() {
     retry: false,
   });
   const canReview = !!sessionUser && (eligibilityQuery.data?.eligible ?? false);
-  const hasNearby = nearbyList.length > 0 || !!roomType?.surroundingsHtml;
   const hasLayout = !!(
     roomType?.layoutHtml || (floorplanPhotos ?? []).length > 0
   );
   const hasLocation = !!(
     roomType?.locationText ||
     roomType?.mapEmbedUrl ||
+    roomType?.surroundingsHtml ||
     (roomType?.mapLat != null && roomType?.mapLng != null)
   );
   // Proper tabs: only tabs with content are shown; clicking switches the panel.
   const tabs = TABS.filter(
     (t) =>
       (t.id !== "reviews" || canReview) &&
-      (t.id !== "nearby" || hasNearby) &&
       (t.id !== "layout" || hasLayout) &&
       (t.id !== "location" || hasLocation) &&
       (t.id !== "property-details" ||
@@ -386,7 +343,7 @@ export function RoomDetailPage() {
       setActiveTab(tabs[0]?.id ?? "overview");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canReview, hasNearby, hasLayout, hasLocation, roomType]);
+  }, [canReview, hasLayout, hasLocation, roomType]);
   const [offerOpen, setOfferOpen] = useState(false);
   const { data: offers } = useQuery({
     queryKey: ["room-offers", roomType?.id],
@@ -1046,79 +1003,6 @@ export function RoomDetailPage() {
                     )}
                   </CardContent>
                 </Card>
-              </section>
-            )}
-
-            {/* Nearby — admin-managed attractions with photos/links */}
-            {activeTab === "nearby" && (
-              <section aria-label="Nearby attractions">
-                <h2 className="font-display text-2xl font-medium tracking-tight">
-                  Nearby attractions
-                </h2>
-                {nearbyList.length > 0 && (
-                  <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
-                    {nearbyList.map((a, i) => {
-                      const photo = a.imageMediaId
-                        ? nearbyPhotoById.get(a.imageMediaId)
-                        : undefined;
-                      const Icon = attractionIconFor(a.name);
-                      const tile =
-                        ATTRACTION_TILES[i % ATTRACTION_TILES.length];
-                      const inner = (
-                        <>
-                          {photo?.url ? (
-                            <img
-                              src={photo.url}
-                              alt={photo.alt || a.name}
-                              className="absolute inset-0 h-full w-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <span
-                              aria-hidden
-                              className={`absolute inset-0 bg-gradient-to-br ${tile}`}
-                            >
-                              <Icon className="absolute -right-3 -top-3 size-24 text-white/25" />
-                            </span>
-                          )}
-                          <span className="absolute bottom-2 left-2 right-2 rounded-lg bg-white/95 px-2.5 py-1.5 shadow">
-                            <span className="block truncate text-xs font-semibold">
-                              {a.name}
-                            </span>
-                            {a.description && (
-                              <span className="block truncate text-[11px] text-muted-foreground">
-                                {a.description}
-                              </span>
-                            )}
-                          </span>
-                        </>
-                      );
-                      return a.url ? (
-                        <a
-                          key={`${a.name}-${i}`}
-                          href={a.url}
-                          target={a.url.startsWith("/") ? undefined : "_blank"}
-                          rel={
-                            a.url.startsWith("/")
-                              ? undefined
-                              : "noopener noreferrer"
-                          }
-                          aria-label={`${a.name} — open link`}
-                          className="relative block h-36 overflow-hidden rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        >
-                          {inner}
-                        </a>
-                      ) : (
-                        <div
-                          key={`${a.name}-${i}`}
-                          className="relative h-36 overflow-hidden rounded-xl"
-                        >
-                          {inner}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
                 {roomType.surroundingsHtml && (
                   <div
                     className="rich-text mt-4 text-sm leading-relaxed text-foreground"

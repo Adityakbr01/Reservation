@@ -72,7 +72,8 @@ export function HomePage() {
           ".hero-leaf-wrap-a, .hero-leaf-wrap-b, .hero-leaf-wrap-c",
           { opacity: 0, duration: 1.4 },
           0.5,
-        );
+        )
+        .from(".hero-bird", { opacity: 0, x: 24, duration: 1 }, 0.6);
       // Ambient leaf drift (transforms live on inner imgs; parallax on wrappers).
       gsap.to(".hero-leaf-a", {
         y: 18,
@@ -94,6 +95,13 @@ export function HomePage() {
         y: 12,
         rotation: 7,
         duration: 7,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut",
+      });
+      gsap.to(".hero-bird", {
+        y: -10,
+        duration: 4.5,
         yoyo: true,
         repeat: -1,
         ease: "sine.inOut",
@@ -156,8 +164,14 @@ export function HomePage() {
           fetchPriority="high"
         />
         {/* Ivory fade: solid text side, open image side */}
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-[#FAF7F0]/95 via-[#FAF7F0]/85 to-[#FAF7F0]/40 lg:bg-gradient-to-r lg:from-[#FAF7F0] lg:via-[#FAF7F0]/80 lg:to-transparent" />
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#FAF7F0] to-transparent" />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-b from-[#FAF7F0]/95 via-[#FAF7F0]/85 to-[#FAF7F0]/40 lg:bg-gradient-to-r lg:from-[#FAF7F0] lg:via-[#FAF7F0]/80 lg:to-transparent"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#FAF7F0] to-transparent"
+        />
         {/* Ambient leaves (true transparency, tucked to edges, clear of text) */}
         <div
           className="hero-leaf-wrap-a pointer-events-none absolute right-2 top-6 w-44 opacity-95 sm:w-80 blur-[0.2px]"
@@ -195,17 +209,25 @@ export function HomePage() {
         <div className="relative mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 lg:py-24">
           <div className="max-w-2xl space-y-5">
             <p className="hero-eyebrow text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark">
-              Single property · Best rate here
+              Hamptworth Stays
             </p>
-            <h1 className="hero-title text-balance font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
-              Find your stay
+            <h1 className="hero-title relative text-balance font-display text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
+              A little escape.
+              <div className="absolute top-0 right-38">
+                <img
+                  src="/bird1.png"
+                  alt="Robin perched on a branch"
+                  loading="eager"
+                  className="hero-bird ml-3 inline-block h-[1.2em] w-auto align-baseline"
+                />
+              </div>
             </h1>
             <p className="hero-sub max-w-xl font-display text-lg italic leading-relaxed text-muted-foreground sm:text-xl">
-              Pick your dates and guests to see live availability and rates.
+              Choose your dates. Enjoy a slower pace.
             </p>
             <ul className="hero-trust flex flex-wrap gap-x-6 gap-y-4 pt-2 sm:flex-nowrap">
               {[
-                {
+                { 
                   icon: Gift,
                   title: "Luxury Stays",
                   text: "Curated experiences",
@@ -303,12 +325,22 @@ export function HomePage() {
             </p>
           </div>
           {(() => {
-            const totals = results.flatMap((item) => item.rates.map((rate) => ({ total: rate.total, currency: rate.currency })));
+            const totals = results.flatMap((item) =>
+              item.rates.map((rate) => ({
+                total: rate.total,
+                currency: rate.currency,
+              })),
+            );
             if (totals.length === 0) return null;
             const best = totals.reduce((a, b) => (b.total < a.total ? b : a));
             return (
               <p className="text-sm text-muted-foreground">
-                From <span className="font-semibold text-foreground">{formatMoney(best.total, best.currency)} total for {data.search.nights} night{data.search.nights === 1 ? "" : "s"}</span>
+                From{" "}
+                <span className="font-semibold text-foreground">
+                  {formatMoney(best.total, best.currency)} total for{" "}
+                  {data.search.nights} night
+                  {data.search.nights === 1 ? "" : "s"}
+                </span>
                 <br />
                 <span className="text-xs">Including taxes and fees</span>
               </p>

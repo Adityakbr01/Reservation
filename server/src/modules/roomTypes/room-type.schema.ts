@@ -21,13 +21,6 @@ const mediaItemSchema = z.object({
   sortOrder: z.number().int().min(0).default(0),
 });
 
-const nearbyAttractionSchema = z.object({
-  name: z.string().trim().min(1).max(120),
-  description: z.string().trim().max(300).nullable().optional(),
-  imageMediaId: objectIdSchema.nullable().optional(),
-  url: z.string().trim().max(500).nullable().optional(),
-});
-
 const seoSchema = z.object({  title: z.string().trim().max(160).nullable().default(null),
   description: z.string().trim().max(320).nullable().default(null),
   canonicalUrl: z.string().trim().max(300).nullable().default(null),
@@ -70,7 +63,6 @@ export const createRoomTypeSchema = occupancySchema.extend({
   welcomeHamperDescription: z.string().max(5000).nullable().optional(),
   welcomeHamperImageMediaId: objectIdSchema.nullable().optional(),
   welcomeHamperHtml: z.string().max(30000).nullable().optional(),
-  nearbyAttractions: z.array(nearbyAttractionSchema).max(8).nullable().optional(),
   amenityIds: z.array(objectIdSchema).max(100).optional(),
   bedrooms: z.number().int().min(0).max(20).nullable().optional(),
   bathrooms: z.number().int().min(0).max(20).nullable().optional(),

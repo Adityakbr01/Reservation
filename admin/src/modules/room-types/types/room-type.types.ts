@@ -12,13 +12,6 @@ export interface RoomTypeImage {
   kind?: "image" | "video";
 }
 
-export interface NearbyAttraction {
-  name: string;
-  description?: string | null;
-  imageMediaId?: string | null;
-  url?: string | null;
-}
-
 export interface RoomType {
   id: string;
   propertyId: string;
@@ -46,7 +39,6 @@ export interface RoomType {
   welcomeHamperDescription?: string | null;
   welcomeHamperImageMediaId?: string | null;
   welcomeHamperHtml?: string | null;
-  nearbyAttractions?: NearbyAttraction[] | null;
   amenityIds?: string[];
   bedrooms?: number | null;
   bathrooms?: number | null;
@@ -86,7 +78,6 @@ export interface CreateRoomTypePayload {
   welcomeHamperDescription?: string | null;
   welcomeHamperImageMediaId?: string | null;
   welcomeHamperHtml?: string | null;
-  nearbyAttractions?: NearbyAttraction[] | null;
   amenityIds?: string[];
   bedrooms?: number | null;
   bathrooms?: number | null;

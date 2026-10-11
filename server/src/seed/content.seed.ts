@@ -239,20 +239,12 @@ export async function seedContent() {
       ).exec();
     }
     await alignOfferScoping(property.id);
-    await seedNearbyAndHamper();
+    await seedHamper();
     logger.info("Content seed complete (amenities + AUTUMN20 offer)");
   } catch (error) {
     logger.warn("Content seed skipped", { message: error instanceof Error ? error.message : String(error) });
   }
 }
-
-/** Demo nearby attractions shared by every cottage (admin edits always win). */
-const NEARBY_SEED: Array<{ name: string; description: string; url: string | null }> = [
-  { name: "New Forest National Park", description: "Walking & cycling", url: "https://www.newforestnpa.gov.uk/" },
-  { name: "Hamptworth Golf & Country Club", description: "Golf, dining & clubhouse", url: null },
-  { name: "Salisbury Cathedral", description: "Historic landmark", url: "https://www.salisburycathedral.org.uk/" },
-  { name: "Stonehenge", description: "World heritage site", url: "https://www.english-heritage.org.uk/visit/places/stonehenge/" },
-];
 
 const HAMPER_SEED =
   "<h3>What’s in the hamper</h3>" +
@@ -261,21 +253,13 @@ const HAMPER_SEED =
   '<p>Tell us about dietary needs in <a href="/enquire">your enquiry</a> and we will adjust it.</p>';
 
 /**
- * Fills nearby attractions + hamper content only where the admin left
- * them empty — existing content is never overwritten.
+ * Fills hamper content only where the admin left
+ * it empty — existing content is never overwritten.
  */
-async function seedNearbyAndHamper(): Promise<void> {
-  const rooms = await RoomTypeModel.find({}).select("_id nearbyAttractions welcomeHamperHtml").exec();
+async function seedHamper(): Promise<void> {
+  const rooms = await RoomTypeModel.find({}).select("_id welcomeHamperHtml").exec();
   for (const room of rooms) {
     const patch: Record<string, unknown> = {};
-    if (!room.nearbyAttractions || room.nearbyAttractions.length === 0) {
-      patch.nearbyAttractions = NEARBY_SEED.map((a) => ({
-        name: a.name,
-        description: a.description,
-        imageMediaId: null,
-        url: a.url,
-      }));
-    }
     if (!room.welcomeHamperHtml || room.welcomeHamperHtml.trim().length === 0) {
       patch.welcomeHamperHtml = HAMPER_SEED;
       patch.welcomeHamperIncluded = true;

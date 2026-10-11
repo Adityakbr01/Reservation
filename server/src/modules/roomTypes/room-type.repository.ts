@@ -46,12 +46,6 @@ export function toRoomType(doc: RoomTypeDocument): RoomType {
     welcomeHamperDescription: doc.welcomeHamperDescription ?? null,
     welcomeHamperImageMediaId: doc.welcomeHamperImageMediaId ?? null,
     welcomeHamperHtml: doc.welcomeHamperHtml ?? null,
-    nearbyAttractions: (doc.nearbyAttractions ?? []).map((a) => ({
-      name: a.name,
-      description: a.description ?? null,
-      imageMediaId: a.imageMediaId ?? null,
-      url: a.url ?? null,
-    })),
     amenityIds: (doc.amenityIds ?? []).map((id) => id.toString()),
     bedrooms: doc.bedrooms ?? null,
     bathrooms: doc.bathrooms ?? null,
@@ -88,12 +82,6 @@ export interface CreateRoomTypeInput {
   welcomeHamperDescription?: string | null;
   welcomeHamperImageMediaId?: string | null;
   welcomeHamperHtml?: string | null;
-  nearbyAttractions?: Array<{
-    name: string;
-    description?: string | null;
-    imageMediaId?: string | null;
-    url?: string | null;
-  }> | null;
   amenityIds?: string[];
   bedrooms?: number | null;
   bathrooms?: number | null;
@@ -184,7 +172,6 @@ export type UpdateRoomTypeInput = Partial<
     | "welcomeHamperDescription"
     | "welcomeHamperImageMediaId"
     | "welcomeHamperHtml"
-    | "nearbyAttractions"
     | "amenityIds"
     | "bedrooms"
     | "bathrooms"

@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { MediaPicker } from "@/components/common/MediaPicker";
-import { ImageField } from "@/components/common/ImageField";
 import { CkEditorField } from "@/components/common/CkEditorField";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { apiClient } from "@/lib/api-client";
@@ -82,22 +81,6 @@ export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: Room
   const [hamperOn, setHamperOn] = useState(Boolean((initial as unknown as Record<string, boolean>)?.welcomeHamperIncluded));
   const [hamperHtml, setHamperHtml] = useState(
     (initial as unknown as Record<string, string | null>)?.welcomeHamperHtml ?? "",
-  );
-  interface NearbyFormRow {
-    name: string;
-    description: string;
-    imageMediaId: string | null;
-    url: string;
-  }
-  const [nearby, setNearby] = useState<NearbyFormRow[]>(
-    ((initial as unknown as Record<string, Array<Record<string, string | null>>>)?.nearbyAttractions ?? []).map(
-      (a) => ({
-        name: (a.name as string) ?? "",
-        description: (a.description as string | null) ?? "",
-        imageMediaId: (a.imageMediaId as string | null) ?? null,
-        url: (a.url as string | null) ?? "",
-      }),
-    ),
   );
   const [amenityIds, setAmenityIds] = useState<string[]>((initial as unknown as Record<string, string[]>)?.amenityIds ?? []);
   const [amenityOpts, setAmenityOpts] = useState<Array<{ id: string; name: string; group: string }>>([]);
@@ -209,15 +192,6 @@ export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: Room
       mapEmbedUrl: mapEmbedUrl.trim() || null,
       welcomeHamperIncluded: hamperOn,
       welcomeHamperHtml: hamperHtml.trim() || null,
-      nearbyAttractions: nearby
-        .filter((row) => row.name.trim().length > 0)
-        .slice(0, 8)
-        .map((row) => ({
-          name: row.name.trim(),
-          description: row.description.trim() || null,
-          imageMediaId: row.imageMediaId,
-          url: row.url.trim() || null,
-        })),
       amenityIds,
       status,
     } as CreateRoomTypePayload);
@@ -662,90 +636,6 @@ export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: Room
           enableImages
           uploadFolder="hamper"
         />
-      </div>
-
-      <div className="space-y-3 rounded-md border border-input p-4">
-        <div className="flex items-center justify-between gap-2">
-          <div>
-            <Label>Nearby attractions</Label>
-            <p className="text-xs text-muted-foreground">Shown as cards on the public detail page. Empty = section hidden.</p>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="rounded-full"
-            disabled={nearby.length >= 8}
-            onClick={() => setNearby((rows) => [...rows, { name: "", description: "", imageMediaId: null, url: "" }])}
-          >
-            Add attraction
-          </Button>
-        </div>
-        {nearby.map((row, index) => (
-          <div key={index} className="space-y-2 rounded-md border border-border p-3">
-            <div className="grid gap-2 sm:grid-cols-2">
-              <div className="space-y-1">
-                <Label htmlFor={`rt-nearby-name-${index}`}>Name</Label>
-                <Input
-                  id={`rt-nearby-name-${index}`}
-                  value={row.name}
-                  onChange={(e) =>
-                    setNearby((rows) => rows.map((r, i) => (i === index ? { ...r, name: e.target.value } : r)))
-                  }
-                  placeholder="Stonehenge"
-                  maxLength={120}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor={`rt-nearby-url-${index}`}>Link URL (optional)</Label>
-                <Input
-                  id={`rt-nearby-url-${index}`}
-                  value={row.url}
-                  onChange={(e) =>
-                    setNearby((rows) => rows.map((r, i) => (i === index ? { ...r, url: e.target.value } : r)))
-                  }
-                  placeholder="https://…"
-                  maxLength={500}
-                />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor={`rt-nearby-desc-${index}`}>Short line (optional)</Label>
-              <Input
-                id={`rt-nearby-desc-${index}`}
-                value={row.description}
-                onChange={(e) =>
-                  setNearby((rows) => rows.map((r, i) => (i === index ? { ...r, description: e.target.value } : r)))
-                }
-                placeholder="World heritage site"
-                maxLength={300}
-              />
-            </div>
-            <div className="flex items-end justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <ImageField
-                  label="Photo (optional)"
-                  mediaId={row.imageMediaId}
-                  onChange={(id) =>
-                    setNearby((rows) => rows.map((r, i) => (i === index ? { ...r, imageMediaId: id } : r)))
-                  }
-                />
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="shrink-0 text-destructive"
-                onClick={() => setNearby((rows) => rows.filter((_, i) => i !== index))}
-              >
-                Remove
-              </Button>
-            </div>
-          </div>
-        ))}
-        {nearby.length === 0 && (
-          <p className="text-xs text-muted-foreground">No attractions yet — add up to 8.</p>
-        )}
       </div>
 
       <div className="flex items-center justify-between gap-4 rounded-md border border-input px-4 py-3">

@@ -32,13 +32,6 @@ export interface RoomTypeSeo {
   noIndex: boolean;
 }
 
-export interface NearbyAttraction {
-  name: string;
-  description: string | null;
-  imageMediaId: string | null;
-  url: string | null;
-}
-
 export interface RoomType {
   id: string;
   propertyId: string;
@@ -67,7 +60,6 @@ export interface RoomType {
   welcomeHamperDescription: string | null;
   welcomeHamperImageMediaId: string | null;
   welcomeHamperHtml: string | null;
-  nearbyAttractions: NearbyAttraction[];
   amenityIds: string[];
   bedrooms: number | null;
   bathrooms: number | null;
