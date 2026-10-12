@@ -54,6 +54,12 @@ const CouponEditPage = lazy(() => import("@/modules/coupons/pages/CouponEditPage
 const NotificationsPage = lazy(
   () => import("@/modules/notifications/pages/NotificationsPage"),
 );
+const EmailTemplatesPage = lazy(
+  () => import("@/modules/email-templates/pages/EmailTemplatesPage"),
+);
+const EmailTemplateEditPage = lazy(
+  () => import("@/modules/email-templates/pages/EmailTemplateEditPage"),
+);
 const CmsPagesPage = lazy(() => import("@/modules/cms/pages/CmsPagesPage"));
 const CmsPageCreatePage = lazy(() => import("@/modules/cms/pages/CmsPageCreatePage"));
 const CmsPageEditPage = lazy(() => import("@/modules/cms/pages/CmsPageEditPage"));
@@ -299,6 +305,22 @@ export function AppRoutes() {
               element={
                 <RequireAdmin>
                   <NotificationsPage />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path="email-templates"
+              element={
+                <RequireAdmin>
+                  <EmailTemplatesPage />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path="email-templates/:key"
+              element={
+                <RequireAdmin>
+                  <EmailTemplateEditPage />
                 </RequireAdmin>
               }
             />

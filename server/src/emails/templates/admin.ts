@@ -1,4 +1,4 @@
-import { escapeHtml, layout } from "../shared";
+import { emailButton, escapeHtml, infoCard, layout, p, refPill, safeSubjectText } from "../shared";
 import type { RenderedEmail } from "../shared";
 
 export interface AdminAlertContext {
@@ -10,12 +10,23 @@ export interface AdminAlertContext {
 
 export function adminAlertEmail(ctx: AdminAlertContext, subject: string): RenderedEmail {
   return {
-    subject: `${subject} — ${ctx.bookingReference}`,
+    subject: safeSubjectText(`${subject} — ${ctx.bookingReference}`),
     html: layout(
       escapeHtml(ctx.headline),
       "team",
-      `<p style="color: #2f2f2f;">Booking <strong>${escapeHtml(ctx.bookingReference)}</strong>: ${escapeHtml(ctx.detail)}</p>`,
+      p(`Booking ${refPill(ctx.bookingReference)}`) +
+        infoCard(p(escapeHtml(ctx.detail))) +
+        emailButton(ctx.adminUrl, "Open in admin →"),
       `Open in admin: ${escapeHtml(ctx.adminUrl)}`,
+      { preheader: `${ctx.headline}: ${ctx.bookingReference}` },
     ),
+    text: [
+      `Hello team,`,
+      ``,
+      `${ctx.headline}`,
+      `Booking ${ctx.bookingReference}: ${ctx.detail}`,
+      ``,
+      `Open in admin: ${ctx.adminUrl}`,
+    ].join("\n"),
   };
 }

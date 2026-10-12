@@ -39,6 +39,9 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().min(1).default("no-reply@voiceact.tech"),
   EMAIL_REPLY_TO: z.string().optional(),
+  // Absolute https logo URL for the email header (e.g. a hosted logo.webp).
+  // Relative paths never render in inboxes; unset keeps the text lockup.
+  EMAIL_LOGO_URL: z.string().trim().max(500).optional(),
   ADMIN_NOTIFICATION_EMAIL: z.string().trim().toLowerCase().email().optional(),
   IMAGEKIT_PUBLIC_KEY: z.string().optional(),
   IMAGEKIT_PRIVATE_KEY: z.string().optional(),

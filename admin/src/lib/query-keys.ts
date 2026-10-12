@@ -82,6 +82,12 @@ export const notificationKeys = {
   list: (filters: unknown) => [...notificationKeys.all, "list", filters] as const,
 };
 
+export const emailTemplateKeys = {
+  all: ["email-templates"] as const,
+  list: (filters: unknown) => [...emailTemplateKeys.all, "list", filters] as const,
+  detail: (key: string) => [...emailTemplateKeys.all, "detail", key] as const,
+};
+
 export const dashboardKeys = {
   all: ["dashboard"] as const,
   summary: () => [...dashboardKeys.all, "summary"] as const,

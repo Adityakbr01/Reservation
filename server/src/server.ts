@@ -4,6 +4,7 @@ import { closeCache } from "./config/cache";
 import { connectDatabase, disconnectDatabase } from "./config/database";
 import { env, isProduction } from "./config/env";
 import { logger } from "./config/logger";
+import { setEmailLogoUrl } from "./emails/shared";
 import { runStartupSeeds } from "./seed";
 import { startNotificationWorker, stopNotificationWorker } from "./modules/notifications";
 
@@ -20,6 +21,9 @@ async function boot(): Promise<void> {
     const message = error instanceof Error ? error.message : String(error);
     logger.error("Boot seeding failed", { message });
   }
+
+  // Email header logo (absolute https URL). Unset keeps the text lockup.
+  setEmailLogoUrl(env.EMAIL_LOGO_URL);
 
   const app = createApp();
   startNotificationWorker();

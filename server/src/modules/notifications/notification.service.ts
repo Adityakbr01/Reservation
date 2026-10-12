@@ -37,6 +37,11 @@ import {
   refundUpdatedEmail,
 } from "../../emails";
 import type { BookingEmailContext, RenderedEmail } from "../../emails";
+import type { EmailTemplateKey } from "../../emails/registry";
+import {
+  bookingTemplateVars,
+  resolveTemplate,
+} from "../emailTemplates/email-template.service";
 import {
   MAX_ATTEMPTS,
   nextRetryDelayMs,
@@ -69,12 +74,42 @@ export async function enqueueNotification(input: EnqueueInput): Promise<Notifica
   }
 }
 
+import { DEFAULT_BRAND_SITE_URL, mapsDirectionsUrl, money } from "../../emails/shared";
+
 function formatDate(value: Date): string {
   return new Date(value).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
+}
+
+function brandSiteUrl(): string {
+  const firstExtra = env.EXTRA_ORIGINS.split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean)[0];
+  return firstExtra ?? DEFAULT_BRAND_SITE_URL;
+}
+
+function formatPropertyAddress(property: {
+  contact?: {
+    address?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+  } | null;
+} | null): string | null {
+  const parts = [
+    property?.contact?.address,
+    property?.contact?.city,
+    property?.contact?.state,
+    property?.contact?.postalCode,
+    property?.contact?.country,
+  ]
+    .map((part) => part?.trim())
+    .filter((part): part is string => Boolean(part));
+  return parts.length > 0 ? parts.join(", ") : null;
 }
 
 function nightsBetween(checkIn: Date, checkOut: Date): number {
@@ -123,6 +158,10 @@ export async function loadBookingEmailSnapshot(
     )
   ).reduce((sum, rest) => sum + rest, 0);
   const propertyName = property?.name ?? "Our property";
+  const propertyAddress =
+    formatPropertyAddress(property) ?? (await getSiteSettings().catch(() => null))?.address ?? null;
+  const brandSite = brandSiteUrl();
+  const bookingSite = env.CLIENT_URL;
   return {
     bookingId: booking.id,
     guestName: `${booking.contact.firstName} ${booking.contact.lastName}`.trim() || "Guest",
@@ -149,6 +188,13 @@ export async function loadBookingEmailSnapshot(
     supportEmail: env.EMAIL_REPLY_TO ?? env.EMAIL_FROM,
     manageUrl: `${env.CLIENT_URL}/bookings`,
     holdExpiresAt: booking.hold.expiresAt ? new Date(booking.hold.expiresAt).toISOString() : "—",
+    checkInTime: property?.checkInTime ?? null,
+    checkOutTime: property?.checkOutTime ?? null,
+    propertyAddress,
+    mapsUrl: mapsDirectionsUrl(propertyAddress),
+    brandName: propertyName,
+    brandSiteUrl: brandSite,
+    bookingSiteUrl: bookingSite,
   };
 }
 
@@ -156,76 +202,116 @@ function adminUrl(bookingId: string): string {
   return `${env.ADMIN_URL}/reservations/${bookingId}`;
 }
 
-function renderFor(
+/**
+ * Renders a booking notification. Code defaults render first; an enabled
+ * admin override for the same template key wins, with safe fallback to
+ * code when the override is disabled or broken — transactional mail is
+ * never silenced by template editing.
+ */
+async function renderFor(
   notification: Notification,
   snapshot: BookingEmailSnapshot,
-): RenderedEmail | null {
+): Promise<RenderedEmail | null> {
+  const vars = bookingTemplateVars(snapshot);
+  const resolve = (
+    key: EmailTemplateKey,
+    codeDefault: RenderedEmail,
+    extra?: Record<string, string>,
+  ): Promise<RenderedEmail> =>
+    resolveTemplate(key, extra ? { ...vars, ...extra } : vars, codeDefault).then(
+      ({ rendered }) => rendered,
+    );
   switch (notification.type) {
     case "BOOKING_RECEIVED":
-      return bookingReceivedEmail(snapshot);
+      return resolve("BOOKING_RECEIVED", bookingReceivedEmail(snapshot));
     case "BOOKING_CONFIRMED":
-      return bookingConfirmedEmail(snapshot);
+      return resolve("BOOKING_CONFIRMED", bookingConfirmedEmail(snapshot));
     case "PAYMENT_FAILED":
-      return paymentFailedEmail({
-        guestName: snapshot.guestName,
-        bookingReference: snapshot.bookingReference,
-        holdExpiresAt: snapshot.holdExpiresAt,
-        supportEmail: snapshot.supportEmail,
-        manageUrl: snapshot.manageUrl,
-      });
-    case "BOOKING_CANCELLED":
-      return bookingCancelledEmail({
-        ...snapshot,
-        cancelledAt: new Date().toISOString(),
-        refundAmount: 0,
-        refundStatus: snapshot.paymentStatus,
-      });
+      return resolve(
+        "PAYMENT_FAILED",
+        paymentFailedEmail({
+          guestName: snapshot.guestName,
+          bookingReference: snapshot.bookingReference,
+          holdExpiresAt: snapshot.holdExpiresAt,
+          supportEmail: snapshot.supportEmail,
+          manageUrl: snapshot.manageUrl,
+        }),
+      );
+    case "BOOKING_CANCELLED": {
+      const cancelledAt = new Date().toISOString();
+      return resolve(
+        "BOOKING_CANCELLED",
+        bookingCancelledEmail({
+          ...snapshot,
+          cancelledAt,
+          refundAmount: 0,
+          refundStatus: snapshot.paymentStatus,
+        }),
+        {
+          cancelledAt,
+          refundAmount: money(0, snapshot.currency),
+          refundStatus: snapshot.paymentStatus,
+        },
+      );
+    }
     case "CHECKIN_REMINDER":
-      return checkinReminderEmail(snapshot);
+      return resolve("CHECKIN_REMINDER", checkinReminderEmail(snapshot));
     case "CHECKED_IN":
-      return checkedInEmail(snapshot);
+      return resolve("CHECKED_IN", checkedInEmail(snapshot));
     case "CHECKED_OUT":
-      return checkedOutEmail(snapshot);
-    case "ADMIN_NEW_BOOKING":
-      return adminAlertEmail(
-        {
-          bookingReference: snapshot.bookingReference,
-          headline: "New booking",
-          detail: `${snapshot.guestName}, ${snapshot.roomSummary}, ${snapshot.checkIn} → ${snapshot.checkOut}.`,
-          adminUrl: adminUrl(snapshot.bookingId),
-        },
-        "New booking",
-      );
-    case "ADMIN_PAYMENT_FAILURE":
-      return adminAlertEmail(
-        {
-          bookingReference: snapshot.bookingReference,
-          headline: "Payment failure",
-          detail: `Payment for ${snapshot.guestName} failed. Booking is ${snapshot.paymentStatus}.`,
-          adminUrl: adminUrl(snapshot.bookingId),
-        },
-        "Payment failure",
-      );
-    case "ADMIN_CANCELLATION":
-      return adminAlertEmail(
-        {
-          bookingReference: snapshot.bookingReference,
-          headline: "Booking cancelled",
-          detail: `Cancelled by guest/admin. Payment state: ${snapshot.paymentStatus}.`,
-          adminUrl: adminUrl(snapshot.bookingId),
-        },
-        "Booking cancelled",
-      );
-    case "ADMIN_SOLD_OUT":
-      return adminAlertEmail(
-        {
-          bookingReference: snapshot.bookingReference,
-          headline: "Fully booked",
-          detail: `All rooms are now sold for ${snapshot.checkIn} → ${snapshot.checkOut}. Triggered by this booking.`,
-          adminUrl: adminUrl(snapshot.bookingId),
-        },
-        "Fully booked",
-      );
+      return resolve("CHECKED_OUT", checkedOutEmail(snapshot));
+    case "ADMIN_NEW_BOOKING": {
+      const ctx = {
+        bookingReference: snapshot.bookingReference,
+        headline: "New booking",
+        detail: `${snapshot.guestName}, ${snapshot.roomSummary}, ${snapshot.checkIn} → ${snapshot.checkOut}.`,
+        adminUrl: adminUrl(snapshot.bookingId),
+      };
+      return resolve("ADMIN_NEW_BOOKING", adminAlertEmail(ctx, "New booking"), {
+        headline: ctx.headline,
+        detail: ctx.detail,
+        adminUrl: ctx.adminUrl,
+      });
+    }
+    case "ADMIN_PAYMENT_FAILURE": {
+      const ctx = {
+        bookingReference: snapshot.bookingReference,
+        headline: "Payment failure",
+        detail: `Payment for ${snapshot.guestName} failed. Booking is ${snapshot.paymentStatus}.`,
+        adminUrl: adminUrl(snapshot.bookingId),
+      };
+      return resolve("ADMIN_PAYMENT_FAILURE", adminAlertEmail(ctx, "Payment failure"), {
+        headline: ctx.headline,
+        detail: ctx.detail,
+        adminUrl: ctx.adminUrl,
+      });
+    }
+    case "ADMIN_CANCELLATION": {
+      const ctx = {
+        bookingReference: snapshot.bookingReference,
+        headline: "Booking cancelled",
+        detail: `Cancelled by guest/admin. Payment state: ${snapshot.paymentStatus}.`,
+        adminUrl: adminUrl(snapshot.bookingId),
+      };
+      return resolve("ADMIN_CANCELLATION", adminAlertEmail(ctx, "Booking cancelled"), {
+        headline: ctx.headline,
+        detail: ctx.detail,
+        adminUrl: ctx.adminUrl,
+      });
+    }
+    case "ADMIN_SOLD_OUT": {
+      const ctx = {
+        bookingReference: snapshot.bookingReference,
+        headline: "Fully booked",
+        detail: `All rooms are now sold for ${snapshot.checkIn} → ${snapshot.checkOut}. Triggered by this booking.`,
+        adminUrl: adminUrl(snapshot.bookingId),
+      };
+      return resolve("ADMIN_SOLD_OUT", adminAlertEmail(ctx, "Fully booked"), {
+        headline: ctx.headline,
+        detail: ctx.detail,
+        adminUrl: ctx.adminUrl,
+      });
+    }
     default:
       return null;
   }
@@ -277,16 +363,30 @@ async function renderNotification(notification: Notification): Promise<RenderedE
       );
     }
     const booking = notification.bookingId ? await findBookingById(notification.bookingId) : null;
-    return refundUpdatedEmail({
-      guestName: booking
-        ? `${booking.contact.firstName} ${booking.contact.lastName}`.trim()
-        : "Guest",
+    const guestName = booking
+      ? `${booking.contact.firstName} ${booking.contact.lastName}`.trim()
+      : "Guest";
+    const codeDefault = refundUpdatedEmail({
+      guestName,
       bookingReference: booking?.bookingNumber ?? "—",
       currency: refund.currency,
       refundAmount: refund.amount,
       refundStatus: refund.status.toLowerCase(),
       supportEmail: env.EMAIL_REPLY_TO ?? env.EMAIL_FROM,
     });
+    const { rendered } = await resolveTemplate(
+      "REFUND_UPDATED",
+      {
+        guestName,
+        brandName: "Hamptworth Stays",
+        bookingReference: booking?.bookingNumber ?? "—",
+        refundAmount: money(refund.amount, refund.currency),
+        refundStatus: refund.status.toLowerCase(),
+        supportEmail: env.EMAIL_REPLY_TO ?? env.EMAIL_FROM,
+      },
+      codeDefault,
+    );
+    return rendered;
   }
   if (!notification.bookingId) return null;
   const snapshot = await loadBookingEmailSnapshot(notification.bookingId);

@@ -36,6 +36,8 @@ export const AUDIT_ACTIONS = [
   "NEWSLETTER_UNSUBSCRIBED",
   "REVIEW_CREATED",
   "REVIEW_MODERATED",
+  "EMAIL_TEMPLATE_UPDATED",
+  "EMAIL_TEST_SENT",
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

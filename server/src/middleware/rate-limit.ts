@@ -31,3 +31,20 @@ export const authRateLimiter = rateLimit({
     });
   },
 });
+
+/**
+ * Test-email bucket (admin template test sends). Explicit recipient only,
+ * low volume on purpose so a compromised session cannot mass-mail.
+ */
+export const testEmailRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req: Request, res: Response): void => {
+    res.status(429).json({
+      success: false,
+      error: { code: "RATE_LIMITED", message: "Too many test emails, please try again later." },
+    });
+  },
+});

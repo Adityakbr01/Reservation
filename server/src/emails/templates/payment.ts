@@ -1,4 +1,12 @@
-import { escapeHtml, layout, money } from "../shared";
+import {
+  emailButton,
+  escapeHtml,
+  infoCard,
+  layout,
+  money,
+  p,
+  refPill,
+} from "../shared";
 import type { RenderedEmail } from "../shared";
 
 export interface PaymentFailedContext {
@@ -15,9 +23,31 @@ export function paymentFailedEmail(ctx: PaymentFailedContext): RenderedEmail {
     html: layout(
       "Payment did not go through",
       escapeHtml(ctx.guestName),
-      `<p style="color: #2f2f2f;">Your bank declined the charge for booking <strong>${escapeHtml(ctx.bookingReference)}</strong>. No money was captured. You can retry while the hold is valid (until ${escapeHtml(ctx.holdExpiresAt)}).</p>`,
+      p(
+        `Your bank declined the charge for booking ${refPill(ctx.bookingReference)}. No money was captured.`,
+      ) +
+        infoCard(
+          p(
+            `You can <strong>retry</strong> while the hold is valid (until ${escapeHtml(ctx.holdExpiresAt)}).`,
+          ),
+        ) +
+        emailButton(ctx.manageUrl, "Retry payment →"),
       `Retry from your bookings page: ${escapeHtml(ctx.manageUrl)} — or contact ${escapeHtml(ctx.supportEmail)}.`,
+      { preheader: `Your payment for ${ctx.bookingReference} did not go through` },
     ),
+    text: [
+      `Hello ${ctx.guestName},`,
+      ``,
+      `Your bank declined the charge for booking ${ctx.bookingReference}. No money was captured.`,
+      ``,
+      `You can retry while the hold is valid (until ${ctx.holdExpiresAt}).`,
+      ``,
+      `Retry from your bookings page: ${ctx.manageUrl}`,
+      `Or contact ${ctx.supportEmail}.`,
+      ``,
+      `Warm wishes,`,
+      `The Hamptworth Stays Team`,
+    ].join("\n"),
   };
 }
 
@@ -36,8 +66,21 @@ export function refundUpdatedEmail(ctx: RefundUpdatedContext): RenderedEmail {
     html: layout(
       "Refund update",
       escapeHtml(ctx.guestName),
-      `<p style="color: #2f2f2f;">Refund of ${money(ctx.refundAmount, ctx.currency)} for booking <strong>${escapeHtml(ctx.bookingReference)}</strong> is now ${escapeHtml(ctx.refundStatus)}.</p>`,
+      p(
+        `Refund of <strong>${money(ctx.refundAmount, ctx.currency)}</strong> for booking ${refPill(ctx.bookingReference)} is now <strong>${escapeHtml(ctx.refundStatus)}</strong>.`,
+      ),
       `Questions? Contact ${escapeHtml(ctx.supportEmail)}.`,
+      { preheader: `Your refund for ${ctx.bookingReference} is ${ctx.refundStatus}` },
     ),
+    text: [
+      `Hello ${ctx.guestName},`,
+      ``,
+      `Refund of ${ctx.currency} ${(ctx.refundAmount / 100).toFixed(2)} for booking ${ctx.bookingReference} is now ${ctx.refundStatus}.`,
+      ``,
+      `Questions? Contact ${ctx.supportEmail}.`,
+      ``,
+      `Warm wishes,`,
+      `The Hamptworth Stays Team`,
+    ].join("\n"),
   };
 }

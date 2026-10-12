@@ -11,6 +11,7 @@ import {
   Image,
   LayoutDashboard,
   LogOut,
+  Mail,
   Menu,
   Newspaper,
   Receipt,
@@ -67,6 +68,7 @@ const MANAGE_LINKS = [
   { to: "/payments", label: "Payments", Icon: Receipt },
   { to: "/coupons", label: "Coupons", Icon: Ticket },
   { to: "/notifications", label: "Notifications", Icon: Bell },
+  { to: "/email-templates", label: "Email templates", Icon: Mail },
 ];
 
 const CONTENT_LINKS = [

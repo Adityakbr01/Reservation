@@ -16,6 +16,7 @@ import { paymentsRouter } from "./modules/payments/payment.routes";
 import { adminBookingsRouter } from "./modules/bookings/admin-bookings.routes";
 import { adminRefundsRouter } from "./modules/refunds/refund.routes";
 import { adminNotificationsRouter } from "./modules/notifications/notification.routes";
+import { adminEmailTemplatesRouter } from "./modules/emailTemplates/email-template.routes";
 import { adminDashboardRouter } from "./modules/dashboard/dashboard.routes";
 import { adminCmsRouter, publicCmsRouter } from "./modules/cms/cms.routes";
 import { adminMediaRouter, publicMediaRouter } from "./modules/media/media.routes";
@@ -79,6 +80,7 @@ export function createApp() {
   app.use("/api/v1/admin/payments", adminPaymentsRouter);
   app.use("/api/v1/admin/refunds", adminRefundsRouter);
   app.use("/api/v1/admin/notifications", adminNotificationsRouter);
+  app.use("/api/v1/admin/email-templates", adminEmailTemplatesRouter);
   app.use("/api/v1/admin/dashboard", adminDashboardRouter);
   app.use("/api/v1/admin/cms", adminCmsRouter);
   app.use("/api/v1/admin/media", adminMediaRouter);
