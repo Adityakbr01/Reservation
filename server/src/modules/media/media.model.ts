@@ -5,15 +5,15 @@ import type { Paginated } from "../../utils/pagination";
 
 export type MediaKind = "image" | "video";
 
-/** Binary origin. Old rows predate the field and read as "imagekit". */
-export type StorageProvider = "imagekit" | "local";
+/** Binary origin. "ftp" = GoDaddy FTP. "local" / "imagekit" are legacy values from old rows. */
+export type StorageProvider = "ftp" | "local" | "imagekit";
 
 export interface Media {
   id: string;
   fileName: string;
   url: string;
   storageKey: string;
-  /** "local" = GoDaddy FTP key relative to uploads/; "imagekit" = ImageKit fileId. */
+  /** "ftp" = GoDaddy FTP key relative to uploads/. "local"/"imagekit" are legacy. */
   storageProvider: StorageProvider;
   /** Pre-migration values, kept for per-row rollback during the transition. */
   legacyUrl: string | null;
@@ -59,7 +59,7 @@ const mediaSchema = new mongoose.Schema<MediaDocument>(
     fileName: { type: String, required: true },
     url: { type: String, required: true },
     storageKey: { type: String, required: true, unique: true },
-    storageProvider: { type: String, enum: ["imagekit", "local"], default: "imagekit" },
+    storageProvider: { type: String, enum: ["ftp", "local", "imagekit"], default: "ftp" },
     legacyUrl: { type: String, default: null },
     legacyStorageKey: { type: String, default: null },
     mime: { type: String, required: true },
@@ -94,7 +94,7 @@ export function toMedia(doc: MediaDocument): Media {
     fileName: doc.fileName,
     url: doc.url,
     storageKey: doc.storageKey,
-    storageProvider: doc.storageProvider ?? "imagekit",
+    storageProvider: doc.storageProvider ?? "ftp",
     legacyUrl: doc.legacyUrl ?? null,
     legacyStorageKey: doc.legacyStorageKey ?? null,
     mime: doc.mime,

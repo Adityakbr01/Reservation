@@ -8,7 +8,7 @@ import { isDuplicateKeyError } from "../../utils/mongo";
 import {
   deleteAvatar,
   uploadAvatar,
-} from "../../integrations/imagekit/imagekit.service";
+} from "../../integrations/storage/avatar-storage";
 import {
   createUser,
   findUserByEmail,
@@ -23,6 +23,7 @@ import {
 } from "../users/user.repository";
 import type { Paginated } from "../../utils/pagination";
 import type { SafeUser } from "../users/user.types";
+import type { StorageProvider } from "../media/media.model";
 import type {
   ForgotPasswordInput,
   ListUsersQuery,
@@ -201,21 +202,21 @@ export async function updateMe(
     name?: string;
     avatarUrl?: string | null;
     avatarFileId?: string | null;
-    avatarStorageProvider?: "imagekit" | "local";
+    avatarStorageProvider?: StorageProvider;
     legacyAvatarUrl?: string | null;
     legacyAvatarFileId?: string | null;
   } = {};
   if (input.name !== undefined) updates.name = input.name;
 
   let previousFileId: string | null = null;
-  let previousProvider: "imagekit" | "local" = "imagekit";
+  let previousProvider: StorageProvider = "ftp";
   if (file) {
     const current = await findUserDocById(userId);
     if (!current) {
       throw new AppError("Account not found", 404, "USER_NOT_FOUND");
     }
     previousFileId = current.avatarFileId ?? null;
-    previousProvider = current.avatarStorageProvider ?? "imagekit";
+    previousProvider = current.avatarStorageProvider ?? "ftp";
     const uploaded = await uploadAvatar(file.buffer, file.originalname, userId);
     updates.avatarUrl = uploaded.url;
     updates.avatarFileId = uploaded.fileId;
@@ -235,7 +236,7 @@ export async function updateMe(
     throw new AppError("Account not found", 404, "USER_NOT_FOUND");
   }
   if (previousFileId) {
-    await deleteAvatar(previousFileId, previousProvider);
+    await deleteAvatar(previousFileId);
   }
   return updated;
 }

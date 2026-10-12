@@ -5,6 +5,7 @@ import type { Paginated } from "../../utils/pagination";
 import { UserModel } from "./user.model";
 import type { UserDocument } from "./user.model";
 import type { SafeUser, UserRole } from "./user.types";
+import type { StorageProvider } from "../media/media.model";
 
 /** Fields safe to expose. Single allow-list used by every read path. */
 const SAFE_PROJECTION = "name email role isActive avatarUrl lastLoginAt createdAt updatedAt";
@@ -100,7 +101,7 @@ export interface UpdateUserInput {
   passwordResetExpires?: Date | null;
   avatarUrl?: string | null;
   avatarFileId?: string | null;
-  avatarStorageProvider?: "imagekit" | "local";
+  avatarStorageProvider?: StorageProvider;
   legacyAvatarUrl?: string | null;
   legacyAvatarFileId?: string | null;
   role?: UserRole;

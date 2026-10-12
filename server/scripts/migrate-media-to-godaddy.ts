@@ -38,6 +38,7 @@ interface Args {
   limit: number;
   only: string | null;
   mapPath: string;
+  concurrency: number;
 }
 
 interface UrlMapEntry {
@@ -47,7 +48,7 @@ interface UrlMapEntry {
 }
 
 function parseArgs(argv: string[]): Args {
-  const args: Args = { kind: "all", apply: false, limit: 0, only: null, mapPath: "./url-map.json" };
+  const args: Args = { kind: "all", apply: false, limit: 0, only: null, mapPath: "./url-map.json", concurrency: 5 };
   for (let i = 0; i < argv.length; i += 1) {
     const flag = argv[i];
     const value = argv[i + 1];
@@ -58,6 +59,9 @@ function parseArgs(argv: string[]): Args {
       args.apply = true;
     } else if (flag === "--limit" && value) {
       args.limit = Math.max(0, Number.parseInt(value, 10) || 0);
+      i += 1;
+    } else if (flag === "--concurrency" && value) {
+      args.concurrency = Math.max(1, Number.parseInt(value, 10) || 5);
       i += 1;
     } else if (flag === "--only" && value) {
       args.only = value;
@@ -97,14 +101,59 @@ async function downloadBinary(url: string): Promise<{ data: Buffer; contentType:
 }
 
 async function verifyPublicUrl(url: string, expectedBytes: number): Promise<void> {
-  const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
-  if (!response.ok) {
-    throw new Error(`verify HTTP ${response.status}`);
+  // GoDaddy shared hosting can take a moment before a fresh FTP upload is
+  // served over HTTP — poll with quick backoff instead of failing immediately.
+  const attempts = 10;
+  let lastStatus = 0;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+      lastStatus = response.status;
+      if (response.ok) {
+        const data = Buffer.from(await response.arrayBuffer());
+        if (data.length !== expectedBytes) {
+          throw new Error(`verify size mismatch (expected ${expectedBytes}, got ${data.length})`);
+        }
+        if (attempt > 1) console.log(`VERIFY_OK_AFTER_RETRY:${attempt} ${url}`);
+        return;
+      }
+    } catch (error) {
+      if (attempt === attempts) throw error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2_000));
   }
-  const data = Buffer.from(await response.arrayBuffer());
-  if (data.length !== expectedBytes) {
-    throw new Error(`verify size mismatch (expected ${expectedBytes}, got ${data.length})`);
+  throw new Error(`verify HTTP ${lastStatus} after ${attempts} attempts`);
+}
+
+/** Lightweight concurrent runner: runs up to limit workers in parallel. */
+async function pMap<T, R>(items: T[], limit: number, fn: (item: T, index: number) => Promise<R>): Promise<R[]> {
+  const results: R[] = Array.from({ length: items.length });
+  let currentIndex = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (currentIndex < items.length) {
+      const index = currentIndex++;
+      results[index] = await fn(items[index], index);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
+/**
+ * Preflight: proves ASSETS_BASE_URL actually serves the FTP jail BEFORE any
+ * row is touched. A wrong base (e.g. missing /uploads path) fails here with a
+ * clear message instead of mass-skipping every row at verify time.
+ */
+async function preflightCheck(baseUrl: string): Promise<void> {
+  const key = `media/preflight-${Date.now()}.txt`;
+  const probe = Buffer.from("preflight");
+  await uploadBufferToGoDaddy(key, probe);
+  try {
+    await verifyPublicUrl(publicAssetUrl(baseUrl, key), probe.length);
+  } finally {
+    await removeFileFromGoDaddy(key).catch(() => undefined);
   }
+  console.log(`PREFLIGHT_OK:${publicAssetUrl(baseUrl, key)}`);
 }
 
 async function loadMap(mapPath: string): Promise<UrlMapEntry[]> {
@@ -139,7 +188,9 @@ async function runMedia(args: Args, baseUrl: string): Promise<UrlMapEntry[]> {
   console.log(`MEDIA_CANDIDATES:${rows.length}`);
   const mapped: UrlMapEntry[] = [];
   let done = 0;
-  for (const row of rows) {
+  const concurrency = args.concurrency || 5;
+
+  await pMap(rows, concurrency, async (row) => {
     const tag = args.apply ? "MIGRATED" : "DRYRUN";
     try {
       const { data } = await downloadBinary(row.url);
@@ -165,13 +216,14 @@ async function runMedia(args: Args, baseUrl: string): Promise<UrlMapEntry[]> {
       }
       mapped.push({ mediaId: row._id.toString(), oldUrl: row.url, newUrl });
       done += 1;
-      console.log(`${tag}:${done} ${row.fileName} -> ${newUrl}`);
+      console.log(`${tag}:${done}/${rows.length} ${row.fileName} -> ${newUrl}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.warn("Media backfill skipped", { id: row._id.toString(), message });
       console.log(`SKIPPED:${row._id.toString()} ${message}`);
     }
-  }
+  });
+
   console.log(`MEDIA_DONE:${done}/${rows.length}`);
   return mapped;
 }
@@ -194,18 +246,20 @@ async function runAvatars(args: Args, baseUrl: string): Promise<void> {
   const rows = await query.select("+avatarFileId +legacyAvatarFileId").exec();
   console.log(`AVATAR_CANDIDATES:${rows.length}`);
   let done = 0;
-  for (const row of rows) {
+  const concurrency = args.concurrency || 5;
+
+  await pMap(rows, concurrency, async (row) => {
     try {
       if (!row.avatarUrl || !row.avatarFileId) {
         console.log(`SKIPPED:${row._id.toString()} no avatar refs`);
-        continue;
+        return;
       }
       const { data, contentType } = await downloadBinary(row.avatarUrl);
       const mime = (contentType?.split(";")[0].trim() ?? "") as string;
       const resolved = AVATAR_CONTENT_TO_MIME[mime];
       if (!resolved) {
         console.log(`SKIPPED:${row._id.toString()} unsupported avatar type ${contentType}`);
-        continue;
+        return;
       }
       const key = buildAvatarKey(row._id.toString(), "avatar", resolved);
       const newUrl = publicAssetUrl(baseUrl, key);
@@ -228,13 +282,14 @@ async function runAvatars(args: Args, baseUrl: string): Promise<void> {
         }).exec();
       }
       done += 1;
-      console.log(`${args.apply ? "MIGRATED" : "DRYRUN"}:${done} user ${row._id.toString()} -> ${newUrl}`);
+      console.log(`${args.apply ? "MIGRATED" : "DRYRUN"}:${done}/${rows.length} user ${row._id.toString()} -> ${newUrl}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.warn("Avatar backfill skipped", { id: row._id.toString(), message });
       console.log(`SKIPPED:${row._id.toString()} ${message}`);
     }
-  }
+  });
+
   console.log(`AVATAR_DONE:${done}/${rows.length}`);
 }
 
@@ -524,6 +579,9 @@ async function main(): Promise<void> {
     const baseUrl = requireFtpConfig();
     if (!args.apply) {
       console.log("MODE:DRYRUN (no uploads, no writes — pass --apply to mutate)");
+    } else {
+      // Live runs must prove the base URL serves the jail first.
+      await preflightCheck(baseUrl);
     }
     if (args.kind === "media") {
       const mapped = await runMedia(args, baseUrl);

@@ -8,9 +8,9 @@ import { assertStorageKey, parentDirOf } from "./storage-keys";
  * GoDaddy cPanel FTP driver (see migrate-imagekit-to-godaddy.md).
  *
  * The FTP account (hamptworthStay@hamptworthstays.com) is jailed to
- * hamptworthStay/. After connecting we immediately cd into the `uploads/`
- * subdirectory, so every subsequent key path (e.g. media/2026/10/file.jpg)
- * lands at hamptworthStay/uploads/media/2026/10/file.jpg, which is served
+ * public_html/hamptworthstays.com/uploads.
+ * Every key path (e.g. media/2026/10/file.jpg) lands at
+ * public_html/hamptworthstays.com/uploads/media/2026/10/file.jpg, which is served
  * publicly at ASSETS_BASE_URL/media/2026/10/file.jpg.
  *
  * One short-lived FTPS connection per operation: uploads are admin-only and
@@ -19,7 +19,6 @@ import { assertStorageKey, parentDirOf } from "./storage-keys";
  */
 
 const CONNECT_TIMEOUT_MS = 30_000;
-const FTP_WORKING_DIR = "uploads";
 
 function requireFtpConfig(): {
   host: string;
@@ -41,7 +40,7 @@ function requireFtpConfig(): {
   };
 }
 
-/** Connect and cd into the uploads/ working directory. */
+/** Connect to FTP. The FTP account is already jailed to public_html/hamptworthstays.com/uploads */
 async function connect(): Promise<Client> {
   const config = requireFtpConfig();
   const client = new Client(CONNECT_TIMEOUT_MS);
@@ -52,9 +51,6 @@ async function connect(): Promise<Client> {
     password: config.password,
     secure: config.secure,
   });
-  // cd into uploads/ so all key paths (media/..., avatars/...) are relative to it.
-  // ensureDir handles creation if the directory doesn't exist yet.
-  await client.ensureDir(FTP_WORKING_DIR);
   return client;
 }
 

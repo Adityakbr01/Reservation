@@ -43,12 +43,8 @@ const envSchema = z.object({
   // Relative paths never render in inboxes; unset keeps the text lockup.
   EMAIL_LOGO_URL: z.string().trim().max(500).optional(),
   ADMIN_NOTIFICATION_EMAIL: z.string().trim().toLowerCase().email().optional(),
-  IMAGEKIT_PUBLIC_KEY: z.string().optional(),
-  IMAGEKIT_PRIVATE_KEY: z.string().optional(),
-  IMAGEKIT_URL_ENDPOINT: z.string().optional(),
-  // Binary asset storage driver. "imagekit" preserves the legacy behaviour;
-  // "ftp" uploads to GoDaddy cPanel hosting (see migrate-imagekit-to-godaddy.md).
-  STORAGE_PROVIDER: z.enum(["imagekit", "ftp"]).default("imagekit"),
+  // Binary asset storage driver. Default "ftp" for GoDaddy hosting.
+  STORAGE_PROVIDER: z.literal("ftp").default("ftp"),
   // GoDaddy FTP (scoped account jailed to the uploads/ directory).
   // HOST is the FTP hostname from cPanel → "Configure FTP Client", not the website URL.
   GODADDY_FTP_HOST: z.string().trim().min(1).optional(),
@@ -83,7 +79,6 @@ function loadEnv(): Env {
     throw new Error("JWT_SECRET must be set to a strong value in production.");
   }
   // Fail fast when the FTP driver is selected without its configuration.
-  // IMAGEKIT_* intentionally stay valid until the Phase 4 decommission.
   if (env.STORAGE_PROVIDER === "ftp") {
     const missing = [
       !env.GODADDY_FTP_HOST && "GODADDY_FTP_HOST",

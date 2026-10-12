@@ -2,8 +2,6 @@ import mongoose from "mongoose";
 import { logger } from "../../config/logger";
 import { env } from "../../config/env";
 import { AppError } from "../../utils/app-error";
-import { slugify } from "../../utils/slug";
-import { getImageKit } from "../../integrations/imagekit/imagekit.client";
 import {
   buildMediaKey,
   publicAssetUrl,
@@ -19,8 +17,6 @@ import { AmenityModel } from "../amenities/amenity.model";
 import { MediaModel, findMediaById, listMedia, normalizeFolderPath, toMedia } from "./media.model";
 import type { ListMediaFilter, Media } from "./media.model";
 
-const MEDIA_FOLDER = "reservation/media";
-
 export interface UploadMediaInput {
   data: Buffer;
   fileName: string;
@@ -32,64 +28,9 @@ export interface UploadMediaInput {
   createdBy?: string | null;
 }
 
-/** Validate → external store → URL/key → Mongo metadata (docs 08 §41). */
+/** Validate → FTP store → URL/key → Mongo metadata. */
 export async function uploadMedia(input: UploadMediaInput): Promise<Media> {
-  // Human-readable folder stays in Mongo ("Cottage/Fern Cottage");
-  // ImageKit paths must be URL-safe, so segments are slugified there.
   const folder = normalizeFolderPath(input.folder);
-  if (env.STORAGE_PROVIDER === "ftp") {
-    return uploadMediaToGoDaddy(input, folder);
-  }
-  const storageFolder = folder
-    ? `${MEDIA_FOLDER}/${folder.split("/").map((part) => slugify(part) || "misc").join("/")}`
-    : MEDIA_FOLDER;
-  let result: { url: string; fileId: string; width?: number; height?: number };
-  try {
-    const uploaded = await getImageKit().upload({
-      file: input.data,
-      fileName: `${Date.now()}-${input.fileName}`,
-      folder: storageFolder,
-    });
-    result = {
-      url: uploaded.url,
-      fileId: uploaded.fileId,
-      width: (uploaded as { width?: number }).width,
-      height: (uploaded as { height?: number }).height,
-    };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    logger.error("Media upload failed", { message });
-    throw new AppError("Media upload failed, please try again", 502, "MEDIA_UPLOAD_FAILED");
-  }
-  const kind = input.mime.startsWith("video/") ? "video" : "image";
-  const doc = await MediaModel.create({
-    fileName: input.fileName,
-    url: result.url,
-    storageKey: result.fileId,
-    storageProvider: "imagekit",
-    mime: input.mime,
-    kind,
-    folder,
-    width: result.width ?? null,
-    height: result.height ?? null,
-    durationSec: null,
-    alt: input.alt ?? null,
-    caption: input.caption ?? null,
-    size: input.size,
-    createdBy: input.createdBy ?? null,
-  });
-  return toMedia(doc);
-}
-
-/**
- * GoDaddy FTP upload path (migrate-imagekit-to-godaddy.md).
- * Order: FTP put → Mongo create → on DB failure remove the FTP file, so a
- * failed request never leaves an orphaned binary behind.
- */
-async function uploadMediaToGoDaddy(
-  input: UploadMediaInput,
-  folder: string | null,
-): Promise<Media> {
   const baseUrl = env.ASSETS_BASE_URL;
   if (!baseUrl) {
     throw new AppError("Asset storage is not configured", 503, "STORAGE_NOT_CONFIGURED");
@@ -108,17 +49,16 @@ async function uploadMediaToGoDaddy(
       fileName: input.fileName,
       url: publicAssetUrl(baseUrl, key),
       storageKey: key,
-      storageProvider: "local",
+      storageProvider: "ftp",
       mime: input.mime,
       kind,
       folder,
-      // No local image probing (no Sharp by design) — dimensions stay null.
       width: null,
       height: null,
       durationSec: null,
       alt: input.alt ?? null,
       caption: input.caption ?? null,
-      size: input.size,
+      size: input.size ?? input.data.length,
       createdBy: input.createdBy ?? null,
     });
     return toMedia(doc);
@@ -226,13 +166,7 @@ export async function deleteMedia(id: string): Promise<void> {
     );
   }
   try {
-    // Coexistence-safe: the delete path follows the row's own provider,
-    // never the global STORAGE_PROVIDER switch.
-    if (media.storageProvider === "local") {
-      await removeFileFromGoDaddy(media.storageKey);
-    } else {
-      await getImageKit().deleteFile(media.storageKey);
-    }
+    await removeFileFromGoDaddy(media.storageKey);
   } catch (error) {
     logger.warn("Media binary cleanup failed", {
       message: error instanceof Error ? error.message : String(error),
