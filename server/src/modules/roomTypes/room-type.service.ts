@@ -95,11 +95,13 @@ export async function listPublicRoomTypes(query: PublicRoomTypesQuery): Promise<
   });
 }
 
-export async function getPublicRoomType(slug: string): Promise<RoomType> {
+export async function getPublicRoomType(slug: string): Promise<RoomType & { totalRooms?: number }> {
   const property = await ensureProperty();
   const roomType = await findRoomTypeBySlug(property.id, slug);
   if (!roomType || roomType.status !== "ACTIVE") {
     throw new AppError("Room type not found", 404, "ROOM_TYPE_NOT_FOUND");
   }
-  return roomType;
+  const { RoomModel } = await import("../rooms/room.model");
+  const totalRooms = await RoomModel.countDocuments({ roomTypeId: roomType.id, status: "ACTIVE" });
+  return { ...roomType, totalRooms: Math.max(1, totalRooms) };
 }

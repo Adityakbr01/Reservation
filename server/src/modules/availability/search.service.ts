@@ -124,11 +124,11 @@ export async function searchAvailability(input: SearchAvailabilityInput): Promis
 
   const results: SearchResultItem[] = [];
   for (const roomType of typesPage.data) {
-    if (adults > roomType.maxAdults || guests > roomType.maxOccupancy) continue;
+    const maxAdultsTotal = roomType.maxAdults * roomsWanted;
+    const maxOccupancyTotal = roomType.maxOccupancy * roomsWanted;
+    if (adults > maxAdultsTotal || guests > maxOccupancyTotal) continue;
+
     const availableIds = roomsByType.get(roomType.id) ?? [];
-    // Sold-out types remain listed (availableCount 0) so guests can see
-    // every cottage; only insufficient-for-request counts stay hidden.
-    if (availableIds.length > 0 && availableIds.length < roomsWanted) continue;
 
     const plansPage = await listRatePlans({
       page: 1,

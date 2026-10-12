@@ -402,7 +402,7 @@ export function RoomDetailPage() {
       if (!next.get("adults")) next.set("adults", "2");
       if (!next.get("children")) next.set("children", "0");
       if (!next.get("rooms")) next.set("rooms", "1");
-      setParams(next);
+      setParams(next, { replace: true });
     } else {
       setPicked([date]);
     }
@@ -469,7 +469,18 @@ export function RoomDetailPage() {
     (roomType as { propertyDetailsHtml?: string | null }).propertyDetailsHtml ??
     null;
   const leadRate = match && match.rates.length > 0 ? match.rates[0] : null;
-  const stayNights = leadRate?.nightly?.length ?? 0;
+  const stayNights =
+    leadRate?.nightly?.length ??
+    (search?.checkIn && search?.checkOut
+      ? Math.max(
+          0,
+          Math.round(
+            (new Date(search.checkOut).getTime() -
+              new Date(search.checkIn).getTime()) /
+              (1000 * 60 * 60 * 24),
+          ),
+        )
+      : 0);
   const guestCount = search ? search.adults + search.children : 2;
   const aboutPhoto =
     photoById.get(gallery[1]?.mediaId ?? "") ??
@@ -540,7 +551,10 @@ export function RoomDetailPage() {
   const currentAdults = search?.adults ?? 2;
   const currentChildren = search?.children ?? 0;
   const currentGuests = currentAdults + currentChildren;
-  const maxRoomsAvailable = Math.max(1, Math.min(10, match?.availableCount ?? 10));
+  const physicalRoomCount = (roomType as { totalRooms?: number } | null)?.totalRooms ?? 2;
+  const maxRoomsAvailable = match?.availableCount != null
+    ? Math.max(1, match.availableCount)
+    : physicalRoomCount;
 
   function setGuestCount(adults: number, children: number) {
     const next = new URLSearchParams(params);
@@ -553,7 +567,7 @@ export function RoomDetailPage() {
     }
     next.set("adults", String(finalAdults));
     next.set("children", String(finalChildren));
-    setParams(next);
+    setParams(next, { replace: true });
   }
 
   function setRoomCount(newRooms: number) {
@@ -570,7 +584,7 @@ export function RoomDetailPage() {
     }
     next.set("adults", String(finalAdults));
     next.set("children", String(finalChildren));
-    setParams(next);
+    setParams(next, { replace: true });
   }
 
   return (
@@ -1190,7 +1204,7 @@ export function RoomDetailPage() {
             <CardContent className="space-y-4 p-5">
               <div className="min-h-[64px] flex flex-col justify-center">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  {leadRate ? "From" : "Nightly Rate"}
+                  From
                 </p>
                 {leadRate ? (
                   <p className="mt-0.5 font-display text-3xl font-medium tracking-tight">
@@ -1200,8 +1214,11 @@ export function RoomDetailPage() {
                     </span>
                   </p>
                 ) : (
-                  <p className="mt-1 text-sm font-medium text-muted-foreground">
-                    Select dates to see live rates
+                  <p className="mt-0.5 font-display text-3xl font-medium tracking-tight text-muted-foreground/45">
+                    --{" "}
+                    <span className="font-display text-base font-normal italic text-muted-foreground/70">
+                      / night
+                    </span>
                   </p>
                 )}
               </div>
@@ -1290,7 +1307,7 @@ export function RoomDetailPage() {
                             aria-label="Choose guests"
                             className="absolute inset-x-0 top-full z-20 mt-2 space-y-3 rounded-xl border border-border bg-card p-4 shadow-card"
                           >
-                            <div className="rounded-lg border border-border/80 bg-muted/40 p-2.5 text-xs space-y-1">
+                            <div className="rounded-lg border border-border/80 bg-muted/40 p-2.5 text-xs space-y-1 min-h-[58px] flex flex-col justify-center">
                               <div className="flex items-center justify-between font-medium text-foreground">
                                 <span>Cottage Capacity</span>
                                 <span className="font-semibold text-brand">Up to {totalMaxOccupancy} guests</span>
@@ -1337,14 +1354,14 @@ export function RoomDetailPage() {
                               onChange={(v) => setRoomCount(v)}
                             />
 
-                            <div className="min-h-[42px] flex items-center rounded-lg border px-2.5 py-1.5 text-[11px] transition-colors">
+                            <div className="min-h-[46px] flex items-center rounded-lg border px-2.5 py-1.5 text-[11px] transition-colors">
                               {currentGuests >= totalMaxOccupancy ? (
-                                <div className="text-amber-800 dark:text-amber-300 font-medium">
+                                <div className="text-amber-800 dark:text-amber-300 font-medium leading-tight">
                                   <span>Maximum capacity reached</span> ({totalMaxOccupancy} guests).
                                   {roomCount < maxRoomsAvailable && " Add another room above to increase capacity."}
                                 </div>
                               ) : (
-                                <div className="text-muted-foreground">
+                                <div className="text-muted-foreground leading-tight">
                                   <span>
                                     {totalMaxOccupancy - currentGuests} more guest{totalMaxOccupancy - currentGuests === 1 ? "" : "s"} can be accommodated.
                                   </span>
@@ -1393,9 +1410,10 @@ export function RoomDetailPage() {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">
                         {stayNights} night{stayNights === 1 ? "" : "s"}
+                        {roomCount > 1 ? ` · ${roomCount} rooms` : ""}
                       </span>
                       <span className="font-medium">
-                        {formatMoney(leadRate.total, leadRate.currency)}
+                        {formatMoney(leadRate.total * roomCount, leadRate.currency)}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -1409,7 +1427,7 @@ export function RoomDetailPage() {
                     <div className="flex justify-between border-t border-border pt-3 text-base font-bold">
                       <span>Total</span>
                       <span>
-                        {formatMoney(leadRate.total, leadRate.currency)}
+                        {formatMoney(leadRate.total * roomCount, leadRate.currency)}
                       </span>
                     </div>
                     <div className="space-y-2 pt-1">
@@ -1423,7 +1441,8 @@ export function RoomDetailPage() {
                               {rate.name}
                             </p>
                             <p className="text-[11px] text-muted-foreground">
-                              {formatMoney(rate.total, rate.currency)} total
+                              {formatMoney(rate.total * roomCount, rate.currency)} total
+                              {roomCount > 1 ? ` (${roomCount} rooms)` : ""}
                             </p>
                           </div>
                           <Button
@@ -1432,7 +1451,8 @@ export function RoomDetailPage() {
                             className="shrink-0 rounded-full"
                           >
                             <Link
-                              to={`/booking/new?roomTypeId=${match.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&rooms=${search.rooms ?? 1}&roomName=${encodeURIComponent(match.roomType.name)}&rateName=${encodeURIComponent(rate.name)}`}
+                              to={`/booking/new?roomTypeId=${match.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&rooms=${search.rooms ?? 1}&roomName=${encodeURIComponent(match.roomType.name)}&rateName=${encodeURIComponent(rate.name)}&roomSlug=${slug}`}
+                              state={{ from: `/rooms/${slug}${location.search}`, roomSlug: slug }}
                             >
                               Book now
                             </Link>
