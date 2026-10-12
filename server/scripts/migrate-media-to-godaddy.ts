@@ -1,8 +1,9 @@
 import { readFile, writeFile } from "node:fs/promises";
-import { connectDatabase, disconnectDatabase } from "../src/config/database";
+import mongoose from "mongoose";
+import { disconnectDatabase } from "../src/config/database";
 import { env } from "../src/config/env";
 import { logger } from "../src/config/logger";
-import { buildAvatarKey, buildMediaKey, publicAssetUrl } from "../src/integrations/storage/storage-keys";
+import { buildAvatarKey, buildMediaKey, publicAssetUrl, storagePrefixSegments } from "../src/integrations/storage/storage-keys";
 import {
   removeFileFromGoDaddy,
   uploadBufferToGoDaddy,
@@ -22,7 +23,7 @@ import { SiteSettingsModel } from "../src/modules/settings/settings.model";
 /**
  * One-off ImageKit → GoDaddy backfill (see migrate-imagekit-to-godaddy.md).
  *
- *   bun scripts/migrate-media-to-godaddy.ts --kind media|avatars|html|all [--apply] [--limit N] [--only <id>] [--map ./url-map.json]
+ *   bun scripts/migrate-media-to-godaddy.ts --kind media|avatars|html|rekey|all [--apply] [--limit N] [--only <id>] [--map ./url-map.json]
  *
  * Dry-run by default: without --apply nothing is uploaded and nothing is
  * written to Mongo. Re-runnable: rows already on "local" are skipped, so a
@@ -32,7 +33,7 @@ import { SiteSettingsModel } from "../src/modules/settings/settings.model";
  */
 
 interface Args {
-  kind: "media" | "avatars" | "html" | "all";
+  kind: "media" | "avatars" | "html" | "rekey" | "all";
   apply: boolean;
   limit: number;
   only: string | null;
@@ -50,7 +51,7 @@ function parseArgs(argv: string[]): Args {
   for (let i = 0; i < argv.length; i += 1) {
     const flag = argv[i];
     const value = argv[i + 1];
-    if (flag === "--kind" && (value === "media" || value === "avatars" || value === "html" || value === "all")) {
+    if (flag === "--kind" && (value === "media" || value === "avatars" || value === "html" || value === "rekey" || value === "all")) {
       args.kind = value;
       i += 1;
     } else if (flag === "--apply") {
@@ -237,8 +238,7 @@ async function runAvatars(args: Args, baseUrl: string): Promise<void> {
   console.log(`AVATAR_DONE:${done}/${rows.length}`);
 }
 
-function replaceAllOccurrences(text: string, map: UrlMapEntry[]): { text: string; count: number } {
-  let count = 0;
+function replaceAllOccurrences(text: string, map: UrlMapEntry[]): { text: string; count: number } {  let count = 0;
   let out = text;
   for (const entry of map) {
     if (out.includes(entry.oldUrl)) {
@@ -247,6 +247,67 @@ function replaceAllOccurrences(text: string, map: UrlMapEntry[]): { text: string
     }
   }
   return { text: out, count };
+}
+
+/**
+ * Moves already-"local" rows to the current key scheme (e.g. after a prefix
+ * change). Re-downloads the CURRENT url, uploads under the new key, verifies,
+ * updates the row in place (legacy* ImageKit values untouched), deletes the
+ * old FTP file, and rewrites the row's url-map entry so the HTML pass lands
+ * on the final URL.
+ */
+async function runRekey(args: Args, baseUrl: string, mapPath: string): Promise<void> {
+  const prefix = storagePrefixSegments().join("/");
+  const needed = prefix ? `${prefix}/` : null;
+  const filter = args.only ? { _id: args.only } : { storageProvider: "local" };
+  const rows = await MediaModel.find(filter).sort({ createdAt: 1 }).exec();
+  const candidates = needed ? rows.filter((row) => !row.storageKey.startsWith(needed)) : [];
+  console.log(`REKEY_CANDIDATES:${candidates.length}`);
+  const limited = args.limit > 0 ? candidates.slice(0, args.limit) : candidates;
+  const map = await loadMap(mapPath);
+  const byMediaId = new Map(map.map((entry) => [entry.mediaId, entry]));
+  let done = 0;
+  for (const row of limited) {
+    try {
+      const { data } = await downloadBinary(row.url);
+      const key = buildMediaKey(row.fileName, row.mime);
+      const newUrl = publicAssetUrl(baseUrl, key);
+      if (args.apply) {
+        await uploadBufferToGoDaddy(key, data);
+        try {
+          await verifyPublicUrl(newUrl, data.length);
+        } catch (error) {
+          await removeFileFromGoDaddy(key).catch(() => undefined);
+          throw error;
+        }
+        await MediaModel.findByIdAndUpdate(row._id, {
+          $set: { url: newUrl, storageKey: key },
+        }).exec();
+        await removeFileFromGoDaddy(row.storageKey).catch(() => undefined);
+        const entry = byMediaId.get(row._id.toString());
+        if (entry) {
+          entry.newUrl = newUrl;
+        } else {
+          byMediaId.set(row._id.toString(), {
+            mediaId: row._id.toString(),
+            oldUrl: row.url,
+            newUrl,
+          });
+        }
+      }
+      done += 1;
+      console.log(`${args.apply ? "REKEYED" : "REKEY_DRYRUN"}:${done} ${row.fileName} -> ${newUrl}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.warn("Media rekey skipped", { id: row._id.toString(), message });
+      console.log(`SKIPPED:${row._id.toString()} ${message}`);
+    }
+  }
+  if (args.apply && done > 0) {
+    await writeFile(mapPath, `${JSON.stringify([...byMediaId.values()], null, 2)}\n`, "utf8");
+    console.log(`MAP_WRITTEN:${mapPath}`);
+  }
+  console.log(`REKEY_DONE:${done}/${limited.length}`);
 }
 
 async function runHtml(args: Args): Promise<void> {
@@ -400,9 +461,53 @@ async function runHtml(args: Args): Promise<void> {
   console.log(`HTML_DONE:docs:${docsChanged}`);
 }
 
+/**
+ * Connection with fallback (same approach as scripts/backup-db.ts).
+ * The standard replicaSet handshake can fail from some networks with a TLS
+ * alert; a direct single-node connection works. For WRITES we must land on
+ * the primary, so direct candidates are probed until the hello response
+ * reports isWritablePrimary.
+ */
+async function connectForMigration(): Promise<void> {
+  try {
+    await mongoose.connect(env.MONGODB_URI, { serverSelectionTimeoutMS: 5000, maxPoolSize: 5 });
+    return;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn(`Standard connection failed (${message}); trying direct primary...`);
+  }
+  await mongoose.disconnect().catch(() => undefined);
+  const shardHosts = [
+    "cluster0-shard-00-00.whbog.mongodb.net:27017",
+    "cluster0-shard-00-01.whbog.mongodb.net:27017",
+    "cluster0-shard-00-02.whbog.mongodb.net:27017",
+  ];
+  for (const host of shardHosts) {
+    try {
+      const base = env.MONGODB_URI.split("?")[0].replace(/@([^/]+)\//, `@${host}/`);
+      await mongoose.connect(`${base}?ssl=true&authSource=admin&directConnection=true`, {
+        serverSelectionTimeoutMS: 5000,
+        maxPoolSize: 5,
+      });
+      const hello = (await mongoose.connection.db?.admin().command({ hello: 1 })) as
+        | { isWritablePrimary?: boolean }
+        | undefined;
+      if (hello?.isWritablePrimary) {
+        console.log(`Connected directly to PRIMARY: ${host}`);
+        return;
+      }
+      console.warn(`Direct node ${host} is not primary, trying next...`);
+      await mongoose.disconnect().catch(() => undefined);
+    } catch {
+      await mongoose.disconnect().catch(() => undefined);
+    }
+  }
+  throw new Error("Unable to reach the MongoDB primary for migration");
+}
+
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
-  await connectDatabase();
+  await connectForMigration();
   try {
     if (args.kind === "all") {
       const [mediaTotal, mediaLocal, usersTotal, usersLocal] = await Promise.all([
@@ -426,6 +531,8 @@ async function main(): Promise<void> {
         await saveMap(args.mapPath, mapped);
         console.log(`MAP_WRITTEN:${args.mapPath} entries:${mapped.length}`);
       }
+    } else if (args.kind === "rekey") {
+      await runRekey(args, baseUrl, args.mapPath);
     } else if (args.kind === "avatars") {
       await runAvatars(args, baseUrl);
     } else {

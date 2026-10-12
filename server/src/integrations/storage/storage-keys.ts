@@ -1,13 +1,15 @@
 import { randomUUID } from "node:crypto";
+import { env } from "../../config/env";
 import { AppError } from "../../utils/app-error";
 import { slugify } from "../../utils/slug";
 
 /**
  * GoDaddy FTP storage keys (see migrate-imagekit-to-godaddy.md).
  *
- * The FTP account is jailed to the uploads/ directory, so every key is
- * relative to that root: `media/<yyyy>/<mm>/<uuid>-<slug>.<ext>` or
- * `avatars/<userId>-<ts>-<uuid>.<ext>`. Pure — unit-tested.
+ * Keys are relative to the FTP account's jail root. With GODADDY_FTP_PREFIX
+ * set (e.g. "uploads"), keys look like `uploads/media/<yyyy>/<mm>/<uuid>-<slug>.<ext>`;
+ * empty prefix keeps the bare `media/…` / `avatars/…` form. Pure — unit-tested
+ * (prefix injectable so tests never depend on process env).
  */
 
 export type StorageKind = "media" | "avatars";
@@ -22,22 +24,45 @@ const MIME_TO_EXT: Record<string, string> = {
   "video/webm": ".webm",
 };
 
-const KEY_PATTERN = /^(media|avatars)\/[A-Za-z0-9][A-Za-z0-9._/-]*$/;
+const SEGMENT_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const MAX_KEY_LENGTH = 220;
 
+/** Sanitized configured prefix segments ("" when unset). Throws on hostile config. */
+export function storagePrefixSegments(prefix: string = env.GODADDY_FTP_PREFIX): string[] {
+  if (prefix.startsWith("/")) {
+    throw new AppError("Invalid GODADDY_FTP_PREFIX", 500, "INVALID_STORAGE_CONFIG");
+  }
+  const cleaned = prefix.trim().replace(/\/+$/g, "");
+  if (cleaned === "") return [];
+  const segments = cleaned.split("/");
+  for (const segment of segments) {
+    if (segment === "media" || segment === "avatars" || !SEGMENT_PATTERN.test(segment)) {
+      throw new AppError("Invalid GODADDY_FTP_PREFIX", 500, "INVALID_STORAGE_CONFIG");
+    }
+  }
+  return segments;
+}
+
 /**
- * Root-jail guard. Throws before any FTP command when the key could escape
- * the uploads/ root. Mandatory: the FTP account has full home access.
+ * Root-jail guard. Every segment must be a safe name (no "..", no backslash,
+ * no empty/absolute segments) and the key must pass through a media/ or
+ * avatars/ directory. Throws before any FTP command.
  */
 export function assertStorageKey(key: string): void {
-  if (
-    key.length === 0 ||
-    key.length > MAX_KEY_LENGTH ||
-    key.includes("..") ||
-    key.includes("\\") ||
-    key.startsWith("/") ||
-    !KEY_PATTERN.test(key)
-  ) {
+  if (key.length === 0 || key.length > MAX_KEY_LENGTH || key.includes("\\")) {
+    throw new AppError("Invalid storage key", 500, "INVALID_STORAGE_KEY");
+  }
+  const segments = key.split("/");
+  let kindSeen = false;
+  for (const segment of segments) {
+    if (!SEGMENT_PATTERN.test(segment)) {
+      throw new AppError("Invalid storage key", 500, "INVALID_STORAGE_KEY");
+    }
+    if (segment === "media" || segment === "avatars") kindSeen = true;
+  }
+  // The file must live inside media/ or avatars/ (not beside them).
+  const kindIndex = segments.findIndex((s) => s === "media" || s === "avatars");
+  if (!kindSeen || kindIndex === segments.length - 1) {
     throw new AppError("Invalid storage key", 500, "INVALID_STORAGE_KEY");
   }
 }
@@ -58,24 +83,32 @@ function datePrefix(now: Date): string {
   return `${yyyy}/${mm}`;
 }
 
-/** Library key, e.g. media/2026/10/3f2a1c9e-homepage-banner.webp */
-export function buildMediaKey(originalName: string, mime: string, now: Date = new Date()): string {
-  const key = `media/${datePrefix(now)}/${safeFileSuffix(originalName, mime)}`;
+function withPrefix(parts: string[], prefix?: string): string {
+  const key = [...storagePrefixSegments(prefix), ...parts].join("/");
   assertStorageKey(key);
   return key;
 }
 
-/** Avatar key, e.g. avatars/<userId>-1728650000000-3f2a1c9e-photo.png */
+/** Library key, e.g. uploads/media/2026/10/3f2a1c9e-homepage-banner.webp */
+export function buildMediaKey(
+  originalName: string,
+  mime: string,
+  now: Date = new Date(),
+  prefix?: string,
+): string {
+  return withPrefix(["media", datePrefix(now), safeFileSuffix(originalName, mime)], prefix);
+}
+
+/** Avatar key, e.g. uploads/avatars/<userId>-1728650000000-3f2a1c9e-photo.png */
 export function buildAvatarKey(
   userId: string,
   originalName: string,
   mime: string,
   nowMs: number = Date.now(),
+  prefix?: string,
 ): string {
   const safeUser = userId.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40) || "user";
-  const key = `avatars/${safeUser}-${nowMs}-${safeFileSuffix(originalName, mime)}`;
-  assertStorageKey(key);
-  return key;
+  return withPrefix([`avatars`, `${safeUser}-${nowMs}-${safeFileSuffix(originalName, mime)}`], prefix);
 }
 
 /** Public URL for a stored key. Tolerates a trailing slash on the base. */
@@ -84,7 +117,7 @@ export function publicAssetUrl(baseUrl: string, key: string): string {
   return `${baseUrl.replace(/\/+$/, "")}/${key}`;
 }
 
-/** Parent directory of a key for ensureDir, e.g. media/2026/10 */
+/** Parent directory of a key for ensureDir, e.g. uploads/media/2026/10 */
 export function parentDirOf(key: string): string {
   assertStorageKey(key);
   return key.split("/").slice(0, -1).join("/");

@@ -60,8 +60,12 @@ const envSchema = z.object({
     .enum(["true", "false"])
     .default("true")
     .transform((v) => v === "true"),
-  // Public base URL for stored assets, e.g. https://hamptworthstays.com/uploads
+  // Public base URL for stored assets, e.g. https://hamptworthstays.com/hamptworthStay/uploads
   ASSETS_BASE_URL: z.string().url().optional(),
+  // Optional FTP-root-relative prefix, e.g. "uploads" when the FTP account is
+  // jailed to a folder that itself contains an uploads/ directory. Empty = keys
+  // start directly with media/ or avatars/. Must match the FTP directory layout.
+  GODADDY_FTP_PREFIX: z.string().trim().default(""),
 });
 
 export type Env = z.infer<typeof envSchema>;

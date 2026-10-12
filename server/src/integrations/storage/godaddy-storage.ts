@@ -7,13 +7,19 @@ import { assertStorageKey, parentDirOf } from "./storage-keys";
 /**
  * GoDaddy cPanel FTP driver (see migrate-imagekit-to-godaddy.md).
  *
- * The FTP account is jailed to uploads/, so `key` is always FTP-root
- * relative. One short-lived FTPS connection per operation: uploads are
- * admin-only and low-frequency, so no pool is needed. Throws plain Errors;
- * callers map them to the stable API contract (502 MEDIA_UPLOAD_FAILED).
+ * The FTP account (hamptworthStay@hamptworthstays.com) is jailed to
+ * hamptworthStay/. After connecting we immediately cd into the `uploads/`
+ * subdirectory, so every subsequent key path (e.g. media/2026/10/file.jpg)
+ * lands at hamptworthStay/uploads/media/2026/10/file.jpg, which is served
+ * publicly at ASSETS_BASE_URL/media/2026/10/file.jpg.
+ *
+ * One short-lived FTPS connection per operation: uploads are admin-only and
+ * low-frequency, so no pool is needed. Throws plain Errors; callers map them
+ * to the stable API contract (502 MEDIA_UPLOAD_FAILED).
  */
 
 const CONNECT_TIMEOUT_MS = 30_000;
+const FTP_WORKING_DIR = "uploads";
 
 function requireFtpConfig(): {
   host: string;
@@ -35,6 +41,7 @@ function requireFtpConfig(): {
   };
 }
 
+/** Connect and cd into the uploads/ working directory. */
 async function connect(): Promise<Client> {
   const config = requireFtpConfig();
   const client = new Client(CONNECT_TIMEOUT_MS);
@@ -45,6 +52,9 @@ async function connect(): Promise<Client> {
     password: config.password,
     secure: config.secure,
   });
+  // cd into uploads/ so all key paths (media/..., avatars/...) are relative to it.
+  // ensureDir handles creation if the directory doesn't exist yet.
+  await client.ensureDir(FTP_WORKING_DIR);
   return client;
 }
 
@@ -52,9 +62,9 @@ async function connect(): Promise<Client> {
 export async function uploadBufferToGoDaddy(key: string, data: Buffer): Promise<void> {
   assertStorageKey(key);
   const fileName = key.split("/").pop() as string;
-  const client = await connect();
+  const client = await connect(); // cwd is now uploads/
   try {
-    await client.ensureDir(parentDirOf(key));
+    await client.ensureDir(parentDirOf(key)); // e.g. media/2026/10
     await client.uploadFrom(Readable.from(data), fileName);
     // Integrity check: FTP cwd is now the parent dir, so size() the bare name.
     const remoteSize = await client.size(fileName);
@@ -73,9 +83,9 @@ export async function uploadBufferToGoDaddy(key: string, data: Buffer): Promise<
  */
 export async function removeFileFromGoDaddy(key: string): Promise<void> {
   assertStorageKey(key);
-  const client = await connect();
+  const client = await connect(); // cwd is now uploads/
   try {
-    await client.remove(key);
+    await client.remove(key); // e.g. media/2026/10/file.jpg
   } catch (error) {
     if (isMissingFile(error)) {
       logger.warn("GoDaddy asset already missing, continuing", { key });

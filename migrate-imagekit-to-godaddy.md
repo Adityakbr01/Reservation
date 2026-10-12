@@ -8,9 +8,9 @@
 
 | # | Decision | Value |
 |---|---|---|
-| 1 | Serving base | `https://hamptworthstays.com/uploads` (test file live-verified over HTTPS) |
-| 2 | Transport | FTP with explicit TLS (FTPS-first, port 21). `basic-ftp` (only new dep; no Sharp) |
-| 3 | FTP scope | Scoped account `hamptworthStay` jailed to `public_html/hamptworthstays.com/uploads` (FTP root = uploads/) |
+| 1 | Serving base | `https://hamptworthstays.com/uploads` (= public URL of the FTP jail root; the FTP account directory must be `public_html/hamptworthstays.com/uploads`, changed in cPanel; keys carry no prefix) |
+| 2 | Transport | FTP with explicit TLS (FTPS-first, port 21, host `ftp.kms.596.mytemp.website`, login `user@domain` form). `basic-ftp` (only new dep; no Sharp) |
+| 3 | FTP scope | Scoped account `hamptworthStay`, directory `public_html/hamptworthstays.com/uploads` (FTP root = domain-root uploads/; no sub-nesting — files land directly as `uploads/media/…`) |
 | 4 | Asset scope | Media library **+** user avatars |
 | 5 | Old files | Full backfill to GoDaddy, then decommission ImageKit |
 | 6 | Cutover style | `STORAGE_PROVIDER` env switch (`imagekit` \| `ftp`, default `imagekit`) → zero-risk deploy, then config flip. Deletes branch on the **row's** `storageProvider`, never the global switch (coexistence-safe) |
@@ -36,7 +36,7 @@
 | `GODADDY_FTP_USER` | `hamptworthStay` | Scoped, jailed to `uploads/` |
 | `GODADDY_FTP_PASSWORD` | *(Render/cPanel env only — never in git)* | Temp value rotates in Phase 4 |
 | `GODADDY_FTP_SECURE` | `true` | Explicit TLS; `false` only for debugging |
-| `ASSETS_BASE_URL` | `https://hamptworthstays.com/uploads` | No trailing slash (code tolerates one) |
+| `ASSETS_BASE_URL` | `https://hamptworthstays.com/uploads` | URL of the FTP jail root (keys are `media/…` / `avatars/…`, no prefix) |
 
 Boot validation: `STORAGE_PROVIDER=ftp` **requires** HOST/USER/PASSWORD/ASSETS_BASE_URL or the
 process fails fast with a clear message. `IMAGEKIT_*` stay until Phase 4.
