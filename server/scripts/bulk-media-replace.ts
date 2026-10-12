@@ -10,10 +10,10 @@ import { UserModel } from "../src/modules/users/user.model";
 const SOURCE = "C:\\Users\\ADITYA\\AppData\\Local\\Temp\\opencode\\media-resized";
 
 /**
- * One-off library replacement (run on request only, never on boot):
- * 1. Deletes EVERY media row + its ImageKit file (references elsewhere
- *    will show placeholders until re-linked).
- * 2. Uploads each cottage folder as Cottage/<Name>.
+ * ⚠️ RETIRED — DO NOT RUN. This script deletes EVERY media row + its remote
+ * file, breaking all references by design. The ImageKit → GoDaddy migration
+ * uses scripts/migrate-media-to-godaddy.ts instead (in-place, verified,
+ * rollback-capable). This file is kept for history only.
  */
 async function main(): Promise<void> {
   await connectDatabase();

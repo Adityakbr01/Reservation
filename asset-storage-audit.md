@@ -506,6 +506,22 @@ Screenshots of the live GoDaddy account / cPanel (temporary `.mytemp.website` do
   (6) Backup inclusion of web files. **Verdict: migration Phase 0/1 may start — see the chat response
   of the same date for the ordered pre-flight list.**
 
+### 6.6 Implementation record (build mode — code complete, live cutover pending)
+
+- Execution spec: `migrate-imagekit-to-godaddy.md` (frozen: FTP root = `uploads/`,
+  base `https://hamptworthstays.com/uploads`, FTPS-first, media + avatars, full backfill).
+- Implemented: `basic-ftp` dep; `STORAGE_PROVIDER` switch (default `imagekit` = zero behaviour change
+  on deploy); `integrations/storage/` driver (UUID keys, FTP-root jail, FTPS, size-verified uploads);
+  dual-driver media upload/delete with DB-fail→FTP-cleanup; provider-aware avatar flow; extended
+  delete ref-check (+roomTypes/settings/amenities); additive-only schema fields with `legacy*`
+  rollback values; idempotent backfill script (dry-run default) incl. RTE-HTML pass; retired
+  `bulk-media-replace.ts` via warning header. Fixed latent bug: replaced avatars were never deleted
+  (`findUserDocById` omitted `select:false` `avatarFileId`).
+- Verified locally: `tsc --noEmit` clean, `oxlint` clean, `bun test` 185/185 pass (9 new).
+- **Not yet executed (need live env + explicit go-ahead):** backfill runs, cutover flip
+  (`STORAGE_PROVIDER=ftp`), acceptance tests, ImageKit decommission + FTP password rotation.
+  Runbook commands are in `migrate-imagekit-to-godaddy.md` §4–§6.
+
 ---
 
 ## 7. Upload and delete lifecycle

@@ -11,6 +11,10 @@ export interface UserDocument extends mongoose.Document {
   isActive: boolean;
   avatarUrl: string | null;
   avatarFileId: string | null;
+  /** Binary origin of the avatar ("local" = GoDaddy FTP key). Defaults to imagekit for old rows. */
+  avatarStorageProvider: "imagekit" | "local";
+  legacyAvatarUrl: string | null;
+  legacyAvatarFileId: string | null;
   passwordResetTokenHash: string | null;
   passwordResetExpires: Date | null;
   lastLoginAt: Date | null;
@@ -34,6 +38,9 @@ const userSchema = new mongoose.Schema<UserDocument>(
     isActive: { type: Boolean, default: true, required: true },
     avatarUrl: { type: String, default: null },
     avatarFileId: { type: String, default: null, select: false },
+    avatarStorageProvider: { type: String, enum: ["imagekit", "local"], default: "imagekit" },
+    legacyAvatarUrl: { type: String, default: null },
+    legacyAvatarFileId: { type: String, default: null, select: false },
     passwordResetTokenHash: { type: String, default: null, select: false },
     passwordResetExpires: { type: Date, default: null, select: false },
     lastLoginAt: { type: Date, default: null },

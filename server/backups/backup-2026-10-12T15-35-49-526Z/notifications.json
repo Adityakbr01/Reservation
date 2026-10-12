@@ -1,0 +1,2153 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac268a62cf8c0b5bb31d031"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "aditykbr01@gmail.com",
+    "bookingId": {
+      "$oid": "6ac268a52cf8c0b5bb31d02f"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6ac268a52cf8c0b5bb31d02f",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791125670457"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a10768-e1ab-7cb7-bee8-d85beec7e3f3",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791125676572"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791125670457"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791125676572"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac268b52cf8c0b5bb31d037"
+    },
+    "type": "PAYMENT_FAILED",
+    "recipient": "aditykbr01@gmail.com",
+    "bookingId": {
+      "$oid": "6ac268a52cf8c0b5bb31d02f"
+    },
+    "paymentId": {
+      "$oid": "6ac268a82cf8c0b5bb31d033"
+    },
+    "idempotencyKey": "PAYMENT_FAILED:pi_3UMqo8FmcVwSRAFo01uimwAZ:evt_3UMqo8FmcVwSRAFo0hXIY88d",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791125685556"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a10769-56d1-7d49-b729-2a9b25daa2df",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791125706546"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791125685556"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791125706546"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac268e12cf8c0b5bb31d03a"
+    },
+    "type": "BOOKING_CONFIRMED",
+    "recipient": "aditykbr01@gmail.com",
+    "bookingId": {
+      "$oid": "6ac268a52cf8c0b5bb31d02f"
+    },
+    "paymentId": {
+      "$oid": "6ac268a82cf8c0b5bb31d033"
+    },
+    "idempotencyKey": "BOOKING_CONFIRMED:6ac268a52cf8c0b5bb31d02f",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791125729870"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a10769-cbeb-7421-a9c9-997ea9b539c2",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791125736511"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791125729871"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791125736511"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28de9c7c992884eae64f2"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac28de8c7c992884eae64f0"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6ac28de8c7c992884eae64f0",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791135209845"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a107fa-a411-752e-a99f-786b15380912",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791135229050"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135209845"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135229050"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28e33c7c992884eae64f8"
+    },
+    "type": "BOOKING_CONFIRMED",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac28de8c7c992884eae64f0"
+    },
+    "paymentId": {
+      "$oid": "6ac28decc7c992884eae64f4"
+    },
+    "idempotencyKey": "BOOKING_CONFIRMED:6ac28de8c7c992884eae64f0",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791135283672"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a107fb-8d09-7741-a152-e547c6bd41c0",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791135288681"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135283673"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135288681"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28e79c7c992884eae64fc"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac28e78c7c992884eae64fa"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6ac28e78c7c992884eae64fa",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791135353429"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a107fc-ecb0-752e-8718-ea6f7eba595f",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791135378717"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135353429"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135378717"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28e8ec7c992884eae6502"
+    },
+    "type": "BOOKING_CONFIRMED",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac28e78c7c992884eae64fa"
+    },
+    "paymentId": {
+      "$oid": "6ac28e7bc7c992884eae64fe"
+    },
+    "idempotencyKey": "BOOKING_CONFIRMED:6ac28e78c7c992884eae64fa",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791135374911"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a107fc-f2d3-7cb1-aaf1-da7fed5ea0d1",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791135380266"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135374911"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135380266"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28ea8c7c992884eae6505"
+    },
+    "type": "BOOKING_CANCELLED",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac28e78c7c992884eae64fa"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_CANCELLED:6ac28e78c7c992884eae64fa",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791135400123"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a107fd-61d0-787e-84e0-da3bac7a7275",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791135408686"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135400123"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135408686"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28ea8c7c992884eae6507"
+    },
+    "type": "REFUND_UPDATED",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac28e78c7c992884eae64fa"
+    },
+    "paymentId": {
+      "$oid": "6ac28e7bc7c992884eae64fe"
+    },
+    "idempotencyKey": "REFUND_UPDATED:re_3UMtKJFmcVwSRAFo1hIiUdNE",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791231780045"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a10dbc-525e-714e-aa05-32ea8a52bf9f",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791231805748"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135400360"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231805749"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3c70f383e790a2648ea00"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "admin1@gmail.com",
+    "bookingId": {
+      "$oid": "6ac3c70d383e790a2648e9fe"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6ac3c70d383e790a2648e9fe",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791215375004"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a10cc1-df58-7c48-8d01-71020de0fa3b",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791215394793"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791215375004"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791215394793"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3c739383e790a2648ea06"
+    },
+    "type": "BOOKING_CONFIRMED",
+    "recipient": "admin1@gmail.com",
+    "bookingId": {
+      "$oid": "6ac3c70d383e790a2648e9fe"
+    },
+    "paymentId": {
+      "$oid": "6ac3c711383e790a2648ea02"
+    },
+    "idempotencyKey": "BOOKING_CONFIRMED:6ac3c70d383e790a2648e9fe",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791215417446"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a10cc2-535b-7c17-98ef-f91ee80d8797",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791215424433"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791215417447"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791215424433"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3ea2cf55bc9c9731d99c7"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "aditykbr01@gmail.com",
+    "bookingId": {
+      "$oid": "6ac3ea2cf55bc9c9731d99c5"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6ac3ea2cf55bc9c9731d99c5",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791224364445"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a10d4a-e251-7089-87e4-c2d1432c2bd4",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791224371518"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791224364446"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791224371518"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3ea4dc2cf131da1e712e9"
+    },
+    "type": "BOOKING_CONFIRMED",
+    "recipient": "aditykbr01@gmail.com",
+    "bookingId": {
+      "$oid": "6ac3ea2cf55bc9c9731d99c5"
+    },
+    "paymentId": {
+      "$oid": "6ac3ea2df55bc9c9731d99c8"
+    },
+    "idempotencyKey": "BOOKING_CONFIRMED:6ac3ea2cf55bc9c9731d99c5",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791224397195"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a10d4b-55d1-7de8-a601-6f818a6eecc3",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791224401088"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791224397196"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791224401088"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4047d0743e9f70744f911"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "aditykbr01@gmail.com",
+    "bookingId": {
+      "$oid": "6ac4047d0743e9f70744f90f"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6ac4047d0743e9f70744f90f",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791231101699"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a10db1-992c-7271-9de1-dcc8fcf2ad49",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791231102998"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231101700"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231102998"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac405980743e9f70744f919"
+    },
+    "type": "BOOKING_CANCELLED",
+    "recipient": "aditykbr01@gmail.com",
+    "bookingId": {
+      "$oid": "6ac4047d0743e9f70744f90f"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_CANCELLED:6ac4047d0743e9f70744f90f",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791231384324"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a10db5-eadd-7c59-90a2-05034ebd12c6",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791231386113"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231384327"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231386113"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac405b10743e9f70744f922"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "aditykbr01@gmail.com",
+    "bookingId": {
+      "$oid": "6ac405b10743e9f70744f920"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6ac405b10743e9f70744f920",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791231409844"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a10db6-5487-7a1b-b5b2-34b3d74348f7",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791231413064"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231409846"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231413065"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac405c1617d1e7df601d652"
+    },
+    "type": "BOOKING_CONFIRMED",
+    "recipient": "aditykbr01@gmail.com",
+    "bookingId": {
+      "$oid": "6ac405b10743e9f70744f920"
+    },
+    "paymentId": {
+      "$oid": "6ac405b30743e9f70744f924"
+    },
+    "idempotencyKey": "BOOKING_CONFIRMED:6ac405b10743e9f70744f920",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791231425179"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a10db6-89e3-7eb3-9450-e7638bc3f051",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791231426742"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231425180"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231426742"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac406720743e9f70744f92c"
+    },
+    "type": "BOOKING_CANCELLED",
+    "recipient": "aditykbr01@gmail.com",
+    "bookingId": {
+      "$oid": "6ac405b10743e9f70744f920"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_CANCELLED:6ac405b10743e9f70744f920",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791231602111"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a10db9-40dd-751c-98ef-dc7a47e92e38",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791231604636"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231602112"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231604636"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac406720743e9f70744f92d"
+    },
+    "type": "REFUND_UPDATED",
+    "recipient": "aditykbr01@gmail.com",
+    "bookingId": {
+      "$oid": "6ac405b10743e9f70744f920"
+    },
+    "paymentId": {
+      "$oid": "6ac405b30743e9f70744f924"
+    },
+    "idempotencyKey": "REFUND_UPDATED:re_3UNIJdFmcVwSRAFo1wNwq40y",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791231780352"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a10dbc-5521-79f4-b60c-10f071d255db",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791231806449"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231602192"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231806449"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac5081bed24e34c88891912"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "nandani@gmail.app",
+    "bookingId": {
+      "$oid": "6ac5081aed24e34c88891910"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6ac5081aed24e34c88891910",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791297563178"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a111a7-c385-76c0-b4d2-a999ab045dc7",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791297569669"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791297563182"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791297569669"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac50836ffefee1267f07f41"
+    },
+    "type": "BOOKING_CONFIRMED",
+    "recipient": "nandani@gmail.app",
+    "bookingId": {
+      "$oid": "6ac5081aed24e34c88891910"
+    },
+    "paymentId": {
+      "$oid": "6ac5081ced24e34c88891913"
+    },
+    "idempotencyKey": "BOOKING_CONFIRMED:6ac5081aed24e34c88891910",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791297590029"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a111a8-37c9-7d5e-81df-d35b42991e94",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791297599406"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791297590030"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791297599407"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac670f478b08012ed25d6b5"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac670f378b08012ed25d6b3"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6ac670f378b08012ed25d6b3",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791389940522"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a11729-90c7-76e4-a7f0-c397d77d3d17",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791389962580"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791389940523"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791389962580"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6710578b08012ed25d6bc"
+    },
+    "type": "BOOKING_CONFIRMED",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac670f378b08012ed25d6b3"
+    },
+    "paymentId": {
+      "$oid": "6ac670f678b08012ed25d6b7"
+    },
+    "idempotencyKey": "BOOKING_CONFIRMED:6ac670f378b08012ed25d6b3",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791389957776"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a11729-9728-7d2d-aa3d-aeae2da4e76f",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791389964184"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791389957777"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791389964184"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6716878b08012ed25d6ca"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac6716678b08012ed25d6c8"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6ac6716678b08012ed25d6c8",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791390056068"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a1172b-647c-7543-aa1a-5df10090c6d0",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791390082292"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390056069"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390082292"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6717578b08012ed25d6d0"
+    },
+    "type": "BOOKING_CONFIRMED",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac6716678b08012ed25d6c8"
+    },
+    "paymentId": {
+      "$oid": "6ac6716a78b08012ed25d6cc"
+    },
+    "idempotencyKey": "BOOKING_CONFIRMED:6ac6716678b08012ed25d6c8",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791390069888"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a1172b-6ab2-774a-8b78-574d7c8c8304",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791390083857"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390069889"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390083857"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac671a378b08012ed25d6d2"
+    },
+    "type": "CHECKED_IN",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac6716678b08012ed25d6c8"
+    },
+    "paymentId": null,
+    "idempotencyKey": "CHECKED_IN:6ac6716678b08012ed25d6c8",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791390115996"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a1172c-50aa-7424-baf9-7bb2cb483dd2",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791390142742"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390115997"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390142743"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac671b078b08012ed25d6d4"
+    },
+    "type": "CHECKED_OUT",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac6716678b08012ed25d6c8"
+    },
+    "paymentId": null,
+    "idempotencyKey": "CHECKED_OUT:6ac6716678b08012ed25d6c8",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791390128316"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a1172c-56d4-7b28-a941-957ec9e52531",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791390144298"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390128317"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390144298"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6720278b08012ed25d6dd"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac6720178b08012ed25d6db"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6ac6720178b08012ed25d6db",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791390210977"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a1172d-afb9-7d13-bd6a-5d11a156a44d",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791390232596"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390210977"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390232596"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6721678b08012ed25d6e3"
+    },
+    "type": "BOOKING_CONFIRMED",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac6720178b08012ed25d6db"
+    },
+    "paymentId": {
+      "$oid": "6ac6720678b08012ed25d6df"
+    },
+    "idempotencyKey": "BOOKING_CONFIRMED:6ac6720178b08012ed25d6db",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791390230639"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a1172d-b609-747d-aa17-fa1d0aa10905",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791390234216"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390230639"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390234216"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6727178b08012ed25d6ec"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac6726f78b08012ed25d6ea"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6ac6726f78b08012ed25d6ea",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791390321153"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a1172f-84f7-7489-8368-33913fb424f8",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791390352746"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390321154"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390352746"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6727e78b08012ed25d6f2"
+    },
+    "type": "BOOKING_CONFIRMED",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac6726f78b08012ed25d6ea"
+    },
+    "paymentId": {
+      "$oid": "6ac6727378b08012ed25d6ee"
+    },
+    "idempotencyKey": "BOOKING_CONFIRMED:6ac6726f78b08012ed25d6ea",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791390334293"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a1172f-8b26-73da-a3d1-b97cc3b3c7b5",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791390354311"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390334293"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390354312"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6728e78b08012ed25d6f4"
+    },
+    "type": "CHECKED_IN",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac6726f78b08012ed25d6ea"
+    },
+    "paymentId": null,
+    "idempotencyKey": "CHECKED_IN:6ac6726f78b08012ed25d6ea",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791390350700"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a1172f-91c1-7b6a-b113-cb967704b97a",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791390355992"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390350700"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390355992"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac82f8478b08012ed25de6c"
+    },
+    "type": "CHECKIN_REMINDER",
+    "recipient": "nehakumari1111aa@gmail.com",
+    "bookingId": {
+      "$oid": "6ac0fd7c1af8ab3cdf4fa243"
+    },
+    "paymentId": null,
+    "idempotencyKey": "CHECKIN_REMINDER:6ac0fd7c1af8ab3cdf4fa243:2026-10-10",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791504260905"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a11df9-a80e-7acd-973b-4e4daa2858e2",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791504263274"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791504260906"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791504263274"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8d1cd78b08012ed25e12c"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "saarthisharma2323@gmail.com",
+    "bookingId": {
+      "$oid": "6ac8d1cc78b08012ed25e12a"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6ac8d1cc78b08012ed25e12a",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791545805773"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a12073-a974-7010-b572-3ac5fccdc582",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791545813460"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791545805773"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791545813460"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8fd7278b08012ed25e1fa"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "admin@gmail.com",
+    "bookingId": {
+      "$oid": "6ac8fd7178b08012ed25e1f8"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6ac8fd7178b08012ed25e1f8",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791556978223"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a1211e-6901-7583-ae39-91d9fec46ae8",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791557003604"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791556978224"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791557003604"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8fd8378b08012ed25e201"
+    },
+    "type": "BOOKING_CONFIRMED",
+    "recipient": "admin@gmail.com",
+    "bookingId": {
+      "$oid": "6ac8fd7178b08012ed25e1f8"
+    },
+    "paymentId": {
+      "$oid": "6ac8fd7478b08012ed25e1fc"
+    },
+    "idempotencyKey": "BOOKING_CONFIRMED:6ac8fd7178b08012ed25e1f8",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791556995274"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a1211e-6f1f-7f29-bf94-0295d74d3d79",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791557005170"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791556995274"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791557005170"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac9810578b08012ed25e447"
+    },
+    "type": "CHECKIN_REMINDER",
+    "recipient": "aditykbr01@gmail.com",
+    "bookingId": {
+      "$oid": "6ac268a52cf8c0b5bb31d02f"
+    },
+    "paymentId": null,
+    "idempotencyKey": "CHECKIN_REMINDER:6ac268a52cf8c0b5bb31d02f:2026-10-11",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791590661006"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a12320-0713-706c-9edb-3b5f34f014f8",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791590664075"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791590661009"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791590664075"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac9810578b08012ed25e448"
+    },
+    "type": "CHECKIN_REMINDER",
+    "recipient": "kbraditya405@gmail.com",
+    "bookingId": {
+      "$oid": "6ac28de8c7c992884eae64f0"
+    },
+    "paymentId": null,
+    "idempotencyKey": "CHECKIN_REMINDER:6ac28de8c7c992884eae64f0:2026-10-11",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791590661498"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a12320-0d41-797a-a8d0-44a5c90ddc89",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791590665631"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791590661499"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791590665631"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acad2a03858d66f7d7c6086"
+    },
+    "type": "CHECKIN_REMINDER",
+    "recipient": "admin1@gmail.com",
+    "bookingId": {
+      "$oid": "6ac3c70d383e790a2648e9fe"
+    },
+    "paymentId": null,
+    "idempotencyKey": "CHECKIN_REMINDER:6ac3c70d383e790a2648e9fe:2026-10-12",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791677088505"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a12847-3cf2-7c4c-9660-5863dbea37e1",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791677119831"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791677088515"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791677119831"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acad2a03858d66f7d7c6087"
+    },
+    "type": "CHECKIN_REMINDER",
+    "recipient": "aditykbr01@gmail.com",
+    "bookingId": {
+      "$oid": "6ac3ea2cf55bc9c9731d99c5"
+    },
+    "paymentId": null,
+    "idempotencyKey": "CHECKIN_REMINDER:6ac3ea2cf55bc9c9731d99c5:2026-10-12",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791677088992"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a12847-433a-7cc0-b4e2-94b754c113af",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791677121446"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791677088993"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791677121446"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba15252e612f844633ac5"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "aditykbr0a1@gmail.com",
+    "bookingId": {
+      "$oid": "6acba15252e612f844633ac3"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6acba15252e612f844633ac3",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791730002499"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a12b6e-3473-70c7-9551-0e05fccb8162",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791730005254"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791730002500"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791730005255"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba16fa458b0c2bef55025"
+    },
+    "type": "BOOKING_CONFIRMED",
+    "recipient": "aditykbr0a1@gmail.com",
+    "bookingId": {
+      "$oid": "6acba15252e612f844633ac3"
+    },
+    "paymentId": {
+      "$oid": "6acba15452e612f844633ac6"
+    },
+    "idempotencyKey": "BOOKING_CONFIRMED:6acba15252e612f844633ac3",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791730031289"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a12b6e-aac5-7e76-978e-69aa20f262a1",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791730035564"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791730031290"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791730035564"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba8f2120b3e7cd66e7078"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "aditykbr0a1@gmail.com",
+    "bookingId": {
+      "$oid": "6acba8f1120b3e7cd66e7075"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6acba8f1120b3e7cd66e7075",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791731954285"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a12b8b-f6c6-7094-a7dc-6661f7aa03ab",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791731955576"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791731954286"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791731955576"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba9297e59192216c21c07"
+    },
+    "type": "BOOKING_CONFIRMED",
+    "recipient": "aditykbr0a1@gmail.com",
+    "bookingId": {
+      "$oid": "6acba8f1120b3e7cd66e7075"
+    },
+    "paymentId": {
+      "$oid": "6acba8f4120b3e7cd66e707a"
+    },
+    "idempotencyKey": "BOOKING_CONFIRMED:6acba8f1120b3e7cd66e7075",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791732009079"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a12b8c-de6b-71ae-82ca-66f8a1a483a6",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791732014788"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791732009080"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791732014788"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acbb00277646f7b0de28fb8"
+    },
+    "type": "BOOKING_RECEIVED",
+    "recipient": "aditykbr0a1@gmail.com",
+    "bookingId": {
+      "$oid": "6acbb00277646f7b0de28fb5"
+    },
+    "paymentId": null,
+    "idempotencyKey": "BOOKING_RECEIVED:6acbb00277646f7b0de28fb5",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791733762946"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a12ba7-9750-7595-8c10-04a296c2bede",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791733766121"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791733762947"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791733766121"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acbb0157e59192216c21c25"
+    },
+    "type": "BOOKING_CONFIRMED",
+    "recipient": "aditykbr0a1@gmail.com",
+    "bookingId": {
+      "$oid": "6acbb00277646f7b0de28fb5"
+    },
+    "paymentId": {
+      "$oid": "6acbb00477646f7b0de28fba"
+    },
+    "idempotencyKey": "BOOKING_CONFIRMED:6acbb00277646f7b0de28fb5",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791733781938"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a12ba7-df38-75f2-8338-5ea6114a6258",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791733784467"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791733781939"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791733784467"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acc241b7e59192216c21e26"
+    },
+    "type": "CHECKIN_REMINDER",
+    "recipient": "nandani@gmail.app",
+    "bookingId": {
+      "$oid": "6ac5081aed24e34c88891910"
+    },
+    "paymentId": null,
+    "idempotencyKey": "CHECKIN_REMINDER:6ac5081aed24e34c88891910:2026-10-13",
+    "status": "SENT",
+    "attempts": {
+      "$numberInt": "1"
+    },
+    "maxAttempts": {
+      "$numberInt": "5"
+    },
+    "nextAttemptAt": {
+      "$date": {
+        "$numberLong": "1791763483575"
+      }
+    },
+    "lastError": null,
+    "provider": "resend",
+    "providerMessageId": "01a12d6d-85df-7720-8fa5-c44914f02f74",
+    "sentAt": {
+      "$date": {
+        "$numberLong": "1791763514945"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791763483576"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791763514945"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

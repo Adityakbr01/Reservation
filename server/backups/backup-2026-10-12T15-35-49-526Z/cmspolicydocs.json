@@ -1,0 +1,212 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac2427d71f2067194815361"
+    },
+    "key": "CANCELLATION",
+    "title": "Cancellation & Refund Policy",
+    "body": "Reservations on flexible rates may be cancelled free of charge up to 24 hours prior to scheduled check-in time (14:00 property local time). Cancellations received within 24 hours of arrival or non-arrivals (no-shows) are subject to a fee equivalent to the first night's room charge plus applicable taxes. Advance purchase and non-refundable promotional rates are non-refundable upon booking confirmation.",
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115901245"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115901245"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791115901245"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac2427d71f2067194815362"
+    },
+    "key": "CHECKIN",
+    "title": "Check-in Procedures & Requirements",
+    "body": "Check-in commences at 14:00 hours. Guests must present a valid government-issued photographic identification (Passport, National ID Card, or Driver's License) along with a valid credit card matching the reservation holder's name. A security authorization hold will be temporarily placed upon check-in for incidental charges.",
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115901460"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115901460"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791115901460"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac2427d71f2067194815363"
+    },
+    "key": "CHECKOUT",
+    "title": "Check-out Policy",
+    "body": "Check-out time is 12:00 noon. Guests requiring late check-out should notify the front desk at least 24 hours in advance. Late check-out until 15:00 is subject to room availability and may incur an additional charge. Departures after 18:00 will be billed as a full night's stay.",
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115901634"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115901634"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791115901634"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac2427d71f2067194815364"
+    },
+    "key": "CHILDREN",
+    "title": "Children & Extra Bedding Policy",
+    "body": "Children aged 11 and under stay complimentary when sharing existing bedding with adult guardians. Complimentary infant cribs are provided upon advance request for children aged 2 and under. Extra rollaway beds for older children or additional adults are available in select room categories for an additional surcharge.",
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115901810"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115901810"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791115901810"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac2427e71f2067194815365"
+    },
+    "key": "PETS",
+    "title": "Pet Accommodation Policy",
+    "body": "Designated pet-friendly Garden Terrace Suites welcome well-behaved canine companions up to 15 kg. A dedicated pet fee covers deep sanitation and includes a plush pet bed, food/water bowls, and artisanal welcome treats. Pets must remain leashed in public pathways and are not permitted inside pool areas or indoor dining venues.",
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115902034"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115902034"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791115902034"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac2427e71f2067194815366"
+    },
+    "key": "PRIVACY",
+    "title": "Guest Privacy & Data Protection",
+    "body": "We respect your personal privacy. All personal information collected during reservation, check-in, and online transactions is protected using enterprise-grade 256-bit SSL encryption. We never sell or distribute guest data to third-party advertisers. Payment card details are tokenized securely through Stripe PCI-DSS Level 1 compliant infrastructure.",
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115902245"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115902245"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791115902245"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac2427e71f2067194815367"
+    },
+    "key": "TERMS",
+    "title": "General Terms & Conditions",
+    "body": "By booking accommodation at our property, guests agree to abide by all house rules, safety regulations, and noise policies. The property maintains a peaceful atmosphere for all guests; quiet hours are observed from 22:00 to 07:00. The property reserves the right to terminate stays for disruptive behavior without refund.",
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115902441"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115902441"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791115902441"
+      }
+    }
+  }
+]

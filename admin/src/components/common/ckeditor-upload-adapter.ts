@@ -10,7 +10,7 @@ export function setMediaUploadFolder(folder: string): void {
   uploadFolder = folder;
 }
 
-/** Uploads editor images through the existing admin media API (ImageKit). */
+/** Uploads editor images through the existing admin media API. */
 class MediaLibraryUploadAdapter {
   private readonly loader: FileLoader;
 

@@ -1,0 +1,227 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac3fe92d1f8bc5e7b25aea1"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe92d1f8bc5e7b25ae9f"
+    },
+    "name": "Standard Rate",
+    "slug": "oakwood-cottage-standard-rate",
+    "description": "Base nightly rate — set the price and activate to publish.",
+    "pricing": {
+      "type": "PER_NIGHT",
+      "amount": {
+        "$numberInt": "25200"
+      },
+      "currency": "GBP"
+    },
+    "restrictions": {
+      "minNights": null,
+      "maxNights": null,
+      "minAdvanceDays": null,
+      "maxAdvanceDays": null,
+      "validFrom": null,
+      "validUntil": null,
+      "daysOfWeek": []
+    },
+    "cancellationPolicyId": null,
+    "status": "ACTIVE",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791229586724"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791229822944"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea4"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe92d1f8bc5e7b25aea2"
+    },
+    "name": "Standard Rate",
+    "slug": "the-dales-cottage-standard-rate",
+    "description": "Base nightly rate — set the price and activate to publish.",
+    "pricing": {
+      "type": "PER_NIGHT",
+      "amount": {
+        "$numberInt": "32100"
+      },
+      "currency": "GBP"
+    },
+    "restrictions": {
+      "minNights": null,
+      "maxNights": null,
+      "minAdvanceDays": null,
+      "maxAdvanceDays": null,
+      "validFrom": null,
+      "validUntil": null,
+      "daysOfWeek": []
+    },
+    "cancellationPolicyId": null,
+    "status": "ACTIVE",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791229587055"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791229823129"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea7"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea5"
+    },
+    "name": "Standard Rate",
+    "slug": "willow-brook-standard-rate",
+    "description": "Base nightly rate — set the price and activate to publish.",
+    "pricing": {
+      "type": "PER_NIGHT",
+      "amount": {
+        "$numberInt": "16900"
+      },
+      "currency": "GBP"
+    },
+    "restrictions": {
+      "minNights": null,
+      "maxNights": null,
+      "minAdvanceDays": null,
+      "maxAdvanceDays": null,
+      "validFrom": null,
+      "validUntil": null,
+      "daysOfWeek": []
+    },
+    "cancellationPolicyId": null,
+    "status": "ACTIVE",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791229587398"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791229823261"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aeaa"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea8"
+    },
+    "name": "Standard Rate",
+    "slug": "foxglove-cottage-standard-rate",
+    "description": "Base nightly rate — set the price and activate to publish.",
+    "pricing": {
+      "type": "PER_NIGHT",
+      "amount": {
+        "$numberInt": "16200"
+      },
+      "currency": "GBP"
+    },
+    "restrictions": {
+      "minNights": null,
+      "maxNights": null,
+      "minAdvanceDays": null,
+      "maxAdvanceDays": null,
+      "validFrom": null,
+      "validUntil": null,
+      "daysOfWeek": []
+    },
+    "cancellationPolicyId": null,
+    "status": "ACTIVE",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791229587809"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791229823403"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3fe94d1f8bc5e7b25aead"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aeab"
+    },
+    "name": "Standard Rate",
+    "slug": "fern-cottage-standard-rate",
+    "description": "Base nightly rate — set the price and activate to publish.",
+    "pricing": {
+      "type": "PER_NIGHT",
+      "amount": {
+        "$numberInt": "25100"
+      },
+      "currency": "GBP"
+    },
+    "restrictions": {
+      "minNights": null,
+      "maxNights": null,
+      "minAdvanceDays": null,
+      "maxAdvanceDays": null,
+      "validFrom": null,
+      "validUntil": null,
+      "daysOfWeek": []
+    },
+    "cancellationPolicyId": null,
+    "status": "ACTIVE",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791229588118"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791229823536"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

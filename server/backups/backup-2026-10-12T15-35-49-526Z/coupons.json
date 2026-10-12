@@ -1,0 +1,170 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac25ab2e67faccfbd2d0aa2"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "code": "WELCOME30",
+    "normalizedCode": "WELCOME30",
+    "discountType": "PERCENTAGE",
+    "discountValue": {
+      "$numberInt": "30"
+    },
+    "maxDiscount": null,
+    "minimumBookingAmount": null,
+    "validFrom": {
+      "$date": {
+        "$numberLong": "1791072000000"
+      }
+    },
+    "validUntil": {
+      "$date": {
+        "$numberLong": "1791936000000"
+      }
+    },
+    "usageLimit": null,
+    "usageCount": {
+      "$numberInt": "3"
+    },
+    "perUserLimit": null,
+    "applicableRoomTypeIds": [
+      {
+        "$oid": "6ac3fe93d1f8bc5e7b25aeab"
+      }
+    ],
+    "status": "ACTIVE",
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791122098782"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791297380430"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2ba7952a33d091a3fa8"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "code": "AUTUMN20",
+    "normalizedCode": "AUTUMN20",
+    "discountType": "PERCENTAGE",
+    "discountValue": {
+      "$numberInt": "20"
+    },
+    "maxDiscount": null,
+    "minimumBookingAmount": null,
+    "validFrom": {
+      "$date": {
+        "$numberLong": "1790726400000"
+      }
+    },
+    "validUntil": {
+      "$date": {
+        "$numberLong": "1799107199000"
+      }
+    },
+    "usageLimit": null,
+    "usageCount": {
+      "$numberInt": "5"
+    },
+    "perUserLimit": null,
+    "applicableRoomTypeIds": [
+      {
+        "$oid": "6ac3fe93d1f8bc5e7b25aeab"
+      }
+    ],
+    "status": "ACTIVE",
+    "createdBy": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222458883"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791545804344"
+      }
+    },
+    "__v": {
+      "$numberInt": "1"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4011927926a26a4fd96f1"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "code": "WINTER15",
+    "normalizedCode": "WINTER15",
+    "discountType": "PERCENTAGE",
+    "discountValue": {
+      "$numberInt": "15"
+    },
+    "maxDiscount": null,
+    "minimumBookingAmount": null,
+    "validFrom": {
+      "$date": {
+        "$numberLong": "1790726400000"
+      }
+    },
+    "validUntil": {
+      "$date": {
+        "$numberLong": "1799020800000"
+      }
+    },
+    "usageLimit": null,
+    "usageCount": {
+      "$numberInt": "4"
+    },
+    "perUserLimit": null,
+    "applicableRoomTypeIds": [
+      {
+        "$oid": "6ac3fe93d1f8bc5e7b25aea8"
+      },
+      {
+        "$oid": "6ac3fe93d1f8bc5e7b25aea5"
+      },
+      {
+        "$oid": "6ac3fe92d1f8bc5e7b25aea2"
+      },
+      {
+        "$oid": "6ac3fe92d1f8bc5e7b25ae9f"
+      }
+    ],
+    "status": "INACTIVE",
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791230233072"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791815160940"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

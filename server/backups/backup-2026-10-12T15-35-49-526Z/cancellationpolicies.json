@@ -1,0 +1,31 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac0f35062199fc62a591ef0"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "name": "Standard flexible (approved default)",
+    "freeCancellationHours": {
+      "$numberInt": "24"
+    },
+    "refundPercentage": {
+      "$numberInt": "100"
+    },
+    "isDefault": true,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791030096462"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791030096462"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

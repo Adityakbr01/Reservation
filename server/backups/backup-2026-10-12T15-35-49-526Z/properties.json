@@ -1,0 +1,39 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "name": "My Hotel",
+    "slug": "main-property",
+    "description": null,
+    "checkInTime": "14:00",
+    "checkOutTime": "12:00",
+    "timezone": "Asia/Kolkata",
+    "currency": "INR",
+    "status": "ACTIVE",
+    "contact": {
+      "email": null,
+      "phone": null,
+      "address": null,
+      "city": null,
+      "state": null,
+      "country": null,
+      "postalCode": null,
+      "latitude": null,
+      "longitude": null
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791020097104"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791020097104"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

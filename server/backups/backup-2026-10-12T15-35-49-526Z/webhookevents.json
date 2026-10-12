@@ -1,0 +1,2274 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac0fbda62199fc62a591ef4"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_probe_1791032282316",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791032283076"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791032282474"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791032282474"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791032283076"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac0fbdf62199fc62a591ef6"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_probe_1791032286922",
+    "eventType": "charge.refunded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791032287778"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791032287073"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791032287074"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791032287778"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac0fc361af8ab3cdf4fa23d"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_probe_redeliver_1791032374778",
+    "eventType": "charge.refunded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791032376380"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791032374879"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791032374880"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791032376381"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac0fdf51af8ab3cdf4fa246"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMSccFmcVwSRAFo1ptMasdx",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791032822026"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791032821435"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791032821436"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791032822026"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac268a92cf8c0b5bb31d034"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMqo8FmcVwSRAFo0oE79klg",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791125673584"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791125673347"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791125673347"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791125673584"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac268b42cf8c0b5bb31d035"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMqo8FmcVwSRAFo0gYJS9NE",
+    "eventType": "charge.failed",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791125684565"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791125684330"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791125684330"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791125684565"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac268b42cf8c0b5bb31d036"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMqo8FmcVwSRAFo0hXIY88d",
+    "eventType": "payment_intent.payment_failed",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791125685794"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791125684381"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791125684381"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791125685794"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac268e02cf8c0b5bb31d038"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMqo8FmcVwSRAFo0NNLVZ21",
+    "eventType": "charge.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791125728557"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791125728320"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791125728320"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791125728558"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac268e02cf8c0b5bb31d039"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMqo8FmcVwSRAFo0G9wI8j9",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791125730106"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791125728463"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791125728464"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791125730106"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac268e32cf8c0b5bb31d03b"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMqo8FmcVwSRAFo0UJAsn2s",
+    "eventType": "charge.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791125731322"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791125731083"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791125731083"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791125731322"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28decc7c992884eae64f5"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMtI0FmcVwSRAFo0tTQB4W5",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791135212983"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791135212746"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135212746"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135212983"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28e32c7c992884eae64f6"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMtI0FmcVwSRAFo0WxAN6CJ",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791135283909"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791135282260"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135282260"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135283909"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28e32c7c992884eae64f7"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMtI0FmcVwSRAFo0GPTTOD6",
+    "eventType": "charge.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791135282561"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791135282325"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135282325"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135282561"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28e34c7c992884eae64f9"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMtI0FmcVwSRAFo0GDiv5Ky",
+    "eventType": "charge.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791135285124"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791135284888"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135284888"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135285124"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28e7cc7c992884eae64ff"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMtKJFmcVwSRAFo1h5BSzB4",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791135356559"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791135356324"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135356324"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135356559"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28e8dc7c992884eae6500"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMtKJFmcVwSRAFo1RNRb544",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791135375150"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791135373508"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135373508"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135375150"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28e8dc7c992884eae6501"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMtKJFmcVwSRAFo117dfAQu",
+    "eventType": "charge.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791135373811"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791135373575"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135373575"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135373811"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28e90c7c992884eae6503"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMtKJFmcVwSRAFo1otA8b0e",
+    "eventType": "charge.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791135376537"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791135376297"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135376298"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135376537"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28ea8c7c992884eae6506"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMtKJFmcVwSRAFo1sTonWPi",
+    "eventType": "charge.refunded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791135402805"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791135400336"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135400336"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135402805"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28ea8c7c992884eae6508"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UMtKJFmcVwSRAFo1TDEzOuf",
+    "eventType": "charge.refund.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791135400767"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791135400532"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135400532"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135400767"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3c711383e790a2648ea03"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNE8zFmcVwSRAFo1VIJh32P",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791215378116"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791215377888"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791215377888"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791215378117"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3c738383e790a2648ea04"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNE8zFmcVwSRAFo1ZJS1CIe",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791215417675"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791215416081"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791215416082"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791215417675"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3c738383e790a2648ea05"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNE8zFmcVwSRAFo19mwucC2",
+    "eventType": "charge.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791215416367"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791215416142"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791215416142"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791215416367"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3c73a383e790a2648ea07"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNE8zFmcVwSRAFo1kyK4a2G",
+    "eventType": "charge.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791215418829"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791215418601"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791215418602"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791215418830"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3ea30c2cf131da1e712e6"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNGTzFmcVwSRAFo0mLCHXRV",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791224368558"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791224368318"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791224368320"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791224368558"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3ea4bc2cf131da1e712e7"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNGTzFmcVwSRAFo0MG571WT",
+    "eventType": "charge.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791224396009"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791224395788"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791224395788"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791224396009"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3ea4bc2cf131da1e712e8"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNGTzFmcVwSRAFo0X6soOBr",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791224397425"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791224395823"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791224395823"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791224397426"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3ea9bc2cf131da1e712ef"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNGTzFmcVwSRAFo0BXkiTMY",
+    "eventType": "charge.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791224476021"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791224475797"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791224475798"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791224476021"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac40481617d1e7df601d644"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNIEfFmcVwSRAFo1KkmORYg",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791231106159"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791231105928"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231105931"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231106159"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac405b6617d1e7df601d64a"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNIJdFmcVwSRAFo1iMVAdf5",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791231414367"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791231414143"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231414143"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231414367"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac405bf617d1e7df601d650"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNIJdFmcVwSRAFo1trnlppF",
+    "eventType": "charge.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791231423909"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791231423685"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231423686"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231423909"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac405bf617d1e7df601d651"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNIJdFmcVwSRAFo1uymEmJr",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791231425414"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791231423784"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231423784"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231425414"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4060e617d1e7df601d653"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNIJdFmcVwSRAFo1dSOa8Js",
+    "eventType": "charge.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791231502309"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791231502076"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231502077"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231502309"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac40674617d1e7df601d654"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNIJdFmcVwSRAFo1CDgUuvt",
+    "eventType": "charge.refunded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791231607529"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791231604999"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231604999"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231607529"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac5081dffefee1267f07f3e"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNZWaFmcVwSRAFo1axqlYye",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791297565314"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791297565072"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791297565072"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791297565314"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac50834ffefee1267f07f3f"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNZWaFmcVwSRAFo1Op6xnqj",
+    "eventType": "charge.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791297588798"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791297588563"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791297588563"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791297588798"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac50834ffefee1267f07f40"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNZWaFmcVwSRAFo19hPpo0c",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791297590266"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791297588617"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791297588618"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791297590266"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac50882ffefee1267f07f47"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNZWaFmcVwSRAFo1L2BWrWO",
+    "eventType": "charge.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791297666312"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791297666078"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791297666078"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791297666312"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac670f778b08012ed25d6b8"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxYYFmcVwSRAFo0p6fOXeg",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791389943768"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791389943493"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791389943494"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791389943769"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6710478b08012ed25d6ba"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxYYFmcVwSRAFo0dXc7xh9",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791389958016"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791389956358"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791389956359"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791389958016"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6710478b08012ed25d6bb"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxYYFmcVwSRAFo0eLXvRmZ",
+    "eventType": "charge.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791389956668"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791389956433"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791389956433"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791389956668"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6710778b08012ed25d6bd"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxYYFmcVwSRAFo0WcPav2I",
+    "eventType": "charge.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791389959291"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791389959055"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791389959055"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791389959291"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6716b78b08012ed25d6cd"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxaQFmcVwSRAFo06t9PCA2",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791390059254"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791390059006"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390059006"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390059254"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6717478b08012ed25d6ce"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxaQFmcVwSRAFo05I93Leq",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791390070124"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791390068444"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390068445"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390070124"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6717478b08012ed25d6cf"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxaQFmcVwSRAFo0UONBNbJ",
+    "eventType": "charge.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791390068859"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791390068623"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390068623"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390068859"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6717778b08012ed25d6d1"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxaQFmcVwSRAFo0Gmqi3tX",
+    "eventType": "charge.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791390071355"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791390071112"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390071112"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390071355"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6720678b08012ed25d6e0"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxcvFmcVwSRAFo0GxEZ7FG",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791390214852"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791390214615"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390214616"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390214852"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6721578b08012ed25d6e1"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxcvFmcVwSRAFo0std2Q5m",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791390230876"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791390229222"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390229222"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390230876"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6721578b08012ed25d6e2"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxcvFmcVwSRAFo0miRDo10",
+    "eventType": "charge.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791390229581"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791390229332"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390229333"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390229581"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6721878b08012ed25d6e4"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxcvFmcVwSRAFo0vLIULI7",
+    "eventType": "charge.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791390232253"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791390232016"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390232017"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390232253"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6727478b08012ed25d6ef"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxehFmcVwSRAFo07UxeuiK",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791390324389"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791390324154"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390324154"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390324389"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6727c78b08012ed25d6f0"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxehFmcVwSRAFo0OWgjnWj",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791390334529"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791390332885"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390332885"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390334529"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6727c78b08012ed25d6f1"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxehFmcVwSRAFo08QndVKo",
+    "eventType": "charge.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791390333205"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791390332969"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390332969"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390333205"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6727f78b08012ed25d6f3"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UNxehFmcVwSRAFo0wNJZVuX",
+    "eventType": "charge.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791390335711"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791390335475"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390335475"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390335711"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8d1cf78b08012ed25e12f"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UOc6UFmcVwSRAFo0BQ8RO5g",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791545807869"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791545807628"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791545807628"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791545807869"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8fd7578b08012ed25e1fd"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UOf0iFmcVwSRAFo0IAAgVAw",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791556981513"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791556981276"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791556981276"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791556981513"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8fd8178b08012ed25e1ff"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UOf0iFmcVwSRAFo0H7xn6Uy",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791556995510"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791556993863"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791556993863"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791556995510"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8fd8178b08012ed25e200"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UOf0iFmcVwSRAFo0cafa84e",
+    "eventType": "charge.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791556994144"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791556993908"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791556993908"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791556994144"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8fd8478b08012ed25e202"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UOf0iFmcVwSRAFo00MvBewx",
+    "eventType": "charge.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791556996856"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791556996611"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791556996611"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791556996856"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba154a458b0c2bef55022"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UPO1PFmcVwSRAFo0KflSlXN",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791730004837"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791730004595"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791730004595"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791730004837"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba16da458b0c2bef55023"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UPO1PFmcVwSRAFo0WhwcEEA",
+    "eventType": "charge.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791730030036"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791730029800"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791730029801"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791730030036"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba16da458b0c2bef55024"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UPO1PFmcVwSRAFo0Ijg96la",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791730031528"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791730029863"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791730029863"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791730031528"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba1bba458b0c2bef55026"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UPO1PFmcVwSRAFo0XbfFb7r",
+    "eventType": "charge.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791730107563"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791730107326"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791730107326"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791730107563"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba8f47e59192216c21bff"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UPOWtFmcVwSRAFo0NbroMny",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791731956691"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791731956446"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791731956450"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791731956691"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba9277e59192216c21c05"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UPOWtFmcVwSRAFo0IjxbpMi",
+    "eventType": "charge.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791732007781"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791732007544"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791732007545"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791732007781"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba9277e59192216c21c06"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UPOWtFmcVwSRAFo0pvptGLe",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791732009317"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791732007662"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791732007663"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791732009317"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba9767e59192216c21c08"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UPOWtFmcVwSRAFo0kbEegxu",
+    "eventType": "charge.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791732086511"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791732086274"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791732086275"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791732086511"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acbb0047e59192216c21c22"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UPP04FmcVwSRAFo0bGG5sKZ",
+    "eventType": "payment_intent.created",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791733765190"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791733764950"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791733764950"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791733765190"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acbb0147e59192216c21c23"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UPP04FmcVwSRAFo0onlcxnZ",
+    "eventType": "charge.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791733780691"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791733780454"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791733780455"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791733780691"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acbb0147e59192216c21c24"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UPP04FmcVwSRAFo0CI95mDA",
+    "eventType": "payment_intent.succeeded",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791733782177"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791733780519"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791733780520"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791733782178"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acbb0637e59192216c21c2b"
+    },
+    "provider": "STRIPE",
+    "stripeEventId": "evt_3UPP04FmcVwSRAFo0g2aSakv",
+    "eventType": "charge.updated",
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791733859365"
+      }
+    },
+    "processingStatus": "PROCESSED",
+    "receivedAt": {
+      "$date": {
+        "$numberLong": "1791733859128"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791733859129"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791733859365"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

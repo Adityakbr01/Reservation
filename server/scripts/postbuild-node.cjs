@@ -24,7 +24,9 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-const OUT_DIR = path.join(__dirname, "..", "dist");
+const OUT_DIR = process.env.BUILD_OUT_DIR
+  ? path.resolve(process.env.BUILD_OUT_DIR)
+  : path.join(__dirname, "..", "dist");
 
 const HAS_EXT = /\.(js|mjs|cjs|json|node)$/;
 

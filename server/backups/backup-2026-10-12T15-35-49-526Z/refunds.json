@@ -1,0 +1,82 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac28ea7c7c992884eae6504"
+    },
+    "bookingId": {
+      "$oid": "6ac28e78c7c992884eae64fa"
+    },
+    "paymentId": {
+      "$oid": "6ac28e7bc7c992884eae64fe"
+    },
+    "provider": "STRIPE",
+    "providerRefundId": "re_3UMtKJFmcVwSRAFo1hIiUdNE",
+    "amount": {
+      "$numberInt": "3200000"
+    },
+    "currency": "INR",
+    "status": "SUCCEEDED",
+    "reason": null,
+    "requestedBy": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791135399650"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135399650"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135399650"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac406710743e9f70744f92b"
+    },
+    "bookingId": {
+      "$oid": "6ac405b10743e9f70744f920"
+    },
+    "paymentId": {
+      "$oid": "6ac405b30743e9f70744f924"
+    },
+    "provider": "STRIPE",
+    "providerRefundId": "re_3UNIJdFmcVwSRAFo1wNwq40y",
+    "amount": {
+      "$numberInt": "40320"
+    },
+    "currency": "GBP",
+    "status": "SUCCEEDED",
+    "reason": null,
+    "requestedBy": {
+      "$oid": "6ac3ea2af55bc9c9731d99c4"
+    },
+    "processedAt": {
+      "$date": {
+        "$numberLong": "1791231601920"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231601925"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231601925"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

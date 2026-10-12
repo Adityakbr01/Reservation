@@ -10,14 +10,18 @@
     "dev": "bun --hot src/server.ts",
     "dev:node": "node --watch dist/server.js",
     "build": "tsc -p tsconfig.build.json && node scripts/postbuild-node.cjs",
+    "build:node": "tsc -p tsconfig.build.json --outDir dist-node && BUILD_OUT_DIR=dist-node node scripts/postbuild-node.cjs",
     "deploy:zip": "npm run build && node scripts/pack-deploy.cjs",
     "start": "node dist/server.js",
     "start:bun": "bun run src/server.ts",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint",
-    "test": "bun test"
+    "test": "bun test",
+    "backup:db": "bun scripts/backup-db.ts",
+    "restore:db": "bun scripts/restore-db.ts"
   },
   "dependencies": {
+    "basic-ftp": "^6.2.3",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "date-fns": "^4.4.0",

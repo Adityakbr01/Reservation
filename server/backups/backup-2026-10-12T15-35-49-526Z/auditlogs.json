@@ -1,0 +1,3830 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac11ef9444777a23fc4d737"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac0d5460ace2e4b254c809f",
+    "before": null,
+    "after": {
+      "name": "Penthouse",
+      "status": "INACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791041273182"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac1208786e4a26b127720d0"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "COUPON_CREATED",
+    "entityType": "coupon",
+    "entityId": "6ac1208786e4a26b127720cf",
+    "before": null,
+    "after": {
+      "code": "ONE670892",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Bun/1.3.10",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791041671251"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac1234f86e4a26b127720d5"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "SETTINGS_UPDATED",
+    "entityType": "settings",
+    "entityId": "6ac10aaf76e392418dc3918e",
+    "before": null,
+    "after": {
+      "keys": [
+        "reminderHoursBefore"
+      ]
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Bun/1.3.10",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791042383988"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac1235086e4a26b127720d6"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "SETTINGS_UPDATED",
+    "entityType": "settings",
+    "entityId": "6ac10aaf76e392418dc3918e",
+    "before": null,
+    "after": {
+      "keys": [
+        "reminderHoursBefore"
+      ]
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Bun/1.3.10",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791042384277"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac123eb86e4a26b127720d8"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6ac123eb86e4a26b127720d7",
+    "before": null,
+    "after": {
+      "roomId": "6ac0d1dc10f38dcf5f60fc76"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791042539478"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac25ab3e67faccfbd2d0aa3"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "COUPON_CREATED",
+    "entityType": "coupon",
+    "entityId": "6ac25ab2e67faccfbd2d0aa2",
+    "before": null,
+    "after": {
+      "code": "WELCOME30",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791122099331"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac268a62cf8c0b5bb31d032"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6ac268a52cf8c0b5bb31d02f",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-HGN7RH",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "2240000"
+      },
+      "currency": "INR"
+    },
+    "metadata": null,
+    "ip": "106.192.98.203",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791125670697"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28deac7c992884eae64f3"
+    },
+    "actorId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "actorRole": "user",
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6ac28de8c7c992884eae64f0",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-VPRNQT",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "11900000"
+      },
+      "currency": "INR"
+    },
+    "metadata": null,
+    "ip": "106.192.106.204",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135210085"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28e79c7c992884eae64fd"
+    },
+    "actorId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "actorRole": "user",
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6ac28e78c7c992884eae64fa",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-KXXPNX",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "3200000"
+      },
+      "currency": "INR"
+    },
+    "metadata": null,
+    "ip": "106.192.106.204",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135353665"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28ea8c7c992884eae6509"
+    },
+    "actorId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "actorRole": "user",
+    "action": "BOOKING_CANCELLED",
+    "entityType": "booking",
+    "entityId": "6ac28e78c7c992884eae64fa",
+    "before": {
+      "bookingNumber": "QB-KXXPNX",
+      "status": "CONFIRMED",
+      "paymentStatus": "PAID",
+      "total": {
+        "$numberInt": "3200000"
+      },
+      "currency": "INR"
+    },
+    "after": {
+      "bookingNumber": "QB-KXXPNX",
+      "status": "REFUND_PENDING",
+      "paymentStatus": "PAID",
+      "total": {
+        "$numberInt": "3200000"
+      },
+      "currency": "INR"
+    },
+    "metadata": null,
+    "ip": "106.192.106.204",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135400595"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3c171383e790a2648e9fb"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac2427871f2067194815348",
+    "before": null,
+    "after": {
+      "name": "Garden Terrace Suite",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "106.219.187.215",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791213937698"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3c70f383e790a2648ea01"
+    },
+    "actorId": {
+      "$oid": "6ac3c6f5383e790a2648e9fd"
+    },
+    "actorRole": "user",
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6ac3c70d383e790a2648e9fe",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-Y8QSUU",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "3200000"
+      },
+      "currency": "INR"
+    },
+    "metadata": null,
+    "ip": "106.219.187.215",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791215375239"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2287a7e1c16f8297963"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "NOTIFICATION_RETRIED",
+    "entityType": "notification",
+    "entityId": "6ac28ea8c7c992884eae6507",
+    "before": null,
+    "after": {
+      "type": "REFUND_UPDATED",
+      "recipient": "kbraditya405@gmail.com"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222312293"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e36921dae90cc386dcc3"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac2427871f2067194815349",
+    "before": null,
+    "after": {
+      "name": "Presidential Royal Suite",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222633150"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e3f921dae90cc386dcc5"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac2427871f2067194815349",
+    "before": null,
+    "after": {
+      "name": "Presidential Royal Suite",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222777135"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e43321dae90cc386dccb"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac2427871f2067194815349",
+    "before": null,
+    "after": {
+      "name": "Presidential Royal Suite",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222835700"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e46d21dae90cc386dccc"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac2427871f2067194815349",
+    "before": null,
+    "after": {
+      "name": "Presidential Royal Suite",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222893498"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3ea2df55bc9c9731d99c9"
+    },
+    "actorId": null,
+    "actorRole": null,
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6ac3ea2cf55bc9c9731d99c5",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-YC3EEQ",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "5880000"
+      },
+      "currency": "INR"
+    },
+    "metadata": {
+      "guest": true,
+      "isNewAccount": true
+    },
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791224365781"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3ece4f55bc9c9731d99e4"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3ece4f55bc9c9731d99e3",
+    "before": null,
+    "after": {
+      "name": "Dog Allowed"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791225060980"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3f7149cf8529599a3b34b"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac2427871f2067194815349",
+    "before": null,
+    "after": {
+      "name": "Presidential Royal Suite",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791227668016"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3f7509cf8529599a3b34c"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac2427771f2067194815347",
+    "before": null,
+    "after": {
+      "name": "Ocean View Pool Villa",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791227728087"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3f75f9cf8529599a3b34d"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac2427771f2067194815347",
+    "before": null,
+    "after": {
+      "name": "Ocean View Pool Villa",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791227743384"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4047d0743e9f70744f912"
+    },
+    "actorId": {
+      "$oid": "6ac3ea2af55bc9c9731d99c4"
+    },
+    "actorRole": "user",
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6ac4047d0743e9f70744f90f",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-QDGK5Z",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "40320"
+      },
+      "currency": "GBP"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231101818"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac405980743e9f70744f91a"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "BOOKING_CANCELLED",
+    "entityType": "booking",
+    "entityId": "6ac4047d0743e9f70744f90f",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-QDGK5Z",
+      "status": "CANCELLED",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "40320"
+      },
+      "currency": "GBP"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231384418"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac405b10743e9f70744f923"
+    },
+    "actorId": {
+      "$oid": "6ac3ea2af55bc9c9731d99c4"
+    },
+    "actorRole": "user",
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6ac405b10743e9f70744f920",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-4ZGVVS",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "40320"
+      },
+      "currency": "GBP"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231409920"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac405fa0743e9f70744f92a"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "NOTIFICATION_RETRIED",
+    "entityType": "notification",
+    "entityId": "6ac28ea8c7c992884eae6507",
+    "before": null,
+    "after": {
+      "type": "REFUND_UPDATED",
+      "recipient": "kbraditya405@gmail.com"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231482307"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac406720743e9f70744f92e"
+    },
+    "actorId": {
+      "$oid": "6ac3ea2af55bc9c9731d99c4"
+    },
+    "actorRole": "user",
+    "action": "BOOKING_CANCELLED",
+    "entityType": "booking",
+    "entityId": "6ac405b10743e9f70744f920",
+    "before": {
+      "bookingNumber": "QB-4ZGVVS",
+      "status": "CONFIRMED",
+      "paymentStatus": "PAID",
+      "total": {
+        "$numberInt": "40320"
+      },
+      "currency": "GBP"
+    },
+    "after": {
+      "bookingNumber": "QB-4ZGVVS",
+      "status": "REFUND_PENDING",
+      "paymentStatus": "PAID",
+      "total": {
+        "$numberInt": "40320"
+      },
+      "currency": "GBP"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231602273"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac40716e7885e8c78473c87"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "NOTIFICATION_RETRIED",
+    "entityType": "notification",
+    "entityId": "6ac28ea8c7c992884eae6507",
+    "before": null,
+    "after": {
+      "type": "REFUND_UPDATED",
+      "recipient": "kbraditya405@gmail.com"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231766169"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4fc2dffefee1267f07efa"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3ece4f55bc9c9731d99e3",
+    "before": null,
+    "after": {
+      "name": "Dog Allowed"
+    },
+    "metadata": null,
+    "ip": "106.192.176.57",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791294509076"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4fcceffefee1267f07f02"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bbed148dd299f90fa8",
+    "before": null,
+    "after": {
+      "name": "WiFi"
+    },
+    "metadata": null,
+    "ip": "106.192.176.57",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791294670563"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4fcdaffefee1267f07f03"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bbed148dd299f90fac",
+    "before": null,
+    "after": {
+      "name": "Cycling"
+    },
+    "metadata": null,
+    "ip": "106.192.176.57",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791294682459"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4fcfaffefee1267f07f04"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bbed148dd299f90fa6",
+    "before": null,
+    "after": {
+      "name": "One dog allowed"
+    },
+    "metadata": null,
+    "ip": "106.192.176.57",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791294714612"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4fdbaffefee1267f07f09"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bced148dd299f90fae",
+    "before": null,
+    "after": {
+      "name": "Golfing"
+    },
+    "metadata": null,
+    "ip": "106.192.176.57",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791294906856"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4fdc5ffefee1267f07f0a"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bced148dd299f90faf",
+    "before": null,
+    "after": {
+      "name": "Walking"
+    },
+    "metadata": null,
+    "ip": "106.192.176.57",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791294917769"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4fdcfffefee1267f07f0b"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bced148dd299f90fad",
+    "before": null,
+    "after": {
+      "name": "Romantic Breaks"
+    },
+    "metadata": null,
+    "ip": "106.192.176.57",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791294927181"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4fdd8ffefee1267f07f11"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bbed148dd299f90fa7",
+    "before": null,
+    "after": {
+      "name": "Parking"
+    },
+    "metadata": null,
+    "ip": "106.192.176.57",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791294936923"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4fde1ffefee1267f07f12"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bbed148dd299f90fa9",
+    "before": null,
+    "after": {
+      "name": "Baby Welcome"
+    },
+    "metadata": null,
+    "ip": "106.192.176.57",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791294945489"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4fe05ffefee1267f07f13"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bbed148dd299f90fab",
+    "before": null,
+    "after": {
+      "name": "Ground Floor Bedroom"
+    },
+    "metadata": null,
+    "ip": "106.192.176.57",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791294981396"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4fe16ffefee1267f07f14"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bbed148dd299f90faa",
+    "before": null,
+    "after": {
+      "name": "Bird Watching"
+    },
+    "metadata": null,
+    "ip": "106.192.176.57",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791294998864"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4fe63ffefee1267f07f15"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aeab",
+    "before": null,
+    "after": {
+      "name": "Fern Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "106.192.176.57",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791295075231"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac5021c94e9059f60fe3499"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3ece4f55bc9c9731d99e3",
+    "before": null,
+    "after": {
+      "name": "Dog Allowed"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791296028265"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac5022594e9059f60fe349f"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3ece4f55bc9c9731d99e3",
+    "before": null,
+    "after": {
+      "name": "Dog Allowed"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791296037032"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac502c794e9059f60fe34a5"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bced148dd299f90fb0",
+    "before": null,
+    "after": {
+      "name": "Electric hob & oven"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791296199825"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac502c894e9059f60fe34a6"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bced148dd299f90fb0",
+    "before": null,
+    "after": {
+      "name": "Electric hob & oven"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791296200830"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac5030094e9059f60fe34a7"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3ece4f55bc9c9731d99e3",
+    "before": null,
+    "after": {
+      "name": "Dog Allowed"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791296256361"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac5030194e9059f60fe34a8"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3ece4f55bc9c9731d99e3",
+    "before": null,
+    "after": {
+      "name": "Dog Allowed"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791296257605"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac5081ced24e34c88891915"
+    },
+    "actorId": null,
+    "actorRole": null,
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6ac5081aed24e34c88891910",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-UYHJNK",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "40160"
+      },
+      "currency": "GBP"
+    },
+    "metadata": {
+      "guest": true,
+      "isNewAccount": true
+    },
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791297564721"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac50ed678b08012ed25d0c1"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aea8",
+    "before": null,
+    "after": {
+      "name": "Foxglove Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "106.192.176.57",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791299286080"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac50eeb78b08012ed25d0c7"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aea8",
+    "before": null,
+    "after": {
+      "name": "Foxglove Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "106.192.176.57",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791299307188"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac670f478b08012ed25d6b6"
+    },
+    "actorId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "actorRole": "user",
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6ac670f378b08012ed25d6b3",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-YD8VCZ",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "27540"
+      },
+      "currency": "GBP"
+    },
+    "metadata": null,
+    "ip": "223.238.155.132",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Mobile Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791389940772"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6716878b08012ed25d6cb"
+    },
+    "actorId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "actorRole": "user",
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6ac6716678b08012ed25d6c8",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-G5YXTX",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "20080"
+      },
+      "currency": "GBP"
+    },
+    "metadata": null,
+    "ip": "223.238.155.132",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390056306"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac671a478b08012ed25d6d3"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "BOOKING_CHECKED_IN",
+    "entityType": "booking",
+    "entityId": "6ac6716678b08012ed25d6c8",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-G5YXTX",
+      "status": "CHECKED_IN",
+      "paymentStatus": "PAID",
+      "total": {
+        "$numberInt": "20080"
+      },
+      "currency": "GBP"
+    },
+    "metadata": null,
+    "ip": "223.238.155.132",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390116233"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac671b078b08012ed25d6d5"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "BOOKING_CHECKED_OUT",
+    "entityType": "booking",
+    "entityId": "6ac6716678b08012ed25d6c8",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-G5YXTX",
+      "status": "CHECKED_OUT",
+      "paymentStatus": "PAID",
+      "total": {
+        "$numberInt": "20080"
+      },
+      "currency": "GBP"
+    },
+    "metadata": null,
+    "ip": "223.238.155.132",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390128555"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6720378b08012ed25d6de"
+    },
+    "actorId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "actorRole": "user",
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6ac6720178b08012ed25d6db",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-5VVVST",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "54570"
+      },
+      "currency": "GBP"
+    },
+    "metadata": null,
+    "ip": "223.238.155.132",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390211360"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6727178b08012ed25d6ed"
+    },
+    "actorId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "actorRole": "user",
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6ac6726f78b08012ed25d6ea",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-4KUMNY",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "27285"
+      },
+      "currency": "GBP"
+    },
+    "metadata": null,
+    "ip": "223.238.155.132",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390321391"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6728e78b08012ed25d6f5"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "BOOKING_CHECKED_IN",
+    "entityType": "booking",
+    "entityId": "6ac6726f78b08012ed25d6ea",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-4KUMNY",
+      "status": "CHECKED_IN",
+      "paymentStatus": "PAID",
+      "total": {
+        "$numberInt": "27285"
+      },
+      "currency": "GBP"
+    },
+    "metadata": null,
+    "ip": "223.238.155.132",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390350944"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8d1cf78b08012ed25e12e"
+    },
+    "actorId": null,
+    "actorRole": null,
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6ac8d1cc78b08012ed25e12a",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-6E3BXQ",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "40160"
+      },
+      "currency": "GBP"
+    },
+    "metadata": {
+      "guest": true,
+      "isNewAccount": true
+    },
+    "ip": "209.198.129.94",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791545807550"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8fd7278b08012ed25e1fb"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6ac8fd7178b08012ed25e1f8",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-PWJV3G",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "28730"
+      },
+      "currency": "GBP"
+    },
+    "metadata": null,
+    "ip": "106.219.246.224",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791556978465"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca2deed1a10496942e25d8"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bbed148dd299f90fa6",
+    "before": null,
+    "after": {
+      "name": "One dog allowed"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "curl/8.18.0",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791634926547"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca2deed1a10496942e25d9"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bbed148dd299f90fa9",
+    "before": null,
+    "after": {
+      "name": "Baby Welcome"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "curl/8.18.0",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791634926880"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca2defd1a10496942e25da"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bbed148dd299f90faa",
+    "before": null,
+    "after": {
+      "name": "Bird Watching"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "curl/8.18.0",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791634927191"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca2defd1a10496942e25db"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3e2bbed148dd299f90fab",
+    "before": null,
+    "after": {
+      "name": "Ground Floor Bedroom"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "curl/8.18.0",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791634927537"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca2dfcd1a10496942e25dc"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aeab",
+    "before": null,
+    "after": {
+      "name": "Fern Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791634940915"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca3318d1a10496942e261e"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aeab",
+    "before": null,
+    "after": {
+      "name": "Fern Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791636248145"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca3318d1a10496942e261f"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aea8",
+    "before": null,
+    "after": {
+      "name": "Foxglove Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791636248493"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca3318d1a10496942e2620"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aea5",
+    "before": null,
+    "after": {
+      "name": "Willow Brook",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791636248865"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca3319d1a10496942e2621"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe92d1f8bc5e7b25aea2",
+    "before": null,
+    "after": {
+      "name": "The Dales Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791636249303"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca3319d1a10496942e2622"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe92d1f8bc5e7b25ae9f",
+    "before": null,
+    "after": {
+      "name": "Oakwood Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791636249704"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca331ad1a10496942e2623"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AMENITY_SAVED",
+    "entityType": "amenity",
+    "entityId": "6ac3ece4f55bc9c9731d99e3",
+    "before": null,
+    "after": {
+      "name": "One dog allowed"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791636250238"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca439fa41695eb01b6070b"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aeab",
+    "before": null,
+    "after": {
+      "name": "Fern Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791640479419"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca439fa41695eb01b6070c"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aea8",
+    "before": null,
+    "after": {
+      "name": "Foxglove Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791640479823"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca43a0a41695eb01b6070d"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aea5",
+    "before": null,
+    "after": {
+      "name": "Willow Brook",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791640480132"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca43a0a41695eb01b6070e"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe92d1f8bc5e7b25aea2",
+    "before": null,
+    "after": {
+      "name": "The Dales Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791640480456"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca43a0a41695eb01b6070f"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe92d1f8bc5e7b25ae9f",
+    "before": null,
+    "after": {
+      "name": "Oakwood Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791640480755"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca451d3a03730b2a7e3052"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aea8",
+    "before": null,
+    "after": {
+      "name": "Foxglove Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791640861186"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca451d3a03730b2a7e3053"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aea5",
+    "before": null,
+    "after": {
+      "name": "Willow Brook",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791640861541"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca451d3a03730b2a7e3054"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe92d1f8bc5e7b25aea2",
+    "before": null,
+    "after": {
+      "name": "The Dales Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791640861845"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca451e3a03730b2a7e3055"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe92d1f8bc5e7b25ae9f",
+    "before": null,
+    "after": {
+      "name": "Oakwood Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Python-urllib/3.13",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791640862188"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6aca47823a03730b2a7e3065"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aeab",
+    "before": null,
+    "after": {
+      "name": "Fern Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791641474340"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb22a4a458b0c2bef54d78"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aeab",
+    "before": null,
+    "after": {
+      "name": "Fern Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "106.192.183.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791697572059"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb22afa458b0c2bef54d79"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aea8",
+    "before": null,
+    "after": {
+      "name": "Foxglove Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "106.192.183.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791697583575"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb22fea458b0c2bef54d7f"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aea8",
+    "before": null,
+    "after": {
+      "name": "Foxglove Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "106.192.183.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791697662646"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb6c2ba458b0c2bef54eda"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aea5",
+    "before": null,
+    "after": {
+      "name": "Willow Brook",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "106.192.191.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791716395640"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb6c93a458b0c2bef54ee0"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "CMS_UNPUBLISHED",
+    "entityType": "cms-offer",
+    "entityId": "6ac4011bed148dd299f913bb",
+    "before": null,
+    "after": {
+      "status": "DRAFT"
+    },
+    "metadata": null,
+    "ip": "106.192.191.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791716499399"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb6c95a458b0c2bef54ee1"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "CMS_UNPUBLISHED",
+    "entityType": "cms-offer",
+    "entityId": "6ac2427b71f206719481535a",
+    "before": null,
+    "after": {
+      "status": "DRAFT"
+    },
+    "metadata": null,
+    "ip": "106.192.191.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791716501436"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb6c97a458b0c2bef54ee2"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "CMS_UNPUBLISHED",
+    "entityType": "cms-offer",
+    "entityId": "6ac2427b71f2067194815358",
+    "before": null,
+    "after": {
+      "status": "DRAFT"
+    },
+    "metadata": null,
+    "ip": "106.192.191.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791716503975"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb6c9aa458b0c2bef54ee3"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "CMS_UNPUBLISHED",
+    "entityType": "cms-offer",
+    "entityId": "6ac2427b71f2067194815359",
+    "before": null,
+    "after": {
+      "status": "DRAFT"
+    },
+    "metadata": null,
+    "ip": "106.192.191.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791716506181"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb6c9da458b0c2bef54ee4"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "CMS_UNPUBLISHED",
+    "entityType": "cms-offer",
+    "entityId": "6ac3e2bded148dd299f90fbb",
+    "before": null,
+    "after": {
+      "status": "DRAFT"
+    },
+    "metadata": null,
+    "ip": "106.192.191.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791716509579"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb6ca1a458b0c2bef54ee5"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "CMS_PUBLISHED",
+    "entityType": "cms-offer",
+    "entityId": "6ac3e2bded148dd299f90fbb",
+    "before": null,
+    "after": {
+      "status": "PUBLISHED"
+    },
+    "metadata": null,
+    "ip": "106.192.191.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791716513718"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb6cc7a458b0c2bef54ee6"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "CMS_UNPUBLISHED",
+    "entityType": "cms-offer",
+    "entityId": "6ac3e2bded148dd299f90fbb",
+    "before": null,
+    "after": {
+      "status": "DRAFT"
+    },
+    "metadata": null,
+    "ip": "106.192.191.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791716551761"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb6d51a458b0c2bef54ef1"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aeab",
+    "before": null,
+    "after": {
+      "name": "Fern Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "106.192.191.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791716689838"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb6eb1a458b0c2bef54f01"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe92d1f8bc5e7b25ae9f",
+    "before": null,
+    "after": {
+      "name": "Oakwood Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "106.192.191.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791717041387"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb6ed0a458b0c2bef54f02"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe92d1f8bc5e7b25aea2",
+    "before": null,
+    "after": {
+      "name": "The Dales Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "106.192.191.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791717072734"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb6eefa458b0c2bef54f03"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aea8",
+    "before": null,
+    "after": {
+      "name": "Foxglove Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "106.192.191.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791717103532"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb6f1ea458b0c2bef54f09"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aeab",
+    "before": null,
+    "after": {
+      "name": "Fern Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "106.192.191.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791717150371"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb6f57a458b0c2bef54f0f"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aea8",
+    "before": null,
+    "after": {
+      "name": "Foxglove Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "106.192.191.125",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791717207463"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb742fa458b0c2bef54f25"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_SAVED",
+    "entityType": "room",
+    "entityId": "6acb742ea458b0c2bef54f24",
+    "before": null,
+    "after": {
+      "roomNumber": "102",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "223.191.70.51",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791718447018"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb747aa458b0c2bef54f2b"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aeab",
+    "before": null,
+    "after": {
+      "name": "Fern Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "223.191.70.51",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791718522774"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb749da458b0c2bef54f2c"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aeab",
+    "before": null,
+    "after": {
+      "name": "Fern Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "223.191.70.51",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791718557032"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb74cba458b0c2bef54f2d"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "ROOM_TYPE_SAVED",
+    "entityType": "room-type",
+    "entityId": "6ac3fe93d1f8bc5e7b25aeab",
+    "before": null,
+    "after": {
+      "name": "Fern Cottage",
+      "status": "ACTIVE"
+    },
+    "metadata": null,
+    "ip": "223.191.70.51",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791718603170"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb780ba458b0c2bef54f43"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb780ba458b0c2bef54f42",
+    "before": null,
+    "after": {
+      "roomId": "6ac3fe94d1f8bc5e7b25aeac"
+    },
+    "metadata": null,
+    "ip": "223.191.70.51",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791719435854"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb799ca458b0c2bef54f54"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb799ca458b0c2bef54f53",
+    "before": null,
+    "after": {
+      "roomId": "6ac3fe94d1f8bc5e7b25aeac"
+    },
+    "metadata": null,
+    "ip": "223.191.70.51",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791719836810"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb91ff47e023c7ac12193f"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb780ba458b0c2bef54f42",
+    "before": null,
+    "after": {
+      "deleted": true
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791726079625"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb920147e023c7ac121940"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb799ca458b0c2bef54f53",
+    "before": null,
+    "after": {
+      "deleted": true
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791726081507"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb94d547e023c7ac121957"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb94d547e023c7ac121955",
+    "before": null,
+    "after": {
+      "count": {
+        "$numberInt": "2"
+      },
+      "roomId": "6acb742ea458b0c2bef54f24,6ac3fe94d1f8bc5e7b25aeac"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791726805823"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb94f947e023c7ac121962"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb94d547e023c7ac121956",
+    "before": null,
+    "after": {
+      "deleted": true
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791726841767"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb94fb47e023c7ac121963"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb94d547e023c7ac121955",
+    "before": null,
+    "after": {
+      "deleted": true
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791726843460"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb951a47e023c7ac12196b"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb951a47e023c7ac121969",
+    "before": null,
+    "after": {
+      "count": {
+        "$numberInt": "2"
+      },
+      "roomId": "6acb742ea458b0c2bef54f24,6ac3fe94d1f8bc5e7b25aeac"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791726874439"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb969e47e023c7ac121976"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb951a47e023c7ac121969",
+    "before": null,
+    "after": {
+      "deleted": true
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791727262222"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb96a047e023c7ac121977"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb951a47e023c7ac12196a",
+    "before": null,
+    "after": {
+      "deleted": true
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791727264281"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb971d47e023c7ac12197a"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb971c47e023c7ac121978",
+    "before": null,
+    "after": {
+      "count": {
+        "$numberInt": "2"
+      },
+      "roomId": "6acb742ea458b0c2bef54f24,6ac3fe94d1f8bc5e7b25aeac"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791727389979"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb9bf2330e0afd3a76e9e8"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb9bf2330e0afd3a76e9e6",
+    "before": null,
+    "after": {
+      "count": {
+        "$numberInt": "2"
+      },
+      "roomId": "6acb742ea458b0c2bef54f24,6ac3fe94d1f8bc5e7b25aeac"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791728626816"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb9bfb330e0afd3a76e9e9"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb971c47e023c7ac121978",
+    "before": null,
+    "after": {
+      "deleted": true
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791728635883"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb9bfd330e0afd3a76e9ea"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb971d47e023c7ac121979",
+    "before": null,
+    "after": {
+      "deleted": true
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791728637517"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb9bff330e0afd3a76e9eb"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb9bf2330e0afd3a76e9e6",
+    "before": null,
+    "after": {
+      "deleted": true
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791728639464"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb9c01330e0afd3a76e9ec"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb9bf2330e0afd3a76e9e7",
+    "before": null,
+    "after": {
+      "deleted": true
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791728641503"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb9c0f330e0afd3a76e9ef"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb9c0f330e0afd3a76e9ed",
+    "before": null,
+    "after": {
+      "count": {
+        "$numberInt": "2"
+      },
+      "roomId": "6acb742ea458b0c2bef54f24,6ac3fe94d1f8bc5e7b25aeac"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791728655787"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba15452e612f844633ac8"
+    },
+    "actorId": null,
+    "actorRole": null,
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6acba15252e612f844633ac3",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-4W9H6N",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "251000"
+      },
+      "currency": "GBP"
+    },
+    "metadata": {
+      "guest": true,
+      "isNewAccount": true
+    },
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791730004373"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba1be52e612f844633ad3"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb9c0f330e0afd3a76e9ed",
+    "before": null,
+    "after": {
+      "deleted": true
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791730110144"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba1c052e612f844633ad4"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acb9c0f330e0afd3a76e9ee",
+    "before": null,
+    "after": {
+      "deleted": true
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791730112862"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba1f052e612f844633ad6"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acba1f052e612f844633ad5",
+    "before": null,
+    "after": {
+      "count": {
+        "$numberInt": "1"
+      },
+      "roomId": "6acb742ea458b0c2bef54f24"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791730160913"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba59a52e612f844633afa"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acba1f052e612f844633ad5",
+    "before": null,
+    "after": {
+      "deleted": true
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791731098634"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba5a352e612f844633afd"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acba5a352e612f844633afb",
+    "before": null,
+    "after": {
+      "count": {
+        "$numberInt": "2"
+      },
+      "roomId": "6acb742ea458b0c2bef54f24,6ac3fe94d1f8bc5e7b25aeac"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791731107827"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba8f2120b3e7cd66e7079"
+    },
+    "actorId": {
+      "$oid": "6acba15152e612f844633ac2"
+    },
+    "actorRole": "user",
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6acba8f1120b3e7cd66e7075",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-6M53Z9",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "150600"
+      },
+      "currency": "GBP"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791731954615"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acbb00377646f7b0de28fb9"
+    },
+    "actorId": {
+      "$oid": "6acba15152e612f844633ac2"
+    },
+    "actorRole": "user",
+    "action": "BOOKING_CREATED",
+    "entityType": "booking",
+    "entityId": "6acbb00277646f7b0de28fb5",
+    "before": null,
+    "after": {
+      "bookingNumber": "QB-MVYP8E",
+      "status": "HELD",
+      "paymentStatus": "PENDING",
+      "total": {
+        "$numberInt": "401600"
+      },
+      "currency": "GBP"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791733763255"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6accc82d7e59192216c2212e"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "AVAILABILITY_CHANGED",
+    "entityType": "availability-block",
+    "entityId": "6acba5a352e612f844633afc",
+    "before": null,
+    "after": {
+      "deleted": true
+    },
+    "metadata": null,
+    "ip": "9.246.33.17",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791805485770"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6accedeab424db971abd64ce"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "COUPON_DISABLED",
+    "entityType": "coupon",
+    "entityId": "6ac4011927926a26a4fd96f1",
+    "before": null,
+    "after": {
+      "code": "WINTER15",
+      "status": "INACTIVE"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791815146170"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6accf024ad32d32103da76d3"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "EMAIL_TEST_SENT",
+    "entityType": "emailTemplate",
+    "entityId": "WELCOME",
+    "before": null,
+    "after": {
+      "to": "denevo5010@calirona.com",
+      "provider": "resend"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791815716386"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6accf29aa400a32139f20561"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "EMAIL_TEST_SENT",
+    "entityType": "emailTemplate",
+    "entityId": "WELCOME",
+    "before": null,
+    "after": {
+      "to": "aditykbr01@gmail.com",
+      "provider": "resend"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791816347001"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6accf53580a1445a9d912641"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "EMAIL_TEST_SENT",
+    "entityType": "emailTemplate",
+    "entityId": "BOOKING_CONFIRMED",
+    "before": null,
+    "after": {
+      "to": "aditykbr01@gmail.com",
+      "provider": "resend"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791817013394"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6accf687e63a712e15d81525"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "EMAIL_TEMPLATE_UPDATED",
+    "entityType": "emailTemplate",
+    "entityId": "BOOKING_CONFIRMED",
+    "before": null,
+    "after": {
+      "subject": "Booking confirmed — {{bookingReference}}",
+      "isEnabled": true
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791817351453"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6accf91be7df889990261324"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "EMAIL_TEMPLATE_UPDATED",
+    "entityType": "emailTemplate",
+    "entityId": "BOOKING_RECEIVED",
+    "before": null,
+    "after": {
+      "subject": "Booking received — {{bookingReference}}",
+      "isEnabled": true
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791818011367"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6accf922e7df889990261325"
+    },
+    "actorId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "actorRole": "admin",
+    "action": "EMAIL_TEST_SENT",
+    "entityType": "emailTemplate",
+    "entityId": "BOOKING_RECEIVED",
+    "before": null,
+    "after": {
+      "to": "aditykbr01@gmail.com",
+      "provider": "resend"
+    },
+    "metadata": null,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791818018349"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

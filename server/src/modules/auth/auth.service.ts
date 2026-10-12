@@ -188,8 +188,9 @@ export async function getMe(userId: string): Promise<SafeUser> {
 }
 
 /**
- * Profile update: display name and/or avatar. Avatar buffers go to ImageKit;
- * the previous avatar file is removed best-effort after a successful update.
+ * Profile update: display name and/or avatar. Avatar buffers go to the configured
+ * storage provider (STORAGE_PROVIDER); the previous avatar file is removed
+ * best-effort after a successful update.
  */
 export async function updateMe(
   userId: string,
@@ -200,19 +201,30 @@ export async function updateMe(
     name?: string;
     avatarUrl?: string | null;
     avatarFileId?: string | null;
+    avatarStorageProvider?: "imagekit" | "local";
+    legacyAvatarUrl?: string | null;
+    legacyAvatarFileId?: string | null;
   } = {};
   if (input.name !== undefined) updates.name = input.name;
 
   let previousFileId: string | null = null;
+  let previousProvider: "imagekit" | "local" = "imagekit";
   if (file) {
     const current = await findUserDocById(userId);
     if (!current) {
       throw new AppError("Account not found", 404, "USER_NOT_FOUND");
     }
-    previousFileId = current.avatarFileId;
+    previousFileId = current.avatarFileId ?? null;
+    previousProvider = current.avatarStorageProvider ?? "imagekit";
     const uploaded = await uploadAvatar(file.buffer, file.originalname, userId);
     updates.avatarUrl = uploaded.url;
     updates.avatarFileId = uploaded.fileId;
+    updates.avatarStorageProvider = uploaded.storageProvider;
+    // Keep rollback values when the binary moves providers.
+    if (uploaded.storageProvider !== previousProvider && previousFileId) {
+      updates.legacyAvatarUrl = current.avatarUrl ?? null;
+      updates.legacyAvatarFileId = previousFileId;
+    }
   }
 
   if (Object.keys(updates).length === 0) {
@@ -223,7 +235,7 @@ export async function updateMe(
     throw new AppError("Account not found", 404, "USER_NOT_FOUND");
   }
   if (previousFileId) {
-    await deleteAvatar(previousFileId);
+    await deleteAvatar(previousFileId, previousProvider);
   }
   return updated;
 }

@@ -1,0 +1,288 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac2427b71f2067194815358"
+    },
+    "title": "Romance on the Shore: Candlelight & Private Villa Package",
+    "slug": "romance-on-the-shore-villa-package",
+    "description": "Celebrate love in ultimate seclusion. Book 3 nights or more in our Ocean View Pool Villa and receive complimentary vintage champagne on arrival, daily breakfast served in bed, a private 4-course beach dinner under the stars, and a 60-minute couples massage.",
+    "imageMediaId": {
+      "$oid": "6ac2426a71f2067194815342"
+    },
+    "validFrom": {
+      "$date": {
+        "$numberLong": "1791115899341"
+      }
+    },
+    "validUntil": {
+      "$date": {
+        "$numberLong": "1806667899341"
+      }
+    },
+    "ctaLabel": "Book Romance Package",
+    "ctaUrl": "/rooms/ocean-view-pool-villa",
+    "status": "DRAFT",
+    "version": {
+      "$numberInt": "2"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115899341"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "seo": {
+      "title": "Romance on the Shore | Couples Villa Offer",
+      "description": "Special couples romantic getaway in an ocean view pool villa with private candlelight dinner.",
+      "canonicalUrl": null,
+      "robots": "index,follow",
+      "ogTitle": "Romantic Villa Escape Offer",
+      "ogDescription": "Celebrate love with vintage champagne, private beach dinner, and couples spa rituals.",
+      "ogImageMediaId": {
+        "$oid": "6ac2426a71f2067194815342"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115899472"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791716503733"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac2427b71f2067194815359"
+    },
+    "title": "Summer Garden Sanctuary: Extended Stay (Save 25%)",
+    "slug": "summer-garden-sanctuary-extended-stay",
+    "description": "Escape the bustling city and immerse yourself in the soothing calm of our tropical gardens. Enjoy 25% off stays of 4 nights or longer in our Garden Terrace Suite, inclusive of daily farm-fresh breakfast and complimentary afternoon tea.",
+    "imageMediaId": {
+      "$oid": "6ac2426e71f2067194815343"
+    },
+    "validFrom": {
+      "$date": {
+        "$numberLong": "1791115899341"
+      }
+    },
+    "validUntil": {
+      "$date": {
+        "$numberLong": "1801483899341"
+      }
+    },
+    "ctaLabel": "Explore Garden Retreat",
+    "ctaUrl": "/rooms/garden-terrace-suite",
+    "status": "DRAFT",
+    "version": {
+      "$numberInt": "2"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115899341"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "seo": {
+      "title": "Summer Garden Sanctuary | Long Stay Special",
+      "description": "Save 25% on 4+ night stays in our luxurious Garden Terrace Suites with complimentary breakfast.",
+      "canonicalUrl": null,
+      "robots": "index,follow",
+      "ogTitle": "Summer Garden Sanctuary Retreat",
+      "ogDescription": "Enjoy 25% savings, tranquil botanical gardens, and complimentary daily breakfast.",
+      "ogImageMediaId": {
+        "$oid": "6ac2426e71f2067194815343"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115899691"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791716505944"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac2427b71f206719481535a"
+    },
+    "title": "Presidential Royal Experience: VIP All-Inclusive Retreat",
+    "slug": "presidential-royal-vip-experience",
+    "description": "The height of luxury living. Enjoy our Presidential Royal Suite with personalized 24-hour butler team, private airport Mercedes-Maybach limousine transfers, unlimited daily spa treatments, and an exclusive in-suite private dining degustation with wine pairings.",
+    "imageMediaId": {
+      "$oid": "6ac2427171f2067194815344"
+    },
+    "validFrom": {
+      "$date": {
+        "$numberLong": "1791115899341"
+      }
+    },
+    "validUntil": {
+      "$date": {
+        "$numberLong": "1822651899341"
+      }
+    },
+    "ctaLabel": "Inquire VIP Experience",
+    "ctaUrl": "/rooms/presidential-royal-suite",
+    "status": "DRAFT",
+    "version": {
+      "$numberInt": "2"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115899341"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "seo": {
+      "title": "Presidential Royal VIP Experience | Elite Luxury",
+      "description": "Unrivaled luxury with private limousine transfer, 24/7 butler, in-suite chef, and unlimited spa.",
+      "canonicalUrl": null,
+      "robots": "index,follow",
+      "ogTitle": "Presidential Royal Suite VIP Retreat",
+      "ogDescription": "An all-inclusive royal indulgence with personal butler and private luxury dining.",
+      "ogImageMediaId": {
+        "$oid": "6ac2427171f2067194815344"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115899922"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791716501198"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bded148dd299f90fbb"
+    },
+    "slug": "20-percent-off-autumn-winter",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "couponId": {
+      "$oid": "6ac3e2ba7952a33d091a3fa8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222458967"
+      }
+    },
+    "createdBy": null,
+    "ctaLabel": "Book now",
+    "ctaUrl": "/",
+    "description": "20% off for holidays taken between Wed 30th September 2026 and Mon 4th January 2027.\nMinimum of 2 nights booking with a maximum of 28 nights.\n* Discount applies to base rent only\n* The discount will be applied at checkout",
+    "imageMediaId": {
+      "$oid": "6ac503bc94e9059f60fe34b3"
+    },
+    "previewExpiresAt": null,
+    "previewToken": null,
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791716513480"
+      }
+    },
+    "seo": {
+      "title": null,
+      "description": null,
+      "canonicalUrl": null,
+      "robots": null,
+      "ogTitle": null,
+      "ogDescription": null,
+      "ogImageMediaId": null
+    },
+    "status": "DRAFT",
+    "title": "20% OF Autumn & Winter Staysaaa",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818409307"
+      }
+    },
+    "validFrom": {
+      "$date": {
+        "$numberLong": "1790726400000"
+      }
+    },
+    "validUntil": {
+      "$date": {
+        "$numberLong": "1799020800000"
+      }
+    },
+    "version": {
+      "$numberInt": "15"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4011bed148dd299f913bb"
+    },
+    "slug": "15-percent-off-winter",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "couponId": {
+      "$oid": "6ac4011927926a26a4fd96f1"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791230233166"
+      }
+    },
+    "createdBy": null,
+    "ctaLabel": "Book now",
+    "ctaUrl": "/",
+    "description": "15% off for holidays taken between Wed 30th September 2026 and Mon 4th January 2027.\nMinimum of 2 nights booking with a maximum of 28 nights.\n* Discount applies to base rent only\n* The discount will be applied at checkout",
+    "imageMediaId": null,
+    "previewExpiresAt": null,
+    "previewToken": null,
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791230233165"
+      }
+    },
+    "seo": {
+      "title": null,
+      "description": null,
+      "canonicalUrl": null,
+      "robots": null,
+      "ogTitle": null,
+      "ogDescription": null,
+      "ogImageMediaId": null
+    },
+    "status": "DRAFT",
+    "title": "15% OFF Winter Stays",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791716499162"
+      }
+    },
+    "validFrom": {
+      "$date": {
+        "$numberLong": "1790726400000"
+      }
+    },
+    "validUntil": {
+      "$date": {
+        "$numberLong": "1799020800000"
+      }
+    },
+    "version": {
+      "$numberInt": "3"
+    }
+  }
+]

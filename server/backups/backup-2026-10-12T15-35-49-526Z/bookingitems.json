@@ -1,0 +1,2295 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac0ea0d55bab8a76c642436"
+    },
+    "bookingId": {
+      "$oid": "6ac0ea0d55bab8a76c642435"
+    },
+    "roomTypeId": {
+      "$oid": "6ac0d5460ace2e4b254c809e"
+    },
+    "roomId": {
+      "$oid": "6ac0d5470ace2e4b254c80a2"
+    },
+    "ratePlanId": {
+      "$oid": "6ac0d5570ace2e4b254c80a5"
+    },
+    "roomNameSnapshot": "Dorm DH-401",
+    "roomNumberSnapshot": "DH-401",
+    "ratePlanNameSnapshot": "Dorm Bed",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791590400000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791763200000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791590400000"
+            }
+          },
+          "amount": {
+            "$numberInt": "150000"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791676800000"
+            }
+          },
+          "amount": {
+            "$numberInt": "150000"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "300000"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "300000"
+      },
+      "currency": "INR"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791027725154"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791027725154"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac0eb1355bab8a76c642439"
+    },
+    "bookingId": {
+      "$oid": "6ac0eb1355bab8a76c642438"
+    },
+    "roomTypeId": {
+      "$oid": "6ac0d5450ace2e4b254c809d"
+    },
+    "roomId": {
+      "$oid": "6ac0d5460ace2e4b254c80a0"
+    },
+    "ratePlanId": {
+      "$oid": "6ac0d5560ace2e4b254c80a4"
+    },
+    "roomNameSnapshot": "Superior SK-301",
+    "roomNumberSnapshot": "SK-301",
+    "ratePlanNameSnapshot": "Superior Flex",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791590400000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791763200000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791590400000"
+            }
+          },
+          "amount": {
+            "$numberInt": "550000"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791676800000"
+            }
+          },
+          "amount": {
+            "$numberInt": "550000"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "1100000"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "1100000"
+      },
+      "currency": "INR"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791027987644"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791027987644"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac0f25362199fc62a591eeb"
+    },
+    "bookingId": {
+      "$oid": "6ac0f25362199fc62a591eea"
+    },
+    "roomTypeId": {
+      "$oid": "6ac0d5460ace2e4b254c809e"
+    },
+    "roomId": {
+      "$oid": "6ac0d5470ace2e4b254c80a2"
+    },
+    "ratePlanId": {
+      "$oid": "6ac0d5570ace2e4b254c80a5"
+    },
+    "roomNameSnapshot": "Dorm DH-401",
+    "roomNumberSnapshot": "DH-401",
+    "ratePlanNameSnapshot": "Dorm Bed",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791590400000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791763200000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791590400000"
+            }
+          },
+          "amount": {
+            "$numberInt": "150000"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791676800000"
+            }
+          },
+          "amount": {
+            "$numberInt": "150000"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "300000"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "300000"
+      },
+      "currency": "INR"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791029843332"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791029843332"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac0fd7c1af8ab3cdf4fa244"
+    },
+    "bookingId": {
+      "$oid": "6ac0fd7c1af8ab3cdf4fa243"
+    },
+    "roomTypeId": {
+      "$oid": "6ac0d5460ace2e4b254c809e"
+    },
+    "roomId": {
+      "$oid": "6ac0d5470ace2e4b254c80a2"
+    },
+    "ratePlanId": {
+      "$oid": "6ac0d5570ace2e4b254c80a5"
+    },
+    "roomNameSnapshot": "Dorm DH-401",
+    "roomNumberSnapshot": "DH-401",
+    "ratePlanNameSnapshot": "Dorm Bed",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791590400000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791763200000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791590400000"
+            }
+          },
+          "amount": {
+            "$numberInt": "150000"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791676800000"
+            }
+          },
+          "amount": {
+            "$numberInt": "150000"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "300000"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "300000"
+      },
+      "currency": "INR"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791032700498"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791032700498"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac268a52cf8c0b5bb31d030"
+    },
+    "bookingId": {
+      "$oid": "6ac268a52cf8c0b5bb31d02f"
+    },
+    "roomTypeId": {
+      "$oid": "6ac2427871f2067194815348"
+    },
+    "roomId": {
+      "$oid": "6ac2427971f206719481534d"
+    },
+    "ratePlanId": {
+      "$oid": "6ac2427a71f2067194815352"
+    },
+    "roomNameSnapshot": "Garden Suite Magnolia",
+    "roomNumberSnapshot": "GT-201",
+    "ratePlanNameSnapshot": "Garden Serenity Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791676800000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791849600000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791676800000"
+            }
+          },
+          "amount": {
+            "$numberInt": "1600000"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791763200000"
+            }
+          },
+          "amount": {
+            "$numberInt": "1600000"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "3200000"
+      },
+      "discount": {
+        "$numberInt": "960000"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "2240000"
+      },
+      "currency": "INR"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791125669516"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791125669516"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28de8c7c992884eae64f1"
+    },
+    "bookingId": {
+      "$oid": "6ac28de8c7c992884eae64f0"
+    },
+    "roomTypeId": {
+      "$oid": "6ac2427871f2067194815349"
+    },
+    "roomId": {
+      "$oid": "6ac2427971f206719481534f"
+    },
+    "ratePlanId": {
+      "$oid": "6ac2427a71f2067194815354"
+    },
+    "roomNameSnapshot": "The Royal Crown Suite",
+    "roomNumberSnapshot": "PRS-801",
+    "ratePlanNameSnapshot": "Royal Elite Experience",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791676800000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791849600000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791676800000"
+            }
+          },
+          "amount": {
+            "$numberInt": "8500000"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791763200000"
+            }
+          },
+          "amount": {
+            "$numberInt": "8500000"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "17000000"
+      },
+      "discount": {
+        "$numberInt": "5100000"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "11900000"
+      },
+      "currency": "INR"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135208880"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135208880"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28e78c7c992884eae64fb"
+    },
+    "bookingId": {
+      "$oid": "6ac28e78c7c992884eae64fa"
+    },
+    "roomTypeId": {
+      "$oid": "6ac2427871f2067194815348"
+    },
+    "roomId": {
+      "$oid": "6ac2427971f206719481534e"
+    },
+    "ratePlanId": {
+      "$oid": "6ac2427a71f2067194815352"
+    },
+    "roomNameSnapshot": "Garden Suite Orchid",
+    "roomNumberSnapshot": "GT-202",
+    "ratePlanNameSnapshot": "Garden Serenity Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791676800000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791849600000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791676800000"
+            }
+          },
+          "amount": {
+            "$numberInt": "1600000"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791763200000"
+            }
+          },
+          "amount": {
+            "$numberInt": "1600000"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "3200000"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "3200000"
+      },
+      "currency": "INR"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135352492"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135352492"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3c70e383e790a2648e9ff"
+    },
+    "bookingId": {
+      "$oid": "6ac3c70d383e790a2648e9fe"
+    },
+    "roomTypeId": {
+      "$oid": "6ac2427871f2067194815348"
+    },
+    "roomId": {
+      "$oid": "6ac2427971f206719481534e"
+    },
+    "ratePlanId": {
+      "$oid": "6ac2427a71f2067194815352"
+    },
+    "roomNameSnapshot": "Garden Suite Orchid",
+    "roomNumberSnapshot": "GT-202",
+    "ratePlanNameSnapshot": "Garden Serenity Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791763200000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791936000000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791763200000"
+            }
+          },
+          "amount": {
+            "$numberInt": "1600000"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791849600000"
+            }
+          },
+          "amount": {
+            "$numberInt": "1600000"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "3200000"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "3200000"
+      },
+      "currency": "INR"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791215374093"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791215374093"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3ea2cf55bc9c9731d99c6"
+    },
+    "bookingId": {
+      "$oid": "6ac3ea2cf55bc9c9731d99c5"
+    },
+    "roomTypeId": {
+      "$oid": "6ac2427771f2067194815347"
+    },
+    "roomId": {
+      "$oid": "6ac2427871f206719481534a"
+    },
+    "ratePlanId": {
+      "$oid": "6ac2427971f2067194815351"
+    },
+    "roomNameSnapshot": "Villa Sunset 1",
+    "roomNumberSnapshot": "V-101",
+    "ratePlanNameSnapshot": "Villa Romance Package",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791763200000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791936000000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791763200000"
+            }
+          },
+          "amount": {
+            "$numberInt": "4200000"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791849600000"
+            }
+          },
+          "amount": {
+            "$numberInt": "4200000"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "8400000"
+      },
+      "discount": {
+        "$numberInt": "2520000"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "5880000"
+      },
+      "currency": "INR"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791224364132"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791224364132"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4047d0743e9f70744f910"
+    },
+    "bookingId": {
+      "$oid": "6ac4047d0743e9f70744f90f"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe92d1f8bc5e7b25ae9f"
+    },
+    "roomId": {
+      "$oid": "6ac3fe92d1f8bc5e7b25aea0"
+    },
+    "ratePlanId": {
+      "$oid": "6ac3fe92d1f8bc5e7b25aea1"
+    },
+    "roomNameSnapshot": "Oakwood Cottage",
+    "roomNumberSnapshot": "OAK-1",
+    "ratePlanNameSnapshot": "Standard Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791849600000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792022400000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791849600000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25200"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791936000000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25200"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "50400"
+      },
+      "discount": {
+        "$numberInt": "10080"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "40320"
+      },
+      "currency": "GBP"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231101338"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231101338"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac405b10743e9f70744f921"
+    },
+    "bookingId": {
+      "$oid": "6ac405b10743e9f70744f920"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe92d1f8bc5e7b25ae9f"
+    },
+    "roomId": {
+      "$oid": "6ac3fe92d1f8bc5e7b25aea0"
+    },
+    "ratePlanId": {
+      "$oid": "6ac3fe92d1f8bc5e7b25aea1"
+    },
+    "roomNameSnapshot": "Oakwood Cottage",
+    "roomNumberSnapshot": "OAK-1",
+    "ratePlanNameSnapshot": "Standard Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791849600000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792022400000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791849600000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25200"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791936000000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25200"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "50400"
+      },
+      "discount": {
+        "$numberInt": "10080"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "40320"
+      },
+      "currency": "GBP"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231409523"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231409523"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac5081aed24e34c88891911"
+    },
+    "bookingId": {
+      "$oid": "6ac5081aed24e34c88891910"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aeab"
+    },
+    "roomId": {
+      "$oid": "6ac3fe94d1f8bc5e7b25aeac"
+    },
+    "ratePlanId": {
+      "$oid": "6ac3fe94d1f8bc5e7b25aead"
+    },
+    "roomNameSnapshot": "Fern Cottage",
+    "roomNumberSnapshot": "FER-1",
+    "ratePlanNameSnapshot": "Standard Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791849600000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792022400000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791849600000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791936000000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "50200"
+      },
+      "discount": {
+        "$numberInt": "10040"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "40160"
+      },
+      "currency": "GBP"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791297562838"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791297562838"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac670f378b08012ed25d6b4"
+    },
+    "bookingId": {
+      "$oid": "6ac670f378b08012ed25d6b3"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea8"
+    },
+    "roomId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea9"
+    },
+    "ratePlanId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aeaa"
+    },
+    "roomNameSnapshot": "Foxglove Cottage",
+    "roomNumberSnapshot": "FOX-1",
+    "ratePlanNameSnapshot": "Standard Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791936000000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792108800000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791936000000"
+            }
+          },
+          "amount": {
+            "$numberInt": "16200"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1792022400000"
+            }
+          },
+          "amount": {
+            "$numberInt": "16200"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "32400"
+      },
+      "discount": {
+        "$numberInt": "4860"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "27540"
+      },
+      "currency": "GBP"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791389939550"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791389939550"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6716778b08012ed25d6c9"
+    },
+    "bookingId": {
+      "$oid": "6ac6716678b08012ed25d6c8"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aeab"
+    },
+    "roomId": {
+      "$oid": "6ac3fe94d1f8bc5e7b25aeac"
+    },
+    "ratePlanId": {
+      "$oid": "6ac3fe94d1f8bc5e7b25aead"
+    },
+    "roomNameSnapshot": "Fern Cottage",
+    "roomNumberSnapshot": "FER-1",
+    "ratePlanNameSnapshot": "Standard Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791331200000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791417600000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791331200000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "25100"
+      },
+      "discount": {
+        "$numberInt": "5020"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "20080"
+      },
+      "currency": "GBP"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390055130"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390055130"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6720178b08012ed25d6dc"
+    },
+    "bookingId": {
+      "$oid": "6ac6720178b08012ed25d6db"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe92d1f8bc5e7b25aea2"
+    },
+    "roomId": {
+      "$oid": "6ac3fe92d1f8bc5e7b25aea3"
+    },
+    "ratePlanId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea4"
+    },
+    "roomNameSnapshot": "The Dales Cottage",
+    "roomNumberSnapshot": "DAL-1",
+    "ratePlanNameSnapshot": "Standard Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791936000000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792108800000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791936000000"
+            }
+          },
+          "amount": {
+            "$numberInt": "32100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1792022400000"
+            }
+          },
+          "amount": {
+            "$numberInt": "32100"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "64200"
+      },
+      "discount": {
+        "$numberInt": "9630"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "54570"
+      },
+      "currency": "GBP"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390209491"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390209491"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6727078b08012ed25d6eb"
+    },
+    "bookingId": {
+      "$oid": "6ac6726f78b08012ed25d6ea"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe92d1f8bc5e7b25aea2"
+    },
+    "roomId": {
+      "$oid": "6ac3fe92d1f8bc5e7b25aea3"
+    },
+    "ratePlanId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea4"
+    },
+    "roomNameSnapshot": "The Dales Cottage",
+    "roomNumberSnapshot": "DAL-1",
+    "ratePlanNameSnapshot": "Standard Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791331200000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791417600000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791331200000"
+            }
+          },
+          "amount": {
+            "$numberInt": "32100"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "32100"
+      },
+      "discount": {
+        "$numberInt": "4815"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "27285"
+      },
+      "currency": "GBP"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390320201"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390320201"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8d1cc78b08012ed25e12b"
+    },
+    "bookingId": {
+      "$oid": "6ac8d1cc78b08012ed25e12a"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aeab"
+    },
+    "roomId": {
+      "$oid": "6ac3fe94d1f8bc5e7b25aeac"
+    },
+    "ratePlanId": {
+      "$oid": "6ac3fe94d1f8bc5e7b25aead"
+    },
+    "roomNameSnapshot": "Fern Cottage",
+    "roomNumberSnapshot": "FER-1",
+    "ratePlanNameSnapshot": "Standard Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1792108800000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792281600000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1792108800000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1792195200000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "50200"
+      },
+      "discount": {
+        "$numberInt": "10040"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "40160"
+      },
+      "currency": "GBP"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791545804832"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791545804832"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8fd7178b08012ed25e1f9"
+    },
+    "bookingId": {
+      "$oid": "6ac8fd7178b08012ed25e1f8"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea5"
+    },
+    "roomId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea6"
+    },
+    "ratePlanId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea7"
+    },
+    "roomNameSnapshot": "Willow Brook",
+    "roomNumberSnapshot": "WIL-1",
+    "ratePlanNameSnapshot": "Standard Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1792108800000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792281600000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1792108800000"
+            }
+          },
+          "amount": {
+            "$numberInt": "16900"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1792195200000"
+            }
+          },
+          "amount": {
+            "$numberInt": "16900"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "33800"
+      },
+      "discount": {
+        "$numberInt": "5070"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "28730"
+      },
+      "currency": "GBP"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791556977282"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791556977282"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba15252e612f844633ac4"
+    },
+    "bookingId": {
+      "$oid": "6acba15252e612f844633ac3"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aeab"
+    },
+    "roomId": {
+      "$oid": "6acb742ea458b0c2bef54f24"
+    },
+    "ratePlanId": {
+      "$oid": "6ac3fe94d1f8bc5e7b25aead"
+    },
+    "roomNameSnapshot": "Deluxe 102",
+    "roomNumberSnapshot": "102",
+    "ratePlanNameSnapshot": "Standard Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791676800000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792540800000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "6"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791676800000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791763200000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791849600000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1791936000000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1792022400000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1792108800000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1792195200000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1792281600000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1792368000000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1792454400000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "251000"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "251000"
+      },
+      "currency": "GBP"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791730002191"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791730002191"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba8f1120b3e7cd66e7076"
+    },
+    "bookingId": {
+      "$oid": "6acba8f1120b3e7cd66e7075"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aeab"
+    },
+    "roomId": {
+      "$oid": "6acb742ea458b0c2bef54f24"
+    },
+    "ratePlanId": {
+      "$oid": "6ac3fe94d1f8bc5e7b25aead"
+    },
+    "roomNameSnapshot": "Deluxe 102",
+    "roomNumberSnapshot": "102",
+    "ratePlanNameSnapshot": "Standard Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1793145600000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1793404800000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "6"
+      },
+      "children": {
+        "$numberInt": "6"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793145600000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793232000000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793318400000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "75300"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "75300"
+      },
+      "currency": "GBP"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791731953865"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791731953865"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba8f1120b3e7cd66e7077"
+    },
+    "bookingId": {
+      "$oid": "6acba8f1120b3e7cd66e7075"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aeab"
+    },
+    "roomId": {
+      "$oid": "6ac3fe94d1f8bc5e7b25aeac"
+    },
+    "ratePlanId": {
+      "$oid": "6ac3fe94d1f8bc5e7b25aead"
+    },
+    "roomNameSnapshot": "Fern Cottage",
+    "roomNumberSnapshot": "FER-1",
+    "ratePlanNameSnapshot": "Standard Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1793145600000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1793404800000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "6"
+      },
+      "children": {
+        "$numberInt": "6"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793145600000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793232000000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793318400000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "75300"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "75300"
+      },
+      "currency": "GBP"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791731953961"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791731953961"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acbb00277646f7b0de28fb7"
+    },
+    "bookingId": {
+      "$oid": "6acbb00277646f7b0de28fb5"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aeab"
+    },
+    "roomId": {
+      "$oid": "6ac3fe94d1f8bc5e7b25aeac"
+    },
+    "ratePlanId": {
+      "$oid": "6ac3fe94d1f8bc5e7b25aead"
+    },
+    "roomNameSnapshot": "Fern Cottage",
+    "roomNumberSnapshot": "FER-1",
+    "ratePlanNameSnapshot": "Standard Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1793491200000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1794182400000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "6"
+      },
+      "children": {
+        "$numberInt": "6"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793491200000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793577600000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793664000000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793750400000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793836800000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793923200000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1794009600000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1794096000000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "200800"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "200800"
+      },
+      "currency": "GBP"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791733762668"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791733762668"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acbb00277646f7b0de28fb6"
+    },
+    "bookingId": {
+      "$oid": "6acbb00277646f7b0de28fb5"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aeab"
+    },
+    "roomId": {
+      "$oid": "6acb742ea458b0c2bef54f24"
+    },
+    "ratePlanId": {
+      "$oid": "6ac3fe94d1f8bc5e7b25aead"
+    },
+    "roomNameSnapshot": "Deluxe 102",
+    "roomNumberSnapshot": "102",
+    "ratePlanNameSnapshot": "Standard Rate",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1793491200000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1794182400000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "6"
+      },
+      "children": {
+        "$numberInt": "6"
+      }
+    },
+    "pricing": {
+      "nightlyRates": [
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793491200000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793577600000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793664000000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793750400000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793836800000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1793923200000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1794009600000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        },
+        {
+          "date": {
+            "$date": {
+              "$numberLong": "1794096000000"
+            }
+          },
+          "amount": {
+            "$numberInt": "25100"
+          }
+        }
+      ],
+      "subtotal": {
+        "$numberInt": "200800"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "200800"
+      },
+      "currency": "GBP"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791733762593"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791733762593"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

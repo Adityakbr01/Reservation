@@ -2,3 +2,8 @@ temp*
 *.tmp
 .DS_Store
 Thumbs.db
+node_modules
+.bun
+
+
+*dist-node*

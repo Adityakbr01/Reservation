@@ -1,0 +1,40 @@
+[
+  {
+    "_id": {
+      "$oid": "6acba5a352e612f844633afb"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "roomId": {
+      "$oid": "6acb742ea458b0c2bef54f24"
+    },
+    "startDate": {
+      "$date": {
+        "$numberLong": "1792540800000"
+      }
+    },
+    "endDate": {
+      "$date": {
+        "$numberLong": "1793059200000"
+      }
+    },
+    "reason": "sharrthi ko dena",
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791731107520"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791731107520"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

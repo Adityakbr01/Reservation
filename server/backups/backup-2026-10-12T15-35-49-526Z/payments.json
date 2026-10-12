@@ -1,0 +1,864 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac0ea0e55bab8a76c642437"
+    },
+    "bookingId": {
+      "$oid": "6ac0ea0d55bab8a76c642435"
+    },
+    "userId": {
+      "$oid": "6ac086bc09e06af9c02efccc"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UMRKNFmcVwSRAFo1wGQeIT3",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "300000"
+    },
+    "currency": "INR",
+    "status": "PROCESSING",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": null,
+    "metadata": {
+      "bookingNumber": "QB-2UN55Q"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791027726972"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791027726972"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac0eb1555bab8a76c64243a"
+    },
+    "bookingId": {
+      "$oid": "6ac0eb1355bab8a76c642438"
+    },
+    "userId": {
+      "$oid": "6ac086bc09e06af9c02efccc"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UMRObFmcVwSRAFo1flrHC1i",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "1100000"
+    },
+    "currency": "INR",
+    "status": "PROCESSING",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": null,
+    "metadata": {
+      "bookingNumber": "QB-ZH3QRT"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791027989364"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791027989364"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac0f25562199fc62a591eec"
+    },
+    "bookingId": {
+      "$oid": "6ac0f25362199fc62a591eea"
+    },
+    "userId": {
+      "$oid": "6ac086bc09e06af9c02efccc"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UMRsXFmcVwSRAFo1CBRUSmy",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "300000"
+    },
+    "currency": "INR",
+    "status": "PROCESSING",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": null,
+    "metadata": {
+      "bookingNumber": "QB-9SDXKG"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791029845121"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791029845121"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac0fd7e1af8ab3cdf4fa245"
+    },
+    "bookingId": {
+      "$oid": "6ac0fd7c1af8ab3cdf4fa243"
+    },
+    "userId": {
+      "$oid": "6ac086bc09e06af9c02efccc"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UMSccFmcVwSRAFo1cOzDoKx",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "300000"
+    },
+    "currency": "INR",
+    "status": "PAID",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791032821639"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-WQ9UFX"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791032702240"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791032821639"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac268a82cf8c0b5bb31d033"
+    },
+    "bookingId": {
+      "$oid": "6ac268a52cf8c0b5bb31d02f"
+    },
+    "userId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UMqo8FmcVwSRAFo01uimwAZ",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "2240000"
+    },
+    "currency": "INR",
+    "status": "PAID",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791125728931"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-HGN7RH"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791125672771"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791125728932"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28decc7c992884eae64f4"
+    },
+    "bookingId": {
+      "$oid": "6ac28de8c7c992884eae64f0"
+    },
+    "userId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UMtI0FmcVwSRAFo0zFeJfVf",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "11900000"
+    },
+    "currency": "INR",
+    "status": "PAID",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791135282729"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-VPRNQT"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135212285"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135282729"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28e7bc7c992884eae64fe"
+    },
+    "bookingId": {
+      "$oid": "6ac28e78c7c992884eae64fa"
+    },
+    "userId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UMtKJFmcVwSRAFo1CPCuqBU",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "3200000"
+    },
+    "currency": "INR",
+    "status": "REFUNDED",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791135373975"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-KXXPNX"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135355858"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135402098"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3c711383e790a2648ea02"
+    },
+    "bookingId": {
+      "$oid": "6ac3c70d383e790a2648e9fe"
+    },
+    "userId": {
+      "$oid": "6ac3c6f5383e790a2648e9fd"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UNE8zFmcVwSRAFo16JB9RlH",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "3200000"
+    },
+    "currency": "INR",
+    "status": "PAID",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791215416536"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-Y8QSUU"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791215377307"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791215416536"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3ea2df55bc9c9731d99c8"
+    },
+    "bookingId": {
+      "$oid": "6ac3ea2cf55bc9c9731d99c5"
+    },
+    "userId": {
+      "$oid": "6ac3ea2af55bc9c9731d99c4"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UNGTzFmcVwSRAFo0UYG5PhG",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "5880000"
+    },
+    "currency": "INR",
+    "status": "PAID",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791224396279"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-YC3EEQ"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791224365484"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791224396280"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4047f0743e9f70744f913"
+    },
+    "bookingId": {
+      "$oid": "6ac4047d0743e9f70744f90f"
+    },
+    "userId": {
+      "$oid": "6ac3ea2af55bc9c9731d99c4"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UNIEfFmcVwSRAFo1IgHqnn0",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "40320"
+    },
+    "currency": "GBP",
+    "status": "PROCESSING",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": null,
+    "metadata": {
+      "bookingNumber": "QB-QDGK5Z"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231103077"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231103077"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac405b30743e9f70744f924"
+    },
+    "bookingId": {
+      "$oid": "6ac405b10743e9f70744f920"
+    },
+    "userId": {
+      "$oid": "6ac3ea2af55bc9c9731d99c4"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UNIJdFmcVwSRAFo13OOnX2N",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "40320"
+    },
+    "currency": "GBP",
+    "status": "REFUNDED",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791231424248"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-4ZGVVS"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231411191"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231606802"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac5081ced24e34c88891913"
+    },
+    "bookingId": {
+      "$oid": "6ac5081aed24e34c88891910"
+    },
+    "userId": {
+      "$oid": "6ac50819ed24e34c8889190f"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UNZWaFmcVwSRAFo1a00ko9m",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "40160"
+    },
+    "currency": "GBP",
+    "status": "PAID",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791297589087"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-UYHJNK"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791297564382"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791297589087"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac670f678b08012ed25d6b7"
+    },
+    "bookingId": {
+      "$oid": "6ac670f378b08012ed25d6b3"
+    },
+    "userId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UNxYYFmcVwSRAFo0kpNjVl9",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "27540"
+    },
+    "currency": "GBP",
+    "status": "PAID",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791389956828"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-YD8VCZ"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791389942997"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791389956828"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6716a78b08012ed25d6cc"
+    },
+    "bookingId": {
+      "$oid": "6ac6716678b08012ed25d6c8"
+    },
+    "userId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UNxaQFmcVwSRAFo0MVq6Dqt",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "20080"
+    },
+    "currency": "GBP",
+    "status": "PAID",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791390068949"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-G5YXTX"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390058532"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390068949"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6720678b08012ed25d6df"
+    },
+    "bookingId": {
+      "$oid": "6ac6720178b08012ed25d6db"
+    },
+    "userId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UNxcvFmcVwSRAFo0DEEaAMt",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "54570"
+    },
+    "currency": "GBP",
+    "status": "PAID",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791390229696"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-5VVVST"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390214114"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390229696"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6727378b08012ed25d6ee"
+    },
+    "bookingId": {
+      "$oid": "6ac6726f78b08012ed25d6ea"
+    },
+    "userId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UNxehFmcVwSRAFo0onfTcqh",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "27285"
+    },
+    "currency": "GBP",
+    "status": "PAID",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791390333353"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-4KUMNY"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390323688"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390333353"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8d1cf78b08012ed25e12d"
+    },
+    "bookingId": {
+      "$oid": "6ac8d1cc78b08012ed25e12a"
+    },
+    "userId": {
+      "$oid": "6ac8d1c978b08012ed25e129"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UOc6UFmcVwSRAFo04D0v4ev",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "40160"
+    },
+    "currency": "GBP",
+    "status": "PROCESSING",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": null,
+    "metadata": {
+      "bookingNumber": "QB-6E3BXQ"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791545807065"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791545807065"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8fd7478b08012ed25e1fc"
+    },
+    "bookingId": {
+      "$oid": "6ac8fd7178b08012ed25e1f8"
+    },
+    "userId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UOf0iFmcVwSRAFo0HmKr6N3",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "28730"
+    },
+    "currency": "GBP",
+    "status": "PAID",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791556994335"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-PWJV3G"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791556980687"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791556994335"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba15452e612f844633ac6"
+    },
+    "bookingId": {
+      "$oid": "6acba15252e612f844633ac3"
+    },
+    "userId": {
+      "$oid": "6acba15152e612f844633ac2"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UPO1PFmcVwSRAFo0g0JpGFl",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "251000"
+    },
+    "currency": "GBP",
+    "status": "PAID",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791730030334"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-4W9H6N"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791730004024"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791730030334"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba8f4120b3e7cd66e707a"
+    },
+    "bookingId": {
+      "$oid": "6acba8f1120b3e7cd66e7075"
+    },
+    "userId": {
+      "$oid": "6acba15152e612f844633ac2"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UPOWtFmcVwSRAFo06Gwzb6l",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "150600"
+    },
+    "currency": "GBP",
+    "status": "PAID",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791732008134"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-6M53Z9"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791731956038"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791732008134"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acbb00477646f7b0de28fba"
+    },
+    "bookingId": {
+      "$oid": "6acbb00277646f7b0de28fb5"
+    },
+    "userId": {
+      "$oid": "6acba15152e612f844633ac2"
+    },
+    "provider": "STRIPE",
+    "providerPaymentIntentId": "pi_3UPP04FmcVwSRAFo0poRMkVj",
+    "providerCheckoutSessionId": null,
+    "amount": {
+      "$numberInt": "401600"
+    },
+    "currency": "GBP",
+    "status": "PAID",
+    "failureCode": null,
+    "failureMessage": null,
+    "paidAt": {
+      "$date": {
+        "$numberLong": "1791733780990"
+      }
+    },
+    "metadata": {
+      "bookingNumber": "QB-MVYP8E"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791733764638"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791733780990"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

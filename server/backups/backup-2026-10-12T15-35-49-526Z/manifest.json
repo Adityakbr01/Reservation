@@ -1,0 +1,149 @@
+{
+  "createdAt": "2026-10-12T15:35:49.526Z",
+  "database": "reservation",
+  "connectionHost": "mongodb://cluster0-shard-00-00.whbog.mongodb.net:27017/reservation",
+  "totalCollections": 28,
+  "totalDocuments": 484,
+  "collections": {
+    "amenities": {
+      "count": 21,
+      "file": "amenities.json",
+      "sizeBytes": 12058
+    },
+    "auditlogs": {
+      "count": 133,
+      "file": "auditlogs.json",
+      "sizeBytes": 90201
+    },
+    "availabilityblocks": {
+      "count": 1,
+      "file": "availabilityblocks.json",
+      "sizeBytes": 706
+    },
+    "bookingitems": {
+      "count": 23,
+      "file": "bookingitems.json",
+      "sizeBytes": 44474
+    },
+    "bookings": {
+      "count": 21,
+      "file": "bookings.json",
+      "sizeBytes": 40355
+    },
+    "cancellationpolicies": {
+      "count": 1,
+      "file": "cancellationpolicies.json",
+      "sizeBytes": 560
+    },
+    "cmsblogposts": {
+      "count": 3,
+      "file": "cmsblogposts.json",
+      "sizeBytes": 8689
+    },
+    "cmsfaqs": {
+      "count": 6,
+      "file": "cmsfaqs.json",
+      "sizeBytes": 5283
+    },
+    "cmsoffers": {
+      "count": 5,
+      "file": "cmsoffers.json",
+      "sizeBytes": 7961
+    },
+    "cmspages": {
+      "count": 2,
+      "file": "cmspages.json",
+      "sizeBytes": 2812
+    },
+    "cmspolicydocs": {
+      "count": 7,
+      "file": "cmspolicydocs.json",
+      "sizeBytes": 6281
+    },
+    "coupons": {
+      "count": 3,
+      "file": "coupons.json",
+      "sizeBytes": 3297
+    },
+    "dailyprices": {
+      "count": 0,
+      "file": "dailyprices.json",
+      "sizeBytes": 2
+    },
+    "emailtemplates": {
+      "count": 2,
+      "file": "emailtemplates.json",
+      "sizeBytes": 21885
+    },
+    "enquiries": {
+      "count": 0,
+      "file": "enquiries.json",
+      "sizeBytes": 2
+    },
+    "media": {
+      "count": 78,
+      "file": "media.json",
+      "sizeBytes": 68298
+    },
+    "newslettersubscribers": {
+      "count": 5,
+      "file": "newslettersubscribers.json",
+      "sizeBytes": 2579
+    },
+    "notifications": {
+      "count": 47,
+      "file": "notifications.json",
+      "sizeBytes": 45139
+    },
+    "payments": {
+      "count": 21,
+      "file": "payments.json",
+      "sizeBytes": 17511
+    },
+    "properties": {
+      "count": 1,
+      "file": "properties.json",
+      "sizeBytes": 736
+    },
+    "rateplans": {
+      "count": 5,
+      "file": "rateplans.json",
+      "sizeBytes": 4944
+    },
+    "refunds": {
+      "count": 2,
+      "file": "refunds.json",
+      "sizeBytes": 1584
+    },
+    "reviews": {
+      "count": 0,
+      "file": "reviews.json",
+      "sizeBytes": 2
+    },
+    "rooms": {
+      "count": 6,
+      "file": "rooms.json",
+      "sizeBytes": 3424
+    },
+    "roomtypes": {
+      "count": 5,
+      "file": "roomtypes.json",
+      "sizeBytes": 53443
+    },
+    "sitesettings": {
+      "count": 1,
+      "file": "sitesettings.json",
+      "sizeBytes": 2027
+    },
+    "users": {
+      "count": 14,
+      "file": "users.json",
+      "sizeBytes": 9903
+    },
+    "webhookevents": {
+      "count": 71,
+      "file": "webhookevents.json",
+      "sizeBytes": 44875
+    }
+  }
+}

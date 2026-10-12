@@ -50,7 +50,9 @@ export async function findUserById(id: string): Promise<SafeUser | null> {
 
 /** Full document access for internal flows (avatar file refs, hashes). */
 export async function findUserDocById(id: string): Promise<UserDocument | null> {
-  return UserModel.findById(id).exec();
+  // avatarFileId is select:false — without the explicit +select the avatar
+  // cleanup in updateMe silently never ran (previousFileId always undefined).
+  return UserModel.findById(id).select("+avatarFileId +legacyAvatarFileId").exec();
 }
 
 /** Hash included. Internal use only — never return this to clients. */
@@ -98,6 +100,9 @@ export interface UpdateUserInput {
   passwordResetExpires?: Date | null;
   avatarUrl?: string | null;
   avatarFileId?: string | null;
+  avatarStorageProvider?: "imagekit" | "local";
+  legacyAvatarUrl?: string | null;
+  legacyAvatarFileId?: string | null;
   role?: UserRole;
 }
 

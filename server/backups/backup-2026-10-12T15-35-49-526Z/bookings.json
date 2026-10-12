@@ -1,0 +1,2035 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac0ea0d55bab8a76c642435"
+    },
+    "bookingNumber": "QB-2UN55Q",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac086bc09e06af9c02efccc"
+    },
+    "status": "EXPIRED",
+    "paymentStatus": "PENDING",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791590400000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791763200000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Quick",
+      "lastName": "Bihar",
+      "email": "nehakumari1111aa@gmail.com",
+      "phone": "09304922632"
+    },
+    "pricing": {
+      "currency": "INR",
+      "subtotal": {
+        "$numberInt": "300000"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "300000"
+      },
+      "couponCode": null
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_eca9d3647d72a60c1e",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791028624638"
+        }
+      }
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791027725038"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791029685428"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac0eb1355bab8a76c642438"
+    },
+    "bookingNumber": "QB-ZH3QRT",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac086bc09e06af9c02efccc"
+    },
+    "status": "EXPIRED",
+    "paymentStatus": "PENDING",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791590400000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791763200000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Quick",
+      "lastName": "Bihar",
+      "email": "nehakumari1111aa@gmail.com",
+      "phone": "09304922632"
+    },
+    "pricing": {
+      "currency": "INR",
+      "subtotal": {
+        "$numberInt": "1100000"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "1100000"
+      },
+      "couponCode": null
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_c2dfc1a440fda820d0",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791028887201"
+        }
+      }
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791027987557"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791029685428"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac0f25362199fc62a591eea"
+    },
+    "bookingNumber": "QB-9SDXKG",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac086bc09e06af9c02efccc"
+    },
+    "status": "EXPIRED",
+    "paymentStatus": "PENDING",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791590400000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791763200000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Quick",
+      "lastName": "Bihar",
+      "email": "nehakumari1111aa@gmail.com",
+      "phone": "09304922632"
+    },
+    "pricing": {
+      "currency": "INR",
+      "subtotal": {
+        "$numberInt": "300000"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "300000"
+      },
+      "couponCode": null
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_fd16a51584a21658c5",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791030742701"
+        }
+      }
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791029843225"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791032120353"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac0fd7c1af8ab3cdf4fa243"
+    },
+    "bookingNumber": "QB-WQ9UFX",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac086bc09e06af9c02efccc"
+    },
+    "status": "CONFIRMED",
+    "paymentStatus": "PAID",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791590400000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791763200000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Quick",
+      "lastName": "Bihar",
+      "email": "nehakumari1111aa@gmail.com",
+      "phone": "09304922632"
+    },
+    "pricing": {
+      "currency": "INR",
+      "subtotal": {
+        "$numberInt": "300000"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "300000"
+      },
+      "couponCode": null
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_f298860bda65b17380",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791033599938"
+        }
+      }
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791032700407"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791504261156"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "reminderSent": true
+  },
+  {
+    "_id": {
+      "$oid": "6ac268a52cf8c0b5bb31d02f"
+    },
+    "bookingNumber": "QB-HGN7RH",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "status": "CONFIRMED",
+    "paymentStatus": "PAID",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791676800000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791849600000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Aditya",
+      "lastName": "tsx",
+      "email": "aditykbr01@gmail.com",
+      "phone": "09304922632"
+    },
+    "pricing": {
+      "currency": "INR",
+      "subtotal": {
+        "$numberInt": "3200000"
+      },
+      "discount": {
+        "$numberInt": "960000"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "2240000"
+      },
+      "couponCode": "WELCOME30"
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_dad242e1d2bca1f234",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791126568094"
+        }
+      }
+    },
+    "stay": {
+      "checkedInAt": null,
+      "checkedInBy": null,
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": true,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791125669273"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791590661261"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28de8c7c992884eae64f0"
+    },
+    "bookingNumber": "QB-VPRNQT",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "status": "CONFIRMED",
+    "paymentStatus": "PAID",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791676800000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791849600000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Aditya",
+      "lastName": "Kbr",
+      "email": "kbraditya405@gmail.com",
+      "phone": "00000000000000"
+    },
+    "pricing": {
+      "currency": "INR",
+      "subtotal": {
+        "$numberInt": "17000000"
+      },
+      "discount": {
+        "$numberInt": "5100000"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "11900000"
+      },
+      "couponCode": "WELCOME30"
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_1d23cef3fbc45bfce6",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791136107452"
+        }
+      }
+    },
+    "stay": {
+      "checkedInAt": null,
+      "checkedInBy": null,
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": true,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135208627"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791590661736"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac28e78c7c992884eae64fa"
+    },
+    "bookingNumber": "QB-KXXPNX",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "status": "CANCELLED",
+    "paymentStatus": "REFUNDED",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791676800000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791849600000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Aditya",
+      "lastName": "Kbr",
+      "email": "kbraditya405@gmail.com",
+      "phone": "00000000000000"
+    },
+    "pricing": {
+      "currency": "INR",
+      "subtotal": {
+        "$numberInt": "3200000"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "3200000"
+      },
+      "couponCode": null
+    },
+    "cancellation": {
+      "cancelledAt": {
+        "$date": {
+          "$numberLong": "1791135397744"
+        }
+      },
+      "cancelledBy": {
+        "$oid": "6ac28d7dc7c992884eae64ef"
+      },
+      "reason": null
+    },
+    "hold": {
+      "holdId": null,
+      "expiresAt": null
+    },
+    "stay": {
+      "checkedInAt": null,
+      "checkedInBy": null,
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791135352257"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791135402568"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3c70d383e790a2648e9fe"
+    },
+    "bookingNumber": "QB-Y8QSUU",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac3c6f5383e790a2648e9fd"
+    },
+    "status": "CONFIRMED",
+    "paymentStatus": "PAID",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791763200000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791936000000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Ethan",
+      "lastName": "Thompson",
+      "email": "admin1@gmail.com",
+      "phone": "9935150150"
+    },
+    "pricing": {
+      "currency": "INR",
+      "subtotal": {
+        "$numberInt": "3200000"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "3200000"
+      },
+      "couponCode": null
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_b117cbb7d63a40a94e",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791216272464"
+        }
+      }
+    },
+    "stay": {
+      "checkedInAt": null,
+      "checkedInBy": null,
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": true,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791215373824"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791677088756"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3ea2cf55bc9c9731d99c5"
+    },
+    "bookingNumber": "QB-YC3EEQ",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac3ea2af55bc9c9731d99c4"
+    },
+    "status": "CONFIRMED",
+    "paymentStatus": "PAID",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791763200000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791936000000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Quick",
+      "lastName": "Bihar",
+      "email": "aditykbr01@gmail.com",
+      "phone": "09304922632",
+      "title": null,
+      "mobile": null,
+      "address1": "एनएच-84",
+      "address2": "Bhojpur Kadim",
+      "city": "Dumraon",
+      "county": "Buxar",
+      "postcode": "802133",
+      "country": "India"
+    },
+    "pricing": {
+      "currency": "INR",
+      "subtotal": {
+        "$numberInt": "8400000"
+      },
+      "discount": {
+        "$numberInt": "2520000"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "5880000"
+      },
+      "couponCode": "WELCOME30"
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_bdb27ab9a325499f4b",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791225263667"
+        }
+      }
+    },
+    "stay": {
+      "checkedInAt": null,
+      "checkedInBy": null,
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": true,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791224364054"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791677089228"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac4047d0743e9f70744f90f"
+    },
+    "bookingNumber": "QB-QDGK5Z",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac3ea2af55bc9c9731d99c4"
+    },
+    "status": "CANCELLED",
+    "paymentStatus": "PENDING",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791849600000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792022400000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Quick",
+      "lastName": "Bihar",
+      "email": "aditykbr01@gmail.com",
+      "phone": "09304922632",
+      "title": "Ms",
+      "mobile": null,
+      "address1": "एनएच-84",
+      "address2": "Bhojpur Kadim",
+      "city": "Dumraon",
+      "county": "Buxar",
+      "postcode": "802133",
+      "country": "India"
+    },
+    "pricing": {
+      "currency": "GBP",
+      "subtotal": {
+        "$numberInt": "50400"
+      },
+      "discount": {
+        "$numberInt": "10080"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "40320"
+      },
+      "couponCode": "AUTUMN20"
+    },
+    "cancellation": {
+      "cancelledAt": {
+        "$date": {
+          "$numberLong": "1791231384203"
+        }
+      },
+      "cancelledBy": {
+        "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+      },
+      "reason": null
+    },
+    "hold": {
+      "holdId": null,
+      "expiresAt": null
+    },
+    "stay": {
+      "checkedInAt": null,
+      "checkedInBy": null,
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231101184"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231384203"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac405b10743e9f70744f920"
+    },
+    "bookingNumber": "QB-4ZGVVS",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac3ea2af55bc9c9731d99c4"
+    },
+    "status": "CANCELLED",
+    "paymentStatus": "REFUNDED",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791849600000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792022400000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Quick",
+      "lastName": "Bihar",
+      "email": "aditykbr01@gmail.com",
+      "phone": "09304922632",
+      "title": "Mr",
+      "mobile": null,
+      "address1": "एनएच-84",
+      "address2": "Bhojpur Kadim",
+      "city": "Dumraon",
+      "county": "Buxar",
+      "postcode": "802133",
+      "country": "India"
+    },
+    "pricing": {
+      "currency": "GBP",
+      "subtotal": {
+        "$numberInt": "50400"
+      },
+      "discount": {
+        "$numberInt": "10080"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "40320"
+      },
+      "couponCode": "AUTUMN20"
+    },
+    "cancellation": {
+      "cancelledAt": {
+        "$date": {
+          "$numberLong": "1791231599709"
+        }
+      },
+      "cancelledBy": {
+        "$oid": "6ac3ea2af55bc9c9731d99c4"
+      },
+      "reason": null
+    },
+    "hold": {
+      "holdId": null,
+      "expiresAt": null
+    },
+    "stay": {
+      "checkedInAt": null,
+      "checkedInBy": null,
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791231409431"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231607269"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac5081aed24e34c88891910"
+    },
+    "bookingNumber": "QB-UYHJNK",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac50819ed24e34c8889190f"
+    },
+    "status": "CONFIRMED",
+    "paymentStatus": "PAID",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791849600000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792022400000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Quick",
+      "lastName": "Bihar",
+      "email": "nandani@gmail.app",
+      "phone": "09304922632",
+      "title": "Mr",
+      "mobile": null,
+      "address1": "एनएच-84",
+      "address2": "Bhojpur Kadim",
+      "city": "Dumraon",
+      "county": "Buxar",
+      "postcode": "802133",
+      "country": "India"
+    },
+    "pricing": {
+      "currency": "GBP",
+      "subtotal": {
+        "$numberInt": "50200"
+      },
+      "discount": {
+        "$numberInt": "10040"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "40160"
+      },
+      "couponCode": "AUTUMN20"
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_0cb46eda521794e570",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791298462338"
+        }
+      }
+    },
+    "stay": {
+      "checkedInAt": null,
+      "checkedInBy": null,
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": true,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791297562737"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791763483816"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac670f378b08012ed25d6b3"
+    },
+    "bookingNumber": "QB-YD8VCZ",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "status": "CONFIRMED",
+    "paymentStatus": "PAID",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791936000000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792108800000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Aditya",
+      "lastName": "Kbr",
+      "email": "kbraditya405@gmail.com",
+      "phone": "9304922632",
+      "title": "Mr",
+      "mobile": "9304922632",
+      "address1": "Naya bhojpur ambedkar nagar",
+      "address2": null,
+      "city": "Dumaron",
+      "county": "Bihar",
+      "postcode": "802133",
+      "country": "India"
+    },
+    "pricing": {
+      "currency": "GBP",
+      "subtotal": {
+        "$numberInt": "32400"
+      },
+      "discount": {
+        "$numberInt": "4860"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "27540"
+      },
+      "couponCode": "WINTER15"
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_1bc7fa646a96c8d26d",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791390838082"
+        }
+      }
+    },
+    "stay": {
+      "checkedInAt": null,
+      "checkedInBy": null,
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791389939297"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791389957306"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6716678b08012ed25d6c8"
+    },
+    "bookingNumber": "QB-G5YXTX",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "status": "CHECKED_OUT",
+    "paymentStatus": "PAID",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791331200000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791417600000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Aditya",
+      "lastName": "Kbr",
+      "email": "kbraditya405@gmail.com",
+      "phone": "9304922632",
+      "title": "Mr",
+      "mobile": null,
+      "address1": "Naya bhojpur ambedkar nagar",
+      "address2": null,
+      "city": "Dumaron",
+      "county": "Bihar",
+      "postcode": "802133",
+      "country": "India"
+    },
+    "pricing": {
+      "currency": "GBP",
+      "subtotal": {
+        "$numberInt": "25100"
+      },
+      "discount": {
+        "$numberInt": "5020"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "20080"
+      },
+      "couponCode": "AUTUMN20"
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_6051a02cb2e34ad75d",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791390953719"
+        }
+      }
+    },
+    "stay": {
+      "checkedInAt": {
+        "$date": {
+          "$numberLong": "1791390115758"
+        }
+      },
+      "checkedInBy": {
+        "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+      },
+      "checkedOutAt": {
+        "$date": {
+          "$numberLong": "1791390128078"
+        }
+      },
+      "checkedOutBy": {
+        "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+      }
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390054894"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390128078"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6720178b08012ed25d6db"
+    },
+    "bookingNumber": "QB-5VVVST",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "status": "CONFIRMED",
+    "paymentStatus": "PAID",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791936000000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792108800000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Aditya",
+      "lastName": "Kbr",
+      "email": "kbraditya405@gmail.com",
+      "phone": "9304922632",
+      "title": "Mr",
+      "mobile": null,
+      "address1": "Naya bhojpur ambedkar nagar",
+      "address2": null,
+      "city": "Dumaron",
+      "county": "Bihar",
+      "postcode": "802133",
+      "country": "India"
+    },
+    "pricing": {
+      "currency": "GBP",
+      "subtotal": {
+        "$numberInt": "64200"
+      },
+      "discount": {
+        "$numberInt": "9630"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "54570"
+      },
+      "couponCode": "WINTER15"
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_09bde70d0c6975fa6e",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791391107332"
+        }
+      }
+    },
+    "stay": {
+      "checkedInAt": null,
+      "checkedInBy": null,
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390209106"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390230167"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac6726f78b08012ed25d6ea"
+    },
+    "bookingNumber": "QB-4KUMNY",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac28d7dc7c992884eae64ef"
+    },
+    "status": "CHECKED_IN",
+    "paymentStatus": "PAID",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791331200000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1791417600000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Aditya",
+      "lastName": "Kbr",
+      "email": "kbraditya405@gmail.com",
+      "phone": "9304922632",
+      "title": "Mr",
+      "mobile": null,
+      "address1": "Naya bhojpur ambedkar nagar",
+      "address2": null,
+      "city": "Dumaron",
+      "county": "Bihar",
+      "postcode": "802133",
+      "country": "India"
+    },
+    "pricing": {
+      "currency": "GBP",
+      "subtotal": {
+        "$numberInt": "32100"
+      },
+      "discount": {
+        "$numberInt": "4815"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "27285"
+      },
+      "couponCode": "WINTER15"
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_3968fd8a5ed2d3e956",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791391218753"
+        }
+      }
+    },
+    "stay": {
+      "checkedInAt": {
+        "$date": {
+          "$numberLong": "1791390350458"
+        }
+      },
+      "checkedInBy": {
+        "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+      },
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791390319959"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791390350458"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8d1cc78b08012ed25e12a"
+    },
+    "bookingNumber": "QB-6E3BXQ",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac8d1c978b08012ed25e129"
+    },
+    "status": "EXPIRED",
+    "paymentStatus": "PENDING",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1792108800000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792281600000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "saarthi",
+      "lastName": "sharma",
+      "email": "saarthisharma2323@gmail.com",
+      "phone": "7432118869",
+      "title": "Mr",
+      "mobile": null,
+      "address1": null,
+      "address2": null,
+      "city": null,
+      "county": null,
+      "postcode": null,
+      "country": null
+    },
+    "pricing": {
+      "currency": "GBP",
+      "subtotal": {
+        "$numberInt": "50200"
+      },
+      "discount": {
+        "$numberInt": "10040"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "40160"
+      },
+      "couponCode": "AUTUMN20"
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_3f845509deb9c37698",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791546703406"
+        }
+      }
+    },
+    "stay": {
+      "checkedInAt": null,
+      "checkedInBy": null,
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791545804582"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791546741201"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8fd7178b08012ed25e1f8"
+    },
+    "bookingNumber": "QB-PWJV3G",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "status": "CONFIRMED",
+    "paymentStatus": "PAID",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1792108800000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792281600000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "2"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Quick",
+      "lastName": "Bihar",
+      "email": "admin@gmail.com",
+      "phone": "09304922632",
+      "title": "Mr",
+      "mobile": null,
+      "address1": "एनएच-84",
+      "address2": "Bhojpur Kadim",
+      "city": "Dumraon",
+      "county": "Buxar",
+      "postcode": "802133",
+      "country": "India"
+    },
+    "pricing": {
+      "currency": "GBP",
+      "subtotal": {
+        "$numberInt": "33800"
+      },
+      "discount": {
+        "$numberInt": "5070"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "28730"
+      },
+      "couponCode": "WINTER15"
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_c74786562e17b41f3a",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791557875864"
+        }
+      }
+    },
+    "stay": {
+      "checkedInAt": null,
+      "checkedInBy": null,
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791556977042"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791556994804"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba15252e612f844633ac3"
+    },
+    "bookingNumber": "QB-4W9H6N",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6acba15152e612f844633ac2"
+    },
+    "status": "CONFIRMED",
+    "paymentStatus": "PAID",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1791676800000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1792540800000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "6"
+      },
+      "children": {
+        "$numberInt": "0"
+      }
+    },
+    "contact": {
+      "firstName": "Quick",
+      "lastName": "Bihar",
+      "email": "aditykbr0a1@gmail.com",
+      "phone": "09304922632",
+      "title": "Mr",
+      "mobile": null,
+      "address1": "एनएच-84",
+      "address2": "Bhojpur Kadim",
+      "city": "Dumraon",
+      "county": "Buxar",
+      "postcode": "802133",
+      "country": "India"
+    },
+    "pricing": {
+      "currency": "GBP",
+      "subtotal": {
+        "$numberInt": "251000"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "251000"
+      },
+      "couponCode": null
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_5f1a4fbbcbf5c0d126",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791730901726"
+        }
+      }
+    },
+    "stay": {
+      "checkedInAt": null,
+      "checkedInBy": null,
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791730002105"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791730030814"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba8f1120b3e7cd66e7075"
+    },
+    "bookingNumber": "QB-6M53Z9",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6acba15152e612f844633ac2"
+    },
+    "status": "CONFIRMED",
+    "paymentStatus": "PAID",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1793145600000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1793404800000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "6"
+      },
+      "children": {
+        "$numberInt": "6"
+      }
+    },
+    "contact": {
+      "firstName": "Quick",
+      "lastName": "Bihar",
+      "email": "aditykbr0a1@gmail.com",
+      "phone": "09304922632",
+      "title": "Mr",
+      "mobile": "09304922632",
+      "address1": "एनएच-84",
+      "address2": "Bhojpur Kadim",
+      "city": "Dumraon",
+      "county": "Buxar",
+      "postcode": "802133",
+      "country": "India"
+    },
+    "pricing": {
+      "currency": "GBP",
+      "subtotal": {
+        "$numberInt": "150600"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "150600"
+      },
+      "couponCode": null
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_8f5189daf5f32315a1",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791732853378"
+        }
+      }
+    },
+    "stay": {
+      "checkedInAt": null,
+      "checkedInBy": null,
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": null,
+    "reminderSent": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791731953780"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791732008606"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acbb00277646f7b0de28fb5"
+    },
+    "bookingNumber": "QB-MVYP8E",
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "userId": {
+      "$oid": "6acba15152e612f844633ac2"
+    },
+    "status": "CONFIRMED",
+    "paymentStatus": "PAID",
+    "checkIn": {
+      "$date": {
+        "$numberLong": "1793491200000"
+      }
+    },
+    "checkOut": {
+      "$date": {
+        "$numberLong": "1794182400000"
+      }
+    },
+    "guests": {
+      "adults": {
+        "$numberInt": "6"
+      },
+      "children": {
+        "$numberInt": "6"
+      }
+    },
+    "contact": {
+      "firstName": "Quick",
+      "lastName": "Bihar",
+      "email": "aditykbr0a1@gmail.com",
+      "phone": "09304922632",
+      "title": "Mr",
+      "mobile": null,
+      "address1": "एनएच-84",
+      "address2": "Bhojpur Kadim",
+      "city": "Dumraon",
+      "county": "Buxar",
+      "postcode": "802133",
+      "country": "India"
+    },
+    "pricing": {
+      "currency": "GBP",
+      "subtotal": {
+        "$numberInt": "401600"
+      },
+      "discount": {
+        "$numberInt": "0"
+      },
+      "taxes": {
+        "$numberInt": "0"
+      },
+      "fees": {
+        "$numberInt": "0"
+      },
+      "total": {
+        "$numberInt": "401600"
+      },
+      "couponCode": null
+    },
+    "cancellation": {
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "reason": null
+    },
+    "hold": {
+      "holdId": "hold_280a7483a5494f962c",
+      "expiresAt": {
+        "$date": {
+          "$numberLong": "1791734662144"
+        }
+      }
+    },
+    "stay": {
+      "checkedInAt": null,
+      "checkedInBy": null,
+      "checkedOutAt": null,
+      "checkedOutBy": null
+    },
+    "source": "DIRECT",
+    "notes": "Kuchh special requat nhi hai",
+    "reminderSent": false,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791733762502"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791733781462"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

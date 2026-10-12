@@ -1,0 +1,182 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac3fe92d1f8bc5e7b25aea0"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe92d1f8bc5e7b25ae9f"
+    },
+    "name": "Oakwood Cottage",
+    "roomNumber": "OAK-1",
+    "floor": null,
+    "status": "ACTIVE",
+    "condition": null,
+    "notes": null,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791229586653"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791229586653"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3fe92d1f8bc5e7b25aea3"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe92d1f8bc5e7b25aea2"
+    },
+    "name": "The Dales Cottage",
+    "roomNumber": "DAL-1",
+    "floor": null,
+    "status": "ACTIVE",
+    "condition": null,
+    "notes": null,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791229586974"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791229586974"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea6"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea5"
+    },
+    "name": "Willow Brook",
+    "roomNumber": "WIL-1",
+    "floor": null,
+    "status": "ACTIVE",
+    "condition": null,
+    "notes": null,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791229587331"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791229587331"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea9"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea8"
+    },
+    "name": "Foxglove Cottage",
+    "roomNumber": "FOX-1",
+    "floor": null,
+    "status": "ACTIVE",
+    "condition": null,
+    "notes": null,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791229587730"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791229587730"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac3fe94d1f8bc5e7b25aeac"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aeab"
+    },
+    "name": "Fern Cottage",
+    "roomNumber": "FER-1",
+    "floor": null,
+    "status": "ACTIVE",
+    "condition": null,
+    "notes": null,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791229588044"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791229588044"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acb742ea458b0c2bef54f24"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "roomTypeId": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aeab"
+    },
+    "name": "Deluxe 102",
+    "roomNumber": "102",
+    "floor": null,
+    "status": "ACTIVE",
+    "condition": null,
+    "notes": null,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791718446508"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791718446508"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

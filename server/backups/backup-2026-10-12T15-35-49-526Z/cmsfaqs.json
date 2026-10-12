@@ -1,0 +1,200 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac2427c71f206719481535b"
+    },
+    "question": "What are your check-in and check-out times?",
+    "answer": "Standard check-in begins at 14:00 (2:00 PM) and check-out is until 12:00 (12:00 PM). Early check-in and late check-out can be requested in advance and are subject to room availability.",
+    "category": "Check-in & Policies",
+    "sortOrder": {
+      "$numberInt": "1"
+    },
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115900153"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115900153"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791115900153"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac2427c71f206719481535c"
+    },
+    "question": "Do you offer private airport limousine transfers?",
+    "answer": "Yes, we provide round-trip luxury private vehicle transfers from the international and domestic airports. Guests staying in our Presidential Royal Suite enjoy complimentary transfers. For other room categories, transfers can be easily scheduled with our concierge team.",
+    "category": "Location & Transport",
+    "sortOrder": {
+      "$numberInt": "2"
+    },
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115900314"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115900314"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791115900314"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac2427c71f206719481535d"
+    },
+    "question": "What is your reservation cancellation and refund policy?",
+    "answer": "We offer free cancellation up to 24 hours prior to scheduled arrival on all flexible rate plans. Refunds are processed automatically to the original payment method within 3 to 5 business days.",
+    "category": "Check-in & Policies",
+    "sortOrder": {
+      "$numberInt": "3"
+    },
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115900520"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115900520"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791115900520"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac2427c71f206719481535e"
+    },
+    "question": "Can special dietary preferences (vegan, gluten-free, halal) be accommodated?",
+    "answer": "Absolutely. Our executive culinary team caters extensively to vegan, vegetarian, gluten-free, halal, Jain, and allergen-sensitive diets. Please mention any preferences upon booking or speak to your server upon arrival.",
+    "category": "Dining & Cuisine",
+    "sortOrder": {
+      "$numberInt": "4"
+    },
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115900689"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115900689"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791115900689"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac2427c71f206719481535f"
+    },
+    "question": "Are high-speed Wi-Fi and streaming services included?",
+    "answer": "Yes, high-speed fiber-optic Wi-Fi (up to 300 Mbps) is provided complimentary throughout all suites, villas, pools, and public grounds. All rooms feature 4K Smart TVs with built-in Netflix, YouTube, and casting capabilities.",
+    "category": "Services & Amenities",
+    "sortOrder": {
+      "$numberInt": "5"
+    },
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115900909"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115900909"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791115900909"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac2427d71f2067194815360"
+    },
+    "question": "What wellness facilities are available on property?",
+    "answer": "Our resort features a world-class holistic Ayurvedic spa, heated vitality reflection pool, fully equipped Technogym fitness pavilion, and daily complimentary morning yoga sessions at the oceanfront pavilion.",
+    "category": "Services & Amenities",
+    "sortOrder": {
+      "$numberInt": "6"
+    },
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115901093"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115901093"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791115901093"
+      }
+    }
+  }
+]

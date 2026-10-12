@@ -5,11 +5,19 @@ import type { Paginated } from "../../utils/pagination";
 
 export type MediaKind = "image" | "video";
 
+/** Binary origin. Old rows predate the field and read as "imagekit". */
+export type StorageProvider = "imagekit" | "local";
+
 export interface Media {
   id: string;
   fileName: string;
   url: string;
   storageKey: string;
+  /** "local" = GoDaddy FTP key relative to uploads/; "imagekit" = ImageKit fileId. */
+  storageProvider: StorageProvider;
+  /** Pre-migration values, kept for per-row rollback during the transition. */
+  legacyUrl: string | null;
+  legacyStorageKey: string | null;
   mime: string;
   kind: MediaKind;
   /** Logical folder, e.g. "Cottage/Oakwood Cottage". Null = library root. */
@@ -29,6 +37,9 @@ export interface MediaDocument extends mongoose.Document {
   fileName: string;
   url: string;
   storageKey: string;
+  storageProvider: StorageProvider;
+  legacyUrl: string | null;
+  legacyStorageKey: string | null;
   mime: string;
   kind: MediaKind;
   folder: string | null;
@@ -48,6 +59,9 @@ const mediaSchema = new mongoose.Schema<MediaDocument>(
     fileName: { type: String, required: true },
     url: { type: String, required: true },
     storageKey: { type: String, required: true, unique: true },
+    storageProvider: { type: String, enum: ["imagekit", "local"], default: "imagekit" },
+    legacyUrl: { type: String, default: null },
+    legacyStorageKey: { type: String, default: null },
     mime: { type: String, required: true },
     kind: { type: String, enum: ["image", "video"], default: "image" },
     folder: { type: String, default: null, maxlength: 200 },
@@ -80,6 +94,9 @@ export function toMedia(doc: MediaDocument): Media {
     fileName: doc.fileName,
     url: doc.url,
     storageKey: doc.storageKey,
+    storageProvider: doc.storageProvider ?? "imagekit",
+    legacyUrl: doc.legacyUrl ?? null,
+    legacyStorageKey: doc.legacyStorageKey ?? null,
     mime: doc.mime,
     kind: mediaKindFor(doc.mime, (doc as MediaDocument).kind),
     folder: doc.folder ?? null,

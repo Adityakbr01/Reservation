@@ -1,0 +1,590 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac3e2bbed148dd299f90fa7"
+    },
+    "slug": "parking",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222457026"
+      }
+    },
+    "description": null,
+    "group": "HIGHLIGHT",
+    "imageMediaId": "6ac4fda3ffefee1267f07f07",
+    "name": "Parking",
+    "sortOrder": {
+      "$numberInt": "1"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818404351"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-parking/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bbed148dd299f90fa8"
+    },
+    "slug": "wifi",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222457116"
+      }
+    },
+    "description": null,
+    "group": "HIGHLIGHT",
+    "imageMediaId": "6ac4fc98ffefee1267f07efb",
+    "name": "WiFi",
+    "sortOrder": {
+      "$numberInt": "2"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818404654"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-wifi/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bbed148dd299f90fa9"
+    },
+    "slug": "baby-welcome",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222457202"
+      }
+    },
+    "description": null,
+    "group": "HIGHLIGHT",
+    "imageMediaId": null,
+    "name": "Baby Welcome",
+    "sortOrder": {
+      "$numberInt": "3"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818404916"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-baby-welcome/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bbed148dd299f90faa"
+    },
+    "slug": "bird-watching",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222457283"
+      }
+    },
+    "description": null,
+    "group": "HIGHLIGHT",
+    "imageMediaId": null,
+    "name": "Bird Watching",
+    "sortOrder": {
+      "$numberInt": "4"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818405163"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-bird-watching/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bbed148dd299f90fab"
+    },
+    "slug": "ground-floor-bedroom",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222457366"
+      }
+    },
+    "description": null,
+    "group": "HIGHLIGHT",
+    "imageMediaId": null,
+    "name": "Ground Floor Bedroom",
+    "sortOrder": {
+      "$numberInt": "5"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818405398"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-ground-floor-bedroom/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bbed148dd299f90fac"
+    },
+    "slug": "cycling",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222457452"
+      }
+    },
+    "description": null,
+    "group": "HIGHLIGHT",
+    "imageMediaId": "6ac4fc9dffefee1267f07efc",
+    "name": "Cycling",
+    "sortOrder": {
+      "$numberInt": "6"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818405637"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-cycling/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bced148dd299f90fad"
+    },
+    "slug": "romantic-breaks",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222457541"
+      }
+    },
+    "description": null,
+    "group": "HIGHLIGHT",
+    "imageMediaId": "6ac4fda7ffefee1267f07f08",
+    "name": "Romantic Breaks",
+    "sortOrder": {
+      "$numberInt": "7"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818405874"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-romantic-breaks/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bced148dd299f90fae"
+    },
+    "slug": "golfing",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222457627"
+      }
+    },
+    "description": null,
+    "group": "HIGHLIGHT",
+    "imageMediaId": "6ac4fd97ffefee1267f07f05",
+    "name": "Golfing",
+    "sortOrder": {
+      "$numberInt": "8"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818406092"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-golfing/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bced148dd299f90faf"
+    },
+    "slug": "walking",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222457714"
+      }
+    },
+    "description": null,
+    "group": "HIGHLIGHT",
+    "imageMediaId": "6ac4fd9dffefee1267f07f06",
+    "name": "Walking",
+    "sortOrder": {
+      "$numberInt": "9"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818406305"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-walking/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bced148dd299f90fb0"
+    },
+    "slug": "electric-hob-oven",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222457814"
+      }
+    },
+    "description": null,
+    "group": "FACILITY",
+    "imageMediaId": null,
+    "name": "Electric hob & oven",
+    "sortOrder": {
+      "$numberInt": "0"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818406510"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-electric-hob-oven/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bced148dd299f90fb1"
+    },
+    "slug": "garden-furniture",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222457912"
+      }
+    },
+    "description": null,
+    "group": "FACILITY",
+    "imageMediaId": null,
+    "name": "Garden furniture",
+    "sortOrder": {
+      "$numberInt": "1"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818406746"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-garden-furniture/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bced148dd299f90fb2"
+    },
+    "slug": "television",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222457990"
+      }
+    },
+    "description": null,
+    "group": "FACILITY",
+    "imageMediaId": null,
+    "name": "Television",
+    "sortOrder": {
+      "$numberInt": "2"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818406995"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-television/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bced148dd299f90fb3"
+    },
+    "slug": "washer-dryer",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222458107"
+      }
+    },
+    "description": null,
+    "group": "FACILITY",
+    "imageMediaId": null,
+    "name": "Washer/dryer",
+    "sortOrder": {
+      "$numberInt": "3"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818407242"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-washer-dryer/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bced148dd299f90fb4"
+    },
+    "slug": "dog-friendly",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222458200"
+      }
+    },
+    "description": null,
+    "group": "FACILITY",
+    "imageMediaId": null,
+    "name": "Dog-friendly",
+    "sortOrder": {
+      "$numberInt": "4"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818407478"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-dog-friendly/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bced148dd299f90fb5"
+    },
+    "slug": "bed-linen",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222458284"
+      }
+    },
+    "description": null,
+    "group": "FACILITY",
+    "imageMediaId": null,
+    "name": "Bed Linen",
+    "sortOrder": {
+      "$numberInt": "5"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818407695"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-bed-linen/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bced148dd299f90fb6"
+    },
+    "slug": "dishwasher",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222458373"
+      }
+    },
+    "description": null,
+    "group": "FACILITY",
+    "imageMediaId": null,
+    "name": "Dishwasher",
+    "sortOrder": {
+      "$numberInt": "6"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818407926"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-dishwasher/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bced148dd299f90fb7"
+    },
+    "slug": "fridge-freezer",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222458444"
+      }
+    },
+    "description": null,
+    "group": "FACILITY",
+    "imageMediaId": null,
+    "name": "Fridge/Freezer",
+    "sortOrder": {
+      "$numberInt": "7"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818408145"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-fridge-freezer/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bded148dd299f90fb8"
+    },
+    "slug": "microwave",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222458521"
+      }
+    },
+    "description": null,
+    "group": "FACILITY",
+    "imageMediaId": null,
+    "name": "Microwave",
+    "sortOrder": {
+      "$numberInt": "8"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818408381"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-microwave/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bded148dd299f90fb9"
+    },
+    "slug": "towels",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222458600"
+      }
+    },
+    "description": null,
+    "group": "FACILITY",
+    "imageMediaId": null,
+    "name": "Towels",
+    "sortOrder": {
+      "$numberInt": "9"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818408581"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-towels/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3e2bded148dd299f90fba"
+    },
+    "slug": "within-walking-distance-of-the-pub",
+    "__v": {
+      "$numberInt": "0"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791222458675"
+      }
+    },
+    "description": null,
+    "group": "FACILITY",
+    "imageMediaId": null,
+    "name": "Within walking distance of the pub",
+    "sortOrder": {
+      "$numberInt": "10"
+    },
+    "status": "ACTIVE",
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818408815"
+      }
+    },
+    "iconUrl": "https://picsum.photos/seed/amenity-within-walking-distance-of-the-pub/96"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3ece4f55bc9c9731d99e3"
+    },
+    "name": "One dog allowed",
+    "slug": "one-dog-allowed",
+    "group": "HIGHLIGHT",
+    "description": null,
+    "imageMediaId": "6ac4fbe9ffefee1267f07ef9",
+    "sortOrder": {
+      "$numberInt": "0"
+    },
+    "status": "ACTIVE",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791225060877"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818403585"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "iconUrl": null
+  }
+]

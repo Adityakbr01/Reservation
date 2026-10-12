@@ -1,0 +1,122 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac3e715639bc45433d11736"
+    },
+    "email": "aditykbr01@gmail.com",
+    "normalizedEmail": "ADITYKBR01@GMAIL.COM",
+    "name": "Quick Bihar",
+    "source": "footer",
+    "status": "SUBSCRIBED",
+    "unsubscribeToken": "518a100a41a4e85a642a83359d6fa3ab",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791223573569"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791231103403"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac5081ced24e34c88891914"
+    },
+    "email": "nandani@gmail.app",
+    "normalizedEmail": "NANDANI@GMAIL.APP",
+    "name": "Quick Bihar",
+    "source": "checkout",
+    "status": "SUBSCRIBED",
+    "unsubscribeToken": "94110ac0b9601a44e78550be11a56bd7",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791297564620"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791297564620"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac670f878b08012ed25d6b9"
+    },
+    "email": "kbraditya405@gmail.com",
+    "normalizedEmail": "KBRADITYA405@GMAIL.COM",
+    "name": "Aditya Kbr",
+    "source": "checkout",
+    "status": "SUBSCRIBED",
+    "unsubscribeToken": "56ed9222998f6afe6bf269fdcc110df0",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791389944465"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791389944465"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac8fd7678b08012ed25e1fe"
+    },
+    "email": "admin@gmail.com",
+    "normalizedEmail": "ADMIN@GMAIL.COM",
+    "name": "Quick Bihar",
+    "source": "checkout",
+    "status": "SUBSCRIBED",
+    "unsubscribeToken": "5c359777f301697dfebfae99cae4110a",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791556982300"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791556982300"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6acba15452e612f844633ac7"
+    },
+    "email": "aditykbr0a1@gmail.com",
+    "normalizedEmail": "ADITYKBR0A1@GMAIL.COM",
+    "name": "Quick Bihar",
+    "source": "checkout",
+    "status": "SUBSCRIBED",
+    "unsubscribeToken": "64d3881178cf8a4775fafb120b2b9558",
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791730004297"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791730004297"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

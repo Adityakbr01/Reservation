@@ -46,6 +46,22 @@ const envSchema = z.object({
   IMAGEKIT_PUBLIC_KEY: z.string().optional(),
   IMAGEKIT_PRIVATE_KEY: z.string().optional(),
   IMAGEKIT_URL_ENDPOINT: z.string().optional(),
+  // Binary asset storage driver. "imagekit" preserves the legacy behaviour;
+  // "ftp" uploads to GoDaddy cPanel hosting (see migrate-imagekit-to-godaddy.md).
+  STORAGE_PROVIDER: z.enum(["imagekit", "ftp"]).default("imagekit"),
+  // GoDaddy FTP (scoped account jailed to the uploads/ directory).
+  // HOST is the FTP hostname from cPanel → "Configure FTP Client", not the website URL.
+  GODADDY_FTP_HOST: z.string().trim().min(1).optional(),
+  GODADDY_FTP_PORT: z.coerce.number().int().positive().default(21),
+  GODADDY_FTP_USER: z.string().trim().min(1).optional(),
+  GODADDY_FTP_PASSWORD: z.string().min(1).optional(),
+  // Explicit TLS (FTPS). "false" is debugging-only; production stays "true".
+  GODADDY_FTP_SECURE: z
+    .enum(["true", "false"])
+    .default("true")
+    .transform((v) => v === "true"),
+  // Public base URL for stored assets, e.g. https://hamptworthstays.com/uploads
+  ASSETS_BASE_URL: z.string().url().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -61,6 +77,21 @@ function loadEnv(): Env {
   const env = parsed.data;
   if (env.NODE_ENV === "production" && env.JWT_SECRET === DEV_JWT_FALLBACK) {
     throw new Error("JWT_SECRET must be set to a strong value in production.");
+  }
+  // Fail fast when the FTP driver is selected without its configuration.
+  // IMAGEKIT_* intentionally stay valid until the Phase 4 decommission.
+  if (env.STORAGE_PROVIDER === "ftp") {
+    const missing = [
+      !env.GODADDY_FTP_HOST && "GODADDY_FTP_HOST",
+      !env.GODADDY_FTP_USER && "GODADDY_FTP_USER",
+      !env.GODADDY_FTP_PASSWORD && "GODADDY_FTP_PASSWORD",
+      !env.ASSETS_BASE_URL && "ASSETS_BASE_URL",
+    ].filter(Boolean);
+    if (missing.length > 0) {
+      throw new Error(
+        `STORAGE_PROVIDER=ftp requires: ${missing.join(", ")} (see migrate-imagekit-to-godaddy.md)`,
+      );
+    }
   }
   return env;
 }

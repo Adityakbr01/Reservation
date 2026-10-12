@@ -1,0 +1,103 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac243874b7212bbf384a499"
+    },
+    "title": "About Our Sanctuary",
+    "slug": "about-us",
+    "excerpt": "Discover our heritage of luxury, authentic hospitality, and nature-immersed architectural design.",
+    "sections": [
+      {
+        "kind": "HERO",
+        "heading": "Where Coastal Elegance Meets Timeless Serenity",
+        "subheading": "Welcome to your private oasis of refined luxury and mindful rejuvenation."
+      },
+      {
+        "kind": "EDITORIAL_TEXT",
+        "heading": "Our Story",
+        "html": "<p>Founded with a vision to harmoniously integrate pristine natural coastal surroundings with contemporary architectural excellence, our property invites travelers from across the globe to discover tranquility.</p>"
+      }
+    ],
+    "featuredImageMediaId": {
+      "$oid": "6ac2426871f2067194815341"
+    },
+    "seo": {
+      "title": "About Us | Luxury Hotel & Resort",
+      "description": "Learn about our philosophy, history, and commitment to refined hospitality.",
+      "robots": "index,follow",
+      "ogImageMediaId": {
+        "$oid": "6ac2426871f2067194815341"
+      }
+    },
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791116167076"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791116167076"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791116167076"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac243874b7212bbf384a49a"
+    },
+    "title": "Holistic Spa & Wellness Pavilion",
+    "slug": "spa-wellness",
+    "excerpt": "Immerse in holistic therapies, hydrotherapy vitality pools, and ancient Ayurvedic rituals.",
+    "sections": [
+      {
+        "kind": "HERO",
+        "heading": "Revitalize Your Mind, Body, and Spirit",
+        "subheading": "Bespoke therapies crafted by master practitioners in a serene tropical sanctuary."
+      }
+    ],
+    "featuredImageMediaId": {
+      "$oid": "6ac2427671f2067194815346"
+    },
+    "seo": {
+      "title": "Spa & Wellness Sanctuary",
+      "description": "Discover our spa treatments, vitality pools, and signature therapies.",
+      "robots": "index,follow",
+      "ogImageMediaId": {
+        "$oid": "6ac2427671f2067194815346"
+      }
+    },
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791116167236"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791116167236"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791116167236"
+      }
+    }
+  }
+]

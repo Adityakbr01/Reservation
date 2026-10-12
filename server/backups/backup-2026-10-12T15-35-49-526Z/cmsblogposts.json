@@ -1,0 +1,174 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac2427a71f2067194815355"
+    },
+    "title": "Epicurean Journeys: Behind the Scenes with Our Executive Chef",
+    "slug": "epicurean-journeys-behind-the-scenes",
+    "excerpt": "Step inside our Michelin-caliber kitchen where seasonal organic harvest transforms into culinary masterpieces paired with rare vintage wines.",
+    "content": "<h2>The Philosophy of Mindful Gastronomy</h2>\n<p>At our signature oceanfront restaurant, food is an art form of emotion, terroir, and refined craftsmanship. Led by Executive Chef Jean-Luc Moreau, our culinary atelier draws inspiration from ancient coastal flavors infused with contemporary French precision.</p>\n<blockquote>\"Every plate must tell a story of where the ingredients were harvested at dawn and how the elements nurtured them.\" — Chef Jean-Luc Moreau</blockquote>\n<h3>Farm-to-Table Artisanal Sourcing</h3>\n<p>Each morning begins with our culinary team visiting local fishermen and biodynamic orchards. From hand-dived scallops to heirloom mountain herbs, 90% of our produce originates within a thirty-mile radius. This unwavering dedication guarantees vibrant flavors and unmatched nutritional vitality.</p>\n<h3>The Curated Chef’s Degustation Tasting</h3>\n<p>Guests embarking on the 7-course seasonal tasting menu are treated to an unforgettable sensory voyage: slow-poached Brittany lobster with saffron foam, dry-aged Wagyu beef smoked over sandalwood, and artisanal dark chocolate ganache infused with wild forest honey.</p>\n<p>Complete your evening with cellar selections curated by Head Sommelier Marco Bellini, featuring biodynamic vintages and small-batch champagne allocations.</p>",
+    "featuredImageMediaId": {
+      "$oid": "6ac2427471f2067194815345"
+    },
+    "author": "Chef Jean-Luc Moreau",
+    "category": "Culinary & Dining",
+    "tags": [
+      "Fine Dining",
+      "Gastronomy",
+      "Organic Ingredients",
+      "Chef Tasting",
+      "Wine Pairing"
+    ],
+    "readingMinutes": {
+      "$numberInt": "5"
+    },
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115898676"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "seo": {
+      "title": "Epicurean Journeys: Behind the Scenes with Our Executive Chef",
+      "description": "Discover our farm-to-table culinary philosophy, 7-course tasting menus, and sommelier wine pairings.",
+      "canonicalUrl": null,
+      "robots": "index,follow",
+      "ogTitle": "Epicurean Journeys: Fine Dining at Our Luxury Resort",
+      "ogDescription": "An exclusive look inside the kitchen with Executive Chef Jean-Luc Moreau.",
+      "ogImageMediaId": {
+        "$oid": "6ac2427471f2067194815345"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115898754"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791115898754"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac2427b71f2067194815356"
+    },
+    "title": "Holistic Sanctuary: Finding Harmony at Our Wellness & Ayurvedic Spa",
+    "slug": "holistic-sanctuary-wellness-spa-guide",
+    "excerpt": "Discover the restorative healing power of warm basalt stones, organic botanical oils, and restorative yoga in our tranquil tropical pavilion.",
+    "content": "<h2>Return to Balance and Inner Peace</h2>\n<p>Modern living often taxes the mind and body beyond natural rhythms. Our holistic spa sanctuary offers an oasis where time slows, breathing deepens, and genuine rejuvenation takes root amidst tranquil koi ponds and lush bamboo groves.</p>\n<h3>Ancient Ayurvedic Wisdom Meets Modern Healing</h3>\n<p>Rooted in centuries-old Vedic traditions, our therapies begin with an individual dosha assessment by resident Ayurvedic practitioners. Whether you seek deep muscular relief, lymphatic drainage, or pure mental quietude, every session is personalized with cold-pressed herbal oils and warm botanical poultices.</p>\n<h3>The Signature Basalt Stone Immersion</h3>\n<p>Our most cherished therapy utilizes smooth volcanic basalt stones gathered from ancient riverbeds. Heated to precise therapeutic warmth and paired with sandalwood aromatherapeutic oils, the treatment gently releases deep-seated tension, stimulates vital meridian lines, and harmonizes the nervous system.</p>\n<p>Following your treatment, unwind in the herbal steam grotto or relax with fragrant white orchid tea by the open-air reflection pool.</p>",
+    "featuredImageMediaId": {
+      "$oid": "6ac2427671f2067194815346"
+    },
+    "author": "Dr. Maya Sen",
+    "category": "Wellness & Spa",
+    "tags": [
+      "Spa",
+      "Wellness",
+      "Ayurveda",
+      "Mindfulness",
+      "Detox",
+      "Self Care"
+    ],
+    "readingMinutes": {
+      "$numberInt": "6"
+    },
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "1"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115898676"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "seo": {
+      "title": "Holistic Sanctuary: Finding Harmony at Our Wellness Spa",
+      "description": "Explore restorative Ayurvedic therapies, basalt hot stone massage, and mindful wellness rituals.",
+      "canonicalUrl": null,
+      "robots": "index,follow",
+      "ogTitle": "Holistic Wellness & Spa Sanctuary Guide",
+      "ogDescription": "Experience profound rejuvenation and restorative healing in our tropical wellness pavilion.",
+      "ogImageMediaId": {
+        "$oid": "6ac2427671f2067194815346"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115899029"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791115899029"
+      }
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6ac2427b71f2067194815357"
+    },
+    "title": "Secret Coves & Sunset Catamarans: The Ultimate Coastal Escape Guide",
+    "slug": "secret-coves-sunset-catamarans-guide",
+    "excerpt": "Your insider itinerary to the most pristine hidden bays, vibrant snorkeling reefs, and magical golden hour catamaran cruises.",
+    "content": "<h2>Unveiling the Hidden Wonders of the Coast</h2><p><strong>Beyond our resort's</strong> <strong><em><u>sun-kissed</u></em></strong> beaches lies an enchanting archipelago waiting to be explored. Whether you are an adventurous soul or seeking peaceful seclusion, here is our concierge team’s curated guide to an unforgettable coastal escape.</p><h3>1. Snorkeling the Protected Coral Gardens</h3><p>Just a ten-minute boat tender from the resort jetty sits a thriving marine reserve teeming with vibrant sea turtles, tropical clownfish, and intricate brain corals. Our marine biologists guide daily morning eco-snorkeling safaris with provided reef-safe sunscreen and professional gear.</p><h3>2. Private Sandbank Picnics</h3><p>Imagine arriving by wooden speedboat at a pristine sandbank that vanishes with the evening tide. Our staff sets up a shaded Moroccan canopy, plush cushions, and an iced champagne cooler packed with freshly shucked oysters and tropical dragon fruit.</p><h3>3. Sunset Catamaran Sail</h3><p>As the sun dips toward the horizon painting the sky in fiery shades of amber and violet, board our 50-foot luxury catamaran. Sip artisanal botanical gin and tonics while gliding gracefully along coastal cliffs accompanied by playful spinner dolphins.</p>",
+    "featuredImageMediaId": {
+      "$oid": "6ac2426871f2067194815341"
+    },
+    "author": "Elena Rostova",
+    "category": "Destination & Travel",
+    "tags": [
+      "Travel",
+      "Coastal",
+      "Island Excursions",
+      "Sunset Catamaran",
+      "Adventure"
+    ],
+    "readingMinutes": {
+      "$numberInt": "1"
+    },
+    "status": "PUBLISHED",
+    "version": {
+      "$numberInt": "2"
+    },
+    "publishedAt": {
+      "$date": {
+        "$numberLong": "1791115898676"
+      }
+    },
+    "createdBy": {
+      "$oid": "6ac0cc40a287cfd3dfbbf8a8"
+    },
+    "seo": {
+      "title": "Secret Coves & Sunset Catamarans: Coastal Escape Guide",
+      "description": "Explore hidden bays, reef snorkeling, and romantic sunset sailing from our luxury resort.",
+      "canonicalUrl": null,
+      "robots": "index,follow",
+      "ogTitle": "The Ultimate Coastal Escape Guide",
+      "ogDescription": "An insider look into private sandbanks, marine excursions, and sunset catamaran voyages.",
+      "ogImageMediaId": {
+        "$oid": "6ac2426871f2067194815341"
+      }
+    },
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791115899254"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791121292408"
+      }
+    }
+  }
+]

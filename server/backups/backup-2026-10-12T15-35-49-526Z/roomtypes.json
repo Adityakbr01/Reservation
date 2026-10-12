@@ -1,0 +1,1709 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac3fe92d1f8bc5e7b25ae9f"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "name": "Oakwood Cottage",
+    "slug": "oakwood-cottage",
+    "shortDescription": "Cottage in Hamptworth, Hampshire — sleeps 3",
+    "description": "Located in the peaceful village of Hamptworth, close to the New Forest National Park and the highly regarded Hamptworth Golf & Country Club, Oakwood Cottage offers a stylish countryside escape in a truly enviable setting. Part of the beautifully converted Home Farm development, this charming cottage is one of five thoughtfully restored barn conversions that seamlessly blend rural character with contemporary design.",
+    "maxAdults": {
+      "$numberInt": "3"
+    },
+    "maxChildren": {
+      "$numberInt": "0"
+    },
+    "maxOccupancy": {
+      "$numberInt": "3"
+    },
+    "beds": [],
+    "amenities": [],
+    "images": [
+      {
+        "mediaId": "6ac3fc451aa14a97bd46a1ac",
+        "altText": "Oakwood Cottage photo 1",
+        "sortOrder": {
+          "$numberInt": "0"
+        }
+      },
+      {
+        "mediaId": "6ac3fc461aa14a97bd46a1ad",
+        "altText": "Oakwood Cottage photo 2",
+        "sortOrder": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "mediaId": "6ac3fc471aa14a97bd46a1ae",
+        "altText": "Oakwood Cottage photo 3",
+        "sortOrder": {
+          "$numberInt": "2"
+        }
+      },
+      {
+        "mediaId": "6ac3fc491aa14a97bd46a1af",
+        "altText": "Oakwood Cottage photo 4",
+        "sortOrder": {
+          "$numberInt": "3"
+        }
+      },
+      {
+        "mediaId": "6ac3fc4a1aa14a97bd46a1b0",
+        "altText": "Oakwood Cottage photo 5",
+        "sortOrder": {
+          "$numberInt": "4"
+        }
+      },
+      {
+        "mediaId": "6ac3fc4c1aa14a97bd46a1b1",
+        "altText": "Oakwood Cottage photo 6",
+        "sortOrder": {
+          "$numberInt": "5"
+        }
+      },
+      {
+        "mediaId": "6ac3fc4d1aa14a97bd46a1b2",
+        "altText": "Oakwood Cottage photo 7",
+        "sortOrder": {
+          "$numberInt": "6"
+        }
+      },
+      {
+        "mediaId": "6ac3fc4f1aa14a97bd46a1b3",
+        "altText": "Oakwood Cottage photo 8",
+        "sortOrder": {
+          "$numberInt": "7"
+        }
+      },
+      {
+        "mediaId": "6ac3fc501aa14a97bd46a1b4",
+        "altText": "Oakwood Cottage photo 9",
+        "sortOrder": {
+          "$numberInt": "8"
+        }
+      },
+      {
+        "mediaId": "6ac3fc521aa14a97bd46a1b5",
+        "altText": "Oakwood Cottage photo 10",
+        "sortOrder": {
+          "$numberInt": "9"
+        }
+      },
+      {
+        "mediaId": "6ac3fc531aa14a97bd46a1b6",
+        "altText": "Oakwood Cottage photo 11",
+        "sortOrder": {
+          "$numberInt": "10"
+        }
+      },
+      {
+        "mediaId": "6ac3fc541aa14a97bd46a1b7",
+        "altText": "Oakwood Cottage photo 12",
+        "sortOrder": {
+          "$numberInt": "11"
+        }
+      }
+    ],
+    "media": [
+      {
+        "mediaId": "6ac3fc451aa14a97bd46a1ac",
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 1",
+        "sortOrder": {
+          "$numberInt": "0"
+        }
+      },
+      {
+        "mediaId": "6ac3fc461aa14a97bd46a1ad",
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 2",
+        "sortOrder": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "mediaId": "6ac3fc471aa14a97bd46a1ae",
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 3",
+        "sortOrder": {
+          "$numberInt": "2"
+        }
+      },
+      {
+        "mediaId": "6ac3fc491aa14a97bd46a1af",
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 4",
+        "sortOrder": {
+          "$numberInt": "3"
+        }
+      },
+      {
+        "mediaId": "6ac3fc4a1aa14a97bd46a1b0",
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 5",
+        "sortOrder": {
+          "$numberInt": "4"
+        }
+      },
+      {
+        "mediaId": "6ac3fc4c1aa14a97bd46a1b1",
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 6",
+        "sortOrder": {
+          "$numberInt": "5"
+        }
+      },
+      {
+        "mediaId": "6ac3fc4d1aa14a97bd46a1b2",
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 7",
+        "sortOrder": {
+          "$numberInt": "6"
+        }
+      },
+      {
+        "mediaId": "6ac3fc4f1aa14a97bd46a1b3",
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 8",
+        "sortOrder": {
+          "$numberInt": "7"
+        }
+      },
+      {
+        "mediaId": "6ac3fc501aa14a97bd46a1b4",
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 9",
+        "sortOrder": {
+          "$numberInt": "8"
+        }
+      },
+      {
+        "mediaId": "6ac3fc521aa14a97bd46a1b5",
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 10",
+        "sortOrder": {
+          "$numberInt": "9"
+        }
+      },
+      {
+        "mediaId": "6ac3fc531aa14a97bd46a1b6",
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 11",
+        "sortOrder": {
+          "$numberInt": "10"
+        }
+      },
+      {
+        "mediaId": "6ac3fc541aa14a97bd46a1b7",
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 12",
+        "sortOrder": {
+          "$numberInt": "11"
+        }
+      }
+    ],
+    "layoutHtml": "<p><strong>Ground floor:</strong> open-plan kitchen/diner, lounge with wood burner, ground floor bedroom with ensuite.</p><p><strong>First floor:</strong> 2 bedrooms and family bathroom.</p><ul><li>2 bedrooms, 1 bathroom</li><li>Electric hob &amp; oven</li><li>Washer/dryer</li></ul>",
+    "floorplanMediaIds": [
+      "6acb6e77a458b0c2bef54efb"
+    ],
+    "locationText": "Hamptworth, Hampshire, Dorset Borders",
+    "surroundingsHtml": "<p>Information correct at the time of writing:-</p>\n<p>The cottages at Home Farm are conveniently located on the border with Wiltshire and Hampshire, so there are lots of opportunities for things to do and days out.</p>\n<p>Enjoy the facilities at <strong>Hamptworth Golf &amp; Country Club</strong>, including: Championship golf course, Padel courts, Pickleball courts, Croquet, Clubhouse, restaurant and bar.</p>\n<p>Explore the <strong>New Forest National Park</strong> - walk or cycle through ancient woodland, heathland and open moorland - spot the famous free-roaming ponies, cattle and deer. Visit charming villages, traditional pubs and farm shops. Enjoy picnics, nature trails and scenic viewpoints.</p>\n<p>Discover <strong>Salisbury</strong> &amp; its history - visit <strong>Salisbury Cathedral</strong>, home to the tallest church spire in Britain, and one of the best-preserved original copies of the Magna Carta - Visit <strong>Mompesson House</strong>, wander Salisbury's independent shops, cafes and restaurants or explore <strong>Old Sarum</strong>, one of southern England's most important historic sites, with its impressive ancient earthworks and panoramic views.</p>\n<p>Discover Wiltshire's World Heritage Sites - visit the iconic <strong>Stonehenge</strong>, and explore <strong>Avebury</strong>, home to the world's largest prehistoric stone circle, and discover the rich ancient history that makes this UNESCO World Heritage landscape so special.</p>\n<p>Take a trip to <strong>Shaftesbury</strong> and see the famous <strong>Gold Hill</strong>, featured in the classic Hovis advert.</p>\n<p>For gardens, heritage &amp; historic houses visit the magnificent gardens at <strong>Stourhead</strong>, explore the picturesque village and historic buildings of <strong>Lacock Abbey</strong>, and wander the beautiful rose gardens and grounds at <strong>Mottisfont</strong>.</p>",
+    "mapLat": {
+      "$numberDouble": "50.9622"
+    },
+    "mapLng": {
+      "$numberDouble": "-1.7347"
+    },
+    "mapEmbedUrl": null,
+    "welcomeHamperIncluded": true,
+    "welcomeHamperDescription": null,
+    "welcomeHamperImageMediaId": null,
+    "amenityIds": [
+      {
+        "$oid": "6ac3e2bced148dd299f90fb0"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb1"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb2"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb3"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb4"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb5"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb6"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb7"
+      },
+      {
+        "$oid": "6ac3e2bded148dd299f90fb8"
+      },
+      {
+        "$oid": "6ac3e2bded148dd299f90fb9"
+      },
+      {
+        "$oid": "6ac3e2bded148dd299f90fba"
+      },
+      {
+        "$oid": "6ac3ece4f55bc9c9731d99e3"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fa7"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fa8"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fa9"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90faa"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fab"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fac"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fad"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fae"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90faf"
+      }
+    ],
+    "bedrooms": {
+      "$numberInt": "2"
+    },
+    "bathrooms": {
+      "$numberInt": "1"
+    },
+    "maxDogs": {
+      "$numberInt": "1"
+    },
+    "status": "ACTIVE",
+    "seo": null,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791229586574"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791725240490"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "nearbyAttractions": [
+      {
+        "name": "New Forest National Park",
+        "description": "Walking & cycling",
+        "imageMediaId": null,
+        "url": "https://www.newforestnpa.gov.uk/"
+      },
+      {
+        "name": "Hamptworth Golf & Country Club",
+        "description": "Golf, dining & clubhouse",
+        "imageMediaId": null,
+        "url": null
+      },
+      {
+        "name": "Salisbury Cathedral",
+        "description": "Historic landmark",
+        "imageMediaId": null,
+        "url": "https://www.salisburycathedral.org.uk/"
+      },
+      {
+        "name": "Stonehenge",
+        "description": "World heritage site",
+        "imageMediaId": null,
+        "url": "https://www.english-heritage.org.uk/visit/places/stonehenge/"
+      }
+    ],
+    "welcomeHamperHtml": "<h3>What’s in the hamper</h3><p>Every stay starts with a welcome hamper of local favourites, ready in the kitchen on arrival.</p><ul><li>Fresh bread and local cheese</li><li>Farm eggs and butter</li><li>Tea, coffee and biscuits</li></ul><p>Tell us about dietary needs in <a href=\"/enquire\">your enquiry</a> and we will adjust it.</p>",
+    "propertyDetailsHtml": "<h3>Welcome to Oakwood Cottage</h3>"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3fe92d1f8bc5e7b25aea2"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "name": "The Dales Cottage",
+    "slug": "the-dales-cottage",
+    "shortDescription": "Cottage in Hamptworth, Hampshire — sleeps 4",
+    "description": "Surrounded by the beautiful countryside of Hamptworth and perfectly positioned on the edge of the New Forest, The Dales Cottage offers a peaceful retreat where comfort, style and rural charm come together. Part of the exclusive Home Farm collection of converted barns, this thoughtfully designed cottage provides a wonderful base for exploring the local area or simply enjoying a slower pace of life.",
+    "maxAdults": {
+      "$numberInt": "4"
+    },
+    "maxChildren": {
+      "$numberInt": "0"
+    },
+    "maxOccupancy": {
+      "$numberInt": "4"
+    },
+    "beds": [],
+    "amenities": [],
+    "images": [
+      {
+        "mediaId": "6ac3fc561aa14a97bd46a1b8",
+        "altText": "The Dales Cottage photo 1",
+        "sortOrder": {
+          "$numberInt": "0"
+        }
+      },
+      {
+        "mediaId": "6ac3fc581aa14a97bd46a1b9",
+        "altText": "The Dales Cottage photo 2",
+        "sortOrder": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "mediaId": "6ac3fc591aa14a97bd46a1ba",
+        "altText": "The Dales Cottage photo 3",
+        "sortOrder": {
+          "$numberInt": "2"
+        }
+      },
+      {
+        "mediaId": "6ac3fc5a1aa14a97bd46a1bb",
+        "altText": "The Dales Cottage photo 4",
+        "sortOrder": {
+          "$numberInt": "3"
+        }
+      },
+      {
+        "mediaId": "6ac3fc5c1aa14a97bd46a1bc",
+        "altText": "The Dales Cottage photo 5",
+        "sortOrder": {
+          "$numberInt": "4"
+        }
+      },
+      {
+        "mediaId": "6ac3fc5d1aa14a97bd46a1bd",
+        "altText": "The Dales Cottage photo 6",
+        "sortOrder": {
+          "$numberInt": "5"
+        }
+      },
+      {
+        "mediaId": "6ac3fc5f1aa14a97bd46a1be",
+        "altText": "The Dales Cottage photo 7",
+        "sortOrder": {
+          "$numberInt": "6"
+        }
+      },
+      {
+        "mediaId": "6ac3fc601aa14a97bd46a1bf",
+        "altText": "The Dales Cottage photo 8",
+        "sortOrder": {
+          "$numberInt": "7"
+        }
+      },
+      {
+        "mediaId": "6ac3fc611aa14a97bd46a1c0",
+        "altText": "The Dales Cottage photo 9",
+        "sortOrder": {
+          "$numberInt": "8"
+        }
+      },
+      {
+        "mediaId": "6ac3fc631aa14a97bd46a1c1",
+        "altText": "The Dales Cottage photo 10",
+        "sortOrder": {
+          "$numberInt": "9"
+        }
+      },
+      {
+        "mediaId": "6ac3fc641aa14a97bd46a1c2",
+        "altText": "The Dales Cottage photo 11",
+        "sortOrder": {
+          "$numberInt": "10"
+        }
+      }
+    ],
+    "media": [
+      {
+        "mediaId": "6ac3fc561aa14a97bd46a1b8",
+        "kind": "image",
+        "altText": "The Dales Cottage photo 1",
+        "sortOrder": {
+          "$numberInt": "0"
+        }
+      },
+      {
+        "mediaId": "6ac3fc581aa14a97bd46a1b9",
+        "kind": "image",
+        "altText": "The Dales Cottage photo 2",
+        "sortOrder": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "mediaId": "6ac3fc591aa14a97bd46a1ba",
+        "kind": "image",
+        "altText": "The Dales Cottage photo 3",
+        "sortOrder": {
+          "$numberInt": "2"
+        }
+      },
+      {
+        "mediaId": "6ac3fc5a1aa14a97bd46a1bb",
+        "kind": "image",
+        "altText": "The Dales Cottage photo 4",
+        "sortOrder": {
+          "$numberInt": "3"
+        }
+      },
+      {
+        "mediaId": "6ac3fc5c1aa14a97bd46a1bc",
+        "kind": "image",
+        "altText": "The Dales Cottage photo 5",
+        "sortOrder": {
+          "$numberInt": "4"
+        }
+      },
+      {
+        "mediaId": "6ac3fc5d1aa14a97bd46a1bd",
+        "kind": "image",
+        "altText": "The Dales Cottage photo 6",
+        "sortOrder": {
+          "$numberInt": "5"
+        }
+      },
+      {
+        "mediaId": "6ac3fc5f1aa14a97bd46a1be",
+        "kind": "image",
+        "altText": "The Dales Cottage photo 7",
+        "sortOrder": {
+          "$numberInt": "6"
+        }
+      },
+      {
+        "mediaId": "6ac3fc601aa14a97bd46a1bf",
+        "kind": "image",
+        "altText": "The Dales Cottage photo 8",
+        "sortOrder": {
+          "$numberInt": "7"
+        }
+      },
+      {
+        "mediaId": "6ac3fc611aa14a97bd46a1c0",
+        "kind": "image",
+        "altText": "The Dales Cottage photo 9",
+        "sortOrder": {
+          "$numberInt": "8"
+        }
+      },
+      {
+        "mediaId": "6ac3fc631aa14a97bd46a1c1",
+        "kind": "image",
+        "altText": "The Dales Cottage photo 10",
+        "sortOrder": {
+          "$numberInt": "9"
+        }
+      },
+      {
+        "mediaId": "6ac3fc641aa14a97bd46a1c2",
+        "kind": "image",
+        "altText": "The Dales Cottage photo 11",
+        "sortOrder": {
+          "$numberInt": "10"
+        }
+      }
+    ],
+    "layoutHtml": "<p><strong>Ground floor:</strong> open-plan kitchen/diner, lounge with wood burner.</p><p><strong>First floor:</strong> 2 bedrooms and family bathroom.</p><ul><li>2 bedrooms, 1 bathroom</li><li>Electric hob &amp; oven</li><li>Washer/dryer</li></ul>",
+    "floorplanMediaIds": [
+      "6acb6e65a458b0c2bef54ef9"
+    ],
+    "locationText": "Hamptworth, Hampshire, Dorset Borders",
+    "surroundingsHtml": "<p>Information correct at the time of writing:-</p>\n<p>The cottages at Home Farm are conveniently located on the border with Wiltshire and Hampshire, so there are lots of opportunities for things to do and days out.</p>\n<p>Enjoy the facilities at <strong>Hamptworth Golf &amp; Country Club</strong>, including: Championship golf course, Padel courts, Pickleball courts, Croquet, Clubhouse, restaurant and bar.</p>\n<p>Explore the <strong>New Forest National Park</strong> - walk or cycle through ancient woodland, heathland and open moorland - spot the famous free-roaming ponies, cattle and deer. Visit charming villages, traditional pubs and farm shops. Enjoy picnics, nature trails and scenic viewpoints.</p>\n<p>Discover <strong>Salisbury</strong> &amp; its history - visit <strong>Salisbury Cathedral</strong>, home to the tallest church spire in Britain, and one of the best-preserved original copies of the Magna Carta - Visit <strong>Mompesson House</strong>, wander Salisbury's independent shops, cafes and restaurants or explore <strong>Old Sarum</strong>, one of southern England's most important historic sites, with its impressive ancient earthworks and panoramic views.</p>\n<p>Discover Wiltshire's World Heritage Sites - visit the iconic <strong>Stonehenge</strong>, and explore <strong>Avebury</strong>, home to the world's largest prehistoric stone circle, and discover the rich ancient history that makes this UNESCO World Heritage landscape so special.</p>\n<p>Take a trip to <strong>Shaftesbury</strong> and see the famous <strong>Gold Hill</strong>, featured in the classic Hovis advert.</p>\n<p>For gardens, heritage &amp; historic houses visit the magnificent gardens at <strong>Stourhead</strong>, explore the picturesque village and historic buildings of <strong>Lacock Abbey</strong>, and wander the beautiful rose gardens and grounds at <strong>Mottisfont</strong>.</p>",
+    "mapLat": {
+      "$numberDouble": "50.9622"
+    },
+    "mapLng": {
+      "$numberDouble": "-1.7347"
+    },
+    "mapEmbedUrl": null,
+    "welcomeHamperIncluded": true,
+    "welcomeHamperDescription": null,
+    "welcomeHamperImageMediaId": null,
+    "amenityIds": [
+      {
+        "$oid": "6ac3e2bced148dd299f90fb0"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb1"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb2"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb3"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb4"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb5"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb6"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb7"
+      },
+      {
+        "$oid": "6ac3e2bded148dd299f90fb8"
+      },
+      {
+        "$oid": "6ac3e2bded148dd299f90fb9"
+      },
+      {
+        "$oid": "6ac3e2bded148dd299f90fba"
+      },
+      {
+        "$oid": "6ac3ece4f55bc9c9731d99e3"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fa7"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fa8"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fa9"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90faa"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fab"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fac"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fad"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fae"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90faf"
+      }
+    ],
+    "bedrooms": {
+      "$numberInt": "2"
+    },
+    "bathrooms": {
+      "$numberInt": "1"
+    },
+    "maxDogs": null,
+    "status": "ACTIVE",
+    "seo": null,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791229586885"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791725240585"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "nearbyAttractions": [
+      {
+        "name": "New Forest National Park",
+        "description": "Walking & cycling",
+        "imageMediaId": null,
+        "url": "https://www.newforestnpa.gov.uk/"
+      },
+      {
+        "name": "Hamptworth Golf & Country Club",
+        "description": "Golf, dining & clubhouse",
+        "imageMediaId": null,
+        "url": null
+      },
+      {
+        "name": "Salisbury Cathedral",
+        "description": "Historic landmark",
+        "imageMediaId": null,
+        "url": "https://www.salisburycathedral.org.uk/"
+      },
+      {
+        "name": "Stonehenge",
+        "description": "World heritage site",
+        "imageMediaId": null,
+        "url": "https://www.english-heritage.org.uk/visit/places/stonehenge/"
+      }
+    ],
+    "welcomeHamperHtml": "<h3>What’s in the hamper</h3><p>Every stay starts with a welcome hamper of local favourites, ready in the kitchen on arrival.</p><ul><li>Fresh bread and local cheese</li><li>Farm eggs and butter</li><li>Tea, coffee and biscuits</li></ul><p>Tell us about dietary needs in <a href=\"/enquire\">your enquiry</a> and we will adjust it.</p>",
+    "propertyDetailsHtml": "<h3>Welcome to The Dales Cottage</h3>"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea5"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "name": "Willow Brook",
+    "slug": "willow-brook",
+    "shortDescription": "Cottage in Hamptworth, Hampshire — sleeps 4",
+    "description": "Tucked away within the peaceful surroundings of Home Farm in Hamptworth, Willow Brook offers a delightful rural retreat on the edge of the New Forest. One of five beautifully converted barn cottages, it combines contemporary styling with thoughtful comforts, creating a welcoming base for exploring this stunning part of Hampshire.",
+    "maxAdults": {
+      "$numberInt": "4"
+    },
+    "maxChildren": {
+      "$numberInt": "0"
+    },
+    "maxOccupancy": {
+      "$numberInt": "4"
+    },
+    "beds": [],
+    "amenities": [],
+    "images": [
+      {
+        "mediaId": "6ac3fc661aa14a97bd46a1c3",
+        "altText": "Willow Brook photo 1",
+        "sortOrder": {
+          "$numberInt": "0"
+        }
+      },
+      {
+        "mediaId": "6ac3fc671aa14a97bd46a1c4",
+        "altText": "Willow Brook photo 2",
+        "sortOrder": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "mediaId": "6ac3fc691aa14a97bd46a1c5",
+        "altText": "Willow Brook photo 3",
+        "sortOrder": {
+          "$numberInt": "2"
+        }
+      },
+      {
+        "mediaId": "6ac3fc6a1aa14a97bd46a1c6",
+        "altText": "Willow Brook photo 4",
+        "sortOrder": {
+          "$numberInt": "3"
+        }
+      },
+      {
+        "mediaId": "6ac3fc6c1aa14a97bd46a1c7",
+        "altText": "Willow Brook photo 5",
+        "sortOrder": {
+          "$numberInt": "4"
+        }
+      },
+      {
+        "mediaId": "6ac3fc6d1aa14a97bd46a1c8",
+        "altText": "Willow Brook photo 6",
+        "sortOrder": {
+          "$numberInt": "5"
+        }
+      },
+      {
+        "mediaId": "6ac3fc6f1aa14a97bd46a1c9",
+        "altText": "Willow Brook photo 7",
+        "sortOrder": {
+          "$numberInt": "6"
+        }
+      },
+      {
+        "mediaId": "6ac3fc701aa14a97bd46a1ca",
+        "altText": "Willow Brook photo 8",
+        "sortOrder": {
+          "$numberInt": "7"
+        }
+      },
+      {
+        "mediaId": "6ac3fc721aa14a97bd46a1cb",
+        "altText": "Willow Brook photo 9",
+        "sortOrder": {
+          "$numberInt": "8"
+        }
+      },
+      {
+        "mediaId": "6ac3fc731aa14a97bd46a1cc",
+        "altText": "Willow Brook photo 10",
+        "sortOrder": {
+          "$numberInt": "9"
+        }
+      },
+      {
+        "mediaId": "6ac3fc751aa14a97bd46a1cd",
+        "altText": "Willow Brook photo 11",
+        "sortOrder": {
+          "$numberInt": "10"
+        }
+      },
+      {
+        "mediaId": "6ac3fc761aa14a97bd46a1ce",
+        "altText": "Willow Brook photo 12",
+        "sortOrder": {
+          "$numberInt": "11"
+        }
+      }
+    ],
+    "media": [
+      {
+        "mediaId": "6ac3fc661aa14a97bd46a1c3",
+        "kind": "image",
+        "altText": "Willow Brook photo 1",
+        "sortOrder": {
+          "$numberInt": "0"
+        }
+      },
+      {
+        "mediaId": "6ac3fc671aa14a97bd46a1c4",
+        "kind": "image",
+        "altText": "Willow Brook photo 2",
+        "sortOrder": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "mediaId": "6ac3fc691aa14a97bd46a1c5",
+        "kind": "image",
+        "altText": "Willow Brook photo 3",
+        "sortOrder": {
+          "$numberInt": "2"
+        }
+      },
+      {
+        "mediaId": "6ac3fc6a1aa14a97bd46a1c6",
+        "kind": "image",
+        "altText": "Willow Brook photo 4",
+        "sortOrder": {
+          "$numberInt": "3"
+        }
+      },
+      {
+        "mediaId": "6ac3fc6c1aa14a97bd46a1c7",
+        "kind": "image",
+        "altText": "Willow Brook photo 5",
+        "sortOrder": {
+          "$numberInt": "4"
+        }
+      },
+      {
+        "mediaId": "6ac3fc6d1aa14a97bd46a1c8",
+        "kind": "image",
+        "altText": "Willow Brook photo 6",
+        "sortOrder": {
+          "$numberInt": "5"
+        }
+      },
+      {
+        "mediaId": "6ac3fc6f1aa14a97bd46a1c9",
+        "kind": "image",
+        "altText": "Willow Brook photo 7",
+        "sortOrder": {
+          "$numberInt": "6"
+        }
+      },
+      {
+        "mediaId": "6ac3fc701aa14a97bd46a1ca",
+        "kind": "image",
+        "altText": "Willow Brook photo 8",
+        "sortOrder": {
+          "$numberInt": "7"
+        }
+      },
+      {
+        "mediaId": "6ac3fc721aa14a97bd46a1cb",
+        "kind": "image",
+        "altText": "Willow Brook photo 9",
+        "sortOrder": {
+          "$numberInt": "8"
+        }
+      },
+      {
+        "mediaId": "6ac3fc731aa14a97bd46a1cc",
+        "kind": "image",
+        "altText": "Willow Brook photo 10",
+        "sortOrder": {
+          "$numberInt": "9"
+        }
+      },
+      {
+        "mediaId": "6ac3fc751aa14a97bd46a1cd",
+        "kind": "image",
+        "altText": "Willow Brook photo 11",
+        "sortOrder": {
+          "$numberInt": "10"
+        }
+      },
+      {
+        "mediaId": "6ac3fc761aa14a97bd46a1ce",
+        "kind": "image",
+        "altText": "Willow Brook photo 12",
+        "sortOrder": {
+          "$numberInt": "11"
+        }
+      }
+    ],
+    "layoutHtml": "<p><strong>Ground floor:</strong> open-plan kitchen/diner, lounge with wood burner.</p><p><strong>First floor:</strong> 2 bedrooms and family bathroom.</p><ul><li>2 bedrooms, 1 bathroom</li><li>Electric hob &amp; oven</li><li>Washer/dryer</li></ul>",
+    "floorplanMediaIds": [
+      "6acb6b5ba458b0c2bef54ed4"
+    ],
+    "locationText": "Hamptworth, Hampshire, Dorset Borders",
+    "surroundingsHtml": "<p>Information correct at the time of writing:-</p>\n<p>The cottages at Home Farm are conveniently located on the border with Wiltshire and Hampshire, so there are lots of opportunities for things to do and days out.</p>\n<p>Enjoy the facilities at <strong>Hamptworth Golf &amp; Country Club</strong>, including: Championship golf course, Padel courts, Pickleball courts, Croquet, Clubhouse, restaurant and bar.</p>\n<p>Explore the <strong>New Forest National Park</strong> - walk or cycle through ancient woodland, heathland and open moorland - spot the famous free-roaming ponies, cattle and deer. Visit charming villages, traditional pubs and farm shops. Enjoy picnics, nature trails and scenic viewpoints.</p>\n<p>Discover <strong>Salisbury</strong> &amp; its history - visit <strong>Salisbury Cathedral</strong>, home to the tallest church spire in Britain, and one of the best-preserved original copies of the Magna Carta - Visit <strong>Mompesson House</strong>, wander Salisbury's independent shops, cafes and restaurants or explore <strong>Old Sarum</strong>, one of southern England's most important historic sites, with its impressive ancient earthworks and panoramic views.</p>\n<p>Discover Wiltshire's World Heritage Sites - visit the iconic <strong>Stonehenge</strong>, and explore <strong>Avebury</strong>, home to the world's largest prehistoric stone circle, and discover the rich ancient history that makes this UNESCO World Heritage landscape so special.</p>\n<p>Take a trip to <strong>Shaftesbury</strong> and see the famous <strong>Gold Hill</strong>, featured in the classic Hovis advert.</p>\n<p>For gardens, heritage &amp; historic houses visit the magnificent gardens at <strong>Stourhead</strong>, explore the picturesque village and historic buildings of <strong>Lacock Abbey</strong>, and wander the beautiful rose gardens and grounds at <strong>Mottisfont</strong>.</p>",
+    "mapLat": {
+      "$numberDouble": "50.9622"
+    },
+    "mapLng": {
+      "$numberDouble": "-1.7347"
+    },
+    "mapEmbedUrl": null,
+    "welcomeHamperIncluded": true,
+    "welcomeHamperDescription": null,
+    "welcomeHamperImageMediaId": null,
+    "amenityIds": [
+      {
+        "$oid": "6ac3e2bced148dd299f90fb0"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb1"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb2"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb3"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb4"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb5"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb6"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb7"
+      },
+      {
+        "$oid": "6ac3e2bded148dd299f90fb8"
+      },
+      {
+        "$oid": "6ac3e2bded148dd299f90fb9"
+      },
+      {
+        "$oid": "6ac3e2bded148dd299f90fba"
+      },
+      {
+        "$oid": "6ac3ece4f55bc9c9731d99e3"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fa7"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fa8"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fa9"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90faa"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fab"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fac"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fad"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fae"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90faf"
+      }
+    ],
+    "bedrooms": {
+      "$numberInt": "2"
+    },
+    "bathrooms": {
+      "$numberInt": "1"
+    },
+    "maxDogs": null,
+    "status": "ACTIVE",
+    "seo": null,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791229587258"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791725240678"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "nearbyAttractions": [
+      {
+        "name": "New Forest National Park",
+        "description": "Walking & cycling",
+        "imageMediaId": null,
+        "url": "https://www.newforestnpa.gov.uk/"
+      },
+      {
+        "name": "Hamptworth Golf & Country Club",
+        "description": "Golf, dining & clubhouse",
+        "imageMediaId": null,
+        "url": null
+      },
+      {
+        "name": "Salisbury Cathedral",
+        "description": "Historic landmark",
+        "imageMediaId": null,
+        "url": "https://www.salisburycathedral.org.uk/"
+      },
+      {
+        "name": "Stonehenge",
+        "description": "World heritage site",
+        "imageMediaId": null,
+        "url": "https://www.english-heritage.org.uk/visit/places/stonehenge/"
+      }
+    ],
+    "welcomeHamperHtml": "<h3>What’s in the hamper</h3><p>Every stay starts with a welcome hamper of local favourites, ready in the kitchen on arrival.</p><ul><li>Fresh bread and local cheese</li><li>Farm eggs and butter</li><li>Tea, coffee and biscuits</li></ul><p>Tell us about dietary needs in <a href=\"/enquire\">your enquiry</a> and we will adjust it.</p>",
+    "propertyDetailsHtml": "<h3>Welcome to Willow Brook</h3>"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aea8"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "name": "Foxglove Cottage",
+    "slug": "foxglove-cottage",
+    "shortDescription": "Cottage in Hamptworth, Hampshire — sleeps 4",
+    "description": "Tucked away in the tranquil surroundings of Home Farm in Hamptworth, Foxglove Cottage offers a charming countryside escape on the edge of the enchanting New Forest. One of five beautifully converted barn cottages, it effortlessly blends rustic character with modern comforts, creating a peaceful haven where guests can slow down, relax and reconnect.",
+    "maxAdults": {
+      "$numberInt": "4"
+    },
+    "maxChildren": {
+      "$numberInt": "0"
+    },
+    "maxOccupancy": {
+      "$numberInt": "4"
+    },
+    "beds": [],
+    "amenities": [],
+    "images": [
+      {
+        "mediaId": "6ac3fc301aa14a97bd46a19f",
+        "altText": "Foxglove Cottage photo 1",
+        "sortOrder": {
+          "$numberInt": "0"
+        }
+      },
+      {
+        "mediaId": "6ac3fc321aa14a97bd46a1a0",
+        "altText": "Foxglove Cottage photo 2",
+        "sortOrder": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "mediaId": "6ac3fc331aa14a97bd46a1a1",
+        "altText": "Foxglove Cottage photo 3",
+        "sortOrder": {
+          "$numberInt": "2"
+        }
+      },
+      {
+        "mediaId": "6ac3fc351aa14a97bd46a1a2",
+        "altText": "Foxglove Cottage photo 4",
+        "sortOrder": {
+          "$numberInt": "3"
+        }
+      },
+      {
+        "mediaId": "6ac3fc361aa14a97bd46a1a3",
+        "altText": "Foxglove Cottage photo 5",
+        "sortOrder": {
+          "$numberInt": "4"
+        }
+      },
+      {
+        "mediaId": "6ac3fc381aa14a97bd46a1a4",
+        "altText": "Foxglove Cottage photo 6",
+        "sortOrder": {
+          "$numberInt": "5"
+        }
+      },
+      {
+        "mediaId": "6ac3fc391aa14a97bd46a1a5",
+        "altText": "Foxglove Cottage photo 7",
+        "sortOrder": {
+          "$numberInt": "6"
+        }
+      },
+      {
+        "mediaId": "6ac3fc3a1aa14a97bd46a1a6",
+        "altText": "Foxglove Cottage photo 8",
+        "sortOrder": {
+          "$numberInt": "7"
+        }
+      },
+      {
+        "mediaId": "6ac3fc3c1aa14a97bd46a1a7",
+        "altText": "Foxglove Cottage photo 9",
+        "sortOrder": {
+          "$numberInt": "8"
+        }
+      },
+      {
+        "mediaId": "6ac3fc3f1aa14a97bd46a1a8",
+        "altText": "Foxglove Cottage photo 10",
+        "sortOrder": {
+          "$numberInt": "9"
+        }
+      },
+      {
+        "mediaId": "6ac3fc401aa14a97bd46a1a9",
+        "altText": "Foxglove Cottage photo 11",
+        "sortOrder": {
+          "$numberInt": "10"
+        }
+      },
+      {
+        "mediaId": "6ac3fc421aa14a97bd46a1aa",
+        "altText": "Foxglove Cottage photo 12",
+        "sortOrder": {
+          "$numberInt": "11"
+        }
+      },
+      {
+        "mediaId": "6ac3fc431aa14a97bd46a1ab",
+        "altText": "Foxglove Cottage photo 13",
+        "sortOrder": {
+          "$numberInt": "12"
+        }
+      }
+    ],
+    "media": [
+      {
+        "mediaId": "6ac3fc301aa14a97bd46a19f",
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 1",
+        "sortOrder": {
+          "$numberInt": "0"
+        }
+      },
+      {
+        "mediaId": "6ac3fc321aa14a97bd46a1a0",
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 2",
+        "sortOrder": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "mediaId": "6ac3fc331aa14a97bd46a1a1",
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 3",
+        "sortOrder": {
+          "$numberInt": "2"
+        }
+      },
+      {
+        "mediaId": "6ac3fc351aa14a97bd46a1a2",
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 4",
+        "sortOrder": {
+          "$numberInt": "3"
+        }
+      },
+      {
+        "mediaId": "6ac3fc361aa14a97bd46a1a3",
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 5",
+        "sortOrder": {
+          "$numberInt": "4"
+        }
+      },
+      {
+        "mediaId": "6ac3fc381aa14a97bd46a1a4",
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 6",
+        "sortOrder": {
+          "$numberInt": "5"
+        }
+      },
+      {
+        "mediaId": "6ac3fc391aa14a97bd46a1a5",
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 7",
+        "sortOrder": {
+          "$numberInt": "6"
+        }
+      },
+      {
+        "mediaId": "6ac3fc3a1aa14a97bd46a1a6",
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 8",
+        "sortOrder": {
+          "$numberInt": "7"
+        }
+      },
+      {
+        "mediaId": "6ac3fc3c1aa14a97bd46a1a7",
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 9",
+        "sortOrder": {
+          "$numberInt": "8"
+        }
+      },
+      {
+        "mediaId": "6ac3fc3f1aa14a97bd46a1a8",
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 10",
+        "sortOrder": {
+          "$numberInt": "9"
+        }
+      },
+      {
+        "mediaId": "6ac3fc401aa14a97bd46a1a9",
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 11",
+        "sortOrder": {
+          "$numberInt": "10"
+        }
+      },
+      {
+        "mediaId": "6ac3fc421aa14a97bd46a1aa",
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 12",
+        "sortOrder": {
+          "$numberInt": "11"
+        }
+      },
+      {
+        "mediaId": "6ac3fc431aa14a97bd46a1ab",
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 13",
+        "sortOrder": {
+          "$numberInt": "12"
+        }
+      }
+    ],
+    "layoutHtml": "<p><strong>Ground floor:</strong> open-plan kitchen/diner, lounge with wood burner.</p><p><strong>First floor:</strong> 2 bedrooms and family bathroom.</p><ul><li>2 bedrooms, 1 bathroom</li><li>Electric hob &amp; oven</li><li>Washer/dryer</li></ul>",
+    "floorplanMediaIds": [
+      "6acb6e6fa458b0c2bef54efa"
+    ],
+    "locationText": "Hamptworth, Hampshire, Dorset Borders",
+    "surroundingsHtml": "<p>Information correct at the time of writing:-</p>\n<p>The cottages at Home Farm are conveniently located on the border with Wiltshire and Hampshire, so there are lots of opportunities for things to do and days out.</p>\n<p>Enjoy the facilities at <strong>Hamptworth Golf &amp; Country Club</strong>, including: Championship golf course, Padel courts, Pickleball courts, Croquet, Clubhouse, restaurant and bar.</p>\n<p>Explore the <strong>New Forest National Park</strong> - walk or cycle through ancient woodland, heathland and open moorland - spot the famous free-roaming ponies, cattle and deer. Visit charming villages, traditional pubs and farm shops. Enjoy picnics, nature trails and scenic viewpoints.</p>\n<p>Discover <strong>Salisbury</strong> &amp; its history - visit <strong>Salisbury Cathedral</strong>, home to the tallest church spire in Britain, and one of the best-preserved original copies of the Magna Carta - Visit <strong>Mompesson House</strong>, wander Salisbury's independent shops, cafes and restaurants or explore <strong>Old Sarum</strong>, one of southern England's most important historic sites, with its impressive ancient earthworks and panoramic views.</p>\n<p>Discover Wiltshire's World Heritage Sites - visit the iconic <strong>Stonehenge</strong>, and explore <strong>Avebury</strong>, home to the world's largest prehistoric stone circle, and discover the rich ancient history that makes this UNESCO World Heritage landscape so special.</p>\n<p>Take a trip to <strong>Shaftesbury</strong> and see the famous <strong>Gold Hill</strong>, featured in the classic Hovis advert.</p>\n<p>For gardens, heritage &amp; historic houses visit the magnificent gardens at <strong>Stourhead</strong>, explore the picturesque village and historic buildings of <strong>Lacock Abbey</strong>, and wander the beautiful rose gardens and grounds at <strong>Mottisfont</strong>.</p>",
+    "mapLat": {
+      "$numberDouble": "50.9622"
+    },
+    "mapLng": {
+      "$numberDouble": "-1.7347"
+    },
+    "mapEmbedUrl": null,
+    "welcomeHamperIncluded": true,
+    "welcomeHamperDescription": null,
+    "welcomeHamperImageMediaId": null,
+    "amenityIds": [
+      {
+        "$oid": "6ac3e2bced148dd299f90fb0"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb2"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb3"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb4"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb5"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb6"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb7"
+      },
+      {
+        "$oid": "6ac3e2bded148dd299f90fb8"
+      },
+      {
+        "$oid": "6ac3e2bded148dd299f90fb9"
+      },
+      {
+        "$oid": "6ac3ece4f55bc9c9731d99e3"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fa7"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fa8"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fa9"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90faa"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fab"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fac"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fad"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fae"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90faf"
+      },
+      {
+        "$oid": "6ac3e2bded148dd299f90fba"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb1"
+      }
+    ],
+    "bedrooms": {
+      "$numberInt": "2"
+    },
+    "bathrooms": {
+      "$numberInt": "1"
+    },
+    "maxDogs": null,
+    "status": "ACTIVE",
+    "seo": null,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791229587632"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791725240759"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "nearbyAttractions": [
+      {
+        "name": "New Forest National Park",
+        "description": "Walking & cycling",
+        "imageMediaId": null,
+        "url": "https://www.newforestnpa.gov.uk/"
+      },
+      {
+        "name": "Hamptworth Golf & Country Club",
+        "description": "Golf, dining & clubhouse",
+        "imageMediaId": null,
+        "url": null
+      },
+      {
+        "name": "Salisbury Cathedral",
+        "description": "Historic landmark",
+        "imageMediaId": null,
+        "url": "https://www.salisburycathedral.org.uk/"
+      },
+      {
+        "name": "Stonehenge",
+        "description": "World heritage site",
+        "imageMediaId": null,
+        "url": "https://www.english-heritage.org.uk/visit/places/stonehenge/"
+      }
+    ],
+    "welcomeHamperHtml": "<h3>What’s in the hamper</h3><p>Every stay starts with a welcome hamper of local favourites, ready in the kitchen on arrival.</p><ul><li>Fresh bread and local cheese</li><li>Farm eggs and butter</li><li>Tea, coffee and biscuits</li></ul><p>Tell us about dietary needs in <a href=\"/enquire\">your enquiry</a> and we will adjust it.</p>",
+    "propertyDetailsHtml": "<h3>Welcome to Foxglove Cottage</h3>"
+  },
+  {
+    "_id": {
+      "$oid": "6ac3fe93d1f8bc5e7b25aeab"
+    },
+    "propertyId": {
+      "$oid": "6ac0cc41a287cfd3dfbbf8a9"
+    },
+    "name": "Fern Cottage",
+    "slug": "fern-cottage",
+    "shortDescription": "Cottage in Hamptworth, Hampshire — sleeps 6",
+    "description": "Set amidst peaceful surroundings on the fringes of the New Forest and close to the renowned Hamptworth Golf & Country Club, Fern Cottage is one of Home Farm's charming barns which have been beautifully renovated to create five distinctive cottages. Combining sophisticated interiors, modern conveniences and luxurious finishes, each cottage offers the perfect balance of countryside charm and contemporary living.",
+    "maxAdults": {
+      "$numberInt": "6"
+    },
+    "maxChildren": {
+      "$numberInt": "6"
+    },
+    "maxOccupancy": {
+      "$numberInt": "12"
+    },
+    "beds": [],
+    "amenities": [],
+    "images": [
+      {
+        "mediaId": "6ac3fc1d1aa14a97bd46a192",
+        "altText": "Fern Cottage photo 1",
+        "sortOrder": {
+          "$numberInt": "0"
+        }
+      },
+      {
+        "mediaId": "6ac3fc1e1aa14a97bd46a193",
+        "altText": "Fern Cottage photo 2",
+        "sortOrder": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "mediaId": "6ac3fc201aa14a97bd46a194",
+        "altText": "Fern Cottage photo 3",
+        "sortOrder": {
+          "$numberInt": "2"
+        }
+      },
+      {
+        "mediaId": "6ac3fc211aa14a97bd46a195",
+        "altText": "Fern Cottage photo 4",
+        "sortOrder": {
+          "$numberInt": "3"
+        }
+      },
+      {
+        "mediaId": "6ac3fc231aa14a97bd46a196",
+        "altText": "Fern Cottage photo 5",
+        "sortOrder": {
+          "$numberInt": "4"
+        }
+      },
+      {
+        "mediaId": "6ac3fc241aa14a97bd46a197",
+        "altText": "Fern Cottage photo 6",
+        "sortOrder": {
+          "$numberInt": "5"
+        }
+      },
+      {
+        "mediaId": "6ac3fc261aa14a97bd46a198",
+        "altText": "Fern Cottage photo 7",
+        "sortOrder": {
+          "$numberInt": "6"
+        }
+      },
+      {
+        "mediaId": "6ac3fc271aa14a97bd46a199",
+        "altText": "Fern Cottage photo 8",
+        "sortOrder": {
+          "$numberInt": "7"
+        }
+      },
+      {
+        "mediaId": "6ac3fc291aa14a97bd46a19a",
+        "altText": "Fern Cottage photo 9",
+        "sortOrder": {
+          "$numberInt": "8"
+        }
+      },
+      {
+        "mediaId": "6ac3fc2a1aa14a97bd46a19b",
+        "altText": "Fern Cottage photo 10",
+        "sortOrder": {
+          "$numberInt": "9"
+        }
+      },
+      {
+        "mediaId": "6ac3fc2c1aa14a97bd46a19c",
+        "altText": "Fern Cottage photo 11",
+        "sortOrder": {
+          "$numberInt": "10"
+        }
+      },
+      {
+        "mediaId": "6ac3fc2d1aa14a97bd46a19d",
+        "altText": "Fern Cottage photo 12",
+        "sortOrder": {
+          "$numberInt": "11"
+        }
+      },
+      {
+        "mediaId": "6ac3fc2f1aa14a97bd46a19e",
+        "altText": "Fern Cottage photo 13",
+        "sortOrder": {
+          "$numberInt": "12"
+        }
+      }
+    ],
+    "media": [
+      {
+        "mediaId": "6ac3fc1d1aa14a97bd46a192",
+        "kind": "image",
+        "altText": "Fern Cottage photo 1",
+        "sortOrder": {
+          "$numberInt": "0"
+        }
+      },
+      {
+        "mediaId": "6ac3fc1e1aa14a97bd46a193",
+        "kind": "image",
+        "altText": "Fern Cottage photo 2",
+        "sortOrder": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "mediaId": "6ac3fc201aa14a97bd46a194",
+        "kind": "image",
+        "altText": "Fern Cottage photo 3",
+        "sortOrder": {
+          "$numberInt": "2"
+        }
+      },
+      {
+        "mediaId": "6ac3fc211aa14a97bd46a195",
+        "kind": "image",
+        "altText": "Fern Cottage photo 4",
+        "sortOrder": {
+          "$numberInt": "3"
+        }
+      },
+      {
+        "mediaId": "6ac3fc231aa14a97bd46a196",
+        "kind": "image",
+        "altText": "Fern Cottage photo 5",
+        "sortOrder": {
+          "$numberInt": "4"
+        }
+      },
+      {
+        "mediaId": "6ac3fc241aa14a97bd46a197",
+        "kind": "image",
+        "altText": "Fern Cottage photo 6",
+        "sortOrder": {
+          "$numberInt": "5"
+        }
+      },
+      {
+        "mediaId": "6ac3fc261aa14a97bd46a198",
+        "kind": "image",
+        "altText": "Fern Cottage photo 7",
+        "sortOrder": {
+          "$numberInt": "6"
+        }
+      },
+      {
+        "mediaId": "6ac3fc271aa14a97bd46a199",
+        "kind": "image",
+        "altText": "Fern Cottage photo 8",
+        "sortOrder": {
+          "$numberInt": "7"
+        }
+      },
+      {
+        "mediaId": "6ac3fc291aa14a97bd46a19a",
+        "kind": "image",
+        "altText": "Fern Cottage photo 9",
+        "sortOrder": {
+          "$numberInt": "8"
+        }
+      },
+      {
+        "mediaId": "6ac3fc2a1aa14a97bd46a19b",
+        "kind": "image",
+        "altText": "Fern Cottage photo 10",
+        "sortOrder": {
+          "$numberInt": "9"
+        }
+      },
+      {
+        "mediaId": "6ac3fc2c1aa14a97bd46a19c",
+        "kind": "image",
+        "altText": "Fern Cottage photo 11",
+        "sortOrder": {
+          "$numberInt": "10"
+        }
+      },
+      {
+        "mediaId": "6ac3fc2d1aa14a97bd46a19d",
+        "kind": "image",
+        "altText": "Fern Cottage photo 12",
+        "sortOrder": {
+          "$numberInt": "11"
+        }
+      },
+      {
+        "mediaId": "6ac3fc2f1aa14a97bd46a19e",
+        "kind": "image",
+        "altText": "Fern Cottage photo 13",
+        "sortOrder": {
+          "$numberInt": "12"
+        }
+      }
+    ],
+    "layoutHtml": "<p><strong>Ground floor:</strong> open-plan kitchen/diner, lounge with wood burner, ground floor bedroom with ensuite.</p><p><strong>First floor:</strong> two further bedrooms and family bathroom.</p><ul><li>Electric hob &amp; oven</li><li>Washer/dryer</li><li>Garden furniture</li></ul>",
+    "floorplanMediaIds": [
+      "6acb6e5ca458b0c2bef54ef3"
+    ],
+    "locationText": "Home Farm, Hamptworth, Salisbury SP5 2DU — on the Hampshire/Wiltshire border, minutes from Hamptworth Golf & Country Club.",
+    "surroundingsHtml": "<p>Information correct at the time of writing:-</p><p>The cottages at Home Farm are conveniently located on the border with Wiltshire and Hampshire, so there are lots of opportunities for things to do and days out.</p><p>Enjoy the facilities at <strong>Hamptworth Golf &amp; Country Club</strong> — Championship golf course, padel, pickleball and clubhouse restaurant.</p><p>Explore the <a href=\"https://www.newforestnpa.gov.uk/\" target=\"_blank\">New Forest National Park</a> — walk or cycle through ancient woodland and spot free-roaming ponies.</p><p>Discover <a href=\"https://www.salisburycathedral.org.uk/\" target=\"_blank\">Salisbury Cathedral</a>, home to the tallest spire in Britain and the Magna Carta.</p><p>Visit the iconic <a href=\"https://www.english-heritage.org.uk/visit/places/stonehenge/\" target=\"_blank\">Stonehenge</a> and <a href=\"https://www.nationaltrust.org.uk/visit/wiltshire/stourhead\" target=\"_blank\">Stourhead gardens</a>.</p>",
+    "mapLat": {
+      "$numberDouble": "50.9622"
+    },
+    "mapLng": {
+      "$numberDouble": "-1.7347"
+    },
+    "mapEmbedUrl": null,
+    "welcomeHamperIncluded": true,
+    "welcomeHamperDescription": null,
+    "welcomeHamperImageMediaId": null,
+    "amenityIds": [
+      {
+        "$oid": "6ac3e2bced148dd299f90fb0"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb1"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb2"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb3"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb4"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb5"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb7"
+      },
+      {
+        "$oid": "6ac3e2bded148dd299f90fb8"
+      },
+      {
+        "$oid": "6ac3e2bded148dd299f90fb9"
+      },
+      {
+        "$oid": "6ac3ece4f55bc9c9731d99e3"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fa7"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fa8"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fa9"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90faa"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fab"
+      },
+      {
+        "$oid": "6ac3e2bbed148dd299f90fac"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fae"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fad"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90faf"
+      },
+      {
+        "$oid": "6ac3e2bced148dd299f90fb6"
+      },
+      {
+        "$oid": "6ac3e2bded148dd299f90fba"
+      }
+    ],
+    "bedrooms": {
+      "$numberInt": "3"
+    },
+    "bathrooms": {
+      "$numberInt": "2"
+    },
+    "maxDogs": null,
+    "status": "ACTIVE",
+    "seo": null,
+    "createdAt": {
+      "$date": {
+        "$numberLong": "1791229587960"
+      }
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791725240837"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "propertyDetailsHtml": "<h3>Welcome to Fern Cottage</h3>",
+    "nearbyAttractions": [
+      {
+        "name": "New Forest National Park",
+        "description": "Walking & cycling",
+        "imageMediaId": "6ac4fd9dffefee1267f07f06",
+        "url": "https://www.newforestnpa.gov.uk/"
+      },
+      {
+        "name": "Hamptworth Golf & Country Club",
+        "description": "Golf, dining & clubhouse",
+        "imageMediaId": null,
+        "url": null
+      },
+      {
+        "name": "Salisbury Cathedral",
+        "description": "Historic landmark",
+        "imageMediaId": null,
+        "url": "https://www.salisburycathedral.org.uk/"
+      },
+      {
+        "name": "Stonehenge",
+        "description": "World heritage site",
+        "imageMediaId": null,
+        "url": "https://www.english-heritage.org.uk/visit/places/stonehenge/"
+      }
+    ],
+    "welcomeHamperHtml": "<h3>What’s in the hamper</h3><p>Every stay starts with a welcome hamper of local favourites, ready in the kitchen on arrival.</p><ul><li>Fresh bread and local cheese</li><li>Farm eggs and butter</li><li>Tea, coffee and biscuits</li></ul><p>Tell us about dietary needs in <a href=\"/enquire\">your enquiry</a> and we will adjust it.</p>"
+  }
+]

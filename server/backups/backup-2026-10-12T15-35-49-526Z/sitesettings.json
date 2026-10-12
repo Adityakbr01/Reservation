@@ -1,0 +1,76 @@
+[
+  {
+    "_id": {
+      "$oid": "6ac10aaf76e392418dc3918e"
+    },
+    "key": "site",
+    "propertyName": "Reservation",
+    "logoMediaId": null,
+    "faviconMediaId": null,
+    "phone": "+911111111111",
+    "supportEmail": null,
+    "address": null,
+    "timezone": "Asia/Kolkata",
+    "currency": "INR",
+    "checkInTime": null,
+    "checkOutTime": null,
+    "social": {
+      "facebook": null,
+      "instagram": null,
+      "x": null
+    },
+    "defaultSeo": {
+      "title": null,
+      "description": null,
+      "ogImageMediaId": null
+    },
+    "updatedAt": {
+      "$date": {
+        "$numberLong": "1791818409219"
+      }
+    },
+    "__v": {
+      "$numberInt": "0"
+    },
+    "reminderHoursBefore": {
+      "$numberInt": "24"
+    },
+    "whyBookWithUs": [
+      {
+        "title": "Local knowledge",
+        "text": "<p>We live and work in the area, so ask us anything — the best walks, pubs, beaches and rainy-day plans.</p>",
+        "_id": {
+          "$oid": "6accfaa9ef1d9c640fec6240"
+        }
+      },
+      {
+        "title": "Property",
+        "text": "<p>A single hand-picked property, prepared to the same high standard for every arrival.</p>",
+        "_id": {
+          "$oid": "6accfaa9ef1d9c640fec6241"
+        }
+      },
+      {
+        "title": "Quality checked",
+        "text": "<p>Checked and cleaned before every stay, so everything works the way it should when you walk in.</p>",
+        "_id": {
+          "$oid": "6accfaa9ef1d9c640fec6242"
+        }
+      },
+      {
+        "title": "Customer Satisfaction",
+        "text": "<p>Most of our guests come back or send friends. If anything falls short during your stay, tell us and we will make it right.</p>",
+        "_id": {
+          "$oid": "6accfaa9ef1d9c640fec6243"
+        }
+      },
+      {
+        "title": "24/7 support",
+        "text": "<p>A real person is on call around the clock during your stay — call any time, day or night.</p>",
+        "_id": {
+          "$oid": "6accfaa9ef1d9c640fec6244"
+        }
+      }
+    ]
+  }
+]
