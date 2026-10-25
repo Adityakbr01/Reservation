@@ -1,18 +1,44 @@
-import type { QueryFilter } from "mongoose";
+import { randomBytes } from "node:crypto";
+import { prisma } from "../../config/database";
 import type { PaginationQuery } from "../../utils/pagination";
 import { paginatedResponse } from "../../utils/pagination";
 import type { Paginated } from "../../utils/pagination";
-import { UserModel } from "./user.model";
-import type { UserDocument } from "./user.model";
 import type { SafeUser, UserRole } from "./user.types";
 import type { StorageProvider } from "../media/media.model";
 
-/** Fields safe to expose. Single allow-list used by every read path. */
-const SAFE_PROJECTION = "name email role isActive avatarUrl lastLoginAt createdAt updatedAt";
+export interface UserDocLike {
+  id: string;
+  _id: { toString(): string };
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: UserRole;
+  isActive: boolean;
+  avatarUrl: string | null;
+  avatarFileId: string | null;
+  avatarStorageProvider: StorageProvider;
+  legacyAvatarUrl: string | null;
+  legacyAvatarFileId: string | null;
+  passwordResetTokenHash: string | null;
+  passwordResetExpires: Date | null;
+  lastLoginAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-export function toSafeUser(doc: UserDocument): SafeUser {
+export function toUserDoc(user: any): UserDocLike {
   return {
-    id: doc._id.toString(),
+    ...user,
+    role: user.role as UserRole,
+    avatarStorageProvider: (user.avatarStorageProvider ?? "ftp") as StorageProvider,
+    _id: { toString: () => user.id },
+  };
+}
+
+export function toSafeUser(doc: any): SafeUser {
+  const id = doc.id ?? (typeof doc._id === "object" ? doc._id.toString() : doc._id);
+  return {
+    id,
     name: doc.name,
     email: doc.email,
     role: doc.role,
@@ -31,34 +57,51 @@ export interface CreateUserInput {
   role: UserRole;
 }
 
-export async function createUser(input: CreateUserInput): Promise<UserDocument> {
-  return UserModel.create(input);
+export async function createUser(input: CreateUserInput): Promise<UserDocLike> {
+  const id = randomBytes(12).toString("hex");
+  const user = await prisma.user.create({
+    data: {
+      id,
+      name: input.name,
+      email: input.email.toLowerCase().trim(),
+      passwordHash: input.passwordHash,
+      role: input.role,
+      isActive: true,
+    },
+  });
+  return toUserDoc(user);
 }
 
-export async function findUserByEmail(email: string): Promise<UserDocument | null> {
-  return UserModel.findOne({ email }).select(SAFE_PROJECTION).exec();
+export async function findUserByEmail(email: string): Promise<UserDocLike | null> {
+  const user = await prisma.user.findUnique({
+    where: { email: email.toLowerCase().trim() },
+  });
+  return user ? toUserDoc(user) : null;
 }
 
 /** Login path only: includes the password hash. Never return this to clients. */
-export async function findUserByEmailWithHash(email: string): Promise<UserDocument | null> {
-  return UserModel.findOne({ email }).select(`+passwordHash ${SAFE_PROJECTION}`).exec();
+export async function findUserByEmailWithHash(email: string): Promise<UserDocLike | null> {
+  const user = await prisma.user.findUnique({
+    where: { email: email.toLowerCase().trim() },
+  });
+  return user ? toUserDoc(user) : null;
 }
 
 export async function findUserById(id: string): Promise<SafeUser | null> {
-  const doc = await UserModel.findById(id).select(SAFE_PROJECTION).exec();
-  return doc ? toSafeUser(doc) : null;
+  const user = await prisma.user.findUnique({ where: { id } });
+  return user ? toSafeUser(user) : null;
 }
 
 /** Full document access for internal flows (avatar file refs, hashes). */
-export async function findUserDocById(id: string): Promise<UserDocument | null> {
-  // avatarFileId is select:false — without the explicit +select the avatar
-  // cleanup in updateMe silently never ran (previousFileId always undefined).
-  return UserModel.findById(id).select("+avatarFileId +legacyAvatarFileId").exec();
+export async function findUserDocById(id: string): Promise<UserDocLike | null> {
+  const user = await prisma.user.findUnique({ where: { id } });
+  return user ? toUserDoc(user) : null;
 }
 
 /** Hash included. Internal use only — never return this to clients. */
-export async function findUserByIdWithHash(id: string): Promise<UserDocument | null> {
-  return UserModel.findById(id).select("+passwordHash").exec();
+export async function findUserByIdWithHash(id: string): Promise<UserDocLike | null> {
+  const user = await prisma.user.findUnique({ where: { id } });
+  return user ? toUserDoc(user) : null;
 }
 
 export interface ListUsersFilter extends PaginationQuery {
@@ -69,20 +112,22 @@ export interface ListUsersFilter extends PaginationQuery {
 /** Admin account listing. Always the standard paginated contract. */
 export async function listUsers(filter: ListUsersFilter): Promise<Paginated<SafeUser>> {
   const { page, limit, q, role } = filter;
-  const query: QueryFilter<UserDocument> = {};
-  if (role) query.role = role;
+  const where: any = {};
+  if (role) where.role = role;
   if (q) {
-    const pattern = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
-    query.$or = [{ name: pattern }, { email: pattern }];
+    where.OR = [
+      { name: { contains: q } },
+      { email: { contains: q } },
+    ];
   }
   const [total, docs] = await Promise.all([
-    UserModel.countDocuments(query).exec(),
-    UserModel.find(query)
-      .select(SAFE_PROJECTION)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .exec(),
+    prisma.user.count({ where }),
+    prisma.user.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
   ]);
   return paginatedResponse(
     docs.map((doc) => toSafeUser(doc)),
@@ -108,17 +153,23 @@ export interface UpdateUserInput {
 }
 
 export async function updateUserById(id: string, input: UpdateUserInput): Promise<SafeUser | null> {
-  const doc = await UserModel.findByIdAndUpdate(id, input, { returnDocument: "after" })
-    .select(SAFE_PROJECTION)
-    .exec();
-  return doc ? toSafeUser(doc) : null;
+  try {
+    const user = await prisma.user.update({
+      where: { id },
+      data: input,
+    });
+    return toSafeUser(user);
+  } catch {
+    return null;
+  }
 }
 
-export async function findUserByResetTokenHash(tokenHash: string): Promise<UserDocument | null> {
-  return UserModel.findOne({
-    passwordResetTokenHash: tokenHash,
-    passwordResetExpires: { $gt: new Date() },
-  })
-    .select(`+passwordResetTokenHash +passwordResetExpires ${SAFE_PROJECTION}`)
-    .exec();
+export async function findUserByResetTokenHash(tokenHash: string): Promise<UserDocLike | null> {
+  const user = await prisma.user.findFirst({
+    where: {
+      passwordResetTokenHash: tokenHash,
+      passwordResetExpires: { gt: new Date() },
+    },
+  });
+  return user ? toUserDoc(user) : null;
 }

@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import type { QueryFilter } from "mongoose";
+import { prisma } from "../../config/database";
 import { paginatedResponse } from "../../utils/pagination";
 import type { Paginated } from "../../utils/pagination";
+import type { Amenity as PrismaAmenity } from "@prisma/client";
 
 export const AMENITY_GROUPS = ["HIGHLIGHT", "FACILITY"] as const;
 export type AmenityGroup = (typeof AMENITY_GROUPS)[number];
@@ -23,49 +23,17 @@ export interface Amenity {
   updatedAt: Date;
 }
 
-export interface AmenityDocument extends mongoose.Document {
-  name: string;
-  slug: string;
-  group: AmenityGroup;
-  description: string | null;
-  imageMediaId: string | null;
-  iconUrl: string | null;
-  sortOrder: number;
-  status: AmenityStatus;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const amenitySchema = new mongoose.Schema<AmenityDocument>(
-  {
-    name: { type: String, required: true, trim: true, maxlength: 120 },
-    slug: { type: String, required: true, trim: true, maxlength: 140, unique: true },
-    group: { type: String, enum: AMENITY_GROUPS, default: "HIGHLIGHT", required: true },
-    description: { type: String, default: null, maxlength: 2000 },
-    imageMediaId: { type: String, default: null },
-    iconUrl: { type: String, default: null, maxlength: 500 },
-    sortOrder: { type: Number, default: 0 },
-    status: { type: String, enum: AMENITY_STATUSES, default: "ACTIVE", required: true },
-  },
-  { timestamps: true },
-);
-
-amenitySchema.index({ group: 1, status: 1, sortOrder: 1 });
-
-export const AmenityModel =
-  mongoose.models.Amenity ?? mongoose.model<AmenityDocument>("Amenity", amenitySchema);
-
-export function toAmenity(doc: AmenityDocument): Amenity {
+export function toAmenity(doc: PrismaAmenity | any): Amenity {
   return {
-    id: doc._id.toString(),
+    id: doc.id ?? doc._id?.toString(),
     name: doc.name,
     slug: doc.slug,
-    group: doc.group,
-    description: doc.description,
-    imageMediaId: doc.imageMediaId,
+    group: doc.group as AmenityGroup,
+    description: doc.description ?? null,
+    imageMediaId: doc.imageMediaId ?? null,
     iconUrl: doc.iconUrl ?? null,
-    sortOrder: doc.sortOrder,
-    status: doc.status,
+    sortOrder: doc.sortOrder ?? 0,
+    status: doc.status as AmenityStatus,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
@@ -80,17 +48,20 @@ export interface ListAmenitiesFilter {
 }
 
 export async function listAmenities(filter: ListAmenitiesFilter): Promise<Paginated<Amenity>> {
-  const query: QueryFilter<AmenityDocument> = {};
-  if (filter.group) query.group = filter.group;
-  if (filter.status) query.status = filter.status;
-  if (filter.q) query.name = { $regex: filter.q, $options: "i" };
+  const where: any = {};
+  if (filter.group) where.group = filter.group;
+  if (filter.status) where.status = filter.status;
+  if (filter.q) {
+    where.name = { contains: filter.q };
+  }
   const [total, docs] = await Promise.all([
-    AmenityModel.countDocuments(query).exec(),
-    AmenityModel.find(query)
-      .sort({ sortOrder: 1, name: 1 })
-      .skip((filter.page - 1) * filter.limit)
-      .limit(filter.limit)
-      .exec(),
+    prisma.amenity.count({ where }),
+    prisma.amenity.findMany({
+      where,
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      skip: (filter.page - 1) * filter.limit,
+      take: filter.limit,
+    }),
   ]);
   return paginatedResponse(
     docs.map(toAmenity),

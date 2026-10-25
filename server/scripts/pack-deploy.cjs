@@ -21,11 +21,12 @@ const FILES = [
   ".env.example",
   ".env.production.example",
 ];
-const DIRS = ["src", "scripts", "dist"];
+const DIRS = ["src", "scripts", "dist", "prisma"];
 
 const ENV_KEYS = [
   "NODE_ENV",
   "PORT",
+  "DATABASE_URL",
   "MONGODB_URI",
   "JWT_SECRET",
   "JWT_EXPIRES_IN",
@@ -71,7 +72,7 @@ const PRODUCTION_OVERRIDES = {
 };
 
 const REQUIRED_FALLBACK_KEYS = [
-  "MONGODB_URI",
+  "DATABASE_URL",
   "JWT_SECRET",
   "GODADDY_FTP_HOST",
   "GODADDY_FTP_USER",
@@ -118,9 +119,6 @@ function buildDeployEnv() {
   }
   if (merged.JWT_SECRET === "dev-only-insecure-secret-change-me") {
     fail("JWT_SECRET in server/.env is the insecure dev fallback. Set a real secret.");
-  }
-  if (/^(mongodb:\/\/)?(localhost|127\.0\.0\.1)/.test(merged.MONGODB_URI)) {
-    fail("MONGODB_URI in server/.env points at localhost; GoDaddy needs MongoDB Atlas.");
   }
 
   const lines = ENV_KEYS.filter((key) => merged[key] !== undefined).map(

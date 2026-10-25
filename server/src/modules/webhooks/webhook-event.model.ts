@@ -1,10 +1,12 @@
-import mongoose from "mongoose";
+import { prisma } from "../../config/database";
+import { newId } from "../../utils/id";
 
 export const WEBHOOK_PROCESSING_STATUSES = ["RECEIVED", "PROCESSED", "FAILED"] as const;
 
 export type WebhookProcessingStatus = (typeof WEBHOOK_PROCESSING_STATUSES)[number];
 
-export interface WebhookEventDocument extends mongoose.Document {
+export interface WebhookEvent {
+  id: string;
   provider: string;
   stripeEventId: string;
   eventType: string;
@@ -15,49 +17,31 @@ export interface WebhookEventDocument extends mongoose.Document {
   updatedAt: Date;
 }
 
-const webhookEventSchema = new mongoose.Schema<WebhookEventDocument>(
-  {
-    provider: { type: String, required: true, default: "STRIPE" },
-    stripeEventId: { type: String, required: true, unique: true },
-    eventType: { type: String, required: true },
-    receivedAt: { type: Date, required: true, default: () => new Date() },
-    processedAt: { type: Date, default: null },
-    processingStatus: {
-      type: String,
-      enum: WEBHOOK_PROCESSING_STATUSES,
-      required: true,
-      default: "RECEIVED",
-    },
-  },
-  { timestamps: true },
-);
-
-// stripeEventId unique index comes from `unique: true` on the field above.
-
-// Guarded for --hot reloads.
-export const WebhookEventModel =
-  mongoose.models.WebhookEvent ??
-  mongoose.model<WebhookEventDocument>("WebhookEvent", webhookEventSchema);
-
 export async function hasWebhookEvent(stripeEventId: string): Promise<boolean> {
-  return (await WebhookEventModel.exists({ stripeEventId })) !== null;
+  const count = await prisma.webhookEvent.count({ where: { stripeEventId } });
+  return count > 0;
 }
 
 export async function recordWebhookEvent(stripeEventId: string, eventType: string): Promise<void> {
-  await WebhookEventModel.create({ stripeEventId, eventType, processingStatus: "RECEIVED" });
+  await prisma.webhookEvent.create({
+    data: {
+      id: newId(),
+      stripeEventId,
+      eventType,
+      processingStatus: "RECEIVED",
+    },
+  });
 }
 
 export async function markWebhookEvent(
   stripeEventId: string,
   status: WebhookProcessingStatus,
 ): Promise<void> {
-  await WebhookEventModel.updateOne(
-    { stripeEventId },
-    {
-      $set: {
-        processingStatus: status,
-        ...(status === "PROCESSED" ? { processedAt: new Date() } : {}),
-      },
+  await prisma.webhookEvent.updateMany({
+    where: { stripeEventId },
+    data: {
+      processingStatus: status,
+      ...(status === "PROCESSED" ? { processedAt: new Date() } : {}),
     },
-  ).exec();
+  });
 }

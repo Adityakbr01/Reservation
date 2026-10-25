@@ -1,14 +1,14 @@
-import { PropertyModel } from "./property.model";
-import type { PropertyDocument } from "./property.model";
+import { randomBytes } from "node:crypto";
+import { prisma } from "../../config/database";
 import type { Property } from "./property.types";
 
-export function toProperty(doc: PropertyDocument): Property {
+export function toProperty(doc: any): Property {
   return {
-    id: doc._id.toString(),
+    id: doc.id ?? (doc._id ? doc._id.toString() : ""),
     name: doc.name,
     slug: doc.slug,
-    description: doc.description,
-    contact: doc.contact,
+    description: doc.description ?? null,
+    contact: doc.contact ?? null,
     mapEmbedUrl: doc.mapEmbedUrl ?? null,
     checkInTime: doc.checkInTime,
     checkOutTime: doc.checkOutTime,
@@ -20,8 +20,9 @@ export function toProperty(doc: PropertyDocument): Property {
   };
 }
 
-export async function findProperty(): Promise<PropertyDocument | null> {
-  return PropertyModel.findOne().exec();
+export async function findProperty(): Promise<any | null> {
+  const p = await prisma.property.findFirst();
+  return p ? { ...p, _id: { toString: () => p.id } } : null;
 }
 
 export interface UpdatePropertyInput {
@@ -36,7 +37,26 @@ export interface UpdatePropertyInput {
   status?: Property["status"];
 }
 
+export async function createProperty(data: { name: string; slug: string }): Promise<any> {
+  const id = randomBytes(12).toString("hex");
+  const p = await prisma.property.create({
+    data: {
+      id,
+      name: data.name,
+      slug: data.slug,
+    },
+  });
+  return { ...p, _id: { toString: () => p.id } };
+}
+
 export async function updateProperty(id: string, input: UpdatePropertyInput): Promise<Property | null> {
-  const doc = await PropertyModel.findByIdAndUpdate(id, input, { returnDocument: "after" }).exec();
-  return doc ? toProperty(doc) : null;
+  try {
+    const doc = await prisma.property.update({
+      where: { id },
+      data: input,
+    });
+    return toProperty(doc);
+  } catch {
+    return null;
+  }
 }

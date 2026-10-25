@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import type { QueryFilter } from "mongoose";
+import { prisma } from "../../config/database";
 import { paginatedResponse } from "../../utils/pagination";
 import type { Paginated } from "../../utils/pagination";
+import { newId } from "../../utils/id";
 
 export type MediaKind = "image" | "video";
 
@@ -13,14 +13,11 @@ export interface Media {
   fileName: string;
   url: string;
   storageKey: string;
-  /** "ftp" = GoDaddy FTP key relative to uploads/. "local"/"imagekit" are legacy. */
   storageProvider: StorageProvider;
-  /** Pre-migration values, kept for per-row rollback during the transition. */
   legacyUrl: string | null;
   legacyStorageKey: string | null;
   mime: string;
   kind: MediaKind;
-  /** Logical folder, e.g. "Cottage/Oakwood Cottage". Null = library root. */
   folder: string | null;
   width: number | null;
   height: number | null;
@@ -33,80 +30,34 @@ export interface Media {
   updatedAt: Date;
 }
 
-export interface MediaDocument extends mongoose.Document {
-  fileName: string;
-  url: string;
-  storageKey: string;
-  storageProvider: StorageProvider;
-  legacyUrl: string | null;
-  legacyStorageKey: string | null;
-  mime: string;
-  kind: MediaKind;
-  folder: string | null;
-  width: number | null;
-  height: number | null;
-  durationSec: number | null;
-  alt: string | null;
-  caption: string | null;
-  size: number;
-  createdBy: mongoose.Types.ObjectId | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const mediaSchema = new mongoose.Schema<MediaDocument>(
-  {
-    fileName: { type: String, required: true },
-    url: { type: String, required: true },
-    storageKey: { type: String, required: true, unique: true },
-    storageProvider: { type: String, enum: ["ftp", "local", "imagekit"], default: "ftp" },
-    legacyUrl: { type: String, default: null },
-    legacyStorageKey: { type: String, default: null },
-    mime: { type: String, required: true },
-    kind: { type: String, enum: ["image", "video"], default: "image" },
-    folder: { type: String, default: null, maxlength: 200 },
-    width: { type: Number, default: null },
-    height: { type: Number, default: null },
-    durationSec: { type: Number, default: null },
-    alt: { type: String, default: null, maxlength: 200 },
-    caption: { type: String, default: null, maxlength: 300 },
-    size: { type: Number, required: true, min: 0 },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
-  },
-  { timestamps: true },
-);
-
-mediaSchema.index({ createdAt: -1 });
-mediaSchema.index({ folder: 1, createdAt: -1 });
-
-// Guarded for --hot reloads.
-export const MediaModel =
-  mongoose.models.Media ?? mongoose.model<MediaDocument>("Media", mediaSchema);
+export type MediaDocument = Media & {
+  _id: { toString: () => string };
+};
 
 export function mediaKindFor(mime: string, kind?: string | null): MediaKind {
   if (kind === "video") return "video";
   return mime.startsWith("video/") ? "video" : "image";
 }
 
-export function toMedia(doc: MediaDocument): Media {
+export function toMedia(doc: any): Media {
   return {
-    id: doc._id.toString(),
+    id: doc.id ?? doc._id?.toString(),
     fileName: doc.fileName,
     url: doc.url,
     storageKey: doc.storageKey,
-    storageProvider: doc.storageProvider ?? "ftp",
+    storageProvider: (doc.storageProvider ?? "ftp") as StorageProvider,
     legacyUrl: doc.legacyUrl ?? null,
     legacyStorageKey: doc.legacyStorageKey ?? null,
     mime: doc.mime,
-    kind: mediaKindFor(doc.mime, (doc as MediaDocument).kind),
+    kind: mediaKindFor(doc.mime, doc.kind),
     folder: doc.folder ?? null,
-    width: doc.width,
-    height: doc.height,
-    durationSec: doc.durationSec ?? null,
-    alt: doc.alt,
-    caption: doc.caption,
-    size: doc.size,
-    createdBy: doc.createdBy ? doc.createdBy.toString() : null,
+    width: doc.width ?? null,
+    height: doc.height ?? null,
+    durationSec: doc.durationSec != null ? Number(doc.durationSec) : null,
+    alt: doc.alt ?? null,
+    caption: doc.caption ?? null,
+    size: Number(doc.size),
+    createdBy: doc.createdBy ? (doc.createdBy.toString?.() ?? String(doc.createdBy)) : null,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
@@ -134,11 +85,6 @@ export function normalizeFolderPath(raw: string | null | undefined): string | nu
   return cleaned.length > 0 ? cleaned : null;
 }
 
-/**
- * Folder filter value → Mongo predicate. Exact path matches one folder;
- * a trailing "/*" matches the whole subtree (sidebar parent rows).
- * Pure — unit-tested.
- */
 export function folderQuery(folder: string): null | string | { $regex: string } {
   if (folder === "__root__") return null;
   if (folder.endsWith("/*")) {
@@ -152,33 +98,50 @@ export function folderQuery(folder: string): null | string | { $regex: string } 
 
 /** Distinct folders for the library sidebar, sorted. */
 export async function listMediaFolders(): Promise<string[]> {
-  const folders = await MediaModel.distinct("folder").exec();
-  return (folders as unknown[])
+  const folders = await prisma.media.findMany({
+    where: { folder: { not: null } },
+    select: { folder: true },
+    distinct: ["folder"],
+  });
+  return folders
+    .map((f) => f.folder)
     .filter((f): f is string => typeof f === "string" && f.length > 0)
     .sort((a, b) => a.localeCompare(b));
 }
 
 export async function listMedia(filter: ListMediaFilter): Promise<Paginated<Media>> {
-  const query: QueryFilter<MediaDocument> = {};
-  if (filter.q) query.fileName = { $regex: filter.q, $options: "i" };
+  const where: any = {};
+  if (filter.q) {
+    where.fileName = { contains: filter.q };
+  }
   if (filter.kind) {
     if (filter.kind === "video") {
-      query.$or = [{ kind: "video" }, { mime: { $regex: "^video/" } }];
+      where.OR = [{ kind: "video" }, { mime: { startsWith: "video/" } }];
     } else {
-      query.kind = "image";
+      where.kind = "image";
     }
   }
   if (filter.folder !== undefined) {
-    query.folder = folderQuery(filter.folder) as QueryFilter<MediaDocument>["folder"];
+    if (filter.folder === "__root__") {
+      where.folder = null;
+    } else if (filter.folder.endsWith("/*")) {
+      const prefix = filter.folder.slice(0, -2);
+      where.folder = { startsWith: `${prefix}/` };
+    } else {
+      where.folder = filter.folder;
+    }
   }
+
   const [total, docs] = await Promise.all([
-    MediaModel.countDocuments(query).exec(),
-    MediaModel.find(query)
-      .sort({ createdAt: -1 })
-      .skip((filter.page - 1) * filter.limit)
-      .limit(filter.limit)
-      .exec(),
+    prisma.media.count({ where }),
+    prisma.media.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (filter.page - 1) * filter.limit,
+      take: filter.limit,
+    }),
   ]);
+
   return paginatedResponse(
     docs.map((doc) => toMedia(doc)),
     filter.page,
@@ -188,7 +151,86 @@ export async function listMedia(filter: ListMediaFilter): Promise<Paginated<Medi
 }
 
 export async function findMediaById(id: string): Promise<Media | null> {
-  if (!mongoose.Types.ObjectId.isValid(id)) return null;
-  const doc = await MediaModel.findById(id).exec();
+  if (!id || id.length !== 24) return null;
+  const doc = await prisma.media.findUnique({ where: { id } });
   return doc ? toMedia(doc) : null;
 }
+
+export const MediaModel = {
+  create: async (data: any) => {
+    const id = newId();
+    const created = await prisma.media.create({
+      data: {
+        id,
+        fileName: data.fileName,
+        url: data.url,
+        storageKey: data.storageKey,
+        storageProvider: data.storageProvider ?? "ftp",
+        legacyUrl: data.legacyUrl ?? null,
+        legacyStorageKey: data.legacyStorageKey ?? null,
+        mime: data.mime,
+        kind: data.kind ?? "image",
+        folder: data.folder ?? null,
+        width: data.width ?? null,
+        height: data.height ?? null,
+        durationSec: data.durationSec ?? null,
+        alt: data.alt ?? null,
+        caption: data.caption ?? null,
+        size: Number(data.size),
+        createdBy: data.createdBy ? String(data.createdBy) : null,
+      },
+    });
+    return {
+      ...created,
+      _id: { toString: () => created.id },
+    };
+  },
+  findByIdAndUpdate: (id: string, update: any, _options?: any) => {
+    return {
+      exec: async () => {
+        try {
+          const patch = update.$set ?? update;
+          const updated = await prisma.media.update({
+            where: { id },
+            data: patch,
+          });
+          return {
+            ...updated,
+            _id: { toString: () => updated.id },
+          };
+        } catch {
+          return null;
+        }
+      },
+    };
+  },
+  deleteOne: (query: { _id?: string; id?: string }) => {
+    const id = query.id ?? query._id;
+    return {
+      exec: async () => {
+        if (!id) return;
+        try {
+          await prisma.media.delete({ where: { id } });
+        } catch {
+          // ignore
+        }
+      },
+    };
+  },
+  find: (query: { _id?: { $in: string[] } }) => {
+    return {
+      select: (_fields: string) => ({
+        exec: async () => {
+          const ids = query._id?.$in ?? [];
+          const docs = await prisma.media.findMany({
+            where: { id: { in: ids } },
+          });
+          return docs.map((d) => ({
+            ...d,
+            _id: { toString: () => d.id },
+          }));
+        },
+      }),
+    };
+  },
+};

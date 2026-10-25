@@ -1,5 +1,6 @@
-import mongoose from "mongoose";
-import type { QueryFilter } from "mongoose";
+import { prisma } from "../../config/database";
+import { newId } from "../../utils/id";
+import { isDuplicateKeyError } from "../../utils/mongo";
 import { paginatedResponse } from "../../utils/pagination";
 import type { Paginated } from "../../utils/pagination";
 
@@ -23,57 +24,19 @@ export interface Refund {
   updatedAt: Date;
 }
 
-export interface RefundDocument extends mongoose.Document {
-  bookingId: mongoose.Types.ObjectId;
-  paymentId: mongoose.Types.ObjectId;
-  provider: "STRIPE";
-  providerRefundId: string;
-  amount: number;
-  currency: string;
-  status: RefundStatus;
-  reason: string | null;
-  requestedBy: mongoose.Types.ObjectId | null;
-  processedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const refundSchema = new mongoose.Schema<RefundDocument>(
-  {
-    bookingId: { type: mongoose.Schema.Types.ObjectId, ref: "Booking", required: true },
-    paymentId: { type: mongoose.Schema.Types.ObjectId, ref: "Payment", required: true },
-    provider: { type: String, default: "STRIPE", required: true },
-    providerRefundId: { type: String, required: true, unique: true },
-    amount: { type: Number, required: true, min: 0 },
-    currency: { type: String, required: true },
-    status: { type: String, enum: REFUND_STATUSES, default: "SUCCEEDED", required: true },
-    reason: { type: String, default: null },
-    requestedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
-    processedAt: { type: Date, default: null },
-  },
-  { timestamps: true },
-);
-
-refundSchema.index({ bookingId: 1, createdAt: -1 });
-refundSchema.index({ paymentId: 1 });
-
-// Guarded for --hot reloads.
-export const RefundModel =
-  mongoose.models.Refund ?? mongoose.model<RefundDocument>("Refund", refundSchema);
-
-export function toRefund(doc: RefundDocument): Refund {
+export function toRefund(doc: any): Refund {
   return {
-    id: doc._id.toString(),
-    bookingId: doc.bookingId.toString(),
-    paymentId: doc.paymentId.toString(),
-    provider: doc.provider,
+    id: doc.id ?? doc._id?.toString(),
+    bookingId: typeof doc.bookingId === "object" ? doc.bookingId.toString() : doc.bookingId,
+    paymentId: typeof doc.paymentId === "object" ? doc.paymentId.toString() : doc.paymentId,
+    provider: doc.provider as "STRIPE",
     providerRefundId: doc.providerRefundId,
     amount: doc.amount,
     currency: doc.currency,
-    status: doc.status,
-    reason: doc.reason,
-    requestedBy: doc.requestedBy ? doc.requestedBy.toString() : null,
-    processedAt: doc.processedAt,
+    status: doc.status as RefundStatus,
+    reason: doc.reason ?? null,
+    requestedBy: doc.requestedBy ? (typeof doc.requestedBy === "object" ? doc.requestedBy.toString() : doc.requestedBy) : null,
+    processedAt: doc.processedAt ? new Date(doc.processedAt) : null,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
@@ -97,19 +60,37 @@ export interface RecordRefundInput {
  */
 export async function recordRefund(input: RecordRefundInput): Promise<Refund | null> {
   try {
-    const doc = await RefundModel.create(input);
+    const id = newId();
+    const doc = await prisma.refund.create({
+      data: {
+        id,
+        bookingId: input.bookingId,
+        paymentId: input.paymentId,
+        providerRefundId: input.providerRefundId,
+        amount: input.amount,
+        currency: input.currency,
+        status: input.status ?? "SUCCEEDED",
+        reason: input.reason ?? null,
+        requestedBy: input.requestedBy ?? null,
+        processedAt: input.processedAt ?? null,
+      },
+    });
     return toRefund(doc);
   } catch (error) {
-    if (error instanceof Error && (error as unknown as { code?: unknown }).code === 11000) {
+    if (isDuplicateKeyError(error)) {
       return null;
     }
     throw error;
   }
 }
+
 /** All refunds for a payment, newest first — payment detail + email context. */
 export async function listRefundsForPayment(paymentId: string): Promise<Refund[]> {
-  const docs = await RefundModel.find({ paymentId }).sort({ createdAt: -1 }).exec();
-  return docs.map((doc) => toRefund(doc));
+  const docs = await prisma.refund.findMany({
+    where: { paymentId },
+    orderBy: { createdAt: "desc" },
+  });
+  return docs.map(toRefund);
 }
 
 /** Latest refund for a payment — drives the REFUND_UPDATED email context. */
@@ -120,27 +101,24 @@ export async function findLatestRefundForPayment(paymentId: string): Promise<Ref
 
 /** Sum of succeeded refunds for a payment — our own records, not Stripe's counter. */
 export async function sumSucceededRefunds(paymentId: string): Promise<number> {
-  const rows = await RefundModel.aggregate<{ total: number }>([
-    { $match: { paymentId: new mongoose.Types.ObjectId(paymentId), status: "SUCCEEDED" } },
-    { $group: { _id: null, total: { $sum: "$amount" } } },
-  ]).exec();
-  return rows[0]?.total ?? 0;
+  const result = await prisma.refund.aggregate({
+    where: { paymentId, status: "SUCCEEDED" },
+    _sum: { amount: true },
+  });
+  return Number(result._sum.amount ?? 0);
 }
 
 /**
  * Promotes an already-recorded PENDING refund to SUCCEEDED once the
  * provider confirms it. Returns true when a transition happened; false
  * when the record was already terminal (idempotent repeat deliveries).
- * Async provider refunds (PENDING at creation) only become countable
- * through this path, so the webhook must call it before reconciling.
  */
 export async function markRefundSucceeded(providerRefundId: string): Promise<boolean> {
-  const updated = await RefundModel.findOneAndUpdate(
-    { providerRefundId, status: "PENDING" },
-    { $set: { status: "SUCCEEDED", processedAt: new Date() } },
-    { returnDocument: "after" },
-  ).exec();
-  return updated !== null;
+  const result = await prisma.refund.updateMany({
+    where: { providerRefundId, status: "PENDING" },
+    data: { status: "SUCCEEDED", processedAt: new Date() },
+  });
+  return result.count > 0;
 }
 
 export interface ListRefundsFilter {
@@ -152,19 +130,20 @@ export interface ListRefundsFilter {
 
 export async function listRefunds(filter: ListRefundsFilter): Promise<Paginated<Refund>> {
   const { page, limit, bookingId, status } = filter;
-  const query: QueryFilter<RefundDocument> = {};
-  if (bookingId) query.bookingId = bookingId;
-  if (status) query.status = status;
+  const where: any = {};
+  if (bookingId) where.bookingId = bookingId;
+  if (status) where.status = status;
   const [total, docs] = await Promise.all([
-    RefundModel.countDocuments(query).exec(),
-    RefundModel.find(query)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .exec(),
+    prisma.refund.count({ where }),
+    prisma.refund.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
   ]);
   return paginatedResponse(
-    docs.map((doc) => toRefund(doc)),
+    docs.map(toRefund),
     page,
     limit,
     total,

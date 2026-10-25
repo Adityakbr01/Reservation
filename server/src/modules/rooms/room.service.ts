@@ -2,8 +2,7 @@ import { AppError } from "../../utils/app-error";
 import { isValidStayRange } from "../../utils/availability";
 import { isDuplicateKeyError } from "../../utils/mongo";
 import type { Paginated } from "../../utils/pagination";
-import { BookingModel } from "../bookings/booking.model";
-import { BookingItemModel } from "../bookings/booking-item.model";
+import { prisma } from "../../config/database";
 import { findOverlappingBlockedRoomIds } from "../availability/availability-block.repository";
 import { findHeldRoomIds } from "../bookings/hold.store";
 import { ensureProperty } from "../properties/property.service";
@@ -89,28 +88,30 @@ export async function getRoomsOccupancy(checkIn: Date, checkOut: Date): Promise<
   const ids = rooms.map((room) => room.id);
   const [blocked, bookings] = await Promise.all([
     findOverlappingBlockedRoomIds(checkIn, checkOut),
-    BookingModel.find({
-      status: { $in: ["CONFIRMED", "CHECKED_IN"] },
-      checkIn: { $lt: checkOut },
-      checkOut: { $gt: checkIn },
-    })
-      .select("_id bookingNumber")
-      .exec(),
+    prisma.booking.findMany({
+      where: {
+        status: { in: ["CONFIRMED", "CHECKED_IN"] },
+        checkIn: { lt: checkOut },
+        checkOut: { gt: checkIn },
+      },
+      select: { id: true, bookingNumber: true },
+    }),
   ]);
   const bookedByRoom = new Map<string, string>();
   if (bookings.length > 0 && ids.length > 0) {
-    const items = await BookingItemModel.find({
-      bookingId: { $in: bookings.map((b) => b._id) },
-      roomId: { $in: ids },
-    })
-      .select("roomId bookingId")
-      .exec();
-    const numbers = new Map(bookings.map((b) => [b._id.toString(), b.bookingNumber]));
+    const items = await prisma.bookingItem.findMany({
+      where: {
+        bookingId: { in: bookings.map((b) => b.id) },
+        roomId: { in: ids },
+      },
+      select: { roomId: true, bookingId: true },
+    });
+    const numbers = new Map(bookings.map((b) => [b.id, b.bookingNumber]));
     for (const item of items) {
       if (!item.roomId) continue;
-      const key = item.roomId.toString();
+      const key = item.roomId;
       if (!bookedByRoom.has(key)) {
-        bookedByRoom.set(key, numbers.get(item.bookingId.toString()) ?? "—");
+        bookedByRoom.set(key, numbers.get(item.bookingId) ?? "—");
       }
     }
   }

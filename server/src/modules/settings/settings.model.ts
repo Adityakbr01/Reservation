@@ -1,4 +1,5 @@
-import mongoose from "mongoose";
+import { prisma } from "../../config/database";
+import { newId } from "../../utils/id";
 
 export interface WhyBookItem {
   title: string;
@@ -34,116 +35,39 @@ export interface SiteSettings {
   updatedAt: Date;
 }
 
-export interface SiteSettingsDocument extends mongoose.Document {
-  key: string;
-  propertyName: string;
-  logoMediaId: mongoose.Types.ObjectId | null;
-  faviconMediaId: mongoose.Types.ObjectId | null;
-  phone: string | null;
-  supportEmail: string | null;
-  address: string | null;
-  timezone: string;
-  currency: string;
-  checkInTime: string | null;
-  checkOutTime: string | null;
-  reminderHoursBefore: number;
-  social: {
-    facebook: string | null;
-    instagram: string | null;
-    x: string | null;
-  };
-  defaultSeo: {
-    title: string | null;
-    description: string | null;
-    ogImageMediaId: mongoose.Types.ObjectId | null;
-  };
-  whyBookWithUs: WhyBookItem[];
-  updatedAt: Date;
-}
+export type SiteSettingsDocument = SiteSettings & {
+  _id: { toString: () => string };
+};
 
-const settingsSchema = new mongoose.Schema<SiteSettingsDocument>(
-  {
-    key: { type: String, required: true, unique: true, default: "site" },
-    propertyName: { type: String, default: "Reservation", maxlength: 120 },
-    logoMediaId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Media",
-      default: null,
-    },
-    faviconMediaId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Media",
-      default: null,
-    },
-    phone: { type: String, default: null, maxlength: 40 },
-    supportEmail: { type: String, default: null, maxlength: 160 },
-    address: { type: String, default: null, maxlength: 300 },
-    timezone: { type: String, default: "Asia/Kolkata", maxlength: 60 },
-    currency: { type: String, default: "INR", maxlength: 3 },
-    checkInTime: { type: String, default: null, maxlength: 5 },
-    checkOutTime: { type: String, default: null, maxlength: 5 },
-    reminderHoursBefore: { type: Number, default: 24, min: 1, max: 72 },
-    social: {
-      facebook: { type: String, default: null, maxlength: 300 },
-      instagram: { type: String, default: null, maxlength: 300 },
-      x: { type: String, default: null, maxlength: 300 },
-    },
-    defaultSeo: {
-      title: { type: String, default: null, maxlength: 160 },
-      description: { type: String, default: null, maxlength: 300 },
-      ogImageMediaId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Media",
-        default: null,
-      },
-    },
-    whyBookWithUs: {
-      type: [
-        {
-          title: { type: String, required: true, maxlength: 120 },
-          text: { type: String, default: null, maxlength: 5000 },
-        },
-      ],
-      default: [
-        { title: "Local knowledge", text: null },
-        { title: "Property", text: null },
-        { title: "Quality checked", text: null },
-        { title: "Customer Satisfaction", text: null },
-        { title: "24/7 support", text: null },
-      ],
-    },
-  },
-  { timestamps: { createdAt: false, updatedAt: true } },
-);
+export function toSiteSettings(doc: any): SiteSettings {
+  const social = (doc.social ?? {}) as Record<string, any>;
+  const defaultSeo = (doc.defaultSeo ?? {}) as Record<string, any>;
+  const whyBook = (doc.whyBookWithUs ?? []) as any[];
 
-// Guarded for --hot reloads.
-export const SiteSettingsModel =
-  mongoose.models.SiteSettings ??
-  mongoose.model<SiteSettingsDocument>("SiteSettings", settingsSchema);
-
-export function toSiteSettings(doc: SiteSettingsDocument): SiteSettings {
   return {
-    id: doc._id.toString(),
+    id: doc.id ?? doc._id?.toString(),
     propertyName: doc.propertyName,
-    logoMediaId: doc.logoMediaId ? doc.logoMediaId.toString() : null,
-    faviconMediaId: doc.faviconMediaId ? doc.faviconMediaId.toString() : null,
-    phone: doc.phone,
-    supportEmail: doc.supportEmail,
-    address: doc.address,
-    timezone: doc.timezone,
-    currency: doc.currency,
-    checkInTime: doc.checkInTime,
-    checkOutTime: doc.checkOutTime,
+    logoMediaId: doc.logoMediaId ? String(doc.logoMediaId) : null,
+    faviconMediaId: doc.faviconMediaId ? String(doc.faviconMediaId) : null,
+    phone: doc.phone ?? null,
+    supportEmail: doc.supportEmail ?? null,
+    address: doc.address ?? null,
+    timezone: doc.timezone ?? "Asia/Kolkata",
+    currency: doc.currency ?? "INR",
+    checkInTime: doc.checkInTime ?? null,
+    checkOutTime: doc.checkOutTime ?? null,
     reminderHoursBefore: doc.reminderHoursBefore ?? 24,
-    social: { ...doc.social },
-    defaultSeo: {
-      title: doc.defaultSeo?.title ?? null,
-      description: doc.defaultSeo?.description ?? null,
-      ogImageMediaId: doc.defaultSeo?.ogImageMediaId
-        ? doc.defaultSeo.ogImageMediaId.toString()
-        : null,
+    social: {
+      facebook: social.facebook ?? null,
+      instagram: social.instagram ?? null,
+      x: social.x ?? null,
     },
-    whyBookWithUs: (doc.whyBookWithUs ?? []).map((w) => ({
+    defaultSeo: {
+      title: defaultSeo.title ?? null,
+      description: defaultSeo.description ?? null,
+      ogImageMediaId: defaultSeo.ogImageMediaId ? String(defaultSeo.ogImageMediaId) : null,
+    },
+    whyBookWithUs: whyBook.map((w) => ({
       title: w.title,
       text: w.text ?? null,
     })),
@@ -152,9 +76,28 @@ export function toSiteSettings(doc: SiteSettingsDocument): SiteSettings {
 }
 
 export async function getSiteSettings(): Promise<SiteSettings> {
-  const doc =
-    (await SiteSettingsModel.findOne({ key: "site" }).exec()) ??
-    (await SiteSettingsModel.create({ key: "site" }));
+  let doc = await prisma.siteSettings.findUnique({ where: { key: "site" } });
+  if (!doc) {
+    doc = await prisma.siteSettings.create({
+      data: {
+        id: newId(),
+        key: "site",
+        propertyName: "Reservation",
+        timezone: "Asia/Kolkata",
+        currency: "INR",
+        reminderHoursBefore: 24,
+        social: { facebook: null, instagram: null, x: null },
+        defaultSeo: { title: null, description: null, ogImageMediaId: null },
+        whyBookWithUs: [
+          { title: "Local knowledge", text: null },
+          { title: "Property", text: null },
+          { title: "Quality checked", text: null },
+          { title: "Customer Satisfaction", text: null },
+          { title: "24/7 support", text: null },
+        ],
+      },
+    });
+  }
   return toSiteSettings(doc);
 }
 
@@ -182,24 +125,73 @@ export async function updateSiteSettings(patch: {
   };
   whyBookWithUs?: WhyBookItem[];
 }): Promise<SiteSettings> {
-  // Why-book bodies are rich HTML from CKEditor — sanitize like CMS content.
   const { sanitizeRichText } = await import("../cms/cms.types");
-  const safePatch = {
-    ...patch,
-    ...(patch.whyBookWithUs
-      ? {
-          whyBookWithUs: patch.whyBookWithUs.map((item) => ({
-            title: item.title,
-            text: item.text ? sanitizeRichText(item.text) || null : null,
-          })),
-        }
-      : {}),
-  };
-  const doc = await SiteSettingsModel.findOneAndUpdate(
-    { key: "site" },
-    { $set: safePatch },
-    { returnDocument: "after", upsert: true },
-  ).exec();
-  if (!doc) throw new Error("Site settings update failed");
+  const data: any = {};
+  if (patch.propertyName !== undefined) data.propertyName = patch.propertyName;
+  if (patch.logoMediaId !== undefined) data.logoMediaId = patch.logoMediaId;
+  if (patch.faviconMediaId !== undefined) data.faviconMediaId = patch.faviconMediaId;
+  if (patch.phone !== undefined) data.phone = patch.phone;
+  if (patch.supportEmail !== undefined) data.supportEmail = patch.supportEmail;
+  if (patch.address !== undefined) data.address = patch.address;
+  if (patch.timezone !== undefined) data.timezone = patch.timezone;
+  if (patch.currency !== undefined) data.currency = patch.currency;
+  if (patch.checkInTime !== undefined) data.checkInTime = patch.checkInTime;
+  if (patch.checkOutTime !== undefined) data.checkOutTime = patch.checkOutTime;
+  if (patch.reminderHoursBefore !== undefined) data.reminderHoursBefore = patch.reminderHoursBefore;
+  if (patch.social !== undefined) data.social = patch.social;
+  if (patch.defaultSeo !== undefined) data.defaultSeo = patch.defaultSeo;
+  if (patch.whyBookWithUs !== undefined) {
+    data.whyBookWithUs = patch.whyBookWithUs.map((item) => ({
+      title: item.title,
+      text: item.text ? sanitizeRichText(item.text) || null : null,
+    }));
+  }
+
+  const doc = await prisma.siteSettings.upsert({
+    where: { key: "site" },
+    create: {
+      id: newId(),
+      key: "site",
+      ...data,
+    },
+    update: data,
+  });
+
   return toSiteSettings(doc);
 }
+
+export const SiteSettingsModel = {
+  findOne: (query: { key?: string }) => ({
+    exec: async () => {
+      const doc = await prisma.siteSettings.findUnique({ where: { key: query.key ?? "site" } });
+      if (!doc) return null;
+      return { ...doc, _id: { toString: () => doc.id } };
+    },
+  }),
+  create: async (data: any) => {
+    const doc = await prisma.siteSettings.create({
+      data: {
+        id: newId(),
+        key: data.key ?? "site",
+        ...data,
+      },
+    });
+    return { ...doc, _id: { toString: () => doc.id } };
+  },
+  updateOne: (query: { key?: string }, update: any, _options?: any) => {
+    const op = async (): Promise<void> => {
+      const patch = update.$set ?? update;
+      await prisma.siteSettings.upsert({
+        where: { key: query.key ?? "site" },
+        create: {
+          id: newId(),
+          key: query.key ?? "site",
+          ...patch,
+        },
+        update: patch,
+      });
+    };
+    const promise = op();
+    return Object.assign(promise, { exec: () => promise });
+  },
+};

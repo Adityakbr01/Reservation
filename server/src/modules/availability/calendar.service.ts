@@ -1,10 +1,8 @@
-import mongoose from "mongoose";
 import { AppError } from "../../utils/app-error";
 import { toDayKey, occupiedDayKeys } from "../../utils/date";
 export { occupiedDayKeys };
-import { AvailabilityBlockModel } from "./availability-block.model";
-import { BookingItemModel } from "../bookings/booking-item.model";
-import { BookingModel } from "../bookings/booking.model";
+import { prisma } from "../../config/database";
+import { findBlocksForRooms } from "./availability-block.repository";
 import { HOLD_STATUSES, INVENTORY_BLOCKING_STATUSES } from "../bookings/booking.types";
 import { readRoomHolds } from "../bookings/hold.store";
 import { listRooms } from "../rooms/room.repository";
@@ -67,7 +65,7 @@ export async function getAvailabilityCalendar(
   if (spanDays < 1 || spanDays > MAX_DAYS) {
     throw new AppError(`Calendar span must be 1–${MAX_DAYS} days`, 400, "INVALID_RANGE");
   }
-  if (roomTypeId && !mongoose.Types.ObjectId.isValid(roomTypeId)) {
+  if (roomTypeId && !/^[0-9a-fA-F]{24}$/.test(roomTypeId)) {
     throw new AppError("Unknown room type", 404, "ROOM_TYPE_NOT_FOUND");
   }
 
@@ -86,47 +84,50 @@ export async function getAvailabilityCalendar(
   const rangeEnd = new Date(to.getTime() + DAY_MS);
 
   const [blocks, items] = await Promise.all([
+    roomIds.length > 0 ? findBlocksForRooms(roomIds, rangeEnd, from) : [],
     roomIds.length > 0
-      ? AvailabilityBlockModel.find({
-          roomId: { $in: roomIds },
-          startDate: { $lt: rangeEnd },
-          endDate: { $gt: from },
+      ? prisma.bookingItem.findMany({
+          where: {
+            roomId: { in: roomIds },
+            checkIn: { lt: rangeEnd },
+            checkOut: { gt: from },
+          },
+          select: { bookingId: true, roomId: true, checkIn: true, checkOut: true },
         })
-          .select("roomId startDate endDate")
-          .exec()
-      : [],
-    roomIds.length > 0
-      ? BookingItemModel.find({
-          roomId: { $in: roomIds },
-          checkIn: { $lt: rangeEnd },
-          checkOut: { $gt: from },
-        })
-          .select("bookingId roomId checkIn checkOut")
-          .exec()
       : [],
   ]);
 
   const now = new Date();
   const blockerIds = new Set<string>();
   if (items.length > 0) {
-    const bookingIds = [...new Set(items.map((item) => item.bookingId.toString()))];
-    const blockers = await BookingModel.find({
-      _id: { $in: bookingIds },
-      $or: [
-        { status: { $in: INVENTORY_BLOCKING_STATUSES } },
-        { status: { $in: HOLD_STATUSES }, "hold.expiresAt": { $gt: now } },
-      ],
-    })
-      .select("_id")
-      .exec();
-    for (const booking of blockers) blockerIds.add(booking._id.toString());
+    const bookingIds = [...new Set(items.map((item) => item.bookingId))];
+    const blockers = await prisma.booking.findMany({
+      where: {
+        id: { in: bookingIds },
+        OR: [
+          { status: { in: INVENTORY_BLOCKING_STATUSES } },
+          { status: { in: HOLD_STATUSES } },
+        ],
+      },
+      select: { id: true, status: true, hold: true },
+    });
+    for (const booking of blockers) {
+      if (INVENTORY_BLOCKING_STATUSES.includes(booking.status as any)) {
+        blockerIds.add(booking.id);
+      } else {
+        const hold = typeof booking.hold === "string" ? JSON.parse(booking.hold) : booking.hold;
+        if (hold?.expiresAt && new Date(hold.expiresAt) > now) {
+          blockerIds.add(booking.id);
+        }
+      }
+    }
   }
 
   // roomId -> set of occupied day keys (bookings).
   const bookedDays = new Map<string, Set<string>>();
   for (const item of items) {
-    if (!blockerIds.has(item.bookingId.toString()) || !item.roomId) continue;
-    const key = item.roomId.toString();
+    if (!item.roomId || !blockerIds.has(item.bookingId)) continue;
+    const key = item.roomId;
     let set = bookedDays.get(key);
     if (!set) {
       set = new Set();
@@ -181,7 +182,7 @@ export async function getAvailabilityCalendar(
     Map<string, { price: number; currency: string; minNights: number | null }>
   >();
   try {
-    const { DailyPriceModel } = await import("../ratePlans/daily-price.model");
+    const { findDailyPricesByRatePlanIds } = await import("../ratePlans/daily-price.model");
     const { listRatePlans } = await import("../ratePlans/rate-plan.repository");
     for (const type of types) {
       const plansPage = await listRatePlans({ page: 1, limit: 50, roomTypeId: type.id, status: "ACTIVE" });
@@ -189,15 +190,14 @@ export async function getAvailabilityCalendar(
       const perDay = new Map<string, { price: number; currency: string; minNights: number | null }>();
       if (active.length > 0) {
         const rangeEnd = new Date(to.getTime() + DAY_MS);
-        const overrides = await DailyPriceModel.find({
-          ratePlanId: { $in: active.map((p) => p.id) },
-          date: { $gte: from, $lt: rangeEnd },
-        })
-          .select("ratePlanId date price")
-          .exec();
+        const overrides = await findDailyPricesByRatePlanIds(
+          active.map((p) => p.id),
+          from,
+          rangeEnd,
+        );
         const overrideByPlanDay = new Map<string, number>();
         for (const o of overrides) {
-          overrideByPlanDay.set(`${o.ratePlanId.toString()}|${o.date.toISOString().slice(0, 10)}`, o.price);
+          overrideByPlanDay.set(`${o.ratePlanId}|${o.date.toISOString().slice(0, 10)}`, o.price);
         }
         const inWindow = (day: string, validFrom: Date | null, validUntil: Date | null): boolean => {
           if (validFrom && day < validFrom.toISOString().slice(0, 10)) return false;

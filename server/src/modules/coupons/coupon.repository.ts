@@ -1,30 +1,35 @@
-import mongoose from "mongoose";
-import type { QueryFilter } from "mongoose";
+import { prisma } from "../../config/database";
+import { newId } from "../../utils/id";
 import type { PaginationQuery } from "../../utils/pagination";
 import { paginatedResponse } from "../../utils/pagination";
 import type { Paginated } from "../../utils/pagination";
-import { CouponModel } from "./coupon.model";
-import type { CouponDocument } from "./coupon.model";
-import type { Coupon, CouponStatus } from "./coupon.types";
+import type { Coupon, CouponStatus, DiscountType } from "./coupon.types";
 
-export function toCoupon(doc: CouponDocument): Coupon {
+export interface CouponDocLike extends Coupon {
+  _id: { toString(): string };
+}
+
+export function toCoupon(doc: any): Coupon {
+  const applicableRoomTypeIds = Array.isArray(doc.applicableRoomTypeIds)
+    ? doc.applicableRoomTypeIds
+    : (typeof doc.applicableRoomTypeIds === "string" ? JSON.parse(doc.applicableRoomTypeIds) : []);
   return {
-    id: doc._id.toString(),
-    propertyId: doc.propertyId.toString(),
+    id: doc.id ?? doc._id?.toString(),
+    propertyId: typeof doc.propertyId === "object" ? doc.propertyId.toString() : doc.propertyId,
     code: doc.code,
     normalizedCode: doc.normalizedCode,
-    discountType: doc.discountType,
+    discountType: doc.discountType as DiscountType,
     discountValue: doc.discountValue,
-    maxDiscount: doc.maxDiscount,
-    minimumBookingAmount: doc.minimumBookingAmount,
-    validFrom: doc.validFrom,
-    validUntil: doc.validUntil,
-    usageLimit: doc.usageLimit,
-    usageCount: doc.usageCount,
+    maxDiscount: doc.maxDiscount ?? null,
+    minimumBookingAmount: doc.minimumBookingAmount ?? null,
+    validFrom: doc.validFrom ? new Date(doc.validFrom) : null,
+    validUntil: doc.validUntil ? new Date(doc.validUntil) : null,
+    usageLimit: doc.usageLimit ?? null,
+    usageCount: doc.usageCount ?? 0,
     perUserLimit: doc.perUserLimit ?? null,
-    applicableRoomTypeIds: doc.applicableRoomTypeIds.map((id) => id.toString()),
-    status: doc.status,
-    createdBy: doc.createdBy.toString(),
+    applicableRoomTypeIds: applicableRoomTypeIds.map((id: any) => id.toString()),
+    status: doc.status as CouponStatus,
+    createdBy: typeof doc.createdBy === "object" ? doc.createdBy?.toString() : (doc.createdBy ?? ""),
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
@@ -47,17 +52,43 @@ export interface CreateCouponInput {
   createdBy: string;
 }
 
-export async function createCoupon(input: CreateCouponInput): Promise<CouponDocument> {
-  return CouponModel.create(input);
+export async function createCoupon(input: CreateCouponInput): Promise<CouponDocLike> {
+  const id = newId();
+  const coupon = await prisma.coupon.create({
+    data: {
+      id,
+      propertyId: input.propertyId,
+      code: input.code,
+      normalizedCode: input.normalizedCode,
+      discountType: input.discountType,
+      discountValue: input.discountValue,
+      maxDiscount: input.maxDiscount ?? null,
+      minimumBookingAmount: input.minimumBookingAmount ?? null,
+      validFrom: input.validFrom ?? null,
+      validUntil: input.validUntil ?? null,
+      usageLimit: input.usageLimit ?? null,
+      usageCount: 0,
+      perUserLimit: input.perUserLimit ?? null,
+      applicableRoomTypeIds: (input.applicableRoomTypeIds ?? []) as any,
+      status: input.status ?? "ACTIVE",
+      createdBy: input.createdBy || null,
+    },
+  });
+  return {
+    ...toCoupon(coupon),
+    _id: { toString: () => coupon.id },
+  };
 }
 
 export async function findCouponById(id: string): Promise<Coupon | null> {
-  const doc = await CouponModel.findById(id).exec();
+  const doc = await prisma.coupon.findUnique({ where: { id } });
   return doc ? toCoupon(doc) : null;
 }
 
 export async function findCouponByCode(propertyId: string, normalizedCode: string): Promise<Coupon | null> {
-  const doc = await CouponModel.findOne({ propertyId, normalizedCode }).exec();
+  const doc = await prisma.coupon.findFirst({
+    where: { propertyId, normalizedCode },
+  });
   return doc ? toCoupon(doc) : null;
 }
 
@@ -68,21 +99,22 @@ export interface ListCouponsFilter extends PaginationQuery {
 
 export async function listCoupons(filter: ListCouponsFilter): Promise<Paginated<Coupon>> {
   const { page, limit, q, status } = filter;
-  const query: QueryFilter<CouponDocument> = {};
-  if (status) query.status = status;
+  const where: any = {};
+  if (status) where.status = status;
   if (q) {
-    query.normalizedCode = new RegExp(`^${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i");
+    where.normalizedCode = { startsWith: q };
   }
   const [total, docs] = await Promise.all([
-    CouponModel.countDocuments(query).exec(),
-    CouponModel.find(query)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .exec(),
+    prisma.coupon.count({ where }),
+    prisma.coupon.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
   ]);
   return paginatedResponse(
-    docs.map((doc) => toCoupon(doc)),
+    docs.map(toCoupon),
     page,
     limit,
     total,
@@ -105,8 +137,25 @@ export type UpdateCouponInput = Partial<
 >;
 
 export async function updateCouponById(id: string, input: UpdateCouponInput): Promise<Coupon | null> {
-  const doc = await CouponModel.findByIdAndUpdate(id, input, { returnDocument: "after" }).exec();
-  return doc ? toCoupon(doc) : null;
+  try {
+    const doc = await prisma.coupon.update({
+      where: { id },
+      data: {
+        ...(input.discountValue !== undefined ? { discountValue: input.discountValue } : {}),
+        ...(input.maxDiscount !== undefined ? { maxDiscount: input.maxDiscount } : {}),
+        ...(input.minimumBookingAmount !== undefined ? { minimumBookingAmount: input.minimumBookingAmount } : {}),
+        ...(input.validFrom !== undefined ? { validFrom: input.validFrom } : {}),
+        ...(input.validUntil !== undefined ? { validUntil: input.validUntil } : {}),
+        ...(input.usageLimit !== undefined ? { usageLimit: input.usageLimit } : {}),
+        ...(input.perUserLimit !== undefined ? { perUserLimit: input.perUserLimit } : {}),
+        ...(input.applicableRoomTypeIds !== undefined ? { applicableRoomTypeIds: input.applicableRoomTypeIds as any } : {}),
+        ...(input.status !== undefined ? { status: input.status } : {}),
+      },
+    });
+    return toCoupon(doc);
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -114,17 +163,11 @@ export async function updateCouponById(id: string, input: UpdateCouponInput): Pr
  * Returns null when exhausted (or missing) so concurrent bookings can
  * never overshoot usageLimit — checked again inside the booking txn.
  */
-export async function consumeCouponUsage(
-  id: string,
-  session?: mongoose.ClientSession,
-): Promise<Coupon | null> {
-  const doc = await CouponModel.findOneAndUpdate(
-    {
-      _id: id,
-      $or: [{ usageLimit: null }, { $expr: { $lt: ["$usageCount", "$usageLimit"] } }],
-    },
-    { $inc: { usageCount: 1 } },
-    { returnDocument: "after", session },
-  ).exec();
-  return doc ? toCoupon(doc) : null;
+export async function consumeCouponUsage(id: string, _session?: unknown): Promise<Coupon | null> {
+  const affected = await prisma.$executeRawUnsafe(
+    "UPDATE coupons SET usageCount = usageCount + 1 WHERE id = ? AND (usageLimit IS NULL OR usageCount < usageLimit)",
+    id,
+  );
+  if (affected === 0) return null;
+  return findCouponById(id);
 }

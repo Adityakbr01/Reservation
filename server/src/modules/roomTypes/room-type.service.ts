@@ -101,7 +101,7 @@ export async function getPublicRoomType(slug: string): Promise<RoomType & { tota
   if (!roomType || roomType.status !== "ACTIVE") {
     throw new AppError("Room type not found", 404, "ROOM_TYPE_NOT_FOUND");
   }
-  const { RoomModel } = await import("../rooms/room.model");
-  const totalRooms = await RoomModel.countDocuments({ roomTypeId: roomType.id, status: "ACTIVE" });
+  const { countActiveRoomsByRoomTypeId } = await import("../rooms/room.repository");
+  const totalRooms = await countActiveRoomsByRoomTypeId(roomType.id);
   return { ...roomType, totalRooms: Math.max(1, totalRooms) };
 }

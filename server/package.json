@@ -19,10 +19,12 @@
     "typecheck": "tsc --noEmit",
     "lint": "oxlint",
     "test": "bun test",
+    "postinstall": "prisma generate",
     "backup:db": "bun scripts/backup-db.ts",
     "restore:db": "bun scripts/restore-db.ts"
   },
   "dependencies": {
+    "@prisma/client": "6.19.3",
     "basic-ftp": "^6.2.3",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
@@ -35,6 +37,7 @@
     "mongoose": "^9.10.4",
     "multer": "^2.4.0",
     "node-cache": "^5.1.2",
+    "prisma": "6.19.3",
     "resend": "^6.32.0",
     "stripe": "^23.0.0",
     "winston": "^3.19.0",

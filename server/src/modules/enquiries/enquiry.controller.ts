@@ -22,13 +22,13 @@ export const adminListEnquiriesHandler = asyncHandler(async (req: Request, res: 
 });
 
 export const adminGetEnquiryHandler = asyncHandler(async (req: Request, res: Response) => {
-  const doc = await EnquiryModel.findById(req.params.id).exec();
+  const doc = await EnquiryModel.findById(req.params.id as string).exec();
   if (!doc) res.status(404).json({ success: false, error: { code: "ENQUIRY_NOT_FOUND", message: "Enquiry not found" } });
   else res.status(200).json({ success: true, data: toEnquiry(doc) });
 });
 
 export const adminUpdateEnquiryHandler = asyncHandler(async (req: Request, res: Response) => {
-  const doc = await EnquiryModel.findByIdAndUpdate(req.params.id, { status: (req.body as { status: string }).status }, { returnDocument: "after" }).exec();
+  const doc = await EnquiryModel.findByIdAndUpdate(req.params.id as string, { status: (req.body as { status: string }).status }, { returnDocument: "after" }).exec();
   if (!doc) res.status(404).json({ success: false, error: { code: "ENQUIRY_NOT_FOUND", message: "Enquiry not found" } });
   else {
     await recordAudit(req, "ENQUIRY_STATUS", "enquiry", { entityId: doc._id.toString(), after: { status: doc.status } });

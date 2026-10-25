@@ -1,5 +1,4 @@
 import { randomBytes } from "node:crypto";
-import mongoose from "mongoose";
 import { AppError } from "../../utils/app-error";
 import { computeNights, isPlanApplicable } from "../availability/search.service";
 import { isValidStayRange } from "../../utils/availability";
@@ -18,7 +17,6 @@ import { consumeCouponUsage } from "../coupons/coupon.repository";
 import { evaluateCoupon } from "../coupons/coupon.service";
 import { findOverlappingBlockedRoomIds } from "../availability/availability-block.repository";
 import { findRoomById } from "../rooms/room.repository";
-import { BookingItemModel } from "./booking-item.model";
 import { findRatePlanById } from "../ratePlans/rate-plan.repository";
 import { findRoomTypeById } from "../roomTypes/room-type.repository";
 import { listRooms } from "../rooms/room.repository";
@@ -35,6 +33,7 @@ import {
   listBookings,
   listBookingsByUser,
   setBookingStatus,
+  updateBookingItem,
 } from "./booking.repository";
 import type {
   CreateBookingItemRecord,
@@ -309,7 +308,6 @@ export async function createBooking(
   // a real inventory conflict aborts immediately with 409.
   let attemptError: unknown = null;
   for (let attempt = 0; attempt < BOOKING_NUMBER_ATTEMPTS; attempt += 1) {
-    const session = await mongoose.startSession();
     try {
       const bookingRecord: CreateBookingRecord = {
         propertyId: property.id,
@@ -366,31 +364,28 @@ export async function createBooking(
         });
       }
 
-      let createdId = "";
-      await session.withTransaction(async () => {
-        const conflicts = await findConflictingBookingRoomIds(allocatedRoomIds, checkIn, checkOut);
-        if (conflicts.size > 0) {
-          throw new AppError("Selected rooms are no longer available", 409, "ROOM_NO_LONGER_AVAILABLE");
+      const conflicts = await findConflictingBookingRoomIds(allocatedRoomIds, checkIn, checkOut);
+      if (conflicts.size > 0) {
+        throw new AppError("Selected rooms are no longer available", 409, "ROOM_NO_LONGER_AVAILABLE");
+      }
+      if (couponId) {
+        const consumed = await consumeCouponUsage(couponId);
+        if (!consumed) {
+          throw new AppError("Coupon usage limit was just reached", 409, "COUPON_LIMIT_REACHED");
         }
-        if (couponId) {
-          const consumed = await consumeCouponUsage(couponId, session);
-          if (!consumed) {
-            throw new AppError("Coupon usage limit was just reached", 409, "COUPON_LIMIT_REACHED");
-          }
-          if (consumed.perUserLimit !== null) {
-            const used = await countUserCouponUses(userId, consumed.normalizedCode);
-            if (used >= consumed.perUserLimit) {
-              throw new AppError(
-                "You have already used this coupon the maximum times",
-                409,
-                "COUPON_LIMIT_REACHED",
-              );
-            }
+        if (consumed.perUserLimit !== null) {
+          const used = await countUserCouponUses(userId, consumed.normalizedCode);
+          if (used >= consumed.perUserLimit) {
+            throw new AppError(
+              "You have already used this coupon the maximum times",
+              409,
+              "COUPON_LIMIT_REACHED",
+            );
           }
         }
-        const doc = await createBookingWithItems(bookingRecord, itemRecords, session);
-        createdId = doc._id.toString();
-      });
+      }
+      const doc = await createBookingWithItems(bookingRecord, itemRecords);
+      const createdId = doc._id.toString();
 
       const booking = await findBookingById(createdId);
       if (!booking) {
@@ -415,8 +410,6 @@ export async function createBooking(
       }
       releaseBookingHolds(allocatedRoomIds, holdId);
       throw error;
-    } finally {
-      await session.endSession();
     }
   }
   releaseBookingHolds(allocatedRoomIds, holdId);
@@ -937,9 +930,10 @@ export async function reassignBookingRoom(
   if (blocked.has(room.id) || conflicting.has(room.id)) {
     throw new AppError("Target room is not free for this stay", 409, "ROOM_NO_LONGER_AVAILABLE");
   }
-  await BookingItemModel.findByIdAndUpdate(item.id, {
-    $set: { roomId: room.id, roomNumberSnapshot: room.roomNumber },
-  }).exec();
+  await updateBookingItem(item.id, {
+    roomId: room.id,
+    roomNumberSnapshot: room.roomNumber,
+  });
   const updated = await findBookingById(booking.id);
   if (!updated) {
     throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");

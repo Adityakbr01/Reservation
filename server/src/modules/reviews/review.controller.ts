@@ -18,8 +18,8 @@ export const publicListReviewsHandler = asyncHandler(async (req: Request, res: R
 
 export const createReviewHandler = asyncHandler(async (req: Request, res: Response) => {
   const user = requireUser(req);
-  const { UserModel } = await import("../users/user.model");
-  const userDoc = await UserModel.findById(user.id).select("name email").exec();
+  const { findUserById } = await import("../users/user.repository");
+  const userDoc = await findUserById(user.id);
   const fullName = userDoc?.name?.trim() || userDoc?.email || "Guest";
   const result = await createCustomerReview(user.id, fullName, req.body as CreateReviewInput);
   await recordAudit(req, "REVIEW_CREATED", "review", { entityId: result.id });
@@ -65,7 +65,7 @@ export const adminCreateFakeReviewHandler = asyncHandler(async (req: Request, re
 
 export const adminModerateReviewHandler = asyncHandler(async (req: Request, res: Response) => {
   const doc = await ReviewModel.findByIdAndUpdate(
-    req.params.id,
+    req.params.id as string,
     { status: (req.body as { status: string }).status },
     { returnDocument: "after" },
   ).exec();

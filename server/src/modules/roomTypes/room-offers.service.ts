@@ -1,7 +1,6 @@
-import mongoose from "mongoose";
 import { AppError } from "../../utils/app-error";
 import { OfferModel } from "../cms/cms.model";
-import { CouponModel } from "../coupons/coupon.model";
+import { findCouponById } from "../coupons/coupon.repository";
 import { ensureProperty } from "../properties/property.service";
 import { findRoomTypeById } from "./room-type.repository";
 
@@ -60,12 +59,10 @@ export async function listRoomOffers(roomTypeId: string): Promise<RoomOffer[]> {
   const out: RoomOffer[] = [];
   for (const offer of offers) {
     if (!offer.couponId) continue;
-    const coupon = await CouponModel.findById(offer.couponId).exec();
+    const coupon = await findCouponById(offer.couponId.toString());
     if (!coupon || coupon.status !== "ACTIVE") continue;
     if (coupon.validUntil && coupon.validUntil.getTime() < now.getTime()) continue;
-    const limited = ((coupon.applicableRoomTypeIds ?? []) as mongoose.Types.ObjectId[]).map((id) =>
-      id.toString(),
-    );
+    const limited = coupon.applicableRoomTypeIds;
     if (limited.length > 0 && !limited.includes(roomType.id)) continue;
     const badgeLabel = offerBadgeLabel(coupon.discountType, coupon.discountValue, property.currency);
     out.push({

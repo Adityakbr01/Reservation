@@ -1,11 +1,7 @@
+import { prisma } from "../config/database";
 import { logger } from "../config/logger";
-import { AmenityModel } from "../modules/amenities/amenity.model";
-import { CouponModel } from "../modules/coupons/coupon.model";
-import { OfferModel } from "../modules/cms/cms.model";
+import { newId } from "../utils/id";
 import { ensureProperty } from "../modules/properties/property.service";
-import { RoomTypeModel } from "../modules/roomTypes/room-type.model";
-import { SiteSettingsModel } from "../modules/settings/settings.model";
-import { UserModel } from "../modules/users/user.model";
 import { slugify } from "../utils/slug";
 
 const HIGHLIGHTS = [
@@ -47,39 +43,48 @@ function mockIcon(slug: string): string {
  */
 async function alignOfferScoping(propertyId: string): Promise<void> {
   const [autumn, winter] = await Promise.all([
-    CouponModel.findOne({ propertyId, normalizedCode: "AUTUMN20" }).exec(),
-    CouponModel.findOne({ propertyId, normalizedCode: "WINTER15" }).exec(),
+    prisma.coupon.findFirst({ where: { propertyId, normalizedCode: "AUTUMN20" } }),
+    prisma.coupon.findFirst({ where: { propertyId, normalizedCode: "WINTER15" } }),
   ]);
-  if (!autumn || winter || (autumn.applicableRoomTypeIds ?? []).length > 0) return;
+  const autumnRoomTypeIds = Array.isArray(autumn?.applicableRoomTypeIds) ? (autumn.applicableRoomTypeIds as string[]) : [];
+  if (!autumn || winter || autumnRoomTypeIds.length > 0) return;
   const [oakwood, fern] = await Promise.all([
-    RoomTypeModel.findOne({ slug: "oakwood-cottage" }).select("_id").exec(),
-    RoomTypeModel.findOne({ slug: "fern-cottage" }).select("_id").exec(),
+    prisma.roomType.findFirst({ where: { slug: "oakwood-cottage" }, select: { id: true } }),
+    prisma.roomType.findFirst({ where: { slug: "fern-cottage" }, select: { id: true } }),
   ]);
   if (!oakwood || !fern) return;
-  autumn.applicableRoomTypeIds = [oakwood._id];
-  await autumn.save();
-  const adminUser = await UserModel.findOne({ role: "admin" }).select("_id").exec();
-  const created = await CouponModel.create({
-    propertyId,
-    code: "WINTER15",
-    normalizedCode: "WINTER15",
-    discountType: "PERCENTAGE",
-    discountValue: 15,
-    maxDiscount: null,
-    minimumBookingAmount: null,
-    validFrom: new Date("2026-09-30T00:00:00Z"),
-    validUntil: new Date("2027-01-04T23:59:59Z"),
-    usageLimit: null,
-    usageCount: 0,
-    perUserLimit: null,
-    applicableRoomTypeIds: [fern._id],
-    status: "ACTIVE",
-    createdBy: adminUser?._id ?? propertyId,
+  await prisma.coupon.update({
+    where: { id: autumn.id },
+    data: { applicableRoomTypeIds: [oakwood.id] as any },
   });
-  await OfferModel.updateOne(
-    { slug: "15-percent-off-winter" },
-    {
-      $setOnInsert: {
+  const adminUser = await prisma.user.findFirst({ where: { role: "admin" }, select: { id: true } });
+  const created = await prisma.coupon.create({
+    data: {
+      id: newId(),
+      propertyId,
+      code: "WINTER15",
+      normalizedCode: "WINTER15",
+      discountType: "PERCENTAGE",
+      discountValue: 15,
+      maxDiscount: null,
+      minimumBookingAmount: null,
+      validFrom: new Date("2026-09-30T00:00:00Z"),
+      validUntil: new Date("2027-01-04T23:59:59Z"),
+      usageLimit: null,
+      usageCount: 0,
+      perUserLimit: null,
+      applicableRoomTypeIds: [fern.id] as any,
+      status: "ACTIVE",
+      createdBy: adminUser?.id ?? propertyId,
+    },
+  });
+  const existingWinter = await prisma.cmsOffer.findUnique({
+    where: { slug: "15-percent-off-winter" },
+  });
+  if (!existingWinter) {
+    await prisma.cmsOffer.create({
+      data: {
+        id: newId(),
         title: "15% OFF Winter Stays",
         slug: "15-percent-off-winter",
         description:
@@ -88,24 +93,18 @@ async function alignOfferScoping(propertyId: string): Promise<void> {
         validUntil: new Date("2027-01-04T23:59:59Z"),
         ctaLabel: "Book now",
         ctaUrl: "/",
-        couponId: created._id,
+        couponId: created.id,
         status: "PUBLISHED",
         version: 1,
         publishedAt: new Date(),
       },
-    },
-    { upsert: true },
-  ).exec();
-  // Same backfill as the autumn offer — pre-existing docs keep couponId null.
-  await OfferModel.updateOne(
-    {
-      slug: "15-percent-off-winter",
-      couponId: null,
-      description:
-        "15% off for holidays taken between Wed 30th September 2026 and Mon 4th January 2027.\nMinimum of 2 nights booking with a maximum of 28 nights.\n* Discount applies to base rent only\n* The discount will be applied at checkout",
-    },
-    { $set: { couponId: created._id } },
-  ).exec();
+    });
+  } else if (!existingWinter.couponId) {
+    await prisma.cmsOffer.update({
+      where: { id: existingWinter.id },
+      data: { couponId: created.id },
+    });
+  }
 }
 
 /** Seeds amenities, the 20% autumn offer + coupon. Idempotent. */
@@ -115,58 +114,70 @@ export async function seedContent() {
     let order = 0;
     for (const name of HIGHLIGHTS) {
       const slug = slugify(name);
-      await AmenityModel.updateOne(
-        { slug },
-        { $setOnInsert: { name, slug, group: "HIGHLIGHT", sortOrder: order++, status: "ACTIVE" } },
-        { upsert: true },
-      ).exec();
-      // Normalize category for items seeded before groups existed.
-      await AmenityModel.updateOne({ slug, group: { $ne: "HIGHLIGHT" } }, { $set: { group: "HIGHLIGHT" } }).exec();
-      // Fill mock icons only where the admin hasn't set an image yet.
-      await AmenityModel.updateOne(
-        { slug, imageMediaId: null, $or: [{ iconUrl: null }, { iconUrl: "" }] },
-        { $set: { iconUrl: mockIcon(slug) } },
-      ).exec();
+      await prisma.amenity.upsert({
+        where: { slug },
+        create: {
+          id: newId(),
+          name,
+          slug,
+          group: "HIGHLIGHT",
+          sortOrder: order++,
+          status: "ACTIVE",
+          iconUrl: mockIcon(slug),
+        },
+        update: {
+          group: "HIGHLIGHT",
+        },
+      });
     }
     order = 0;
     for (const name of FACILITIES) {
       const slug = slugify(name);
-      await AmenityModel.updateOne(
-        { slug },
-        { $setOnInsert: { name, slug, group: "FACILITY", sortOrder: order++, status: "ACTIVE" } },
-        { upsert: true },
-      ).exec();
-      // Normalize category for items seeded before groups existed.
-      await AmenityModel.updateOne({ slug, group: { $ne: "FACILITY" } }, { $set: { group: "FACILITY" } }).exec();
-      await AmenityModel.updateOne(
-        { slug, imageMediaId: null, $or: [{ iconUrl: null }, { iconUrl: "" }] },
-        { $set: { iconUrl: mockIcon(slug) } },
-      ).exec();
+      await prisma.amenity.upsert({
+        where: { slug },
+        create: {
+          id: newId(),
+          name,
+          slug,
+          group: "FACILITY",
+          sortOrder: order++,
+          status: "ACTIVE",
+          iconUrl: mockIcon(slug),
+        },
+        update: {
+          group: "FACILITY",
+        },
+      });
     }
 
     // 20% OFF 30 Sep 2026 – 4 Jan 2027, min 2 / max 28 nights, base rent only.
-    const existing = await CouponModel.findOne({ propertyId: property.id, normalizedCode: "AUTUMN20" }).exec();
-    let couponId = existing?._id ?? null;
+    const existing = await prisma.coupon.findFirst({
+      where: { propertyId: property.id, normalizedCode: "AUTUMN20" },
+    });
+    let couponId = existing?.id ?? null;
     if (!existing) {
-      const adminUser = await UserModel.findOne({ role: "admin" }).select("_id").exec();
-      const created = await CouponModel.create({
-        propertyId: property.id,
-        code: "AUTUMN20",
-        normalizedCode: "AUTUMN20",
-        discountType: "PERCENTAGE",
-        discountValue: 20,
-        maxDiscount: null,
-        minimumBookingAmount: null,
-        validFrom: new Date("2026-09-30T00:00:00Z"),
-        validUntil: new Date("2027-01-04T23:59:59Z"),
-        usageLimit: null,
-        usageCount: 0,
-        perUserLimit: null,
-        applicableRoomTypeIds: [],
-        status: "ACTIVE",
-        createdBy: adminUser?._id ?? property.id,
+      const adminUser = await prisma.user.findFirst({ where: { role: "admin" }, select: { id: true } });
+      const created = await prisma.coupon.create({
+        data: {
+          id: newId(),
+          propertyId: property.id,
+          code: "AUTUMN20",
+          normalizedCode: "AUTUMN20",
+          discountType: "PERCENTAGE",
+          discountValue: 20,
+          maxDiscount: null,
+          minimumBookingAmount: null,
+          validFrom: new Date("2026-09-30T00:00:00Z"),
+          validUntil: new Date("2027-01-04T23:59:59Z"),
+          usageLimit: null,
+          usageCount: 0,
+          perUserLimit: null,
+          applicableRoomTypeIds: [],
+          status: "ACTIVE",
+          createdBy: adminUser?.id ?? property.id,
+        },
       });
-      couponId = created._id;
+      couponId = created.id;
     }
     // Why book with us? Bodies are seeded only where missing or empty,
     // so admin edits in Settings are never overwritten.
@@ -192,9 +203,8 @@ export async function seedContent() {
         text: "<p>A real person is on call around the clock during your stay — call any time, day or night.</p>",
       },
     ];
-    const settingsDoc = await SiteSettingsModel.findOne({ key: "site" }).exec();
-    const current: Array<{ title: string; text?: string | null }> =
-      settingsDoc?.whyBookWithUs ?? [];
+    const settingsDoc = await prisma.siteSettings.findUnique({ where: { key: "site" } });
+    const current = (settingsDoc?.whyBookWithUs ?? []) as Array<{ title: string; text?: string | null }>;
     const merged = whyBookDefaults.map((seed) => {
       const existingItem = current.find((item) => item.title === seed.title);
       if (existingItem && existingItem.text && existingItem.text.trim().length > 0) {
@@ -202,18 +212,27 @@ export async function seedContent() {
       }
       return seed;
     });
-    await SiteSettingsModel.updateOne(
-      { key: "site" },
-      { $set: { whyBookWithUs: merged } },
-      { upsert: true },
-    ).exec();
+    await prisma.siteSettings.upsert({
+      where: { key: "site" },
+      create: {
+        id: newId(),
+        key: "site",
+        whyBookWithUs: merged,
+      },
+      update: {
+        whyBookWithUs: merged,
+      },
+    });
     const offerSlug = "20-percent-off-autumn-winter";
     const autumnDescription =
       "20% off for holidays taken between Wed 30th September 2026 and Mon 4th January 2027.\nMinimum of 2 nights booking with a maximum of 28 nights.\n* Discount applies to base rent only\n* The discount will be applied at checkout";
-    await OfferModel.updateOne(
-      { slug: offerSlug },
-      {
-        $setOnInsert: {
+    const existingOffer = await prisma.cmsOffer.findUnique({
+      where: { slug: offerSlug },
+    });
+    if (!existingOffer) {
+      await prisma.cmsOffer.create({
+        data: {
+          id: newId(),
           title: "20% OFF Autumn & Winter Stays",
           slug: offerSlug,
           description: autumnDescription,
@@ -226,17 +245,12 @@ export async function seedContent() {
           version: 1,
           publishedAt: new Date(),
         },
-      },
-      { upsert: true },
-    ).exec();
-    // Backfill the coupon link for offers seeded before coupon-linking
-    // existed ($setOnInsert never touches pre-existing docs). Only pristine
-    // seed text is touched — customized offers (admin edits) always win.
-    if (couponId) {
-      await OfferModel.updateOne(
-        { slug: offerSlug, couponId: null, description: autumnDescription },
-        { $set: { couponId } },
-      ).exec();
+      });
+    } else if (couponId && !existingOffer.couponId && existingOffer.description === autumnDescription) {
+      await prisma.cmsOffer.update({
+        where: { id: existingOffer.id },
+        data: { couponId },
+      });
     }
     await alignOfferScoping(property.id);
     await seedHamper();
@@ -257,15 +271,16 @@ const HAMPER_SEED =
  * it empty — existing content is never overwritten.
  */
 async function seedHamper(): Promise<void> {
-  const rooms = await RoomTypeModel.find({}).select("_id welcomeHamperHtml").exec();
+  const rooms = await prisma.roomType.findMany({ select: { id: true, welcomeHamperHtml: true } });
   for (const room of rooms) {
-    const patch: Record<string, unknown> = {};
     if (!room.welcomeHamperHtml || room.welcomeHamperHtml.trim().length === 0) {
-      patch.welcomeHamperHtml = HAMPER_SEED;
-      patch.welcomeHamperIncluded = true;
-    }
-    if (Object.keys(patch).length > 0) {
-      await RoomTypeModel.updateOne({ _id: room._id }, { $set: patch }).exec();
+      await prisma.roomType.update({
+        where: { id: room.id },
+        data: {
+          welcomeHamperHtml: HAMPER_SEED,
+          welcomeHamperIncluded: true,
+        },
+      });
     }
   }
 }

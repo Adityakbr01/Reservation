@@ -1,6 +1,4 @@
-import { BookingModel } from "../bookings/booking.model";
-import { PaymentModel } from "../payments/payment.model";
-import { NotificationModel } from "../notifications/notification.model";
+import { prisma } from "../../config/database";
 
 export interface DashboardSummary {
   todayArrivals: number;
@@ -41,25 +39,29 @@ export async function getDashboardSummary(now: Date = new Date()): Promise<Dashb
     failedNotifications,
     todayBookings,
   ] = await Promise.all([
-    BookingModel.countDocuments({
-      status: "CONFIRMED",
-      checkIn: { $gte: start, $lt: end },
-    }).exec(),
-    BookingModel.countDocuments({
-      status: { $in: ["CHECKED_IN", "CHECKED_OUT"] },
-      checkOut: { $gte: start, $lt: end },
-    }).exec(),
-    BookingModel.countDocuments({ status: "CHECKED_IN" }).exec(),
-    BookingModel.countDocuments({ status: "CONFIRMED", checkIn: { $gte: end } }).exec(),
-    BookingModel.countDocuments({ status: { $in: ["HELD", "PAYMENT_PENDING"] } }).exec(),
-    PaymentModel.countDocuments({ status: "FAILED", updatedAt: { $gte: last24h } }).exec(),
-    BookingModel.countDocuments({ status: "REFUND_PENDING" }).exec(),
-    NotificationModel.countDocuments({ status: "FAILED" }).exec(),
-    BookingModel.aggregate<{ total: number; currency: string }>([
-      { $match: { createdAt: { $gte: start, $lt: end } } },
-      { $group: { _id: "$pricing.currency", total: { $sum: "$pricing.total" } } },
-      { $project: { _id: 0, total: 1, currency: "$_id" } },
-    ]).exec(),
+    prisma.booking.count({
+      where: {
+        status: "CONFIRMED",
+        checkIn: { gte: start, lt: end },
+      },
+    }),
+    prisma.booking.count({
+      where: {
+        status: { in: ["CHECKED_IN", "CHECKED_OUT"] },
+        checkOut: { gte: start, lt: end },
+      },
+    }),
+    prisma.booking.count({ where: { status: "CHECKED_IN" } }),
+    prisma.booking.count({ where: { status: "CONFIRMED", checkIn: { gte: end } } }),
+    prisma.booking.count({ where: { status: { in: ["HELD", "PAYMENT_PENDING"] } } }),
+    prisma.payment.count({ where: { status: "FAILED", updatedAt: { gte: last24h } } }),
+    prisma.booking.count({ where: { status: "REFUND_PENDING" } }),
+    prisma.notification.count({ where: { status: "FAILED" } }),
+    prisma.$queryRawUnsafe<Array<{ total: number; currency: string }>>(
+      "SELECT JSON_UNQUOTE(JSON_EXTRACT(pricing, '$.currency')) as currency, SUM(JSON_EXTRACT(pricing, '$.total')) as total FROM bookings WHERE createdAt >= ? AND createdAt < ? GROUP BY currency",
+      start,
+      end,
+    ),
   ]);
   const first = todayBookings[0];
   return {
@@ -69,7 +71,7 @@ export async function getDashboardSummary(now: Date = new Date()): Promise<Dashb
     upcomingReservations,
     pendingPayments,
     paymentFailures24h,
-    todayBookingValue: first?.total ?? 0,
+    todayBookingValue: Number(first?.total ?? 0),
     todayBookingCurrency: first?.currency ?? null,
     pendingRefunds,
     failedNotifications,

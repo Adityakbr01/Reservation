@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import type { QueryFilter } from "mongoose";
+import { prisma } from "../../config/database";
 import { paginatedResponse } from "../../utils/pagination";
 import type { Paginated } from "../../utils/pagination";
+import { newId } from "../../utils/id";
 
 /**
  * Append-only audit trail (docs 07 §73-75). No update/delete API exists
@@ -57,57 +57,23 @@ export interface AuditLog {
   createdAt: Date;
 }
 
-export interface AuditLogDocument extends mongoose.Document {
-  actorId: mongoose.Types.ObjectId | null;
-  actorRole: string | null;
-  action: AuditAction;
-  entityType: string;
-  entityId: string | null;
-  before: Record<string, unknown> | null;
-  after: Record<string, unknown> | null;
-  metadata: Record<string, unknown> | null;
-  ip: string | null;
-  userAgent: string | null;
-  createdAt: Date;
-}
+export type AuditLogDocument = AuditLog & {
+  _id: { toString: () => string };
+};
 
-const auditLogSchema = new mongoose.Schema<AuditLogDocument>(
-  {
-    actorId: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
-    actorRole: { type: String, default: null },
-    action: { type: String, required: true },
-    entityType: { type: String, required: true },
-    entityId: { type: String, default: null },
-    before: { type: Object, default: null },
-    after: { type: Object, default: null },
-    metadata: { type: Object, default: null },
-    ip: { type: String, default: null },
-    userAgent: { type: String, default: null, maxlength: 300 },
-  },
-  { timestamps: { createdAt: true, updatedAt: false } },
-);
-
-auditLogSchema.index({ createdAt: -1 });
-auditLogSchema.index({ entityType: 1, entityId: 1, createdAt: -1 });
-auditLogSchema.index({ action: 1, createdAt: -1 });
-
-// Guarded for --hot reloads.
-export const AuditLogModel =
-  mongoose.models.AuditLog ?? mongoose.model<AuditLogDocument>("AuditLog", auditLogSchema);
-
-export function toAuditLog(doc: AuditLogDocument): AuditLog {
+export function toAuditLog(doc: any): AuditLog {
   return {
-    id: doc._id.toString(),
-    actorId: doc.actorId ? doc.actorId.toString() : null,
-    actorRole: doc.actorRole,
-    action: doc.action,
+    id: doc.id ?? doc._id?.toString(),
+    actorId: doc.actorId ? String(doc.actorId) : null,
+    actorRole: doc.actorRole ?? null,
+    action: doc.action as AuditAction,
     entityType: doc.entityType,
-    entityId: doc.entityId,
-    before: doc.before,
-    after: doc.after,
-    metadata: doc.metadata,
-    ip: doc.ip,
-    userAgent: doc.userAgent,
+    entityId: doc.entityId ?? null,
+    before: (doc.before as Record<string, unknown>) ?? null,
+    after: (doc.after as Record<string, unknown>) ?? null,
+    metadata: (doc.metadata as Record<string, unknown>) ?? null,
+    ip: doc.ip ?? null,
+    userAgent: doc.userAgent ?? null,
     createdAt: doc.createdAt,
   };
 }
@@ -128,17 +94,20 @@ export interface RecordAuditInput {
 /** Insert-only. Audit writes never throw into domain flows. */
 export async function insertAuditLog(input: RecordAuditInput): Promise<void> {
   try {
-    await AuditLogModel.create({
-      actorId: input.actorId ?? null,
-      actorRole: input.actorRole ?? null,
-      action: input.action,
-      entityType: input.entityType,
-      entityId: input.entityId ?? null,
-      before: input.before ?? null,
-      after: input.after ?? null,
-      metadata: input.metadata ?? null,
-      ip: input.ip ?? null,
-      userAgent: input.userAgent ?? null,
+    await prisma.auditLog.create({
+      data: {
+        id: newId(),
+        actorId: input.actorId ?? null,
+        actorRole: input.actorRole ?? null,
+        action: input.action,
+        entityType: input.entityType,
+        entityId: input.entityId ?? null,
+        before: (input.before as any) ?? undefined,
+        after: (input.after as any) ?? undefined,
+        metadata: (input.metadata as any) ?? undefined,
+        ip: input.ip ?? null,
+        userAgent: input.userAgent ?? null,
+      },
     });
   } catch {
     // Audit must never break the action it records.
@@ -154,18 +123,21 @@ export interface ListAuditLogsFilter {
 }
 
 export async function listAuditLogs(filter: ListAuditLogsFilter): Promise<Paginated<AuditLog>> {
-  const query: QueryFilter<AuditLogDocument> = {};
+  const query: any = {};
   if (filter.action) query.action = filter.action;
   if (filter.entityType) query.entityType = filter.entityType;
   if (filter.entityId) query.entityId = filter.entityId;
+
   const [total, docs] = await Promise.all([
-    AuditLogModel.countDocuments(query).exec(),
-    AuditLogModel.find(query)
-      .sort({ createdAt: -1 })
-      .skip((filter.page - 1) * filter.limit)
-      .limit(filter.limit)
-      .exec(),
+    prisma.auditLog.count({ where: query }),
+    prisma.auditLog.findMany({
+      where: query,
+      orderBy: { createdAt: "desc" },
+      skip: (filter.page - 1) * filter.limit,
+      take: filter.limit,
+    }),
   ]);
+
   return paginatedResponse(
     docs.map((doc) => toAuditLog(doc)),
     filter.page,

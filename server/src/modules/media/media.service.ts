@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
 import { logger } from "../../config/logger";
+import { prisma } from "../../config/database";
 import { env } from "../../config/env";
 import { AppError } from "../../utils/app-error";
 import {
@@ -10,10 +10,6 @@ import {
   removeFileFromGoDaddy,
   uploadBufferToGoDaddy,
 } from "../../integrations/storage/godaddy-storage";
-import { BlogPostModel, OfferModel, PageModel } from "../cms/cms.model";
-import { RoomTypeModel } from "../roomTypes/room-type.model";
-import { SiteSettingsModel } from "../settings/settings.model";
-import { AmenityModel } from "../amenities/amenity.model";
 import { MediaModel, findMediaById, listMedia, normalizeFolderPath, toMedia } from "./media.model";
 import type { ListMediaFilter, Media } from "./media.model";
 
@@ -83,8 +79,6 @@ export async function updateMediaMeta(
       $set: {
         ...(patch.alt !== undefined ? { alt: patch.alt } : {}),
         ...(patch.caption !== undefined ? { caption: patch.caption } : {}),
-        // Logical move only: the stored file URL stays valid, the library
-        // grouping changes. Physical re-upload is never required.
         ...(patch.folder !== undefined ? { folder: normalizeFolderPath(patch.folder) } : {}),
       },
     },
@@ -103,54 +97,63 @@ export interface MediaReference {
  * Reference check before deletion (docs 08 §47, 07 §66). Published content
  * referencing the file blocks deletion; replacement keeps the ref stable.
  * Covers id-referenced collections (CMS, room types, settings, amenities).
- * CKEditor HTML embeds raw URLs and is migrated separately (backfill script).
  */
 export async function findMediaReferences(mediaId: string): Promise<MediaReference[]> {
   const refs: MediaReference[] = [];
   const [pages, posts, offers, roomTypes, settings, amenities] = await Promise.all([
-    PageModel.find({
-      $or: [
-        { featuredImageMediaId: mediaId },
-        { "sections.imageMediaId": mediaId },
-        { "sections.mediaIds": mediaId },
-        { "seo.ogImageMediaId": mediaId },
-      ],
-    })
-      .select("_id")
-      .exec(),
-    BlogPostModel.find({
-      $or: [{ featuredImageMediaId: mediaId }, { "seo.ogImageMediaId": mediaId }],
-    })
-      .select("_id")
-      .exec(),
-    OfferModel.find({
-      $or: [{ imageMediaId: mediaId }, { "seo.ogImageMediaId": mediaId }],
-    })
-      .select("_id")
-      .exec(),
-    RoomTypeModel.find({
-      $or: [
-        { "media.mediaId": mediaId },
-        { "images.mediaId": mediaId },
-        { floorplanMediaIds: mediaId },
-        { welcomeHamperImageMediaId: mediaId },
-      ],
-    })
-      .select("_id")
-      .exec(),
-    SiteSettingsModel.find({
-      $or: [{ logoMediaId: mediaId }, { faviconMediaId: mediaId }, { "defaultSeo.ogImageMediaId": mediaId }],
-    })
-      .select("_id")
-      .exec(),
-    AmenityModel.find({ imageMediaId: mediaId }).select("_id").exec(),
+    prisma.cmsPage.findMany({
+      where: {
+        OR: [
+          { featuredImageMediaId: mediaId },
+          { seo: { path: ["ogImageMediaId"], equals: mediaId } },
+        ],
+      },
+      select: { id: true, sections: true },
+    }),
+    prisma.cmsBlogPost.findMany({
+      where: {
+        OR: [{ featuredImageMediaId: mediaId }, { seo: { path: ["ogImageMediaId"], equals: mediaId } }],
+      },
+      select: { id: true },
+    }),
+    prisma.cmsOffer.findMany({
+      where: {
+        OR: [{ imageMediaId: mediaId }, { seo: { path: ["ogImageMediaId"], equals: mediaId } }],
+      },
+      select: { id: true },
+    }),
+    prisma.roomType.findMany({
+      select: {
+        id: true,
+        welcomeHamperImageMediaId: true,
+        floorplanMediaIds: true,
+        images: true,
+        media: true,
+      },
+    }),
+    prisma.siteSettings.findMany({
+      where: {
+        OR: [{ logoMediaId: mediaId }, { faviconMediaId: mediaId }, { defaultSeo: { path: ["ogImageMediaId"], equals: mediaId } }],
+      },
+      select: { id: true },
+    }),
+    prisma.amenity.findMany({ where: { imageMediaId: mediaId }, select: { id: true } }),
   ]);
-  for (const doc of pages) refs.push({ collection: "pages", id: doc._id.toString() });
-  for (const doc of posts) refs.push({ collection: "blogs", id: doc._id.toString() });
-  for (const doc of offers) refs.push({ collection: "offers", id: doc._id.toString() });
-  for (const doc of roomTypes) refs.push({ collection: "roomTypes", id: doc._id.toString() });
-  for (const doc of settings) refs.push({ collection: "settings", id: doc._id.toString() });
-  for (const doc of amenities) refs.push({ collection: "amenities", id: doc._id.toString() });
+  for (const doc of pages) {
+    refs.push({ collection: "pages", id: doc.id });
+  }
+  for (const doc of posts) refs.push({ collection: "blogs", id: doc.id });
+  for (const doc of offers) refs.push({ collection: "offers", id: doc.id });
+  for (const rt of roomTypes) {
+    let matched = false;
+    if (rt.welcomeHamperImageMediaId === mediaId) matched = true;
+    else if (Array.isArray(rt.floorplanMediaIds) && (rt.floorplanMediaIds as string[]).includes(mediaId)) matched = true;
+    else if (Array.isArray(rt.images) && (rt.images as any[]).some((i) => i.mediaId === mediaId)) matched = true;
+    else if (Array.isArray(rt.media) && (rt.media as any[]).some((m) => m.mediaId === mediaId)) matched = true;
+    if (matched) refs.push({ collection: "roomTypes", id: rt.id });
+  }
+  for (const doc of settings) refs.push({ collection: "settings", id: doc.id });
+  for (const item of amenities) refs.push({ collection: "amenities", id: item.id });
   return refs;
 }
 
@@ -190,13 +193,14 @@ export interface ResolvedMedia {
 
 /** Batch URL resolution for editors/renderers. Skips unknown ids silently. */
 export async function resolveMedia(ids: string[]): Promise<ResolvedMedia[]> {
-  const unique = [...new Set(ids)].filter((id) => mongoose.Types.ObjectId.isValid(id)).slice(0, 50);
+  const unique = [...new Set(ids)].filter((id) => id && id.length === 24).slice(0, 50);
   if (unique.length === 0) return [];
-  const docs = await MediaModel.find({ _id: { $in: unique } })
-    .select("url alt mime kind")
-    .exec();
+  const docs = await prisma.media.findMany({
+    where: { id: { in: unique } },
+    select: { id: true, url: true, alt: true, mime: true, kind: true },
+  });
   return docs.map((doc) => ({
-    id: doc._id.toString(),
+    id: doc.id,
     url: doc.url,
     alt: doc.alt,
     mime: doc.mime,

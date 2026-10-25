@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import mongoose from "mongoose";
+import { isDuplicateKeyError } from "../../utils/mongo";
 import { AppError } from "../../utils/app-error";
 import { findCouponById } from "../coupons/coupon.repository";
 import {
@@ -62,9 +62,6 @@ function cleanSections(sections: PageSection[] | undefined): PageSection[] {
   }));
 }
 
-function isDuplicateKeyError(error: unknown): boolean {
-  return error instanceof Error && (error as { code?: unknown }).code === 11000;
-}
 
 // --- Public DTOs (never leak createdBy/audit/drafts/admin notes) ---
 
@@ -232,12 +229,12 @@ export async function updatePage(
 }
 
 async function transitionStatus<TDoc extends { status: ContentStatus }>(
-  model: mongoose.Model<TDoc & mongoose.Document>,
+  model: any,
   id: string,
   version: number,
   to: ContentStatus,
 ): Promise<void> {
-  const doc = (await model.findById(id).exec()) as (TDoc & mongoose.Document & { version: number }) | null;
+  const doc = (await model.findById(id).exec()) as (TDoc & { version: number; save: () => Promise<any> }) | null;
   if (!doc) throw new AppError("Content not found", 404, "CONTENT_NOT_FOUND");
   if (doc.version !== version) {
     throw new AppError("This item changed meanwhile — reload and retry", 409, "CONTENT_VERSION_CONFLICT");
@@ -694,7 +691,7 @@ export async function upsertPolicyDoc(input: {
 
 export async function listPolicyDocs(): Promise<PublicPolicyDoc[]> {
   const docs = await PolicyDocModel.find({}).sort({ key: 1 }).exec();
-  return docs.map((doc) => ({ ...toPublicPolicyDoc(doc), status: doc.status } as PublicPolicyDoc & { status: ContentStatus }));
+  return docs.map((doc: PolicyDocument) => ({ ...toPublicPolicyDoc(doc), status: doc.status } as PublicPolicyDoc & { status: ContentStatus }));
 }
 
 export async function setPolicyDocStatus(key: PolicyKey, to: ContentStatus): Promise<void> {

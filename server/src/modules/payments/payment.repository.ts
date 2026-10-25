@@ -1,26 +1,30 @@
-import type { QueryFilter } from "mongoose";
+import { prisma } from "../../config/database";
+import { newId } from "../../utils/id";
 import { paginatedResponse } from "../../utils/pagination";
 import type { Paginated } from "../../utils/pagination";
-import { PaymentModel } from "./payment.model";
-import type { PaymentDocument } from "./payment.model";
-import type { Payment } from "./payment.types";
+import type { Payment, PaymentProvider } from "./payment.types";
 import type { PaymentStatus } from "../bookings/booking.types";
 
-export function toPayment(doc: PaymentDocument): Payment {
+export interface PaymentDocLike extends Payment {
+  _id: { toString(): string };
+}
+
+export function toPayment(doc: any): Payment {
+  const metadata = typeof doc.metadata === "string" ? JSON.parse(doc.metadata) : (doc.metadata ?? {});
   return {
-    id: doc._id.toString(),
-    bookingId: doc.bookingId.toString(),
-    userId: doc.userId ? doc.userId.toString() : null,
-    provider: doc.provider,
-    providerPaymentIntentId: doc.providerPaymentIntentId,
-    providerCheckoutSessionId: doc.providerCheckoutSessionId,
+    id: doc.id ?? doc._id?.toString(),
+    bookingId: typeof doc.bookingId === "object" ? doc.bookingId.toString() : doc.bookingId,
+    userId: doc.userId ? (typeof doc.userId === "object" ? doc.userId.toString() : doc.userId) : null,
+    provider: doc.provider as PaymentProvider,
+    providerPaymentIntentId: doc.providerPaymentIntentId ?? null,
+    providerCheckoutSessionId: doc.providerCheckoutSessionId ?? null,
     amount: doc.amount,
     currency: doc.currency,
-    status: doc.status,
-    failureCode: doc.failureCode,
-    failureMessage: doc.failureMessage,
-    paidAt: doc.paidAt,
-    metadata: { ...(doc.metadata as Record<string, unknown>) },
+    status: doc.status as PaymentStatus,
+    failureCode: doc.failureCode ?? null,
+    failureMessage: doc.failureMessage ?? null,
+    paidAt: doc.paidAt ? new Date(doc.paidAt) : null,
+    metadata,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
@@ -36,22 +40,41 @@ export interface CreatePaymentInput {
   metadata?: Record<string, unknown>;
 }
 
-export async function createPayment(input: CreatePaymentInput): Promise<PaymentDocument> {
-  return PaymentModel.create(input);
+export async function createPayment(input: CreatePaymentInput): Promise<PaymentDocLike> {
+  const id = newId();
+  const payment = await prisma.payment.create({
+    data: {
+      id,
+      bookingId: input.bookingId,
+      userId: input.userId,
+      providerPaymentIntentId: input.providerPaymentIntentId ?? null,
+      amount: input.amount,
+      currency: input.currency,
+      status: input.status ?? "PENDING",
+      metadata: (input.metadata ?? {}) as any,
+    },
+  });
+  return {
+    ...toPayment(payment),
+    _id: { toString: () => payment.id },
+  };
 }
 
 export async function findPaymentById(id: string): Promise<Payment | null> {
-  const doc = await PaymentModel.findById(id).exec();
+  const doc = await prisma.payment.findUnique({ where: { id } });
   return doc ? toPayment(doc) : null;
 }
 
 export async function findPaymentByIntentId(intentId: string): Promise<Payment | null> {
-  const doc = await PaymentModel.findOne({ providerPaymentIntentId: intentId }).exec();
+  const doc = await prisma.payment.findUnique({ where: { providerPaymentIntentId: intentId } });
   return doc ? toPayment(doc) : null;
 }
 
 export async function findLatestPaymentForBooking(bookingId: string): Promise<Payment | null> {
-  const doc = await PaymentModel.findOne({ bookingId }).sort({ createdAt: -1 }).exec();
+  const doc = await prisma.payment.findFirst({
+    where: { bookingId },
+    orderBy: { createdAt: "desc" },
+  });
   return doc ? toPayment(doc) : null;
 }
 
@@ -66,24 +89,28 @@ export async function updatePaymentStatus(
   id: string,
   update: PaymentStatusUpdate,
 ): Promise<Payment | null> {
-  const doc = await PaymentModel.findByIdAndUpdate(
-    id,
-    {
-      $set: {
+  try {
+    const doc = await prisma.payment.update({
+      where: { id },
+      data: {
         status: update.status,
         failureCode: update.failureCode ?? null,
         failureMessage: update.failureMessage ?? null,
         ...(update.paidAt !== undefined ? { paidAt: update.paidAt } : {}),
       },
-    },
-    { returnDocument: "after" },
-  ).exec();
-  return doc ? toPayment(doc) : null;
+    });
+    return toPayment(doc);
+  } catch {
+    return null;
+  }
 }
 
 export async function listPaymentsByBooking(bookingId: string): Promise<Payment[]> {
-  const docs = await PaymentModel.find({ bookingId }).sort({ createdAt: -1 }).exec();
-  return docs.map((doc) => toPayment(doc));
+  const docs = await prisma.payment.findMany({
+    where: { bookingId },
+    orderBy: { createdAt: "desc" },
+  });
+  return docs.map(toPayment);
 }
 
 export interface ListPaymentsFilter {
@@ -95,19 +122,20 @@ export interface ListPaymentsFilter {
 
 export async function listPayments(filter: ListPaymentsFilter): Promise<Paginated<Payment>> {
   const { page, limit, status, bookingId } = filter;
-  const query: QueryFilter<PaymentDocument> = {};
-  if (status) query.status = status;
-  if (bookingId) query.bookingId = bookingId;
+  const where: any = {};
+  if (status) where.status = status;
+  if (bookingId) where.bookingId = bookingId;
   const [total, docs] = await Promise.all([
-    PaymentModel.countDocuments(query).exec(),
-    PaymentModel.find(query)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .exec(),
+    prisma.payment.count({ where }),
+    prisma.payment.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
   ]);
   return paginatedResponse(
-    docs.map((doc) => toPayment(doc)),
+    docs.map(toPayment),
     page,
     limit,
     total,

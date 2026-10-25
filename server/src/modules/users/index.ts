@@ -1,5 +1,4 @@
-export { UserModel } from "./user.model";
-export type { UserDocument } from "./user.model";
+export type { UserDocLike as UserDocument } from "./user.repository";
 export {
   createUser,
   findUserByEmail,

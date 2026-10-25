@@ -49,7 +49,7 @@ export const adminListSubscribersHandler = asyncHandler(async (req: Request, res
 });
 
 export const adminDeleteSubscriberHandler = asyncHandler(async (req: Request, res: Response) => {
-  await NewsletterModel.deleteOne({ _id: req.params.id }).exec();
+  await NewsletterModel.deleteOne({ _id: req.params.id as string }).exec();
   await recordAudit(req, "NEWSLETTER_UNSUBSCRIBED", "newsletter", { entityId: req.params.id as string });
   res.status(200).json({ success: true, data: { deleted: true } });
 });

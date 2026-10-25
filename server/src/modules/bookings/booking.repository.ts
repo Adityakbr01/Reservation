@@ -1,14 +1,10 @@
-import mongoose from "mongoose";
-import type { ClientSession, QueryFilter } from "mongoose";
+import { prisma } from "../../config/database";
+import { newId } from "../../utils/id";
 import type { PaginationQuery } from "../../utils/pagination";
 import { paginatedResponse } from "../../utils/pagination";
 import type { Paginated } from "../../utils/pagination";
 import { HOLD_STATUSES, INVENTORY_BLOCKING_STATUSES } from "./booking.types";
-import type { Booking, BookingItem, BookingStatus } from "./booking.types";
-import { BookingItemModel } from "./booking-item.model";
-import type { BookingItemDocument } from "./booking-item.model";
-import { BookingModel } from "./booking.model";
-import type { BookingDocument } from "./booking.model";
+import type { Booking, BookingItem, BookingSource, BookingStatus, PaymentStatus } from "./booking.types";
 
 const BOOKING_NUMBER_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
@@ -21,84 +17,100 @@ export function generateBookingNumber(): string {
   return `QB-${suffix}`;
 }
 
-export function toBooking(doc: BookingDocument): Booking {
+export interface BookingDocLike extends Booking {
+  _id: { toString(): string };
+}
+
+export function toBooking(doc: any): Booking {
+  const guests = typeof doc.guests === "string" ? JSON.parse(doc.guests) : doc.guests;
+  const contact = typeof doc.contact === "string" ? JSON.parse(doc.contact) : doc.contact;
+  const pricing = typeof doc.pricing === "string" ? JSON.parse(doc.pricing) : doc.pricing;
+  const cancellation = typeof doc.cancellation === "string" ? JSON.parse(doc.cancellation) : (doc.cancellation ?? {});
+  const hold = typeof doc.hold === "string" ? JSON.parse(doc.hold) : (doc.hold ?? {});
+  const stay = typeof doc.stay === "string" ? JSON.parse(doc.stay) : (doc.stay ?? {});
+
   return {
-    id: doc._id.toString(),
+    id: doc.id ?? doc._id?.toString(),
     bookingNumber: doc.bookingNumber,
-    propertyId: doc.propertyId.toString(),
-    userId: doc.userId ? doc.userId.toString() : null,
-    status: doc.status,
-    paymentStatus: doc.paymentStatus,
+    propertyId: typeof doc.propertyId === "object" ? doc.propertyId.toString() : doc.propertyId,
+    userId: doc.userId ? (typeof doc.userId === "object" ? doc.userId.toString() : doc.userId) : null,
+    status: doc.status as BookingStatus,
+    paymentStatus: doc.paymentStatus as PaymentStatus,
     checkIn: doc.checkIn,
     checkOut: doc.checkOut,
-    guests: { adults: doc.guests.adults, children: doc.guests.children },
+    guests: { adults: guests?.adults ?? 0, children: guests?.children ?? 0 },
     contact: {
-      firstName: doc.contact.firstName,
-      lastName: doc.contact.lastName,
-      email: doc.contact.email,
-      phone: doc.contact.phone,
-      title: doc.contact.title ?? null,
-      mobile: doc.contact.mobile ?? null,
-      address1: doc.contact.address1 ?? null,
-      address2: doc.contact.address2 ?? null,
-      city: doc.contact.city ?? null,
-      county: doc.contact.county ?? null,
-      postcode: doc.contact.postcode ?? null,
-      country: doc.contact.country ?? null,
+      firstName: contact?.firstName ?? "",
+      lastName: contact?.lastName ?? "",
+      email: contact?.email ?? "",
+      phone: contact?.phone ?? "",
+      title: contact?.title ?? null,
+      mobile: contact?.mobile ?? null,
+      address1: contact?.address1 ?? null,
+      address2: contact?.address2 ?? null,
+      city: contact?.city ?? null,
+      county: contact?.county ?? null,
+      postcode: contact?.postcode ?? null,
+      country: contact?.country ?? null,
     },
     pricing: {
-      currency: doc.pricing.currency,
-      subtotal: doc.pricing.subtotal,
-      discount: doc.pricing.discount,
-      taxes: doc.pricing.taxes,
-      fees: doc.pricing.fees,
-      total: doc.pricing.total,
-      couponCode: doc.pricing.couponCode,
+      currency: pricing?.currency ?? "GBP",
+      subtotal: pricing?.subtotal ?? 0,
+      discount: pricing?.discount ?? 0,
+      taxes: pricing?.taxes ?? 0,
+      fees: pricing?.fees ?? 0,
+      total: pricing?.total ?? 0,
+      couponCode: pricing?.couponCode ?? null,
     },
     cancellation: {
-      cancelledAt: doc.cancellation.cancelledAt,
-      cancelledBy: doc.cancellation.cancelledBy ? doc.cancellation.cancelledBy.toString() : null,
-      reason: doc.cancellation.reason,
+      cancelledAt: cancellation?.cancelledAt ? new Date(cancellation.cancelledAt) : null,
+      cancelledBy: cancellation?.cancelledBy ? cancellation.cancelledBy.toString() : null,
+      reason: cancellation?.reason ?? null,
     },
-    hold: { holdId: doc.hold.holdId, expiresAt: doc.hold.expiresAt },
+    hold: {
+      holdId: hold?.holdId ?? null,
+      expiresAt: hold?.expiresAt ? new Date(hold.expiresAt) : null,
+    },
     stay: {
-      checkedInAt: doc.stay?.checkedInAt ?? null,
-      checkedInBy: doc.stay?.checkedInBy ? doc.stay.checkedInBy.toString() : null,
-      checkedOutAt: doc.stay?.checkedOutAt ?? null,
-      checkedOutBy: doc.stay?.checkedOutBy ? doc.stay.checkedOutBy.toString() : null,
+      checkedInAt: stay?.checkedInAt ? new Date(stay.checkedInAt) : null,
+      checkedInBy: stay?.checkedInBy ? stay.checkedInBy.toString() : null,
+      checkedOutAt: stay?.checkedOutAt ? new Date(stay.checkedOutAt) : null,
+      checkedOutBy: stay?.checkedOutBy ? stay.checkedOutBy.toString() : null,
     },
-    source: doc.source,
-    notes: doc.notes,
-    reminderSent: doc.reminderSent ?? false,
+    source: doc.source as BookingSource,
+    notes: doc.notes ?? null,
+    reminderSent: Boolean(doc.reminderSent),
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
 }
 
-export function toBookingItem(doc: BookingItemDocument): BookingItem {
+export function toBookingItem(doc: any): BookingItem {
+  const guests = typeof doc.guests === "string" ? JSON.parse(doc.guests) : doc.guests;
+  const pricing = typeof doc.pricing === "string" ? JSON.parse(doc.pricing) : doc.pricing;
   return {
-    id: doc._id.toString(),
-    bookingId: doc.bookingId.toString(),
-    roomTypeId: doc.roomTypeId.toString(),
-    roomId: doc.roomId ? doc.roomId.toString() : null,
-    ratePlanId: doc.ratePlanId.toString(),
+    id: doc.id ?? doc._id?.toString(),
+    bookingId: typeof doc.bookingId === "object" ? doc.bookingId.toString() : doc.bookingId,
+    roomTypeId: doc.roomTypeId ? (typeof doc.roomTypeId === "object" ? doc.roomTypeId.toString() : doc.roomTypeId) : "",
+    roomId: doc.roomId ? (typeof doc.roomId === "object" ? doc.roomId.toString() : doc.roomId) : null,
+    ratePlanId: doc.ratePlanId ? (typeof doc.ratePlanId === "object" ? doc.ratePlanId.toString() : doc.ratePlanId) : "",
     roomNameSnapshot: doc.roomNameSnapshot,
-    roomNumberSnapshot: doc.roomNumberSnapshot,
+    roomNumberSnapshot: doc.roomNumberSnapshot ?? null,
     ratePlanNameSnapshot: doc.ratePlanNameSnapshot,
     checkIn: doc.checkIn,
     checkOut: doc.checkOut,
-    guests: { adults: doc.guests.adults, children: doc.guests.children },
+    guests: { adults: guests?.adults ?? 0, children: guests?.children ?? 0 },
     pricing: {
-      nightlyRates: doc.pricing.nightlyRates.map((night) => ({
-        date: night.date,
+      nightlyRates: (pricing?.nightlyRates ?? []).map((night: any) => ({
+        date: new Date(night.date),
         amount: night.amount,
       })),
-      subtotal: doc.pricing.subtotal,
-      discount: doc.pricing.discount,
-      taxes: doc.pricing.taxes,
-      fees: doc.pricing.fees,
-      total: doc.pricing.total,
-      currency: doc.pricing.currency,
+      subtotal: pricing?.subtotal ?? 0,
+      discount: pricing?.discount ?? 0,
+      taxes: pricing?.taxes ?? 0,
+      fees: pricing?.fees ?? 0,
+      total: pricing?.total ?? 0,
+      currency: pricing?.currency ?? "GBP",
     },
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
@@ -137,25 +149,74 @@ export interface CreateBookingItemRecord {
 export async function createBookingWithItems(
   booking: CreateBookingRecord,
   items: CreateBookingItemRecord[],
-  session: ClientSession,
-): Promise<BookingDocument> {
-  const created = await BookingModel.create([booking], { session, ordered: true });
-  const doc = created[0];
-  await BookingItemModel.create(
-    items.map((item) => ({ ...item, bookingId: doc._id })),
-    { session, ordered: true },
-  );
-  return doc;
+  _session?: unknown,
+): Promise<BookingDocLike> {
+  const bookingId = newId();
+  const createdBooking = await prisma.booking.create({
+    data: {
+      id: bookingId,
+      bookingNumber: booking.bookingNumber,
+      propertyId: booking.propertyId,
+      userId: booking.userId,
+      status: booking.status,
+      checkIn: booking.checkIn,
+      checkOut: booking.checkOut,
+      guests: booking.guests as any,
+      contact: booking.contact as any,
+      pricing: booking.pricing as any,
+      hold: booking.hold as any,
+      cancellation: { cancelledAt: null, cancelledBy: null, reason: null },
+      stay: { checkedInAt: null, checkedInBy: null, checkedOutAt: null, checkedOutBy: null },
+      source: booking.source,
+      notes: booking.notes ?? null,
+      reminderSent: false,
+    },
+  });
+
+  if (items.length > 0) {
+    await prisma.bookingItem.createMany({
+      data: items.map((item) => ({
+        id: newId(),
+        bookingId,
+        roomTypeId: item.roomTypeId,
+        roomId: item.roomId || null,
+        ratePlanId: item.ratePlanId,
+        roomNameSnapshot: item.roomNameSnapshot,
+        roomNumberSnapshot: item.roomNumberSnapshot ?? null,
+        ratePlanNameSnapshot: item.ratePlanNameSnapshot,
+        checkIn: item.checkIn,
+        checkOut: item.checkOut,
+        guests: item.guests as any,
+        pricing: item.pricing as any,
+      })),
+    });
+  }
+
+  return {
+    ...toBooking(createdBooking),
+    _id: { toString: () => createdBooking.id },
+  };
 }
 
 export async function findBookingById(id: string): Promise<Booking | null> {
-  const doc = await BookingModel.findById(id).exec();
+  const doc = await prisma.booking.findUnique({ where: { id } });
   return doc ? toBooking(doc) : null;
 }
 
 export async function findBookingItems(bookingId: string): Promise<BookingItem[]> {
-  const docs = await BookingItemModel.find({ bookingId }).exec();
-  return docs.map((doc) => toBookingItem(doc));
+  const docs = await prisma.bookingItem.findMany({ where: { bookingId } });
+  return docs.map(toBookingItem);
+}
+
+export async function updateBookingItem(
+  id: string,
+  data: Partial<Pick<BookingItem, "roomId" | "roomNumberSnapshot">>,
+): Promise<BookingItem | null> {
+  const doc = await prisma.bookingItem.update({
+    where: { id },
+    data,
+  });
+  return toBookingItem(doc);
 }
 
 /**
@@ -170,29 +231,41 @@ export async function findConflictingBookingRoomIds(
   now: Date = new Date(),
 ): Promise<Set<string>> {
   if (roomIds.length === 0) return new Set();
-  const items = await BookingItemModel.find({
-    roomId: { $in: roomIds.map((id) => new mongoose.Types.ObjectId(id)) },
-    checkIn: { $lt: checkOut },
-    checkOut: { $gt: checkIn },
-  })
-    .select("bookingId roomId")
-    .exec();
+  const items = await prisma.bookingItem.findMany({
+    where: {
+      roomId: { in: roomIds },
+      checkIn: { lt: checkOut },
+      checkOut: { gt: checkIn },
+    },
+    select: { bookingId: true, roomId: true },
+  });
   if (items.length === 0) return new Set();
-  const bookingIds = [...new Set(items.map((item) => item.bookingId.toString()))];
-  const blockers = await BookingModel.find({
-    _id: { $in: bookingIds },
-    $or: [
-      { status: { $in: INVENTORY_BLOCKING_STATUSES } },
-      { status: { $in: HOLD_STATUSES }, "hold.expiresAt": { $gt: now } },
-    ],
-  })
-    .select("_id")
-    .exec();
-  const blockerIds = new Set(blockers.map((booking) => booking._id.toString()));
+  const bookingIds = [...new Set(items.map((item) => item.bookingId))];
+  const blockers = await prisma.booking.findMany({
+    where: {
+      id: { in: bookingIds },
+      OR: [
+        { status: { in: INVENTORY_BLOCKING_STATUSES } },
+        { status: { in: HOLD_STATUSES } },
+      ],
+    },
+    select: { id: true, status: true, hold: true },
+  });
+  const blockerIds = new Set(
+    blockers
+      .filter((b) => {
+        if (INVENTORY_BLOCKING_STATUSES.includes(b.status as BookingStatus)) return true;
+        const hold = typeof b.hold === "string" ? JSON.parse(b.hold) : b.hold;
+        if (hold?.expiresAt && new Date(hold.expiresAt) > now) return true;
+        return false;
+      })
+      .map((b) => b.id),
+  );
   return new Set(
     items
-      .filter((item) => blockerIds.has(item.bookingId.toString()))
-      .map((item) => item.roomId?.toString() ?? ""),
+      .filter((item) => blockerIds.has(item.bookingId))
+      .map((item) => item.roomId as string)
+      .filter(Boolean),
   );
 }
 
@@ -205,18 +278,19 @@ export async function listBookingsByUser(
   filter: ListMyBookingsFilter,
 ): Promise<Paginated<Booking>> {
   const { page, limit, status } = filter;
-  const query: QueryFilter<BookingDocument> = { userId };
-  if (status) query.status = status;
+  const where: any = { userId };
+  if (status) where.status = status;
   const [total, docs] = await Promise.all([
-    BookingModel.countDocuments(query).exec(),
-    BookingModel.find(query)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .exec(),
+    prisma.booking.count({ where }),
+    prisma.booking.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
   ]);
   return paginatedResponse(
-    docs.map((doc) => toBooking(doc)),
+    docs.map(toBooking),
     page,
     limit,
     total,
@@ -232,27 +306,30 @@ export interface ListBookingsFilter extends PaginationQuery {
 
 export async function listBookings(filter: ListBookingsFilter): Promise<Paginated<Booking>> {
   const { page, limit, status, q, checkInFrom, checkOutTo } = filter;
-  const query: QueryFilter<BookingDocument> = {};
-  if (status) query.status = status;
+  const where: any = {};
+  if (status) where.status = status;
   if (checkInFrom || checkOutTo) {
-    query.checkIn = {};
-    if (checkInFrom) query.checkIn.$gte = checkInFrom;
-    if (checkOutTo) query.checkIn.$lte = checkOutTo;
+    where.checkIn = {};
+    if (checkInFrom) where.checkIn.gte = checkInFrom;
+    if (checkOutTo) where.checkIn.lte = checkOutTo;
   }
   if (q) {
-    const pattern = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
-    query.$or = [{ bookingNumber: pattern }, { "contact.email": pattern }];
+    where.OR = [
+      { bookingNumber: { contains: q } },
+      { contact: { path: ["email"], string_contains: q } },
+    ];
   }
   const [total, docs] = await Promise.all([
-    BookingModel.countDocuments(query).exec(),
-    BookingModel.find(query)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .exec(),
+    prisma.booking.count({ where }),
+    prisma.booking.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
   ]);
   return paginatedResponse(
-    docs.map((doc) => toBooking(doc)),
+    docs.map(toBooking),
     page,
     limit,
     total,
@@ -263,23 +340,29 @@ export async function setBookingStatus(
   id: string,
   status: BookingStatus,
   extra: Record<string, unknown> = {},
-  session?: ClientSession,
+  _session?: unknown,
 ): Promise<Booking | null> {
-  const doc = await BookingModel.findByIdAndUpdate(
-    id,
-    { $set: { status, ...extra } },
-    { returnDocument: "after", session },
-  ).exec();
-  return doc ? toBooking(doc) : null;
+  try {
+    const doc = await prisma.booking.update({
+      where: { id },
+      data: {
+        status,
+        ...(extra as any),
+      },
+    });
+    return toBooking(doc);
+  } catch {
+    return null;
+  }
 }
 
 /** Lazy expiry sweep for holds whose time ran out. No worker required. */
 export async function expireOverdueHolds(now: Date = new Date()): Promise<number> {
-  const result = await BookingModel.updateMany(
-    { status: { $in: HOLD_STATUSES }, "hold.expiresAt": { $lte: now } },
-    { $set: { status: "EXPIRED" } },
-  ).exec();
-  return result.modifiedCount;
+  const affected = await prisma.$executeRawUnsafe(
+    "UPDATE bookings SET status = 'EXPIRED' WHERE status IN ('HELD', 'PAYMENT_PENDING') AND JSON_UNQUOTE(JSON_EXTRACT(hold, '$.expiresAt')) <= ?",
+    now.toISOString(),
+  );
+  return Number(affected);
 }
 
 /**
@@ -287,27 +370,31 @@ export async function expireOverdueHolds(now: Date = new Date()): Promise<number
  * that have not been reminded yet (docs 06 §41).
  */
 export async function findBookingsForReminderSweep(before: Date): Promise<Booking[]> {
-  const docs = await BookingModel.find({
-    status: "CONFIRMED",
-    reminderSent: { $ne: true },
-    checkIn: { $lte: before },
-  })
-    .sort({ checkIn: 1 })
-    .limit(100)
-    .exec();
-  return docs.map((doc) => toBooking(doc));
+  const docs = await prisma.booking.findMany({
+    where: {
+      status: "CONFIRMED",
+      reminderSent: false,
+      checkIn: { lte: before },
+    },
+    orderBy: { checkIn: "asc" },
+    take: 100,
+  });
+  return docs.map(toBooking);
 }
 
 export async function markReminderSent(id: string): Promise<void> {
-  await BookingModel.findByIdAndUpdate(id, { $set: { reminderSent: true } }).exec();
+  await prisma.booking.update({
+    where: { id },
+    data: { reminderSent: true },
+  });
 }
 
 /** Prior uses of a coupon code by a user (live bookings only, case-insensitive). */
 export async function countUserCouponUses(userId: string, normalizedCode: string): Promise<number> {
-  const escaped = normalizedCode.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return BookingModel.countDocuments({
+  const rows = await prisma.$queryRawUnsafe<Array<{ count: bigint }>>(
+    "SELECT COUNT(*) as count FROM bookings WHERE userId = ? AND UPPER(JSON_UNQUOTE(JSON_EXTRACT(pricing, '$.couponCode'))) = ? AND status NOT IN ('CANCELLED', 'EXPIRED')",
     userId,
-    "pricing.couponCode": { $regex: `^${escaped}$`, $options: "i" },
-    status: { $nin: ["CANCELLED", "EXPIRED"] },
-  }).exec();
+    normalizedCode.toUpperCase(),
+  );
+  return Number(rows[0]?.count ?? 0);
 }

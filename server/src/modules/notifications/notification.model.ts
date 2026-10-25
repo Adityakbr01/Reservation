@@ -1,7 +1,8 @@
-import mongoose from "mongoose";
-import type { QueryFilter } from "mongoose";
+import { prisma } from "../../config/database";
+import { isDuplicateKeyError } from "../../utils/mongo";
 import { paginatedResponse } from "../../utils/pagination";
 import type { Paginated } from "../../utils/pagination";
+import { newId } from "../../utils/id";
 import { MAX_ATTEMPTS } from "./notification.types";
 import type {
   Notification,
@@ -9,72 +10,26 @@ import type {
   NotificationType,
 } from "./notification.types";
 
-export interface NotificationDocument extends mongoose.Document {
-  type: NotificationType;
-  recipient: string;
-  bookingId: mongoose.Types.ObjectId | null;
-  paymentId: mongoose.Types.ObjectId | null;
-  idempotencyKey: string;
-  status: NotificationStatus;
-  attempts: number;
-  maxAttempts: number;
-  nextAttemptAt: Date | null;
-  lastError: string | null;
-  provider: string | null;
-  providerMessageId: string | null;
-  sentAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type NotificationDocument = Notification & {
+  _id: { toString: () => string };
+};
 
-const notificationSchema = new mongoose.Schema<NotificationDocument>(
-  {
-    type: { type: String, required: true },
-    recipient: { type: String, required: true },
-    bookingId: { type: mongoose.Schema.Types.ObjectId, ref: "Booking", default: null },
-    paymentId: { type: mongoose.Schema.Types.ObjectId, ref: "Payment", default: null },
-    idempotencyKey: { type: String, required: true, unique: true },
-    status: {
-      type: String,
-      enum: ["QUEUED", "PROCESSING", "SENT", "FAILED"],
-      default: "QUEUED",
-      required: true,
-    },
-    attempts: { type: Number, default: 0, min: 0 },
-    maxAttempts: { type: Number, default: MAX_ATTEMPTS, min: 1 },
-    nextAttemptAt: { type: Date, default: null },
-    lastError: { type: String, default: null },
-    provider: { type: String, default: null },
-    providerMessageId: { type: String, default: null },
-    sentAt: { type: Date, default: null },
-  },
-  { timestamps: true },
-);
-
-notificationSchema.index({ status: 1, nextAttemptAt: 1 });
-notificationSchema.index({ bookingId: 1, createdAt: -1 });
-
-// Guarded for --hot reloads.
-export const NotificationModel =
-  mongoose.models.Notification ??
-  mongoose.model<NotificationDocument>("Notification", notificationSchema);
-
-export function toNotification(doc: NotificationDocument): Notification {
+export function toNotification(doc: any): Notification {
   return {
-    id: doc._id.toString(),
-    type: doc.type,
+    id: doc.id ?? doc._id?.toString(),
+    type: doc.type as NotificationType,
     recipient: doc.recipient,
-    bookingId: doc.bookingId ? doc.bookingId.toString() : null,
-    paymentId: doc.paymentId ? doc.paymentId.toString() : null,
+    bookingId: doc.bookingId ? String(doc.bookingId) : null,
+    paymentId: doc.paymentId ? String(doc.paymentId) : null,
     idempotencyKey: doc.idempotencyKey,
-    status: doc.status,
-    attempts: doc.attempts,
-    maxAttempts: doc.maxAttempts,
+    status: doc.status as NotificationStatus,
+    attempts: Number(doc.attempts),
+    maxAttempts: Number(doc.maxAttempts),
     nextAttemptAt: doc.nextAttemptAt,
-    lastError: doc.lastError,
-    provider: doc.provider,
-    providerMessageId: doc.providerMessageId,
-    sentAt: doc.sentAt,
+    lastError: doc.lastError ?? null,
+    provider: doc.provider ?? null,
+    providerMessageId: doc.providerMessageId ?? null,
+    sentAt: doc.sentAt ?? null,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
@@ -96,18 +51,23 @@ export async function insertNotification(
   input: EnqueueNotificationInput,
 ): Promise<Notification | null> {
   try {
-    const doc = await NotificationModel.create({
-      type: input.type,
-      recipient: input.recipient,
-      bookingId: input.bookingId ?? null,
-      paymentId: input.paymentId ?? null,
-      idempotencyKey: input.idempotencyKey,
-      status: "QUEUED",
-      nextAttemptAt: new Date(),
+    const doc = await prisma.notification.create({
+      data: {
+        id: newId(),
+        type: input.type,
+        recipient: input.recipient,
+        bookingId: input.bookingId ?? null,
+        paymentId: input.paymentId ?? null,
+        idempotencyKey: input.idempotencyKey,
+        status: "QUEUED",
+        attempts: 0,
+        maxAttempts: MAX_ATTEMPTS,
+        nextAttemptAt: new Date(),
+      },
     });
     return toNotification(doc);
   } catch (error) {
-    if (error instanceof Error && (error as unknown as { code?: unknown }).code === 11000) {
+    if (isDuplicateKeyError(error)) {
       return null;
     }
     throw error;
@@ -116,15 +76,24 @@ export async function insertNotification(
 
 /** Atomically claims the next due row so parallel workers never double-send. */
 export async function claimDueNotification(now: Date): Promise<Notification | null> {
-  const doc = await NotificationModel.findOneAndUpdate(
-    { status: "QUEUED", nextAttemptAt: { $lte: now } },
-    {
-      $set: { status: "PROCESSING" },
-      $inc: { attempts: 1 },
-    },
-    { returnDocument: "after", sort: { nextAttemptAt: 1 } },
-  ).exec();
-  return doc ? toNotification(doc) : null;
+  return await prisma.$transaction(async (tx) => {
+    const candidate = await tx.notification.findFirst({
+      where: {
+        status: "QUEUED",
+        nextAttemptAt: { lte: now },
+      },
+      orderBy: { nextAttemptAt: "asc" },
+    });
+    if (!candidate) return null;
+    const updated = await tx.notification.update({
+      where: { id: candidate.id },
+      data: {
+        status: "PROCESSING",
+        attempts: { increment: 1 },
+      },
+    });
+    return toNotification(updated);
+  });
 }
 
 export async function markNotificationSent(
@@ -132,15 +101,16 @@ export async function markNotificationSent(
   provider: string,
   providerMessageId: string | null,
 ): Promise<void> {
-  await NotificationModel.findByIdAndUpdate(id, {
-    $set: {
+  await prisma.notification.update({
+    where: { id },
+    data: {
       status: "SENT",
       provider,
       providerMessageId,
       sentAt: new Date(),
       lastError: null,
     },
-  }).exec();
+  });
 }
 
 export async function markNotificationRetry(
@@ -148,26 +118,31 @@ export async function markNotificationRetry(
   nextAttemptAt: Date,
   lastError: string,
 ): Promise<void> {
-  await NotificationModel.findByIdAndUpdate(id, {
-    $set: { status: "QUEUED", nextAttemptAt, lastError },
-  }).exec();
+  await prisma.notification.update({
+    where: { id },
+    data: { status: "QUEUED", nextAttemptAt, lastError },
+  });
 }
 
 /** Terminal failure: kept for the admin monitor (dead-letter), never deleted. */
 export async function markNotificationFailed(id: string, lastError: string): Promise<void> {
-  await NotificationModel.findByIdAndUpdate(id, {
-    $set: { status: "FAILED", nextAttemptAt: null, lastError },
-  }).exec();
+  await prisma.notification.update({
+    where: { id },
+    data: { status: "FAILED", nextAttemptAt: null, lastError },
+  });
 }
 
 /** Admin retry of a FAILED row: back to QUEUED, attempts preserved for audit. */
 export async function requeueNotification(id: string): Promise<Notification | null> {
-  const doc = await NotificationModel.findOneAndUpdate(
-    { _id: id, status: "FAILED" },
-    { $set: { status: "QUEUED", nextAttemptAt: new Date(), lastError: null } },
-    { returnDocument: "after" },
-  ).exec();
-  return doc ? toNotification(doc) : null;
+  try {
+    const doc = await prisma.notification.update({
+      where: { id, status: "FAILED" },
+      data: { status: "QUEUED", nextAttemptAt: new Date(), lastError: null },
+    });
+    return toNotification(doc);
+  } catch {
+    return null;
+  }
 }
 
 export interface ListNotificationsFilter {
@@ -181,16 +156,17 @@ export async function listNotifications(
   filter: ListNotificationsFilter,
 ): Promise<Paginated<Notification>> {
   const { page, limit, status, type } = filter;
-  const query: QueryFilter<NotificationDocument> = {};
-  if (status) query.status = status;
-  if (type) query.type = type;
+  const where: any = {};
+  if (status) where.status = status;
+  if (type) where.type = type;
   const [total, docs] = await Promise.all([
-    NotificationModel.countDocuments(query).exec(),
-    NotificationModel.find(query)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .exec(),
+    prisma.notification.count({ where }),
+    prisma.notification.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
   ]);
   return paginatedResponse(
     docs.map((doc) => toNotification(doc)),
@@ -201,7 +177,7 @@ export async function listNotifications(
 }
 
 export async function findNotificationById(id: string): Promise<Notification | null> {
-  if (!mongoose.Types.ObjectId.isValid(id)) return null;
-  const doc = await NotificationModel.findById(id).exec();
+  if (!id || id.length !== 24) return null;
+  const doc = await prisma.notification.findUnique({ where: { id } });
   return doc ? toNotification(doc) : null;
 }

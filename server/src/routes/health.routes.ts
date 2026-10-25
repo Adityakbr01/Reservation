@@ -28,7 +28,8 @@ healthRouter.get(
         status: "ok",
         uptimeSeconds: Math.floor(process.uptime()),
         checks: {
-          mongo: databaseHealth(),
+          database: databaseHealth(),
+          mysql: databaseHealth(),
           cache: cacheHealth(),
         },
       },

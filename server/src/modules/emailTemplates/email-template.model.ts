@@ -1,14 +1,6 @@
-import mongoose from "mongoose";
+import { prisma } from "../../config/database";
 import type { EmailTemplateCategory } from "../../emails/registry";
 
-/**
- * Admin-editable email template override (brand email system).
- *
- * Rows are sparse: only templates an admin has customized exist here.
- * Everything else renders from the typed code defaults in
- * `src/emails/templates/*`, so disabling or deleting a row always falls
- * back to safe transactional mail — never to silence.
- */
 export interface EmailTemplateOverride {
   key: string;
   name: string;
@@ -22,37 +14,20 @@ export interface EmailTemplateOverride {
   createdAt: Date;
 }
 
-export interface EmailTemplateDocument extends mongoose.Document {
+export type EmailTemplateDocument = {
+  id: string;
   key: string;
   subject: string;
   htmlBody: string;
   textBody: string;
   isEnabled: boolean;
-  updatedBy: mongoose.Types.ObjectId | null;
+  updatedBy: string | null;
   createdAt: Date;
   updatedAt: Date;
-}
+  _id: { toString: () => string };
+};
 
-const emailTemplateSchema = new mongoose.Schema<EmailTemplateDocument>(
-  {
-    key: { type: String, required: true, unique: true, maxlength: 60 },
-    subject: { type: String, required: true, maxlength: 160 },
-    // Bodies are optional: a blank field falls back to the matching code
-    // default part, so subject-only customizations work.
-    htmlBody: { type: String, default: "", maxlength: 100_000 },
-    textBody: { type: String, default: "", maxlength: 20_000 },
-    isEnabled: { type: Boolean, required: true, default: true },
-    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
-  },
-  { timestamps: true },
-);
-
-// Guarded for --hot reloads.
-export const EmailTemplateModel =
-  mongoose.models.EmailTemplate ??
-  mongoose.model<EmailTemplateDocument>("EmailTemplate", emailTemplateSchema);
-
-export function toOverride(doc: EmailTemplateDocument): {
+export function toOverride(doc: any): {
   key: string;
   subject: string;
   htmlBody: string;
@@ -67,9 +42,71 @@ export function toOverride(doc: EmailTemplateDocument): {
     subject: doc.subject,
     htmlBody: doc.htmlBody,
     textBody: doc.textBody,
-    isEnabled: doc.isEnabled,
-    updatedBy: doc.updatedBy ? doc.updatedBy.toString() : null,
+    isEnabled: Boolean(doc.isEnabled),
+    updatedBy: doc.updatedBy ? String(doc.updatedBy) : null,
     updatedAt: doc.updatedAt,
     createdAt: doc.createdAt,
   };
 }
+
+export const EmailTemplateModel = {
+  find: (_query?: any) => ({
+    exec: async () => {
+      const docs = await prisma.emailTemplate.findMany();
+      return docs.map((d) => ({
+        ...d,
+        _id: { toString: () => d.id },
+      }));
+    },
+  }),
+  findOne: (query: { key: string }) => ({
+    exec: async () => {
+      const doc = await prisma.emailTemplate.findUnique({ where: { key: query.key } });
+      if (!doc) return null;
+      return {
+        ...doc,
+        _id: { toString: () => doc.id },
+      };
+    },
+  }),
+  findOneAndDelete: (query: { key: string }) => ({
+    exec: async () => {
+      try {
+        const deleted = await prisma.emailTemplate.delete({ where: { key: query.key } });
+        return {
+          ...deleted,
+          _id: { toString: () => deleted.id },
+        };
+      } catch {
+        return null;
+      }
+    },
+  }),
+  findOneAndUpdate: (query: { key: string }, update: any, _options?: any) => ({
+    exec: async () => {
+      const patch = update.$set ?? update;
+      const doc = await prisma.emailTemplate.upsert({
+        where: { key: query.key },
+        create: {
+          key: query.key,
+          subject: patch.subject,
+          htmlBody: patch.htmlBody,
+          textBody: patch.textBody,
+          isEnabled: patch.isEnabled ?? true,
+          updatedBy: patch.updatedBy ? String(patch.updatedBy) : null,
+        },
+        update: {
+          ...(patch.subject !== undefined ? { subject: patch.subject } : {}),
+          ...(patch.htmlBody !== undefined ? { htmlBody: patch.htmlBody } : {}),
+          ...(patch.textBody !== undefined ? { textBody: patch.textBody } : {}),
+          ...(patch.isEnabled !== undefined ? { isEnabled: patch.isEnabled } : {}),
+          ...(patch.updatedBy !== undefined ? { updatedBy: patch.updatedBy ? String(patch.updatedBy) : null } : {}),
+        },
+      });
+      return {
+        ...doc,
+        _id: { toString: () => doc.id },
+      };
+    },
+  }),
+};

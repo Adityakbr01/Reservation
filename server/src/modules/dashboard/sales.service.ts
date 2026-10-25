@@ -1,7 +1,4 @@
-import { BookingModel } from "../bookings/booking.model";
-import { BookingItemModel } from "../bookings/booking-item.model";
-import { PaymentModel } from "../payments/payment.model";
-import { RefundModel } from "../refunds/refund.model";
+import { prisma } from "../../config/database";
 import { findRoomTypeById } from "../roomTypes/room-type.repository";
 
 export type SalesRange = "today" | "week" | "month";
@@ -100,86 +97,74 @@ function emptyBuckets(range: SalesRange, from: Date, to: Date): SalesBucket[] {
 
 export async function getSalesReport(range: SalesRange, now: Date = new Date()): Promise<SalesReport> {
   const { from, to } = salesRangeBounds(range, now);
-  const [bookingRows, paymentRows, refundRows, typeRows, recentDocs] = await Promise.all([
-    BookingModel.aggregate<{ total: number; count: number; currency: string }>([
-      { $match: { createdAt: { $gte: from, $lte: to } } },
-      { $group: { _id: "$pricing.currency", total: { $sum: "$pricing.total" }, count: { $sum: 1 } } },
-      { $project: { _id: 0, total: 1, count: 1, currency: "$_id" } },
-    ]).exec(),
-    PaymentModel.aggregate<{ total: number }>([
-      { $match: { status: "PAID", paidAt: { $gte: from, $lte: to } } },
-      { $group: { _id: null, total: { $sum: "$amount" } } },
-    ]).exec(),
-    RefundModel.aggregate<{ total: number }>([
-      { $match: { status: "SUCCEEDED", processedAt: { $gte: from, $lte: to } } },
-      { $group: { _id: null, total: { $sum: "$amount" } } },
-    ]).exec(),
-    BookingItemModel.aggregate<{ roomTypeId: string; bookings: number; gross: number }>([
-      {
-        $lookup: {
-          from: "bookings",
-          localField: "bookingId",
-          foreignField: "_id",
-          as: "booking",
-        },
-      },
-      { $unwind: "$booking" },
-      {
-        $match: {
-          "booking.createdAt": { $gte: from, $lte: to },
-          "booking.status": { $nin: ["CANCELLED", "EXPIRED"] },
-        },
-      },
-      {
-        $group: {
-          _id: "$roomTypeId",
-          bookings: { $sum: 1 },
-          gross: { $sum: "$pricing.total" },
-        },
-      },
-    ]).exec(),
-    BookingModel.find({ status: { $in: ["CONFIRMED", "CHECKED_IN", "CHECKED_OUT"] } })
-      .sort({ createdAt: -1 })
-      .limit(8)
-      .exec(),
+  const [bookingRows, paymentSum, refundSum, typeRows, recentDocs] = await Promise.all([
+    prisma.$queryRawUnsafe<Array<{ total: number; count: bigint; currency: string }>>(
+      "SELECT JSON_UNQUOTE(JSON_EXTRACT(pricing, '$.currency')) as currency, SUM(JSON_EXTRACT(pricing, '$.total')) as total, COUNT(*) as count FROM bookings WHERE createdAt >= ? AND createdAt <= ? GROUP BY currency",
+      from,
+      to,
+    ),
+    prisma.payment.aggregate({
+      where: { status: "PAID", paidAt: { gte: from, lte: to } },
+      _sum: { amount: true },
+    }),
+    prisma.refund.aggregate({
+      where: { status: "SUCCEEDED", processedAt: { gte: from, lte: to } },
+      _sum: { amount: true },
+    }),
+    prisma.$queryRawUnsafe<Array<{ roomTypeId: string; bookings: bigint; gross: number }>>(
+      "SELECT bi.roomTypeId, COUNT(*) as bookings, SUM(JSON_EXTRACT(bi.pricing, '$.total')) as gross FROM booking_items bi JOIN bookings b ON bi.bookingId = b.id WHERE b.createdAt >= ? AND b.createdAt <= ? AND b.status NOT IN ('CANCELLED', 'EXPIRED') GROUP BY bi.roomTypeId",
+      from,
+      to,
+    ),
+    prisma.booking.findMany({
+      where: { status: { in: ["CONFIRMED", "CHECKED_IN", "CHECKED_OUT"] } },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+    }),
   ]);
 
-  const grossValue = bookingRows.reduce((sum, row) => sum + row.total, 0);
-  const bookingsCount = bookingRows.reduce((sum, row) => sum + row.count, 0);
+  const grossValue = bookingRows.reduce((sum: number, row: { total: number }) => sum + Number(row.total || 0), 0);
+  const bookingsCount = bookingRows.reduce((sum: number, row: { count: bigint }) => sum + Number(row.count || 0), 0);
   const currency = bookingRows[0]?.currency ?? null;
-  const collected = paymentRows[0]?.total ?? 0;
-  const refunded = refundRows[0]?.total ?? 0;
+  const collected = Number(paymentSum._sum.amount ?? 0);
+  const refunded = Number(refundSum._sum.amount ?? 0);
 
   const buckets = emptyBuckets(range, from, to);
   const bucketIndex = new Map(buckets.map((bucket, i) => [bucket.start, i]));
   const [bucketBookings, bucketPayments, bucketRefunds] = await Promise.all([
-    BookingModel.aggregate<{ at: Date; gross: number }>([
-      { $match: { createdAt: { $gte: from, $lte: to } } },
-      { $project: { at: "$createdAt", gross: "$pricing.total" } },
-    ]).exec(),
-    PaymentModel.aggregate<{ at: Date; amount: number }>([
-      { $match: { status: "PAID", paidAt: { $gte: from, $lte: to } } },
-      { $project: { at: "$paidAt", amount: 1 } },
-    ]).exec(),
-    RefundModel.aggregate<{ at: Date; amount: number }>([
-      { $match: { status: "SUCCEEDED", processedAt: { $gte: from, $lte: to } } },
-      { $project: { at: "$processedAt", amount: 1 } },
-    ]).exec(),
+    prisma.booking.findMany({
+      where: { createdAt: { gte: from, lte: to } },
+      select: { createdAt: true, pricing: true },
+    }),
+    prisma.payment.findMany({
+      where: { status: "PAID", paidAt: { gte: from, lte: to } },
+      select: { paidAt: true, amount: true },
+    }),
+    prisma.refund.findMany({
+      where: { status: "SUCCEEDED", processedAt: { gte: from, lte: to } },
+      select: { processedAt: true, amount: true },
+    }),
   ]);
+
   for (const row of bucketBookings) {
-    const i = bucketIndex.get(bucketKey(new Date(row.at), range).start);
+    const i = bucketIndex.get(bucketKey(new Date(row.createdAt), range).start);
     if (i !== undefined) {
+      const p = typeof row.pricing === "string" ? JSON.parse(row.pricing) : (row.pricing as any);
       buckets[i].bookings += 1;
-      buckets[i].gross += row.gross;
+      buckets[i].gross += Number(p?.total ?? 0);
     }
   }
   for (const row of bucketPayments) {
-    const i = bucketIndex.get(bucketKey(new Date(row.at), range).start);
-    if (i !== undefined) buckets[i].collected += row.amount;
+    if (row.paidAt) {
+      const i = bucketIndex.get(bucketKey(new Date(row.paidAt), range).start);
+      if (i !== undefined) buckets[i].collected += Number(row.amount);
+    }
   }
   for (const row of bucketRefunds) {
-    const i = bucketIndex.get(bucketKey(new Date(row.at), range).start);
-    if (i !== undefined) buckets[i].refunded += row.amount;
+    if (row.processedAt) {
+      const i = bucketIndex.get(bucketKey(new Date(row.processedAt), range).start);
+      if (i !== undefined) buckets[i].refunded += Number(row.amount);
+    }
   }
 
   const byRoomType: SalesByRoomType[] = [];
@@ -188,23 +173,21 @@ export async function getSalesReport(range: SalesRange, now: Date = new Date()):
     byRoomType.push({
       roomTypeId: String(row.roomTypeId),
       name: roomType?.name ?? "Unknown type",
-      bookings: row.bookings,
-      gross: row.gross,
+      bookings: Number(row.bookings),
+      gross: Number(row.gross || 0),
     });
   }
   byRoomType.sort((a, b) => b.gross - a.gross);
 
-  const occupancyNights = await BookingItemModel.countDocuments({
-    bookingId: {
-      $in: await BookingModel.find({
-        status: { $in: ["CONFIRMED", "CHECKED_IN", "CHECKED_OUT"] },
-        checkIn: { $lte: to },
-        checkOut: { $gte: from },
-      })
-        .select("_id")
-        .exec(),
+  const occupancyNights = await prisma.bookingItem.count({
+    where: {
+      booking: {
+        status: { in: ["CONFIRMED", "CHECKED_IN", "CHECKED_OUT"] },
+        checkIn: { lte: to },
+        checkOut: { gte: from },
+      },
     },
-  }).exec();
+  });
 
   return {
     range,
@@ -219,17 +202,21 @@ export async function getSalesReport(range: SalesRange, now: Date = new Date()):
     occupancyNights,
     buckets,
     byRoomType,
-    recent: recentDocs.map((doc) => ({
-      id: doc._id.toString(),
-      bookingNumber: doc.bookingNumber,
-      guest: `${doc.contact.firstName} ${doc.contact.lastName}`.trim(),
-      checkIn: doc.checkIn,
-      checkOut: doc.checkOut,
-      total: doc.pricing.total,
-      currency: doc.pricing.currency,
-      status: doc.status,
-      paymentStatus: doc.paymentStatus,
-      createdAt: doc.createdAt,
-    })),
+    recent: recentDocs.map((doc: any) => {
+      const contact = typeof doc.contact === "string" ? JSON.parse(doc.contact) : doc.contact;
+      const pricing = typeof doc.pricing === "string" ? JSON.parse(doc.pricing) : doc.pricing;
+      return {
+        id: doc.id,
+        bookingNumber: doc.bookingNumber,
+        guest: `${contact?.firstName ?? ""} ${contact?.lastName ?? ""}`.trim(),
+        checkIn: doc.checkIn,
+        checkOut: doc.checkOut,
+        total: Number(pricing?.total ?? 0),
+        currency: pricing?.currency ?? "GBP",
+        status: doc.status,
+        paymentStatus: doc.paymentStatus,
+        createdAt: doc.createdAt,
+      };
+    }),
   };
 }
