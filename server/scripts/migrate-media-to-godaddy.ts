@@ -1,6 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
-import mongoose from "mongoose";
-import { disconnectDatabase } from "../src/config/database";
+import { connectDatabase, disconnectDatabase } from "../src/config/database";
 import { env } from "../src/config/env";
 import { logger } from "../src/config/logger";
 import { buildAvatarKey, buildMediaKey, publicAssetUrl, storagePrefixSegments } from "../src/integrations/storage/storage-keys";
@@ -518,51 +517,9 @@ async function runHtml(args: Args): Promise<void> {
 
 /**
  * Connection with fallback (same approach as scripts/backup-db.ts).
- * The standard replicaSet handshake can fail from some networks with a TLS
- * alert; a direct single-node connection works. For WRITES we must land on
- * the primary, so direct candidates are probed until the hello response
- * reports isWritablePrimary.
- */
-async function connectForMigration(): Promise<void> {
-  try {
-    await mongoose.connect(env.MONGODB_URI, { serverSelectionTimeoutMS: 5000, maxPoolSize: 5 });
-    return;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.warn(`Standard connection failed (${message}); trying direct primary...`);
-  }
-  await mongoose.disconnect().catch(() => undefined);
-  const shardHosts = [
-    "cluster0-shard-00-00.whbog.mongodb.net:27017",
-    "cluster0-shard-00-01.whbog.mongodb.net:27017",
-    "cluster0-shard-00-02.whbog.mongodb.net:27017",
-  ];
-  for (const host of shardHosts) {
-    try {
-      const base = env.MONGODB_URI.split("?")[0].replace(/@([^/]+)\//, `@${host}/`);
-      await mongoose.connect(`${base}?ssl=true&authSource=admin&directConnection=true`, {
-        serverSelectionTimeoutMS: 5000,
-        maxPoolSize: 5,
-      });
-      const hello = (await mongoose.connection.db?.admin().command({ hello: 1 })) as
-        | { isWritablePrimary?: boolean }
-        | undefined;
-      if (hello?.isWritablePrimary) {
-        console.log(`Connected directly to PRIMARY: ${host}`);
-        return;
-      }
-      console.warn(`Direct node ${host} is not primary, trying next...`);
-      await mongoose.disconnect().catch(() => undefined);
-    } catch {
-      await mongoose.disconnect().catch(() => undefined);
-    }
-  }
-  throw new Error("Unable to reach the MongoDB primary for migration");
-}
-
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
-  await connectForMigration();
+  await connectDatabase();
   try {
     if (args.kind === "all") {
       const [mediaTotal, mediaLocal, usersTotal, usersLocal] = await Promise.all([

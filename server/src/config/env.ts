@@ -15,12 +15,29 @@ if (fs.existsSync(FALLBACK_ENV_FILE)) {
   }
 }
 
+// GoDaddy Hosted Database: GoDaddy injects DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT.
+// When present, this MUST be the primary DATABASE_URL (overrides deploy.env fallback).
+if (process.env.DB_HOST && process.env.DB_USER) {
+  const dbUser = encodeURIComponent(process.env.DB_USER);
+  const dbPass = encodeURIComponent(process.env.DB_PASSWORD || "");
+  const dbHost = process.env.DB_HOST;
+  const dbPort = process.env.DB_PORT || "3306";
+  const dbName = process.env.DB_NAME || "reservation";
+  process.env.DATABASE_URL = `mysql://${dbUser}:${dbPass}@${dbHost}:${dbPort}/${dbName}?connect_timeout=30&pool_timeout=30`;
+}
+
 const DEV_JWT_FALLBACK = "dev-only-insecure-secret-change-me";
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(5000),
-  MONGODB_URI: z.string().min(1).default("mongodb://127.0.0.1:27017/reservation"),
+  DATABASE_URL: z.string().optional(),
+  DB_HOST: z.string().optional(),
+  DB_PORT: z.string().optional(),
+  DB_USER: z.string().optional(),
+  DB_PASSWORD: z.string().optional(),
+  DB_NAME: z.string().optional(),
+  MONGODB_URI: z.string().optional(),
   JWT_SECRET: z.string().min(1).default(DEV_JWT_FALLBACK),
   JWT_EXPIRES_IN: z.string().min(1).default("7d"),
   // Optional staff-admin seed (the admin frontend has no registration UI).

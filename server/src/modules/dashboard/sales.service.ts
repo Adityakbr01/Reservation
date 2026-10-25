@@ -112,7 +112,7 @@ export async function getSalesReport(range: SalesRange, now: Date = new Date()):
       _sum: { amount: true },
     }),
     prisma.$queryRawUnsafe<Array<{ roomTypeId: string; bookings: bigint; gross: number }>>(
-      "SELECT bi.roomTypeId, COUNT(*) as bookings, SUM(JSON_EXTRACT(bi.pricing, '$.total')) as gross FROM booking_items bi JOIN bookings b ON bi.bookingId = b.id WHERE b.createdAt >= ? AND b.createdAt <= ? AND b.status NOT IN ('CANCELLED', 'EXPIRED') GROUP BY bi.roomTypeId",
+      "SELECT bi.roomTypeId, COUNT(*) as bookings, SUM(JSON_EXTRACT(bi.pricing, '$.total')) as gross FROM bookingitems bi JOIN bookings b ON bi.bookingId = b.id WHERE b.createdAt >= ? AND b.createdAt <= ? AND b.status NOT IN ('CANCELLED', 'EXPIRED') GROUP BY bi.roomTypeId",
       from,
       to,
     ),

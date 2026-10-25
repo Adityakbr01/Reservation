@@ -27,6 +27,11 @@ const ENV_KEYS = [
   "NODE_ENV",
   "PORT",
   "DATABASE_URL",
+  "DB_HOST",
+  "DB_PORT",
+  "DB_NAME",
+  "DB_USER",
+  "DB_PASSWORD",
   "MONGODB_URI",
   "JWT_SECRET",
   "JWT_EXPIRES_IN",
@@ -111,6 +116,12 @@ function buildDeployEnv() {
     fail("server/.env not found — needed to generate the deploy.env fallback credentials.");
   }
   const local = parseEnv(fs.readFileSync(envPath, "utf8"));
+
+  if (local.MYSQL_DB_USER && local.MYSQL_DB_PASSWORD) {
+    const encPass = encodeURIComponent(local.MYSQL_DB_PASSWORD);
+    PRODUCTION_OVERRIDES.DATABASE_URL = `mysql://${local.MYSQL_DB_USER}:${encPass}@kms.596.mytemp.website:3306/reservation?sslmode=disable&connect_timeout=30&pool_timeout=30`;
+  }
+
   const merged = { ...local, ...PRODUCTION_OVERRIDES };
 
   const missing = REQUIRED_FALLBACK_KEYS.filter((key) => !merged[key]);

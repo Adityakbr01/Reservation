@@ -1,15 +1,11 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import mongoose from "mongoose";
-import { disconnectDatabase } from "../src/config/database";
+import { prisma, disconnectDatabase, connectDatabase } from "../src/config/database";
 import { env } from "../src/config/env";
 
 /**
- * MongoDB Database Backup Script.
- *
- * Exports all non-system collections from the active MongoDB database into
- * timestamped JSON files using Extended JSON (EJSON) format to preserve
- * exact BSON types (ObjectIds, Dates, regexes, decimals).
+ * MySQL Database Backup Script via Prisma.
+ * Exports all tables from the active MySQL database into timestamped JSON files.
  *
  * Usage:
  *   bun scripts/backup-db.ts [--out <dir>]
@@ -18,7 +14,6 @@ import { env } from "../src/config/env";
 interface BackupManifest {
   createdAt: string;
   database: string;
-  connectionHost: string;
   totalCollections: number;
   totalDocuments: number;
   collections: Record<
@@ -31,56 +26,36 @@ interface BackupManifest {
   >;
 }
 
-function sanitizeMongoUri(uri: string): string {
-  try {
-    const parsed = new URL(uri);
-    return `${parsed.protocol}//${parsed.host}${parsed.pathname}`;
-  } catch {
-    return uri.replace(/:([^@]+)@/, ":***@");
-  }
-}
-
-async function connectForBackup(): Promise<string> {
-  // 1. Try standard connection
-  try {
-    await mongoose.connect(env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 4000,
-      maxPoolSize: 5,
-    });
-    return env.MONGODB_URI;
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.warn(`Standard connection attempt: ${msg}`);
-    console.log("Attempting direct connection to responsive cluster nodes for read backup...");
-
-    // Extract user/password and db name from MONGODB_URI
-    const shardHosts = [
-      "cluster0-shard-00-00.whbog.mongodb.net:27017",
-      "cluster0-shard-00-01.whbog.mongodb.net:27017",
-      "cluster0-shard-00-02.whbog.mongodb.net:27017",
-    ];
-
-    for (const host of shardHosts) {
-      try {
-        let fallbackUri = env.MONGODB_URI;
-        if (fallbackUri.includes("@") && fallbackUri.includes("/")) {
-          fallbackUri =
-            fallbackUri.replace(/@([^/]+)\//, `@${host}/`).split("?")[0] +
-            "?ssl=true&authSource=admin&directConnection=true&readPreference=secondaryPreferred";
-        }
-        await mongoose.connect(fallbackUri, {
-          serverSelectionTimeoutMS: 4000,
-          maxPoolSize: 5,
-        });
-        console.log(`Connected directly to node: ${host}`);
-        return fallbackUri;
-      } catch {
-        // try next node
-      }
-    }
-    throw new Error("Unable to connect to any MongoDB cluster node for backup");
-  }
-}
+const MODELS: Array<{ name: string; findMany: () => Promise<any[]> }> = [
+  { name: "users", findMany: () => prisma.user.findMany() },
+  { name: "properties", findMany: () => prisma.property.findMany() },
+  { name: "amenities", findMany: () => prisma.amenity.findMany() },
+  { name: "roomtypes", findMany: () => prisma.roomType.findMany() },
+  { name: "rooms", findMany: () => prisma.room.findMany() },
+  { name: "rateplans", findMany: () => prisma.ratePlan.findMany() },
+  { name: "dailyprices", findMany: () => prisma.dailyPrice.findMany() },
+  { name: "cancellationpolicies", findMany: () => prisma.policy.findMany() },
+  { name: "availabilityblocks", findMany: () => prisma.availabilityBlock.findMany() },
+  { name: "coupons", findMany: () => prisma.coupon.findMany() },
+  { name: "bookings", findMany: () => prisma.booking.findMany() },
+  { name: "bookingitems", findMany: () => prisma.bookingItem.findMany() },
+  { name: "payments", findMany: () => prisma.payment.findMany() },
+  { name: "refunds", findMany: () => prisma.refund.findMany() },
+  { name: "reviews", findMany: () => prisma.review.findMany() },
+  { name: "media", findMany: () => prisma.media.findMany() },
+  { name: "sitesettings", findMany: () => prisma.siteSettings.findMany() },
+  { name: "emailtemplates", findMany: () => prisma.emailTemplate.findMany() },
+  { name: "enquiries", findMany: () => prisma.enquiry.findMany() },
+  { name: "newslettersubscribers", findMany: () => prisma.newsletterSubscriber.findMany() },
+  { name: "notifications", findMany: () => prisma.notification.findMany() },
+  { name: "auditlogs", findMany: () => prisma.auditLog.findMany() },
+  { name: "webhookevents", findMany: () => prisma.webhookEvent.findMany() },
+  { name: "cmspages", findMany: () => prisma.cmsPage.findMany() },
+  { name: "cmsblogposts", findMany: () => prisma.cmsBlogPost.findMany() },
+  { name: "cmsfaqs", findMany: () => prisma.cmsFaq.findMany() },
+  { name: "cmsoffers", findMany: () => prisma.cmsOffer.findMany() },
+  { name: "cmspolicydocs", findMany: () => prisma.cmsPolicyDoc.findMany() },
+];
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
@@ -101,52 +76,29 @@ async function main(): Promise<void> {
   await mkdir(backupDir, { recursive: true });
 
   console.log(`\n==================================================`);
-  console.log(`Starting MongoDB Backup`);
-  console.log(`Target: ${sanitizeMongoUri(env.MONGODB_URI)}`);
+  console.log(`Starting MySQL Database Backup (via Prisma)`);
   console.log(`Directory: ${backupDir}`);
   console.log(`==================================================\n`);
 
-  const activeUri = await connectForBackup();
-
-  const db = mongoose.connection.db;
-  if (!db) {
-    throw new Error("Mongoose connection established but database object is undefined");
-  }
-
-  const dbName = db.databaseName;
-  console.log(`Connected to database: "${dbName}"\n`);
-
-  // Fetch all collection names
-  const rawCollections = await db.listCollections().toArray();
-  const collectionNames = rawCollections
-    .map((c) => c.name)
-    .filter((name) => !name.startsWith("system."))
-    .sort();
-
-  console.log(`Found ${collectionNames.length} collections. Exporting...\n`);
+  await connectDatabase();
 
   const manifest: BackupManifest = {
     createdAt: now.toISOString(),
-    database: dbName,
-    connectionHost: sanitizeMongoUri(activeUri),
-    totalCollections: collectionNames.length,
+    database: "MySQL (reservation)",
+    totalCollections: MODELS.length,
     totalDocuments: 0,
     collections: {},
   };
 
-  const EJSON = mongoose.mongo.BSON.EJSON;
-
-  for (const name of collectionNames) {
-    const col = db.collection(name);
-    const docs = await col.find({}).toArray();
-    const count = docs.length;
+  for (const { name, findMany } of MODELS) {
+    const rows = await findMany();
+    const count = rows.length;
     manifest.totalDocuments += count;
 
     const fileName = `${name}.json`;
     const filePath = resolve(backupDir, fileName);
 
-    // Format with EJSON canonical format for lossless ObjectId/Date/Regex support
-    const serialized = EJSON.stringify(docs, undefined, 2, { relaxed: false });
+    const serialized = JSON.stringify(rows, null, 2);
     const buffer = Buffer.from(serialized, "utf-8");
     await writeFile(filePath, buffer);
 
@@ -157,7 +109,7 @@ async function main(): Promise<void> {
     };
 
     const sizeKb = (buffer.byteLength / 1024).toFixed(1);
-    console.log(`  ✓ ${name.padEnd(25)} : ${String(count).padStart(5)} docs (${sizeKb} KB)`);
+    console.log(`  ✓ ${name.padEnd(25)} : ${String(count).padStart(5)} rows (${sizeKb} KB)`);
   }
 
   const manifestPath = resolve(backupDir, "manifest.json");
@@ -165,19 +117,17 @@ async function main(): Promise<void> {
 
   console.log("\n--------------------------------------------------");
   console.log(`✅ Backup completed successfully!`);
-  console.log(`Total collections : ${manifest.totalCollections}`);
-  console.log(`Total documents   : ${manifest.totalDocuments}`);
-  console.log(`Backup location   : ${backupDir}`);
-  console.log(`Manifest file     : ${manifestPath}`);
+  console.log(`Total tables     : ${manifest.totalCollections}`);
+  console.log(`Total rows       : ${manifest.totalDocuments}`);
+  console.log(`Backup location  : ${backupDir}`);
+  console.log(`Manifest file    : ${manifestPath}`);
   console.log("--------------------------------------------------\n");
 
   await disconnectDatabase();
 }
 
 main()
-  .then(() => {
-    process.exit(0);
-  })
+  .then(() => process.exit(0))
   .catch(async (error) => {
     console.error("\n❌ BACKUP FAILED:", error instanceof Error ? error.message : error);
     try {
