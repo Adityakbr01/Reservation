@@ -36,7 +36,7 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.4.0",
     "node-cache": "^5.1.2",
-    "prisma": "6.19.3",
+    "prisma": "7.10.1",
     "resend": "^6.32.0",
     "stripe": "^23.0.0",
     "winston": "^3.19.0",
