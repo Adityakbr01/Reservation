@@ -2,6 +2,7 @@
   "name": "reservation-server",
   "private": true,
   "version": "0.0.0",
+  "main": "dist/server.js",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -9,9 +10,10 @@
   "scripts": {
     "dev": "bun --hot src/server.ts",
     "dev:node": "node --watch dist/server.js",
-    "build": "tsc -p tsconfig.build.json && node scripts/postbuild-node.cjs",
+    "compile": "tsc -p tsconfig.build.json && node scripts/postbuild-node.cjs",
+    "build": "node scripts/postbuild-node.cjs",
     "build:node": "tsc -p tsconfig.build.json --outDir dist-node && BUILD_OUT_DIR=dist-node node scripts/postbuild-node.cjs",
-    "deploy:zip": "npm run build && node scripts/pack-deploy.cjs",
+    "deploy:zip": "npm run compile && node scripts/pack-deploy.cjs",
     "start": "node dist/server.js",
     "start:bun": "bun run src/server.ts",
     "typecheck": "tsc --noEmit",

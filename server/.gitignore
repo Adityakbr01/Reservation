@@ -2,6 +2,7 @@ node_modules/
 dist/
 server-godaddy-deploy.zip
 .env
+deploy.env
 *.log
 coverage/
 url-map.json

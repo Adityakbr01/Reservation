@@ -26,8 +26,16 @@ function requireFtpConfig(): {
   user: string;
   password: string;
   secure: boolean;
+  tlsServername: string | undefined;
 } {
-  const { GODADDY_FTP_HOST, GODADDY_FTP_PORT, GODADDY_FTP_USER, GODADDY_FTP_PASSWORD, GODADDY_FTP_SECURE } = env;
+  const {
+    GODADDY_FTP_HOST,
+    GODADDY_FTP_PORT,
+    GODADDY_FTP_USER,
+    GODADDY_FTP_PASSWORD,
+    GODADDY_FTP_SECURE,
+    GODADDY_FTP_TLS_SERVERNAME,
+  } = env;
   if (!GODADDY_FTP_HOST || !GODADDY_FTP_USER || !GODADDY_FTP_PASSWORD) {
     throw new Error("GoDaddy FTP is not configured (GODADDY_FTP_HOST/USER/PASSWORD)");
   }
@@ -37,6 +45,7 @@ function requireFtpConfig(): {
     user: GODADDY_FTP_USER,
     password: GODADDY_FTP_PASSWORD,
     secure: GODADDY_FTP_SECURE,
+    tlsServername: GODADDY_FTP_TLS_SERVERNAME,
   };
 }
 
@@ -50,6 +59,7 @@ async function connect(): Promise<Client> {
     user: config.user,
     password: config.password,
     secure: config.secure,
+    ...(config.tlsServername ? { secureOptions: { servername: config.tlsServername } } : {}),
   });
   return client;
 }

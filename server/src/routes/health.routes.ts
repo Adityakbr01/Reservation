@@ -6,6 +6,18 @@ import { asyncHandler } from "../utils/async-handler";
 
 export const healthRouter = Router();
 
+healthRouter.get("/", (_req: Request, res: Response) => {
+  res.json({
+    success: true,
+    data: {
+      service: "reservation-api",
+      status: "ok",
+      health: "/health",
+      ready: "/ready",
+    },
+  });
+});
+
 /** Liveness: always 200 while the process serves; reports dependency states. */
 healthRouter.get(
   "/health",

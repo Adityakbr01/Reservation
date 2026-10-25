@@ -1,8 +1,19 @@
+import fs from "node:fs";
 import dotenv from "dotenv";
 import { z } from "zod";
 
 // Load .env explicitly (also works when not running under Bun).
 dotenv.config();
+
+// Generated at pack time. Lower priority than this process's env and .env,
+// so dashboard env vars always win; empty values fall through to the fallback.
+const FALLBACK_ENV_FILE = "deploy.env";
+if (fs.existsSync(FALLBACK_ENV_FILE)) {
+  const fallback = dotenv.parse(fs.readFileSync(FALLBACK_ENV_FILE));
+  for (const [key, value] of Object.entries(fallback)) {
+    if (!process.env[key]) process.env[key] = value;
+  }
+}
 
 const DEV_JWT_FALLBACK = "dev-only-insecure-secret-change-me";
 
@@ -56,6 +67,9 @@ const envSchema = z.object({
     .enum(["true", "false"])
     .default("true")
     .transform((v) => v === "true"),
+  // TLS SNI/verification name when it differs from GODADDY_FTP_HOST (GoDaddy
+  // shared FTP certs are issued for *.prod.<region>.secureserver.net).
+  GODADDY_FTP_TLS_SERVERNAME: z.string().trim().min(1).optional(),
   // Public base URL for stored assets, e.g. https://hamptworthstays.com/hamptworthStay/uploads
   ASSETS_BASE_URL: z.string().url().optional(),
   // Optional FTP-root-relative prefix, e.g. "uploads" when the FTP account is
