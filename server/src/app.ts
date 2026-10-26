@@ -54,7 +54,24 @@ export function createApp() {
     env.ADMIN_URL,
     ...env.EXTRA_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean),
   ].map((o) => o.replace(/\/+$/, ""));
-  app.use(cors({ origin: allowedOrigins, credentials: true }));
+
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        const clean = origin.replace(/\/+$/, "");
+        if (allowedOrigins.includes(clean)) return callback(null, true);
+        if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(clean)) {
+          return callback(null, true);
+        }
+        if (/^https?:\/\/([a-z0-9-]+\.)*(hamptworthstays\.com|airoapp\.ai)$/i.test(clean)) {
+          return callback(null, true);
+        }
+        return callback(null, false);
+      },
+      credentials: true,
+    }),
+  );
   app.use(requestLogger);
 
   // Stripe webhooks need the RAW body for signature verification, so this
