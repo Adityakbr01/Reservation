@@ -95,25 +95,13 @@ export async function findMediaReferences(mediaId: string): Promise<MediaReferen
   const refs: MediaReference[] = [];
   const [pages, posts, offers, roomTypes, settings, amenities] = await Promise.all([
     prisma.cmsPage.findMany({
-      where: {
-        OR: [
-          { featuredImageMediaId: mediaId },
-          { seo: { path: ["ogImageMediaId"], equals: mediaId } },
-        ],
-      },
-      select: { id: true, sections: true },
+      select: { id: true, featuredImageMediaId: true, seo: true, sections: true },
     }),
     prisma.cmsBlogPost.findMany({
-      where: {
-        OR: [{ featuredImageMediaId: mediaId }, { seo: { path: ["ogImageMediaId"], equals: mediaId } }],
-      },
-      select: { id: true },
+      select: { id: true, featuredImageMediaId: true, seo: true },
     }),
     prisma.cmsOffer.findMany({
-      where: {
-        OR: [{ imageMediaId: mediaId }, { seo: { path: ["ogImageMediaId"], equals: mediaId } }],
-      },
-      select: { id: true },
+      select: { id: true, imageMediaId: true, seo: true },
     }),
     prisma.roomType.findMany({
       select: {
@@ -125,18 +113,29 @@ export async function findMediaReferences(mediaId: string): Promise<MediaReferen
       },
     }),
     prisma.siteSettings.findMany({
-      where: {
-        OR: [{ logoMediaId: mediaId }, { faviconMediaId: mediaId }, { defaultSeo: { path: ["ogImageMediaId"], equals: mediaId } }],
-      },
-      select: { id: true },
+      select: { id: true, logoMediaId: true, faviconMediaId: true, defaultSeo: true },
     }),
-    prisma.amenity.findMany({ where: { imageMediaId: mediaId }, select: { id: true } }),
+    prisma.amenity.findMany({ select: { id: true, imageMediaId: true } }),
   ]);
+
   for (const doc of pages) {
-    refs.push({ collection: "pages", id: doc.id });
+    const seoOg = (doc.seo as any)?.ogImageMediaId;
+    if (doc.featuredImageMediaId === mediaId || seoOg === mediaId) {
+      refs.push({ collection: "pages", id: doc.id });
+    }
   }
-  for (const doc of posts) refs.push({ collection: "blogs", id: doc.id });
-  for (const doc of offers) refs.push({ collection: "offers", id: doc.id });
+  for (const doc of posts) {
+    const seoOg = (doc.seo as any)?.ogImageMediaId;
+    if (doc.featuredImageMediaId === mediaId || seoOg === mediaId) {
+      refs.push({ collection: "blogs", id: doc.id });
+    }
+  }
+  for (const doc of offers) {
+    const seoOg = (doc.seo as any)?.ogImageMediaId;
+    if (doc.imageMediaId === mediaId || seoOg === mediaId) {
+      refs.push({ collection: "offers", id: doc.id });
+    }
+  }
   for (const rt of roomTypes) {
     let matched = false;
     if (rt.welcomeHamperImageMediaId === mediaId) matched = true;
@@ -145,8 +144,17 @@ export async function findMediaReferences(mediaId: string): Promise<MediaReferen
     else if (Array.isArray(rt.media) && (rt.media as any[]).some((m) => m.mediaId === mediaId)) matched = true;
     if (matched) refs.push({ collection: "roomTypes", id: rt.id });
   }
-  for (const doc of settings) refs.push({ collection: "settings", id: doc.id });
-  for (const item of amenities) refs.push({ collection: "amenities", id: item.id });
+  for (const doc of settings) {
+    const defSeoOg = (doc.defaultSeo as any)?.ogImageMediaId;
+    if (doc.logoMediaId === mediaId || doc.faviconMediaId === mediaId || defSeoOg === mediaId) {
+      refs.push({ collection: "settings", id: doc.id });
+    }
+  }
+  for (const item of amenities) {
+    if (item.imageMediaId === mediaId) {
+      refs.push({ collection: "amenities", id: item.id });
+    }
+  }
   return refs;
 }
 
