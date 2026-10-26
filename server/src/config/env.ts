@@ -71,8 +71,8 @@ const envSchema = z.object({
   // Relative paths never render in inboxes; unset keeps the text lockup.
   EMAIL_LOGO_URL: z.string().trim().max(500).optional(),
   ADMIN_NOTIFICATION_EMAIL: z.string().trim().toLowerCase().email().optional(),
-  // Binary asset storage driver. Default "ftp" for GoDaddy hosting.
-  STORAGE_PROVIDER: z.literal("ftp").default("ftp"),
+  // Binary asset storage driver. Supports "local" (PaaS container persistent disk) or "ftp".
+  STORAGE_PROVIDER: z.enum(["ftp", "local"]).default("local"),
   // GoDaddy FTP (scoped account jailed to the uploads/ directory).
   // HOST is the FTP hostname from cPanel → "Configure FTP Client", not the website URL.
   GODADDY_FTP_HOST: z.string().trim().min(1).optional(),

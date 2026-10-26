@@ -70,9 +70,10 @@ const PRODUCTION_OVERRIDES = {
   CLIENT_URL: "https://book.hamptworthstays.com",
   ADMIN_URL: "https://admin.hamptworthstays.com",
   EXTRA_ORIGINS:
-    "https://hamptworthstays.com,https://www.hamptworthstays.com,https://api.hamptworthstays.com,https://ts9xhcervu.preview.c38.airoapp.ai,http://localhost:5173,http://localhost:5174",
+    "https://hamptworthstays.com,https://www.hamptworthstays.com,https://api.hamptworthstays.com,https://ts9xhcervu.preview.c38.airoapp.ai,http://localhost:5173,http://localhost:5174,http://localhost:4173",
   TRUST_PROXY: "true",
-  STORAGE_PROVIDER: "ftp",
+  STORAGE_PROVIDER: "local",
+  ASSETS_BASE_URL: "https://api.hamptworthstays.com/uploads",
   GODADDY_FTP_TLS_SERVERNAME: "prod.phx3.secureserver.net",
 };
 

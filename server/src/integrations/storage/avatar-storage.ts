@@ -1,8 +1,7 @@
 import { logger } from "../../config/logger";
-import { env } from "../../config/env";
 import { AppError } from "../../utils/app-error";
-import { buildAvatarKey, publicAssetUrl } from "./storage-keys";
-import { removeFileFromGoDaddy, uploadBufferToGoDaddy } from "./godaddy-storage";
+import { buildAvatarKey } from "./storage-keys";
+import { removeFile, uploadBuffer } from "./godaddy-storage";
 import type { StorageProvider } from "../../modules/media/media.model";
 
 export interface UploadedAvatar {
@@ -11,26 +10,22 @@ export interface UploadedAvatar {
   storageProvider: StorageProvider;
 }
 
-/** Uploads an avatar buffer to GoDaddy FTP. Throws 502 AppError on failure. */
+/** Uploads an avatar buffer with automatic FTP or local persistent storage. */
 export async function uploadAvatar(
   data: Buffer,
   fileName: string,
   userId: string,
 ): Promise<UploadedAvatar> {
-  const baseUrl = env.ASSETS_BASE_URL;
-  if (!baseUrl) {
-    throw new AppError("Asset storage is not configured", 503, "STORAGE_NOT_CONFIGURED");
-  }
   const mime = sniffImageMime(data);
   const key = buildAvatarKey(userId, fileName, mime);
   try {
-    await uploadBufferToGoDaddy(key, data);
+    const result = await uploadBuffer(key, data);
+    return { url: result.url, fileId: key, storageProvider: result.provider };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error("Avatar upload failed", { message });
     throw new AppError("Avatar upload failed, please try again", 502, "MEDIA_UPLOAD_FAILED");
   }
-  return { url: publicAssetUrl(baseUrl, key), fileId: key, storageProvider: "ftp" };
 }
 
 /** Minimal magic-byte sniff for the avatar allow-list (JPEG/PNG/WebP). Falls back to JPEG. */
@@ -59,7 +54,7 @@ function sniffImageMime(data: Buffer): "image/jpeg" | "image/png" | "image/webp"
  */
 export async function deleteAvatar(fileId: string): Promise<void> {
   try {
-    await removeFileFromGoDaddy(fileId);
+    await removeFile(fileId);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     logger.warn("Avatar cleanup failed", { message, fileId });

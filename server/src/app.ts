@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
@@ -45,7 +47,11 @@ export function createApp() {
   if (env.TRUST_PROXY) {
     app.set("trust proxy", 1);
   }
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+    }),
+  );
   // Production domains come from CLIENT_URL / ADMIN_URL / EXTRA_ORIGINS
   // (comma-separated). Trailing slashes are stripped so
   // "https://hotel.example.com/" still matches the browser Origin.
@@ -80,6 +86,12 @@ export function createApp() {
 
   app.use(express.json({ limit: "1mb" }));
   app.use(globalRateLimiter);
+
+  const uploadsDir = path.resolve(process.cwd(), "uploads");
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+  app.use("/uploads", express.static(uploadsDir));
 
   app.use(healthRouter);
   app.use("/api/v1/auth", authRouter);

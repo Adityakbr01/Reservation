@@ -1,14 +1,10 @@
 import { logger } from "../../config/logger";
 import { prisma } from "../../config/database";
-import { env } from "../../config/env";
 import { AppError } from "../../utils/app-error";
+import { buildMediaKey } from "../../integrations/storage/storage-keys";
 import {
-  buildMediaKey,
-  publicAssetUrl,
-} from "../../integrations/storage/storage-keys";
-import {
-  removeFileFromGoDaddy,
-  uploadBufferToGoDaddy,
+  removeFile,
+  uploadBuffer,
 } from "../../integrations/storage/godaddy-storage";
 import { MediaModel, findMediaById, listMedia, normalizeFolderPath, toMedia } from "./media.model";
 import type { ListMediaFilter, Media } from "./media.model";
@@ -24,17 +20,14 @@ export interface UploadMediaInput {
   createdBy?: string | null;
 }
 
-/** Validate → FTP store → URL/key → Mongo metadata. */
+/** Validate → Universal store (FTP or local persistent disk) → URL/key → metadata. */
 export async function uploadMedia(input: UploadMediaInput): Promise<Media> {
   const folder = normalizeFolderPath(input.folder);
-  const baseUrl = env.ASSETS_BASE_URL;
-  if (!baseUrl) {
-    throw new AppError("Asset storage is not configured", 503, "STORAGE_NOT_CONFIGURED");
-  }
   const kind = input.mime.startsWith("video/") ? "video" : "image";
   const key = buildMediaKey(input.fileName, input.mime);
+  let result: { url: string; provider: "ftp" | "local" };
   try {
-    await uploadBufferToGoDaddy(key, input.data);
+    result = await uploadBuffer(key, input.data);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error("Media upload failed", { message });
@@ -43,9 +36,9 @@ export async function uploadMedia(input: UploadMediaInput): Promise<Media> {
   try {
     const doc = await MediaModel.create({
       fileName: input.fileName,
-      url: publicAssetUrl(baseUrl, key),
+      url: result.url,
       storageKey: key,
-      storageProvider: "ftp",
+      storageProvider: result.provider,
       mime: input.mime,
       kind,
       folder,
@@ -59,8 +52,8 @@ export async function uploadMedia(input: UploadMediaInput): Promise<Media> {
     });
     return toMedia(doc);
   } catch (error) {
-    await removeFileFromGoDaddy(key).catch((cleanupError: unknown) => {
-      logger.warn("GoDaddy orphan cleanup failed", {
+    await removeFile(key).catch((cleanupError: unknown) => {
+      logger.warn("Media orphan cleanup failed", {
         message: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
         key,
       });
@@ -169,7 +162,7 @@ export async function deleteMedia(id: string): Promise<void> {
     );
   }
   try {
-    await removeFileFromGoDaddy(media.storageKey);
+    await removeFile(media.storageKey);
   } catch (error) {
     logger.warn("Media binary cleanup failed", {
       message: error instanceof Error ? error.message : String(error),
