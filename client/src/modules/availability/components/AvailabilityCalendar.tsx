@@ -254,9 +254,6 @@ export function AvailabilityCalendar({
             <span className="size-2 rounded-full bg-emerald-500" /> Free
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-amber-500" /> Few left
-          </span>
-          <span className="inline-flex items-center gap-1.5">
             <span className="font-bold text-destructive/70">✕</span> Booked
           </span>
           <span className="inline-flex items-center gap-1.5">

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import Dialog from "@/components/ui/dialog";
 import EnquiryForm from "@/modules/enquiry/components/EnquiryForm";
 import { useState } from "react";
+import { SITE_LINKS } from "@/config/links";
 
 export function EnquireAboutRoom({
   roomTypeId,
@@ -22,10 +23,23 @@ export function EnquireAboutRoom({
             Tell us your dates, party and budget — we reply shortly.
           </p>
         </div>
-        <Button className="rounded-lg" onClick={() => setOpen(true)}>
-          Enquire now
-          <span aria-hidden>→</span>
-        </Button>
+        {SITE_LINKS.enquireNow && SITE_LINKS.enquireNow !== "#" ? (
+          <Button asChild className="rounded-lg">
+            <a
+              href={SITE_LINKS.enquireNow}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Enquire now
+              <span aria-hidden>→</span>
+            </a>
+          </Button>
+        ) : (
+          <Button className="rounded-lg" onClick={() => setOpen(true)}>
+            Enquire now
+            <span aria-hidden>→</span>
+          </Button>
+        )}
       </div>
       <Dialog
         open={open}

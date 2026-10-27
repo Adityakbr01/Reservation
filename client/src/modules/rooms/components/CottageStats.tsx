@@ -28,7 +28,9 @@ export function StatTip({ label, children }: { label: string; children: ReactNod
 export interface CottageStatsProps {
   sleeps: number;
   adults: number;
-  children: number;
+  childrenCount?: number;
+  /** @deprecated use childrenCount */
+  children?: number;
   bedrooms: number | null;
   bathrooms: number | null;
   dogs: number | null;
@@ -38,15 +40,17 @@ export interface CottageStatsProps {
 export function CottageStats({
   sleeps,
   adults,
+  childrenCount,
   children,
   bedrooms,
   bathrooms,
   dogs,
 }: CottageStatsProps) {
+  const effectiveChildren = childrenCount ?? children ?? 0;
   return (
     <p className="flex flex-wrap items-center gap-x-5 gap-y-2">
       <StatTip
-        label={`Guests — sleeps up to ${sleeps} (${adults} adults, ${children} children)`}
+        label={`Guests — sleeps up to ${sleeps} (${adults} adults, ${effectiveChildren} children)`}
       >
         <BedDouble className="size-4 text-muted-foreground" aria-hidden />
         <span aria-hidden>{sleeps} guests</span>

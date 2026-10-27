@@ -89,7 +89,13 @@ export function HamperBanner({ html }: HamperBannerProps) {
         </h2>
         <div
           className="rich-text mt-3 text-sm leading-relaxed text-foreground"
-          dangerouslySetInnerHTML={{ __html: enhanceRichLinks(html) }}
+          dangerouslySetInnerHTML={{
+            __html: enhanceRichLinks(
+              html?.trim()
+                ? html
+                : "<p>Each cottage includes a complimentary welcome hamper with a selection of teas, coffee, fresh milk and biscuits for guests to enjoy during their stay.</p>",
+            ),
+          }}
         />
       </Dialog>
     </>

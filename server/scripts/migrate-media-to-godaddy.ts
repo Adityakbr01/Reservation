@@ -517,6 +517,7 @@ async function runHtml(args: Args): Promise<void> {
 
 /**
  * Connection with fallback (same approach as scripts/backup-db.ts).
+ */
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   await connectDatabase();

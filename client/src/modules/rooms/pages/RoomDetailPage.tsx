@@ -481,7 +481,6 @@ export function RoomDetailPage() {
           ),
         )
       : 0);
-  const guestCount = search ? search.adults + search.children : 2;
   const aboutPhoto =
     photoById.get(gallery[1]?.mediaId ?? "") ??
     photoById.get(gallery[0]?.mediaId ?? null);
@@ -542,7 +541,10 @@ export function RoomDetailPage() {
 
   const roomCount = search?.rooms ?? 1;
   const baseMaxAdults = roomType?.maxAdults ?? 4;
-  const baseMaxChildren = roomType?.maxChildren ?? 4;
+  const baseMaxChildren =
+    roomType?.maxChildren && roomType.maxChildren > 0
+      ? roomType.maxChildren
+      : Math.max(1, (roomType?.maxOccupancy ?? 4) - 1);
   const baseMaxOccupancy = roomType?.maxOccupancy ?? 6;
 
   const totalMaxAdults = baseMaxAdults * roomCount;
@@ -550,6 +552,7 @@ export function RoomDetailPage() {
   const totalMaxOccupancy = baseMaxOccupancy * roomCount;
   const currentAdults = search?.adults ?? 2;
   const currentChildren = search?.children ?? 0;
+  const currentInfants = parseInt(params.get("infants") ?? "0", 10) || 0;
   const currentGuests = currentAdults + currentChildren;
   const physicalRoomCount = (roomType as { totalRooms?: number } | null)?.totalRooms ?? 2;
   const maxRoomsAvailable = match?.availableCount != null
@@ -567,6 +570,13 @@ export function RoomDetailPage() {
     }
     next.set("adults", String(finalAdults));
     next.set("children", String(finalChildren));
+    setParams(next, { replace: true });
+  }
+
+  function setInfantsCount(infants: number) {
+    const next = new URLSearchParams(params);
+    const safeInfants = Math.max(0, Math.min(6, infants));
+    next.set("infants", String(safeInfants));
     setParams(next, { replace: true });
   }
 
@@ -898,7 +908,7 @@ export function RoomDetailPage() {
             <CottageStats
               sleeps={roomType.maxOccupancy}
               adults={roomType.maxAdults}
-              children={roomType.maxChildren}
+              childrenCount={roomType.maxChildren}
               bedrooms={roomType.bedrooms ?? null}
               bathrooms={roomType.bathrooms ?? null}
               dogs={roomType.maxDogs ?? null}
@@ -1269,11 +1279,10 @@ export function RoomDetailPage() {
                           aria-hidden
                         />
                         <span className="truncate">
-                          {guestCount} guest{guestCount === 1 ? "" : "s"} · {roomCount} room{roomCount === 1 ? "" : "s"}
+                          {currentAdults} {currentAdults === 1 ? "adult" : "adults"}
+                          {currentChildren > 0 ? ` · ${currentChildren} ${currentChildren === 1 ? "child" : "children"}` : ""}
+                          {currentInfants > 0 ? ` · ${currentInfants} ${currentInfants === 1 ? "infant" : "infants"}` : ""} · {roomCount} {roomCount === 1 ? "room" : "rooms"}
                         </span>
-                      </span>
-                      <span className="pl-6 text-[11px] text-muted-foreground">
-                        Max {totalMaxOccupancy} guests total
                       </span>
                     </div>
                     <ChevronDown
@@ -1294,7 +1303,8 @@ export function RoomDetailPage() {
                         const isAdultsPlusDisabled = currentAdults >= maxAdultsAllowed || currentGuests >= totalMaxOccupancy;
                         const isAdultsMinusDisabled = currentAdults <= 1;
 
-                        const maxChildrenAllowed = Math.min(totalMaxChildren, Math.max(0, totalMaxOccupancy - currentAdults));
+                        const effectiveMaxChildren = totalMaxChildren > 0 ? totalMaxChildren : Math.max(1, totalMaxOccupancy - 1);
+                        const maxChildrenAllowed = Math.min(effectiveMaxChildren, Math.max(0, totalMaxOccupancy - currentAdults));
                         const isChildrenPlusDisabled = currentChildren >= maxChildrenAllowed || currentGuests >= totalMaxOccupancy;
                         const isChildrenMinusDisabled = currentChildren <= 0;
 
@@ -1307,21 +1317,13 @@ export function RoomDetailPage() {
                             aria-label="Choose guests"
                             className="absolute inset-x-0 top-full z-20 mt-2 space-y-3 rounded-xl border border-border bg-card p-4 shadow-card"
                           >
-                            <div className="rounded-lg border border-border/80 bg-muted/40 p-2.5 text-xs space-y-1 min-h-[58px] flex flex-col justify-center">
-                              <div className="flex items-center justify-between font-medium text-foreground">
-                                <span>Cottage Capacity</span>
-                                <span className="font-semibold text-brand">Up to {totalMaxOccupancy} guests</span>
-                              </div>
-                              <p className="text-[11px] text-muted-foreground leading-tight">
-                                {roomCount === 1
-                                  ? `Max ${baseMaxOccupancy} guests (${baseMaxAdults} adults, ${baseMaxChildren} children) per room.`
-                                  : `Max ${totalMaxOccupancy} guests across ${roomCount} rooms (${totalMaxAdults} adults, ${totalMaxChildren} children).`}
-                              </p>
+                            <div className="rounded-lg border border-border/80 bg-muted/40 p-2.5 text-xs flex items-center justify-between font-medium text-foreground">
+                              <span>Cottage Capacity</span>
+                              <span className="font-semibold text-brand">Up to {totalMaxOccupancy} guests</span>
                             </div>
 
                             <GuestStepper
                               label="Adults"
-                              sublabel={`Max ${totalMaxAdults} adults`}
                               value={currentAdults}
                               min={1}
                               max={totalMaxAdults}
@@ -1333,15 +1335,23 @@ export function RoomDetailPage() {
                             />
                             <GuestStepper
                               label="Children"
-                              sublabel={baseMaxChildren > 0 ? `Max ${totalMaxChildren} children` : "Adults only"}
                               value={currentChildren}
                               min={0}
-                              max={totalMaxChildren}
+                              max={effectiveMaxChildren}
                               disabledMinus={isChildrenMinusDisabled}
-                              disabledPlus={isChildrenPlusDisabled || baseMaxChildren <= 0}
+                              disabledPlus={isChildrenPlusDisabled}
                               onChange={(v) =>
                                 setGuestCount(currentAdults, v)
                               }
+                            />
+                            <GuestStepper
+                              label="Infants"
+                              value={currentInfants}
+                              min={0}
+                              max={6}
+                              disabledMinus={currentInfants <= 0}
+                              disabledPlus={currentInfants >= 6}
+                              onChange={(v) => setInfantsCount(v)}
                             />
                             <GuestStepper
                               label="Rooms"
@@ -1451,7 +1461,7 @@ export function RoomDetailPage() {
                             className="shrink-0 rounded-full"
                           >
                             <Link
-                              to={`/booking/new?roomTypeId=${match.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&rooms=${search.rooms ?? 1}&roomName=${encodeURIComponent(match.roomType.name)}&rateName=${encodeURIComponent(rate.name)}&roomSlug=${slug}`}
+                              to={`/booking/new?roomTypeId=${match.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&infants=${currentInfants}&rooms=${search.rooms ?? 1}&roomName=${encodeURIComponent(match.roomType.name)}&rateName=${encodeURIComponent(rate.name)}&roomSlug=${slug}`}
                               state={{ from: `/rooms/${slug}${location.search}`, roomSlug: slug }}
                             >
                               Book now

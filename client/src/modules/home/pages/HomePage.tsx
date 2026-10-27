@@ -231,9 +231,6 @@ export function HomePage() {
                 />
               </div>
             </h1>
-            <p className="hero-sub max-w-xl font-display text-lg italic leading-relaxed text-muted-foreground sm:text-xl">
-              Choose your dates. Enjoy a slower pace.
-            </p>
             <ul className="hero-trust flex flex-wrap gap-x-6 gap-y-4 pt-2 sm:flex-nowrap">
               {[
                 { 

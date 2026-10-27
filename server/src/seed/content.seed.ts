@@ -9,10 +9,7 @@ const HIGHLIGHTS = [
   "Parking",
   "WiFi",
   "Baby Welcome",
-  "Bird Watching",
-  "Ground Floor Bedroom",
-  "Cycling",
-  "Romantic Breaks",
+  "Padel",
   "Golfing",
   "Walking",
 ];
@@ -28,7 +25,7 @@ const FACILITIES = [
   "Fridge/Freezer",
   "Microwave",
   "Towels",
-  "Within walking distance of the pub",
+  "Infants",
 ];
 
 /** Mock icon per amenity until real icons are uploaded (picsum seeds). */

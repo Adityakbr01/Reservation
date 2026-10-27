@@ -69,8 +69,13 @@ export function AmenityStrip({ amenities }: AmenityStripProps) {
         const icon =
           a.iconUrl && !a.iconUrl.startsWith("https://picsum.photos")
             ? a.iconUrl
+            : undefined;
+        const localFallback = a.name.toLowerCase().includes("padel")
+          ? "/padel.png"
+          : a.name.toLowerCase().includes("infant")
+            ? "/infants.png"
             : null;
-        const src = uploaded ?? icon ?? null;
+        const src = uploaded ?? icon ?? localFallback;
         const Icon = amenityIconFor(a.name);
         return (
           <li

@@ -1,4 +1,4 @@
-import { ArrowRight, BedDouble, Users } from "lucide-react";
+import { ArrowRight, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -73,10 +73,6 @@ export function RoomTypeCard({
           <span className="inline-flex items-center gap-1">
             <Users className="size-4" aria-hidden />
             {roomType.maxAdults} adults · {roomType.maxChildren} children · max {roomType.maxOccupancy}
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <BedDouble className="size-4" aria-hidden />
-            {roomType.amenities.slice(0, 3).join(" · ") || "Standard amenities"}
           </span>
         </div>
         <p className="text-sm text-muted-foreground">

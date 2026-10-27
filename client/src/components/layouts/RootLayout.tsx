@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuthInit } from "@/app/use-auth-init";
 import { useAuthStore } from "@/stores/auth-store";
+import { SITE_LINKS } from "@/config/links";
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return cn(
@@ -26,6 +27,48 @@ function mobileLinkClass({ isActive }: { isActive: boolean }) {
     isActive
       ? "bg-surface-2 text-brand"
       : "text-foreground hover:bg-surface-2 hover:text-brand",
+  );
+}
+
+function NewsletterFooterForm() {
+  const [email, setEmail] = useState("");
+  const [done, setDone] = useState(false);
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    if (!/.+@.+\..+/.test(email)) {
+      toast.error("Enter a valid email");
+      return;
+    }
+    try {
+      const { publicApiClient } = await import("@/lib/api-client");
+      await publicApiClient.post("/public/newsletter/subscribe", {
+        email: email.trim(),
+        source: "footer",
+      });
+      setDone(true);
+      toast.success("Subscribed — welcome!");
+    } catch {
+      toast.error("Could not subscribe");
+    }
+  }
+  if (done) return <p className="text-sm">Subscribed — thank you.</p>;
+  return (
+    <form onSubmit={(e) => void submit(e)} className="space-y-2">
+      <p className="font-medium text-foreground">Newsletter</p>
+      <div className="flex gap-2">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com"
+          aria-label="Email for newsletter"
+          className="h-10 min-w-0 flex-1 rounded-full border border-input bg-background px-4 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        />
+        <Button type="submit" className="h-10 rounded-full px-5">
+          Join
+        </Button>
+      </div>
+    </form>
   );
 }
 
@@ -65,79 +108,53 @@ export function RootLayout() {
 
   const initial = user?.name.trim().charAt(0).toUpperCase() || "?";
 
-  function NewsletterFooterForm() {
-    const [email, setEmail] = useState("");
-    const [done, setDone] = useState(false);
-    async function submit(e: FormEvent) {
-      e.preventDefault();
-      if (!/.+@.+\..+/.test(email)) {
-        toast.error("Enter a valid email");
-        return;
-      }
-      try {
-        const { publicApiClient } = await import("@/lib/api-client");
-        await publicApiClient.post("/public/newsletter/subscribe", {
-          email: email.trim(),
-          source: "footer",
-        });
-        setDone(true);
-        toast.success("Subscribed — welcome!");
-      } catch {
-        toast.error("Could not subscribe");
-      }
-    }
-    if (done) return <p className="text-sm">Subscribed — thank you.</p>;
-    return (
-      <form onSubmit={(e) => void submit(e)} className="space-y-2">
-        <p className="font-medium text-foreground">Newsletter</p>
-        <div className="flex gap-2">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            aria-label="Email for newsletter"
-            className="h-10 min-w-0 flex-1 rounded-full border border-input bg-background px-4 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          />
-          <Button type="submit" className="h-10 rounded-full px-5">
-            Join
-          </Button>
-        </div>
-      </form>
-    );
-  }
-
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans text-foreground">
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
-        <nav className="mx-auto flex w-full max-w-7xl items-center gap-1 px-4 py-2 sm:gap-2 sm:px-6">
+        <nav className="relative mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-2 sm:px-6">
+          {/* Left links */}
+          <div className="hidden items-center gap-1 sm:gap-3 md:flex">
+            <NavLink to="/" end className={navLinkClass}>
+              Find a cottage
+            </NavLink>
+            <a
+              href={SITE_LINKS.theEstate}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                "inline-flex min-h-[44px] items-center gap-1 rounded-full px-4 text-sm font-medium transition-colors text-foreground hover:text-brand",
+                "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+              )}
+            >
+              The estate <span aria-hidden className="text-xs">↗</span>
+            </a>
+          </div>
+
+          {/* Centered logo */}
           <Link
             to="/"
             onClick={closeMenu}
             aria-label="Hamptworth Stays — home"
-            className="mr-2 inline-flex min-w-0 shrink-0 items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            className="inline-flex min-w-0 shrink-0 items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:absolute md:left-1/2 md:-translate-x-1/2"
           >
             <img
               src="/navlogo.webp"
               alt="Hamptworth Stays"
-              className="h-10 w-auto shrink-0 rounded-sm mix-blend-multiply sm:h-11"
+              className="h-10 w-auto shrink-0 rounded-sm mix-blend-multiply sm:h-12"
               loading="eager"
             />
           </Link>
-          {/* Desktop links */}
-          <div className="hidden items-center gap-1 sm:gap-2 md:flex">
-            <NavLink to="/" end className={navLinkClass}>
-              Home
-            </NavLink>
-            <NavLink to="/offers" className={navLinkClass}>
-              Offers
-            </NavLink>
-            <NavLink to="/enquire" className={navLinkClass}>
-              Enquire
-            </NavLink>
-          </div>
-          <div className="hidden flex-1 md:block" />
-          <div className="hidden items-center gap-1 sm:gap-2 md:flex">
+
+          {/* Right actions */}
+          <div className="hidden items-center gap-2 sm:gap-3 md:flex">
+            <a
+              href={SITE_LINKS.bespoke}
+              target={SITE_LINKS.bespoke !== "#" ? "_blank" : undefined}
+              rel={SITE_LINKS.bespoke !== "#" ? "noopener noreferrer" : undefined}
+              className="inline-flex items-center gap-1 rounded-full border border-input bg-background px-4 py-2 text-sm font-medium transition hover:border-brand hover:text-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              Bespoke <span aria-hidden>→</span>
+            </a>
             {user ? (
               <>
                 <NavLink to="/bookings" className={navLinkClass}>
@@ -174,18 +191,18 @@ export function RootLayout() {
                 <NavLink to="/login" className={navLinkClass}>
                   Login
                 </NavLink>
-                <Button asChild className="h-11 rounded-full px-6">
+                <Button asChild className="h-10 rounded-full px-5">
                   <Link to="/register">Register</Link>
                 </Button>
               </>
             )}
           </div>
-          <div className="flex-1 md:hidden" />
+
           {/* Hamburger (mobile) */}
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full md:hidden"
+            className="ml-auto rounded-full md:hidden"
             onClick={() => setMenuOpen((open) => !open)}
             aria-expanded={menuOpen}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -237,21 +254,32 @@ export function RootLayout() {
           </div>
           <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-4">
             <NavLink to="/" end className={mobileLinkClass} onClick={closeMenu}>
-              Home
+              Find a cottage
             </NavLink>
+            <a
+              href={SITE_LINKS.theEstate}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={mobileLinkClass({ isActive: false })}
+              onClick={closeMenu}
+            >
+              The estate <span aria-hidden className="ml-1 text-xs">↗</span>
+            </a>
+            <a
+              href={SITE_LINKS.bespoke}
+              target={SITE_LINKS.bespoke !== "#" ? "_blank" : undefined}
+              rel={SITE_LINKS.bespoke !== "#" ? "noopener noreferrer" : undefined}
+              className={mobileLinkClass({ isActive: false })}
+              onClick={closeMenu}
+            >
+              Bespoke <span aria-hidden className="ml-1">→</span>
+            </a>
             <NavLink
               to="/offers"
               className={mobileLinkClass}
               onClick={closeMenu}
             >
               Offers
-            </NavLink>
-            <NavLink
-              to="/enquire"
-              className={mobileLinkClass}
-              onClick={closeMenu}
-            >
-              Enquire
             </NavLink>
             {user && (
               <>

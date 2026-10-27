@@ -511,14 +511,16 @@ export function BookingPage() {
   }
 
   const roomsError = roomsValid();
-  const isDatesAvailable = useMemo(() => {
-    if (!selection || dateError) return false;
+  let isDatesAvailable = !roomsError && !quoteQuery.isError && !dateError;
+  if (isDatesAvailable) {
     for (const r of rooms) {
       const info = availabilityByRoom.get(r.roomTypeId);
-      if (info && info.availableCount < r.quantity) return false;
+      if (info && info.availableCount < r.quantity) {
+        isDatesAvailable = false;
+        break;
+      }
     }
-    return !roomsError && !quoteQuery.isError;
-  }, [selection, dateError, rooms, availabilityByRoom, roomsError, quoteQuery.isError]);
+  }
 
   const canContinue =
     !!quote &&
