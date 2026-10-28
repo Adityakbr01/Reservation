@@ -931,7 +931,7 @@ export function RoomDetailPage() {
           {highlights.length > 0 && (
             <section
               aria-label="Highlights"
-              className="relative mt-5 rounded-xl bg-background-light px-5 py-4 sm:pr-28"
+              className="relative mt-5 rounded-xl bg-background-light px-5 py-4 sm:pr-20"
             >
               {/* Blue Tit songbird perched on top-right edge in clear dedicated space */}
               <div

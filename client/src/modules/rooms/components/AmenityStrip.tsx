@@ -61,7 +61,7 @@ export function AmenityStrip({ amenities }: AmenityStripProps) {
     (photos ?? []).map((p: ResolvedMedia) => [p.id, p]),
   );
   return (
-    <ul className="flex flex-wrap gap-x-8 gap-y-4">
+    <ul className="grid grid-cols-4 gap-x-2 gap-y-4 sm:flex sm:flex-wrap sm:items-start sm:gap-x-4 md:gap-x-5 lg:gap-x-6">
       {amenities.map((a) => {
         const uploaded = a.imageMediaId
           ? byId.get(a.imageMediaId)?.url
@@ -70,17 +70,12 @@ export function AmenityStrip({ amenities }: AmenityStripProps) {
           a.iconUrl && !a.iconUrl.startsWith("https://picsum.photos")
             ? a.iconUrl
             : undefined;
-        const localFallback = a.name.toLowerCase().includes("padel")
-          ? "/padel.png"
-          : a.name.toLowerCase().includes("infant")
-            ? "/infants.png"
-            : null;
-        const src = uploaded ?? icon ?? localFallback;
+        const src = uploaded ?? icon;
         const Icon = amenityIconFor(a.name);
         return (
           <li
             key={a.id}
-            className="inline-flex min-w-20 flex-col items-center gap-1.5 text-center"
+            className="inline-flex min-w-16 sm:min-w-18 flex-col items-center gap-1.5 text-center"
           >
             {src ? (
               <img
@@ -92,7 +87,7 @@ export function AmenityStrip({ amenities }: AmenityStripProps) {
             ) : (
               <Icon className="size-6 text-brand-dark" aria-hidden />
             )}
-            <span className="max-w-24 text-xs text-foreground">{a.name}</span>
+            <span className="max-w-20 sm:max-w-22 text-xs text-foreground leading-tight">{a.name}</span>
           </li>
         );
       })}

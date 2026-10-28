@@ -145,7 +145,7 @@ export function RatePlanForm({ initial, submitLabel, isPending, onSubmit }: Rate
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="rp-amount">Amount (₹)</Label>
+          <Label htmlFor="rp-amount">Amount</Label>
           <Input
             id="rp-amount"
             type="number"
