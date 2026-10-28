@@ -473,7 +473,8 @@ export function BookingPage() {
     return password.length >= 8 && password === confirmPassword;
   }
 
-  const emailBlocked = emailExists && !isAuthed;
+  // Guests can proceed freely even if their email is already registered
+  const emailBlocked = false;
 
   /** Multi-room validation: positive ints, combined capacity, dates, inventory, no stale lines. */
   function roomsValid(): string | null {
@@ -657,11 +658,6 @@ export function BookingPage() {
       }
     } catch (error) {
       const normalized = normalizeApiError(error);
-      if (normalized.code === "EMAIL_HAS_ACCOUNT") {
-        setEmailExists(true);
-        toast.error("This email already has an account — sign in to continue");
-        return;
-      }
       toast.error(normalized.message);
     }
   }
@@ -781,12 +777,12 @@ export function BookingPage() {
                 <p className="text-xs text-muted-foreground">This is the email we will send your confirmation to.</p>
                 {checkingEmail && <p className="text-xs text-muted-foreground">Checking…</p>}
                 {emailExists && !isAuthed && (
-                  <p className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm" role="alert">
-                    This email already has an account.{" "}
-                    <Link to="/login" state={{ from: signInTarget }} className="font-medium underline">
+                  <p className="rounded-md border border-amber-200 bg-amber-50/80 p-2.5 text-xs text-amber-900" role="status">
+                    An account with this email already exists. You can{" "}
+                    <Link to="/login" state={{ from: signInTarget }} className="font-semibold underline text-amber-950">
                       Sign in
                     </Link>{" "}
-                    to continue — or use a different email for a guest booking.
+                    or continue below to complete your booking as a guest.
                   </p>
                 )}
               </div>

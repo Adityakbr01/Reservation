@@ -8,7 +8,7 @@ import { forgotPassword } from "../auth/auth.service";
 import { NewsletterModel } from "../newsletter/newsletter.model";
 import { createPaymentIntent } from "../payments/payment.service";
 import { createUser, findUserByEmail, findUserById, toSafeUser } from "../users/user.repository";
-import type { SafeUser } from "../users/user.types";
+import type { SafeUser, UserRole } from "../users/user.types";
 import { createBooking } from "./booking.service";
 import type { Booking, BookingItem } from "./booking.types";
 import type { GuestBookingInput } from "./guest.schema";
@@ -40,7 +40,7 @@ export interface GuestBookingResult {
   booking: Booking;
   items: BookingItem[];
   user: SafeUser;
-  /** Present only when a shadow account was just created (silent login). */
+  /** Present when an account is linked or created (silent login). */
   token: string | null;
   isNewAccount: boolean;
   idempotentReplay: boolean;
@@ -55,10 +55,9 @@ export interface GuestBookingOptions {
 }
 
 /**
- * Frictionless guest checkout. New email → shadow account + token
- * (the client signs in silently). Existing email without a matching
- * session → 409 EMAIL_HAS_ACCOUNT so the guest signs in instead;
- * this keeps knowing an email from becoming account takeover.
+ * Frictionless guest checkout.
+ * If user exists, associates the booking with their existing account and continues.
+ * Never blocks the guest checkout flow.
  */
 export async function createGuestBooking(
   input: GuestBookingInput,
@@ -83,40 +82,44 @@ export async function createGuestBooking(
       if (!existing.isActive) {
         throw new AppError("This account has been suspended", 403, "ACCOUNT_SUSPENDED");
       }
-      throw new AppError(
-        "This email already has an account — sign in to continue your booking",
-        409,
-        "EMAIL_HAS_ACCOUNT",
-      );
-    }
-    try {
-      // Book Faster: the guest chose their own password, so the account is
-      // ready immediately. Otherwise the password is random and a
-      // set-password email goes out only when createAccount was ticked.
-      const chosenPassword = input.createAccount ? (input.password?.trim() ? input.password : null) : null;
-      const passwordHash = await bcrypt.hash(
-        chosenPassword ?? randomBytes(32).toString("hex"),
-        BCRYPT_ROUNDS,
-      );
-      const doc = await createUser({
-        name: guestDisplayName(input.contact.firstName, input.contact.lastName),
-        email,
-        passwordHash,
-        role: "user",
-      });
-      user = toSafeUser(doc);
-      token = signAccessToken(user.id, user.role);
-      isNewAccount = true;
-    } catch (error) {
-      if (isDuplicateKeyError(error)) {
-        // Lost a race with a concurrent register — ask for sign-in, never hijack.
-        throw new AppError(
-          "This email already has an account — sign in to continue your booking",
-          409,
-          "EMAIL_HAS_ACCOUNT",
+      user = existing;
+      const issueRole: UserRole = existing.role === "admin" ? "user" : existing.role;
+      token = signAccessToken(existing.id, issueRole);
+      isNewAccount = false;
+    } else {
+      try {
+        // Book Faster: the guest chose their own password, so the account is
+        // ready immediately. Otherwise the password is random and a
+        // set-password email goes out only when createAccount was ticked.
+        const chosenPassword = input.createAccount ? (input.password?.trim() ? input.password : null) : null;
+        const passwordHash = await bcrypt.hash(
+          chosenPassword ?? randomBytes(32).toString("hex"),
+          BCRYPT_ROUNDS,
         );
+        const doc = await createUser({
+          name: guestDisplayName(input.contact.firstName, input.contact.lastName),
+          email,
+          passwordHash,
+          role: "user",
+        });
+        user = toSafeUser(doc);
+        token = signAccessToken(user.id, user.role);
+        isNewAccount = true;
+      } catch (error) {
+        if (isDuplicateKeyError(error)) {
+          const raceUser = await findUserByEmail(email);
+          if (raceUser) {
+            user = raceUser;
+            const issueRole: UserRole = raceUser.role === "admin" ? "user" : raceUser.role;
+            token = signAccessToken(raceUser.id, issueRole);
+            isNewAccount = false;
+          } else {
+            throw error;
+          }
+        } else {
+          throw error;
+        }
       }
-      throw error;
     }
   }
 
