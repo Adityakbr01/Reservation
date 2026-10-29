@@ -1353,16 +1353,7 @@ export function RoomDetailPage() {
                               disabledPlus={currentInfants >= 6}
                               onChange={(v) => setInfantsCount(v)}
                             />
-                            <GuestStepper
-                              label="Rooms"
-                              sublabel={`${maxRoomsAvailable} ${maxRoomsAvailable === 1 ? "room" : "rooms"} available`}
-                              value={roomCount}
-                              min={1}
-                              max={maxRoomsAvailable}
-                              disabledMinus={isRoomsMinusDisabled}
-                              disabledPlus={isRoomsPlusDisabled}
-                              onChange={(v) => setRoomCount(v)}
-                            />
+                            
 
                             <div className="min-h-[46px] flex items-center rounded-lg border px-2.5 py-1.5 text-[11px] transition-colors">
                               {currentGuests >= totalMaxOccupancy ? (
