@@ -22,7 +22,7 @@ export function toPolicy(doc: any): CancellationPolicy {
     propertyId: typeof doc.propertyId === "object" ? doc.propertyId.toString() : doc.propertyId,
     name: doc.name,
     freeCancellationHours: doc.freeCancellationHours,
-    refundPercentage: doc.refundPercentage,
+    refundPercentage: doc.refundPercentage != null ? Number(doc.refundPercentage) : 0,
     isDefault: doc.isDefault,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,

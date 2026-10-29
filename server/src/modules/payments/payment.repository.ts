@@ -18,7 +18,7 @@ export function toPayment(doc: any): Payment {
     provider: doc.provider as PaymentProvider,
     providerPaymentIntentId: doc.providerPaymentIntentId ?? null,
     providerCheckoutSessionId: doc.providerCheckoutSessionId ?? null,
-    amount: doc.amount,
+    amount: doc.amount != null ? Number(doc.amount) : 0,
     currency: doc.currency,
     status: doc.status as PaymentStatus,
     failureCode: doc.failureCode ?? null,

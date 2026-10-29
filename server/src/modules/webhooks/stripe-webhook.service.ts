@@ -7,7 +7,7 @@ import { getStripe } from "../../integrations/stripe/stripe.client";
 import { setBookingStatus } from "../bookings/booking.repository";
 import { enqueueAdminAlert, enqueueNotification } from "../notifications/notification.service";
 import { notificationKeys } from "../notifications/notification.types";
-import { findPaymentByIntentId, updatePaymentStatus } from "../payments/payment.repository";
+import { findLatestPaymentForBooking, findPaymentByIntentId, updatePaymentStatus } from "../payments/payment.repository";
 import { markRefundSucceeded, recordRefund, sumSucceededRefunds } from "../refunds/refund.model";
 import { findBookingById } from "../bookings/booking.repository";
 import { releaseBookingHolds } from "../bookings/hold.store";
@@ -81,32 +81,48 @@ export async function processStripeEvent(event: Stripe.Event): Promise<void> {
   }
 }
 
-async function handleSucceeded(event: Stripe.Event): Promise<void> {
-  const intent = event.data.object as Stripe.PaymentIntent;
-  const payment = await findPaymentByIntentId(intent.id);
+/**
+ * Confirms a booking when its Stripe PaymentIntent has succeeded.
+ * Shared between webhook delivery and synchronous polling reconciliation.
+ * Idempotent: safe to run multiple times.
+ */
+export async function confirmBookingPaymentIntent(intent: Stripe.PaymentIntent): Promise<boolean> {
+  const payment =
+    (await findPaymentByIntentId(intent.id)) ||
+    (intent.metadata?.bookingId ? await findLatestPaymentForBooking(intent.metadata.bookingId) : null);
+
   if (!payment) {
-    // Unknown payment: flag for reconciliation, never invent records.
-    logger.warn("Webhook for unknown payment intent", { intentId: intent.id });
-    return;
+    logger.warn("Webhook / reconcile for unknown payment intent", { intentId: intent.id });
+    return false;
   }
-  if (payment.status === "PAID") return;
-  if (intent.amount !== payment.amount || intent.currency.toUpperCase() !== payment.currency.toUpperCase()) {
+  if (payment.status === "PAID") return true;
+
+  if (Number(intent.amount) !== Number(payment.amount) || intent.currency.toUpperCase() !== payment.currency.toUpperCase()) {
     logger.error("Payment amount/currency mismatch", { intentId: intent.id });
     await updatePaymentStatus(payment.id, {
       status: "FAILED",
       failureCode: "AMOUNT_MISMATCH",
       failureMessage: "Charged amount does not match the booking total",
     });
-    return;
+    return false;
   }
-  await updatePaymentStatus(payment.id, { status: "PAID", paidAt: new Date() });
+
+  await updatePaymentStatus(payment.id, {
+    status: "PAID",
+    paidAt: new Date(),
+    failureCode: null,
+    failureMessage: null,
+  });
+
   const booking = await findBookingById(payment.bookingId);
   if (!booking) {
     logger.error("Paid booking record missing", { intentId: intent.id });
-    return;
+    return false;
   }
-  if (booking.status === "HELD" || booking.status === "PAYMENT_PENDING") {
+
+  if (booking.status === "HELD" || booking.status === "PAYMENT_PENDING" || booking.status === "EXPIRED") {
     // Booking status and payment status stay in sync: CONFIRMED + PAID.
+    // If the hold expired while waiting or due to bug, we rescue and confirm since funds are captured.
     await setBookingStatus(booking.id, "CONFIRMED", { paymentStatus: "PAID" });
     const items = await findBookingItems(booking.id);
     releaseBookingHolds(
@@ -125,15 +141,21 @@ async function handleSucceeded(event: Stripe.Event): Promise<void> {
       bookingId: booking.id,
       idempotencyKey: notificationKeys.adminNewBooking(booking.id),
     });
+    return true;
+  } else if (booking.status === "CONFIRMED") {
+    return true;
   } else {
-    // Money captured but booking left the payable window (cancelled/expired
-    // meanwhile). Flag for ops review / refund — Phase 8 owns the action.
     logger.warn("Payment captured for non-payable booking", {
       intentId: intent.id,
       status: booking.status,
     });
   }
-  // Email hook (Phase 9); audit hook lands in Phase 12.
+  return false;
+}
+
+async function handleSucceeded(event: Stripe.Event): Promise<void> {
+  const intent = event.data.object as Stripe.PaymentIntent;
+  await confirmBookingPaymentIntent(intent);
 }
 
 async function handleFailed(event: Stripe.Event, canceled: boolean): Promise<void> {

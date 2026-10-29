@@ -31,7 +31,7 @@ export function toRefund(doc: any): Refund {
     paymentId: typeof doc.paymentId === "object" ? doc.paymentId.toString() : doc.paymentId,
     provider: doc.provider as "STRIPE",
     providerRefundId: doc.providerRefundId,
-    amount: doc.amount,
+    amount: doc.amount != null ? Number(doc.amount) : 0,
     currency: doc.currency,
     status: doc.status as RefundStatus,
     reason: doc.reason ?? null,

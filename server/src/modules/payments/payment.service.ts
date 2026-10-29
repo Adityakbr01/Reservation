@@ -100,13 +100,11 @@ export async function createPaymentIntent(
     const intent = await getStripe().paymentIntents.create({
       amount: booking.pricing.total,
       currency: booking.pricing.currency.toLowerCase(),
-      // Card-only, API-confirmed flow: no redirect UX exists in v1, so
-      // redirect methods are disabled (avoids return_url requirements).
-      automatic_payment_methods: { enabled: true, allow_redirects: "never" },
+      automatic_payment_methods: { enabled: true },
       metadata: {
         bookingId: booking.id,
         propertyId: booking.propertyId,
-        environment: "test",
+        environment: process.env.NODE_ENV ?? "production",
       },
     });
     intentId = intent.id;

@@ -87,10 +87,21 @@ export function BookingConfirmationPage() {
     return (
       <div className="mx-auto w-full max-w-md space-y-4 pb-8 text-center" aria-busy="true">
         <Loader className="mx-auto size-8 animate-spin text-brand" aria-hidden />
-        <p className="font-medium">Confirming your payment</p>
+        <p className="font-medium text-lg">Confirming your payment</p>
         <p className="text-sm text-muted-foreground">
           Booking {booking.bookingNumber} — do not close this page.
         </p>
+        <div className="pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="rounded-full text-xs"
+            onClick={() => void refetch()}
+          >
+            Refresh status
+          </Button>
+        </div>
       </div>
     );
   }

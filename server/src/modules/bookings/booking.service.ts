@@ -9,7 +9,7 @@ import { isDuplicateKeyError } from "../../utils/mongo";
 import { findHeldRoomIds, releaseBookingHolds, writeRoomHold } from "./hold.store";
 import { evaluateCancellation, resolvePolicy } from "../policies/policy.service";
 import type { CancellationEvaluation } from "../policies/policy.service";
-import { listPaymentsByBooking } from "../payments/payment.repository";
+import { findLatestPaymentForBooking, listPaymentsByBooking } from "../payments/payment.repository";
 import { refundPayment } from "../payments/payment.service";
 import { sumSucceededRefunds } from "../refunds/refund.model";
 import { ensureProperty } from "../properties/property.service";
@@ -421,11 +421,35 @@ export async function getBooking(
   userId: string,
 ): Promise<{ booking: Booking; items: BookingItem[] }> {
   await expireOverdueHolds();
-  const booking = await findBookingById(id);
+  let booking = await findBookingById(id);
   if (!booking || booking.userId !== userId) {
     throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
   }
-  if (shouldExpireHold(booking.status, booking.hold.expiresAt)) {
+
+  // Active reconcile with Stripe: If payment succeeded at Stripe, immediately confirm.
+  // This guarantees confirmation even if webhooks fail, lag, or are blocked.
+  if (booking.status === "HELD" || booking.status === "PAYMENT_PENDING" || (booking.status === "EXPIRED" && booking.paymentStatus !== "PAID")) {
+    try {
+      const payment = await findLatestPaymentForBooking(booking.id);
+      if (payment?.providerPaymentIntentId) {
+        const { getStripe } = await import("../../integrations/stripe/stripe.client");
+        const intent = await getStripe().paymentIntents.retrieve(payment.providerPaymentIntentId);
+        if (intent.status === "succeeded") {
+          const { confirmBookingPaymentIntent } = await import("../webhooks/stripe-webhook.service");
+          await confirmBookingPaymentIntent(intent);
+          const refreshed = await findBookingById(id);
+          if (refreshed) booking = refreshed;
+        }
+      }
+    } catch (err) {
+      logger.warn("Booking payment reconcile skipped", {
+        bookingId: booking.id,
+        message: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+
+  if (booking.status !== "CONFIRMED" && shouldExpireHold(booking.status, booking.hold.expiresAt)) {
     const expired = await setBookingStatus(booking.id, "EXPIRED");
     if (!expired) {
       throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
@@ -577,11 +601,33 @@ export interface AdminBookingDetail {
 }
 
 export async function getBookingAdmin(id: string): Promise<AdminBookingDetail> {
-  await expireOverdueHolds();
-  const booking = await findBookingById(id);
+  let booking = await findBookingById(id);
   if (!booking) {
     throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
   }
+
+  if (booking.status === "HELD" || booking.status === "PAYMENT_PENDING" || (booking.status === "EXPIRED" && booking.paymentStatus !== "PAID")) {
+    try {
+      const payment = await findLatestPaymentForBooking(booking.id);
+      if (payment?.providerPaymentIntentId) {
+        const { getStripe } = await import("../../integrations/stripe/stripe.client");
+        const intent = await getStripe().paymentIntents.retrieve(payment.providerPaymentIntentId);
+        if (intent.status === "succeeded") {
+          const { confirmBookingPaymentIntent } = await import("../webhooks/stripe-webhook.service");
+          await confirmBookingPaymentIntent(intent);
+          const refreshed = await findBookingById(id);
+          if (refreshed) booking = refreshed;
+        }
+      }
+    } catch {
+      // Reconcile is advisory
+    }
+  }
+
+  if (booking.status !== "CONFIRMED") {
+    await expireOverdueHolds();
+  }
+
   const [items, payments] = await Promise.all([
     findBookingItems(booking.id),
     listPaymentsByBooking(booking.id),
