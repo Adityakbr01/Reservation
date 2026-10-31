@@ -6,12 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
+  useDeleteMedia,
   useFolders,
   useMedia,
   useUploadMedia,
 } from "../hooks/use-media";
 import type { MediaItem } from "../hooks/use-media";
-import { SortableMediaGrid } from "../components/SortableMediaGrid";
 
 const ACCEPT = "image/jpeg,image/png,image/webp,image/avif,video/mp4,video/webm";
 
@@ -53,8 +53,6 @@ export function MediaPage() {
   const [page, setPage] = useState(1);
   const [folder, setFolder] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(true);
-  const [alts, setAlts] = useState<Record<string, string>>({});
-  const [moves, setMoves] = useState<Record<string, string>>({});
   const [targetFolder, setTargetFolder] = useState("");
   const [newFolder, setNewFolder] = useState("");
   const [uploadStatus, setUploadStatus] = useState<{
@@ -76,6 +74,7 @@ export function MediaPage() {
   const { data, isPending, isError, refetch } = useMedia(filters);
   const { data: folders } = useFolders();
   const uploadMutation = useUploadMedia();
+  const deleteMutation = useDeleteMedia();
   const [items, setItems] = useState<MediaItem[]>(data?.items ?? []);
 
   useEffect(() => {
@@ -320,18 +319,45 @@ export function MediaPage() {
               <p className="font-medium">Nothing here — upload files or pick another folder.</p>
             </div>
           ) : (
-            <SortableMediaGrid
-              items={items}
-              folders={folders ?? []}
-              onReorder={(reordered) => {
-                // Optimistic update: apply new positions locally
-                setItems(reordered);
-              }}
-              alts={alts}
-              setAlts={setAlts}
-              moves={moves}
-              setMoves={setMoves}
-            />
+            <div className="grid gap-4 sm:grid-cols-3">
+              {items.map((item) => {
+                const isVideo = item.kind === "video" || item.mime.startsWith("video/");
+                return (
+                  <Card key={item.id}>
+                    <CardContent className="space-y-3 p-4">
+                      {isVideo ? (
+                        <video
+                          src={item.url}
+                          className="h-40 w-full rounded-lg bg-black object-cover"
+                          controls
+                          preload="metadata"
+                        />
+                      ) : (
+                        <img
+                          src={item.url}
+                          alt={item.alt ?? item.fileName}
+                          className="h-40 w-full rounded-lg object-cover"
+                          loading="lazy"
+                        />
+                      )}
+                      <p className="truncate text-sm font-medium">{item.fileName}</p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {item.folder ?? "Root (unfiled)"}
+                      </p>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive"
+                        onClick={() => deleteMutation.mutate(item.id)}
+                      >
+                        Remove
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           )}
         </div>
       </div>

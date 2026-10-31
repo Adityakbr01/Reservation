@@ -100,10 +100,6 @@ async function deleteMedia(id: string): Promise<void> {
   await apiClient.delete(`/admin/media/${id}`);
 }
 
-async function reorderMedia(items: Array<{ id: string; position: number }>): Promise<void> {
-  await apiClient.post("/admin/media/reorder", { items });
-}
-
 export function useMedia(filters: MediaFilters) {
   return useQuery({ queryKey: mediaKeys.list(filters), queryFn: () => listMedia(filters) });
 }
@@ -150,18 +146,6 @@ export function useDeleteMedia() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: mediaKeys.all });
       toast.success("Media deleted");
-    },
-    onError: (error) => toast.error(getApiErrorMessage(error)),
-  });
-}
-
-export function useReorderMedia() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (items: Array<{ id: string; position: number }>) => reorderMedia(items),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: mediaKeys.all });
-      toast.success("Order saved");
     },
     onError: (error) => toast.error(getApiErrorMessage(error)),
   });

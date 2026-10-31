@@ -185,21 +185,6 @@ export async function deleteMedia(id: string): Promise<void> {
 export async function listAllMedia(filter: ListMediaFilter) {
   return listMedia(filter);
 }
-
-/** Reorder media items within a folder. Expects items sorted in the desired order. */
-export async function reorderMedia(
-  items: Array<{ id: string; position: number }>,
-): Promise<void> {
-  if (items.length === 0) return;
-  await prisma.$transaction(
-    items.map(({ id, position }) =>
-      prisma.media.update({
-        where: { id },
-        data: { position },
-      }),
-    ),
-  );
-}
 export interface ResolvedMedia {
   id: string;
   url: string;
