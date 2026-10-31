@@ -23,3 +23,5 @@ if (!output.includes('id="root"><')) {
 }
 
 console.log(`Prerendered / (${html.length.toLocaleString()} chars of markup)`);
+
+process.exit(0);
