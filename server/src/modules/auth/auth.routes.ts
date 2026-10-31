@@ -13,6 +13,7 @@ import {
   meHandler,
   registerHandler,
   resetPasswordHandler,
+  setPasswordHandler,
   setUserStatusHandler,
   updateMeHandler,
 } from "./auth.controller";
@@ -23,6 +24,7 @@ import {
   loginSchema,
   registerSchema,
   resetPasswordSchema,
+  setPasswordSchema,
   updateMeSchema,
   userIdParamsSchema,
   userStatusBodySchema,
@@ -58,6 +60,12 @@ authRouter.post(
   authenticate,
   validate({ body: changePasswordSchema }),
   changePasswordHandler,
+);
+authRouter.post(
+  "/set-password",
+  authenticate,
+  validate({ body: setPasswordSchema }),
+  setPasswordHandler,
 );
 
 /** Staff customer management (docs 07 §43-45). */

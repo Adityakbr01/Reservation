@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { getApiErrorMessage } from "@/lib/api-client";
 import { userKeys } from "@/lib/query-keys";
 import { useAuthStore } from "@/stores/auth-store";
-import { changePassword, fetchMe, updateMe } from "../api/me.api";
+import { changePassword, fetchMe, setPassword, updateMe } from "../api/me.api";
 
 export function useMe(enabled = true) {
   return useQuery({ queryKey: userKeys.all, queryFn: fetchMe, enabled, retry: false });
@@ -27,6 +27,18 @@ export function useUpdateMe() {
 export function useChangePassword() {
   return useMutation({
     mutationFn: changePassword,
+    onSuccess: () => {
+      toast.success("Password changed");
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error));
+    },
+  });
+}
+
+export function useSetPassword() {
+  return useMutation({
+    mutationFn: setPassword,
     onSuccess: () => {
       toast.success("Password changed");
     },

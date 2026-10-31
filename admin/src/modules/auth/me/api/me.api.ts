@@ -1,7 +1,7 @@
 import { apiClient, unwrapResponse } from "@/lib/api-client";
 import type { ApiEnvelope } from "@/lib/api-client";
 import type { AuthUser } from "@/types/auth";
-import type { ChangePasswordPayload, UpdateMePayload } from "../types/me.types";
+import type { ChangePasswordPayload, SetPasswordPayload, UpdateMePayload } from "../types/me.types";
 
 export async function fetchMe(): Promise<AuthUser> {
   const response = await apiClient.get<ApiEnvelope<AuthUser>>("/auth/me");
@@ -21,6 +21,16 @@ export async function changePassword(
 ): Promise<{ message: string }> {
   const response = await apiClient.post<ApiEnvelope<{ message: string }>>(
     "/auth/change-password",
+    payload,
+  );
+  return unwrapResponse(response);
+}
+
+export async function setPassword(
+  payload: SetPasswordPayload,
+): Promise<{ message: string }> {
+  const response = await apiClient.post<ApiEnvelope<{ message: string }>>(
+    "/auth/set-password",
     payload,
   );
   return unwrapResponse(response);

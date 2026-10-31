@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDisplayDate } from "@/lib/date";
@@ -32,6 +33,8 @@ export function HomePage() {
     restored ?? initial,
   );
   const { data, isFetching, isError, refetch } = useAvailabilitySearch(search);
+  const isInitialLoading = isFetching && !data;
+  const isRevalidating = isFetching && !!data;
   const results = useMemo(() => {
     const list = data?.results ?? [];
     return [...list].sort((a, b) => {
@@ -157,14 +160,19 @@ export function HomePage() {
       <section className="hero relative left-1/2 -mt-4 w-screen -translate-x-1/2 overflow-hidden sm:-mt-6">
         {/* Exterior stay photograph (approved repo asset) with a soft cream wash
             so the serif headline stays crisp. Foreground remains fully opaque. */}
-        <img
-          src="/hero_cottage_bg.webp"
-          alt="Hamptworth Stays exterior cottage"
-          aria-hidden
-          className="hero-banner absolute inset-0 h-full w-full object-cover object-[50%_66%] saturate-[0.77]"
-          loading="eager"
-          fetchPriority="high"
-        />
+        <picture className="hero-banner absolute inset-0 block h-full w-full">
+          <source srcSet="/hero_cottage_bg.avif" type="image/avif" />
+          <img
+            src="/hero_cottage_bg.webp"
+            alt=""
+            aria-hidden
+            width={1600}
+            height={1066}
+            className="h-full w-full object-cover object-[50%_66%] saturate-[0.77]"
+            loading="eager"
+            fetchPriority="high"
+          />
+        </picture>
         <div
           aria-hidden
           className="absolute inset-0 bg-gradient-to-b from-[#f5f2e9]/95 via-[#f5f2e9]/80 to-[#f5f2e9]/30 lg:bg-gradient-to-r lg:from-[#f5f2e9] lg:via-[#f5f2e9]/75 lg:to-transparent"
@@ -235,7 +243,7 @@ export function HomePage() {
         <div className="search-card border border-border bg-card p-4 shadow-card sm:p-6">
           <SearchForm
             initial={initial}
-            isPending={isFetching}
+            isPending={isInitialLoading}
             onSearch={setSearch}
           />
         </div>
@@ -243,9 +251,15 @@ export function HomePage() {
         <p
           role="status"
           aria-live="polite"
-          className="mt-5 min-h-5 text-[12px] text-muted-foreground"
+          className="mt-5 flex min-h-5 flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground"
         >
-          {summary}
+          <span>{summary}</span>
+          {isRevalidating && (
+            <span className="inline-flex items-center gap-1.5 text-brand-light">
+              <Loader className="size-3 animate-spin" aria-hidden />
+              Updating availability…
+            </span>
+          )}
         </p>
 
         <section className="pb-14 pt-6 sm:pt-8">
@@ -267,7 +281,7 @@ export function HomePage() {
             </Link>
           </div>
 
-          {isFetching ? (
+          {isInitialLoading ? (
             <div
               className="grid gap-5 lg:grid-cols-2"
               aria-busy="true"
@@ -277,7 +291,7 @@ export function HomePage() {
                 <Skeleton key={row} className="h-[328px] w-full rounded-none" />
               ))}
             </div>
-          ) : isError || !data ? (
+          ) : isError && !data ? (
             <div className="border border-border bg-card px-6 py-12 text-center">
               <p className="font-display text-2xl">Search failed</p>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -289,6 +303,16 @@ export function HomePage() {
               >
                 Retry
               </Button>
+            </div>
+          ) : !data ? (
+            <div
+              className="grid gap-5 lg:grid-cols-2"
+              aria-busy="true"
+              aria-label="Searching availability"
+            >
+              {[0, 1, 2, 3].map((row) => (
+                <Skeleton key={row} className="h-[328px] w-full rounded-none" />
+              ))}
             </div>
           ) : results.length === 0 ? (
             <div className="border border-border bg-card px-6 py-12 text-center">

@@ -12,7 +12,7 @@ export function useAvailabilitySearch(params: AvailabilitySearchParams | null) {
     },
     enabled: params !== null,
     placeholderData: keepPreviousData,
-    staleTime: 30_000,
+    staleTime: 5 * 60_000,
     retry: false,
   });
 }
@@ -25,7 +25,7 @@ export function useAvailabilityCalendar(roomTypeId: string | null, from: string,
       return fetchAvailabilityCalendar(roomTypeId, from, to);
     },
     enabled: roomTypeId !== null,
-    staleTime: 60_000,
+    staleTime: 5 * 60_000,
     retry: false,
   });
 }

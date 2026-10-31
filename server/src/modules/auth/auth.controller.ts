@@ -14,6 +14,7 @@ import {
   register,
   resetPassword,
   setAccountStatus,
+  setPassword,
   updateMe,
 } from "./auth.service";
 import type {
@@ -23,6 +24,7 @@ import type {
   LoginInput,
   RegisterInput,
   ResetPasswordInput,
+  SetPasswordInput,
   UpdateMeInput,
   UserStatusInput,
 } from "./auth.schema";
@@ -83,6 +85,13 @@ export const updateMeHandler = asyncHandler(async (req: Request, res: Response) 
 export const changePasswordHandler = asyncHandler(async (req: Request, res: Response) => {
   const body = req.body as ChangePasswordInput;
   await changePassword(requireUser(req).id, body.currentPassword, body.newPassword);
+  res.status(200).json({ success: true, data: { message: "Password changed" } });
+});
+
+/** POST /api/v1/auth/set-password — set new password without current password (already authenticated). */
+export const setPasswordHandler = asyncHandler(async (req: Request, res: Response) => {
+  const body = req.body as SetPasswordInput;
+  await setPassword(requireUser(req).id, body.newPassword);
   res.status(200).json({ success: true, data: { message: "Password changed" } });
 });
 

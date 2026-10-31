@@ -35,6 +35,10 @@ export const changePasswordSchema = z.object({
   newPassword: passwordSchema,
 });
 
+export const setPasswordSchema = z.object({
+  newPassword: passwordSchema,
+});
+
 export const listUsersQuerySchema = paginationQuerySchema.extend({
   q: z.string().trim().max(80).optional(),
   role: z.enum(USER_ROLES).optional(),
@@ -52,4 +56,5 @@ export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type UpdateMeInput = z.infer<typeof updateMeSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export type SetPasswordInput = z.infer<typeof setPasswordSchema>;
 export type ListUsersQuery = z.infer<typeof listUsersQuerySchema>;

@@ -126,7 +126,7 @@ export function AdminShell() {
         />
       </Link>
       <nav
-        className="no-scrollbar flex-1 space-y-5 overflow-y-auto px-3 py-4"
+        className="flex-1 space-y-5 overflow-y-auto px-3 py-4"
         aria-label="Management"
       >
         <div className="space-y-1">

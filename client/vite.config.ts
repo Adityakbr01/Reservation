@@ -32,12 +32,68 @@ function gzipPlugin(): Plugin {
   }
 }
 
+// Warm the lazy home-route chunks in parallel with the entry instead of
+// waiting for the router to render and discover the dynamic imports.
+// This removes a serial network round-trip on the landing page.
+function preloadHomeChunks(): Plugin {
+  return {
+    name: 'preload-home-chunks',
+    apply: 'build',
+    writeBundle: {
+      sequential: true,
+      order: 'post',
+      async handler(options) {
+        const { readFileSync, writeFileSync, existsSync } = await import('node:fs')
+        const { join } = await import('node:path')
+        const outDir = options.dir ?? 'dist'
+        const manifestPath = join(outDir, '.vite', 'manifest.json')
+        const htmlPath = join(outDir, 'index.html')
+        if (!existsSync(manifestPath) || !existsSync(htmlPath)) return
+
+        const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<
+          string,
+          {
+            file: string
+            isEntry?: boolean
+            imports?: string[]
+            dynamicImports?: string[]
+            css?: string[]
+          }
+        >
+        const byFile = new Map(Object.values(manifest).map((entry) => [entry.file, entry]))
+        const homeKey = Object.keys(manifest).find((key) => key.endsWith('HomePage.tsx'))
+        if (!homeKey) return
+
+        const files = new Set<string>()
+        const visit = (key: string) => {
+          const entry = manifest[key] ?? byFile.get(key)
+          if (!entry || entry.isEntry || files.has(entry.file)) return
+          files.add(entry.file)
+          for (const dependency of entry.imports ?? []) visit(dependency)
+          for (const css of entry.css ?? []) files.add(css)
+        }
+        visit(homeKey)
+
+        const html = readFileSync(htmlPath, 'utf8')
+        const links = [...files]
+          .filter((file) => !html.includes(`href="/${file}"`))
+          .map((file) => `  <link rel="modulepreload" crossorigin href="/${file}">`)
+          .join('\n')
+        if (!links) return
+
+        writeFileSync(htmlPath, html.replace('</head>', `${links}\n  </head>`))
+      },
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
     babel({ presets: [reactCompilerPreset()] }),
+    preloadHomeChunks(),
     gzipPlugin(),
   ],
   resolve: {
@@ -46,6 +102,7 @@ export default defineConfig({
     },
   },
   build: {
+    manifest: true,
     chunkSizeWarningLimit: 1000,
   },
 })

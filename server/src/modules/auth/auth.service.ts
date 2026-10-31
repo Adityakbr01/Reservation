@@ -270,6 +270,28 @@ export async function changePassword(
   });
 }
 
+/**
+ * Set a new password for an already-authenticated user. No current password
+ * is required because the caller presents a valid access token (JWT).
+ */
+export async function setPassword(userId: string, newPassword: string): Promise<void> {
+  const doc = await findUserByIdWithHash(userId);
+  if (!doc) {
+    throw new AppError("Account not found", 404, "USER_NOT_FOUND");
+  }
+  const matches = await bcrypt.compare(newPassword, doc.passwordHash);
+  if (matches) {
+    throw new AppError(
+      "New password must be different from the current password",
+      400,
+      "PASSWORD_UNCHANGED",
+    );
+  }
+  await updateUserById(userId, {
+    passwordHash: await bcrypt.hash(newPassword, BCRYPT_ROUNDS),
+  });
+}
+
 export async function listAccounts(
   query: ListUsersQuery,
 ): Promise<Paginated<SafeUser>> {

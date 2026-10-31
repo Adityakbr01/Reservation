@@ -4,89 +4,89 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Luxury hotel theme — same tokens as the client app (warm ivory canvas,
- * ink-navy text, brushed-gold accents, bronze CTAs, Playfair Display).
+ * Hamptworth editorial theme — copied from the client app (warm cream canvas,
+ * deep evergreen ink, hairline sage borders, DM Sans throughout).
  * Semantic colors (success/warning/error/info/destructive) are intentionally
  * untouched — status badges keep their fixed meanings.
  */
 
 :root {
-  --radius: 0.5rem;
+  --radius: 0.25rem;
 
-  /* --- shadcn surface roles (luxury-mapped) --- */
-  --background: #faf7f0;
-  --foreground: #1c2433;
-  --card: #ffffff;
-  --card-foreground: #1c2433;
-  --popover: #ffffff;
-  --popover-foreground: #1c2433;
-  --primary: #8a6d3b;
-  --primary-foreground: #ffffff;
-  --secondary: #f0e9d8;
-  --secondary-foreground: #1c2433;
-  --muted: #f3eee2;
-  --muted-foreground: #6f6759;
-  --accent: #ece2cb;
-  --accent-foreground: #1c2433;
-  --destructive: #e53e3e;
-  --destructive-foreground: #ffffff;
-  --border: rgba(180, 158, 116, 0.35);
-  --input: rgba(180, 158, 116, 0.45);
-  --ring: #b08d4c;
+  /* --- shadcn surface roles (Hamptworth-mapped) --- */
+  --background: #f5f2e9;
+  --foreground: #254432;
+  --card: #fffefa;
+  --card-foreground: #254432;
+  --popover: #fffefa;
+  --popover-foreground: #254432;
+  --primary: #254432;
+  --primary-foreground: #faf8f1;
+  --secondary: #eeeddf;
+  --secondary-foreground: #254432;
+  --muted: #ece9dc;
+  --muted-foreground: #6b7565;
+  --accent: #e3e7d9;
+  --accent-foreground: #254432;
+  --destructive: #b42318;
+  --destructive-foreground: #fffefa;
+  --border: #d9ddcf;
+  --input: #bbc5ae;
+  --ring: #254432;
 
-  /* --- charts (luxury palette; success green kept for status) --- */
-  --chart-1: #b08d4c;
-  --chart-2: #1c2433;
-  --chart-3: #4b9a6d;
-  --chart-4: #c9a86a;
-  --chart-5: #5b6b82;
+  /* --- charts (estate palette) --- */
+  --chart-1: #254432;
+  --chart-2: #6a7d59;
+  --chart-3: #889878;
+  --chart-4: #c9a24b;
+  --chart-5: #4f6b57;
 
   /* --- sidebar --- */
-  --sidebar: #f3eee2;
-  --sidebar-foreground: #1c2433;
-  --sidebar-primary: #8a6d3b;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #ece2cb;
-  --sidebar-accent-foreground: #1c2433;
-  --sidebar-border: rgba(180, 158, 116, 0.35);
-  --sidebar-ring: #b08d4c;
+  --sidebar: #eeeddf;
+  --sidebar-foreground: #254432;
+  --sidebar-primary: #254432;
+  --sidebar-primary-foreground: #faf8f1;
+  --sidebar-accent: #e3e7d9;
+  --sidebar-accent-foreground: #254432;
+  --sidebar-border: #d9ddcf;
+  --sidebar-ring: #254432;
 }
 
 .dark {
-  --background: #1c2433;
-  --foreground: #f5efe2;
-  --card: #242e42;
-  --card-foreground: #f5efe2;
-  --popover: #242e42;
-  --popover-foreground: #f5efe2;
-  --primary: #c9a86a;
-  --primary-foreground: #1c2433;
-  --secondary: #242e42;
-  --secondary-foreground: #f5efe2;
-  --muted: #242e42;
-  --muted-foreground: rgba(245, 239, 226, 0.7);
-  --accent: #2c3850;
-  --accent-foreground: #f5efe2;
-  --destructive: #fc8181;
-  --destructive-foreground: #000000;
-  --border: rgba(176, 141, 76, 0.3);
-  --input: rgba(176, 141, 76, 0.35);
-  --ring: #c9a86a;
+  --background: #14251b;
+  --foreground: #eef0e6;
+  --card: #1b3024;
+  --card-foreground: #eef0e6;
+  --popover: #1b3024;
+  --popover-foreground: #eef0e6;
+  --primary: #c9d6b8;
+  --primary-foreground: #14251b;
+  --secondary: #243c2d;
+  --secondary-foreground: #eef0e6;
+  --muted: #243c2d;
+  --muted-foreground: #b5c3a8;
+  --accent: #2c4635;
+  --accent-foreground: #eef0e6;
+  --destructive: #e0736a;
+  --destructive-foreground: #14251b;
+  --border: rgba(203, 216, 190, 0.2);
+  --input: rgba(203, 216, 190, 0.28);
+  --ring: #c9d6b8;
 
-  --chart-1: #c9a86a;
-  --chart-2: #3d9aff;
-  --chart-3: #68d391;
-  --chart-4: #fbbf24;
-  --chart-5: #63b3ed;
+  --chart-1: #c9d6b8;
+  --chart-2: #8aa892;
+  --chart-3: #6a7d59;
+  --chart-4: #c9a24b;
+  --chart-5: #4f6b57;
 
-  --sidebar: #242e42;
-  --sidebar-foreground: #f5efe2;
-  --sidebar-primary: #c9a86a;
-  --sidebar-primary-foreground: #1c2433;
-  --sidebar-accent: rgba(201, 168, 106, 0.15);
-  --sidebar-accent-foreground: #f5efe2;
-  --sidebar-border: rgba(176, 141, 76, 0.3);
-  --sidebar-ring: #c9a86a;
+  --sidebar: #1b3024;
+  --sidebar-foreground: #eef0e6;
+  --sidebar-primary: #c9d6b8;
+  --sidebar-primary-foreground: #14251b;
+  --sidebar-accent: rgba(201, 214, 184, 0.15);
+  --sidebar-accent-foreground: #eef0e6;
+  --sidebar-border: rgba(203, 216, 190, 0.2);
+  --sidebar-ring: #c9d6b8;
 }
 
 @theme inline {
@@ -127,45 +127,45 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* --- brand typography (Playfair Display headlines, Inter body) --- */
-  --font-sans: Inter, system-ui, sans-serif;
-  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
+  /* --- brand typography (DM Sans throughout) --- */
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-display: "DM Sans", system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* --- brand colors (luxury gold + bronze) --- */
-  --color-brand: #b08d4c;
-  --color-brand-light: #c9a86a;
-  --color-brand-dark: #8a6d3b;
-  --color-royal: #0779ff;
-  --color-royal-light: #3d9aff;
-  --color-royal-dark: #0561cc;
-  --color-ink: #1c2433;
-  --color-night: #20293a;
-  --color-deep: #061a1c;
-  --color-deep-light: #0c2e31;
-  --color-royal-block: #1449b2;
-  --color-royal-deep: #10377a;
-  --color-royal-ink: #1c407e;
-  --color-marigold: #c9a24b;
-  --color-cream: #faf7f0;
-  --color-surface: #faf7f0;
-  --color-surface-2: #f3eee2;
-  --color-surface-3: #e7dcc4;
-  --color-gold: #b08d4c;
-  --color-bronze: #8a6d3b;
-  --color-success: #4b9a6d;
-  --color-success-light: #68d391;
-  --color-warning: #ffc130;
-  --color-warning-light: #fbbf24;
-  --color-error: #e53e3e;
-  --color-error-light: #fc8181;
-  --color-info: #0779ff;
-  --color-info-light: #63b3ed;
+  /* --- brand colors (evergreen + sage) --- */
+  --color-brand: #254432;
+  --color-brand-light: #6a7d59;
+  --color-brand-dark: #1a3325;
+  --color-royal: #254432;
+  --color-royal-light: #4f6b57;
+  --color-royal-dark: #1a3325;
+  --color-ink: #254432;
+  --color-night: #254432;
+  --color-deep: #14251b;
+  --color-deep-light: #1f3a2c;
+  --color-royal-block: #2f5240;
+  --color-royal-deep: #1f3a2c;
+  --color-royal-ink: #254432;
+  --color-marigold: #889878;
+  --color-cream: #f5f2e9;
+  --color-surface: #f5f2e9;
+  --color-surface-2: #eeeddf;
+  --color-surface-3: #e3e7d9;
+  --color-gold: #6a7d59;
+  --color-bronze: #52644a;
+  --color-success: #4b7a5a;
+  --color-success-light: #7fa48a;
+  --color-warning: #9a7b2e;
+  --color-warning-light: #c4a55c;
+  --color-error: #b42318;
+  --color-error-light: #e0736a;
+  --color-info: #4f6b57;
+  --color-info-light: #8aa892;
 
-  /* --- brand elevation (warm tinted shadows, not defaults) --- */
-  --shadow-card: 0px 8px 32px 0px rgba(138, 109, 59, 0.1);
-  --shadow-kwik: 0px 8px 32px 0px rgba(138, 109, 59, 0.12);
-  --shadow-pop: rgba(0, 0, 0, 0.3) 0px 4px 12px 0px;
+  /* --- brand elevation (soft evergreen tint) --- */
+  --shadow-card: 0px 4px 15px 0px rgba(37, 68, 50, 0.03);
+  --shadow-kwik: 0px 8px 32px 0px rgba(37, 68, 50, 0.06);
+  --shadow-pop: rgba(37, 68, 50, 0.22) 0px 4px 12px 0px;
 
   /* --- brand radii --- */
   --radius-pill: 1000px;

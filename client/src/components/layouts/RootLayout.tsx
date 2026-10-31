@@ -163,7 +163,7 @@ export function RootLayout() {
             <div className="hidden items-center gap-5 md:flex">
               <Link
                 to="/enquire"
-                className="inline-flex items-center gap-5 border border-input px-4 py-2.5 text-[13px] leading-none text-foreground transition-colors hover:border-brand hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="water-fill inline-flex items-center gap-5 border border-input px-4 py-2.5 text-[13px] leading-none text-foreground hover:border-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 Enquire
                 <span aria-hidden>→</span>

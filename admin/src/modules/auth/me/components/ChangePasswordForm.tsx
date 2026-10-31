@@ -4,27 +4,24 @@ import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useChangePassword } from "../hooks/use-me";
+import { useSetPassword } from "../hooks/use-me";
 
 export function ChangePasswordForm() {
-  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const { mutate, isPending, isSuccess } = useChangePassword();
+  const { mutate, isPending, isSuccess } = useSetPassword();
 
   const tooShort = newPassword.length > 0 && newPassword.length < 8;
   const mismatch = confirm.length > 0 && confirm !== newPassword;
-  const invalid =
-    currentPassword.length === 0 || newPassword.length < 8 || newPassword !== confirm;
+  const invalid = newPassword.length < 8 || newPassword !== confirm;
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (invalid) return;
     mutate(
-      { currentPassword, newPassword },
+      { newPassword },
       {
         onSuccess: () => {
-          setCurrentPassword("");
           setNewPassword("");
           setConfirm("");
         },
@@ -34,17 +31,6 @@ export function ChangePasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="current-password">Current password</Label>
-        <Input
-          id="current-password"
-          type="password"
-          required
-          autoComplete="current-password"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-        />
-      </div>
       <div className="space-y-2">
         <Label htmlFor="new-password">New password</Label>
         <Input

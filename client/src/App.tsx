@@ -1,17 +1,22 @@
-import { BrowserRouter } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { Toaster } from "react-hot-toast";
 import { AppProviders } from "@/components/providers/app-providers";
-import { SmoothScroll } from "@/components/common/SmoothScroll";
 import { AppRoutes } from "@/app/routes";
+
+const SmoothScroll = lazy(() =>
+  import("@/components/common/SmoothScroll").then((m) => ({
+    default: m.SmoothScroll,
+  })),
+);
 
 function App() {
   return (
     <AppProviders>
-      <BrowserRouter>
+      <Suspense fallback={null}>
         <SmoothScroll />
-        <AppRoutes />
-        <Toaster position="top-right" />
-      </BrowserRouter>
+      </Suspense>
+      <AppRoutes />
+      <Toaster position="top-right" />
     </AppProviders>
   );
 }
