@@ -47,17 +47,25 @@ export function HomePage() {
   // A static build can age; roll the default dates forward if they are now
   // in the past, then let React Query revalidate in the background.
   useEffect(() => {
-    if (!ssgSearch || restored || ssgSearch.checkIn >= toDayKey(new Date())) return;
+    if (!ssgSearch || restored || ssgSearch.checkIn >= toDayKey(new Date()))
+      return;
     setSearch({ ...ssgSearch, ...defaultSearchDates() });
   }, [restored, ssgSearch]);
 
   const results = useMemo(() => {
     const list = data?.results ?? [];
     return [...list].sort((a, b) => {
-      const soldOutDiff = Number(a.availableCount === 0) - Number(b.availableCount === 0);
+      const soldOutDiff =
+        Number(a.availableCount === 0) - Number(b.availableCount === 0);
       if (soldOutDiff !== 0) return soldOutDiff;
-      const minA = a.rates.length > 0 ? Math.min(...a.rates.map((r) => r.total)) : Infinity;
-      const minB = b.rates.length > 0 ? Math.min(...b.rates.map((r) => r.total)) : Infinity;
+      const minA =
+        a.rates.length > 0
+          ? Math.min(...a.rates.map((r) => r.total))
+          : Infinity;
+      const minB =
+        b.rates.length > 0
+          ? Math.min(...b.rates.map((r) => r.total))
+          : Infinity;
       return minA - minB;
     });
   }, [data?.results]);
@@ -237,17 +245,17 @@ export function HomePage() {
             <span className="hero-eyebrow mb-5 block text-[11px] font-medium uppercase tracking-[0.17em] text-foreground sm:mb-6">
               Hamptworth Stays · Home Farm
             </span>
-            <div className="flex items-center gap-3 sm:gap-5">
-              <h1 className="hero-title text-balance font-display text-[clamp(3.1rem,8vw,4.94rem)] font-normal leading-[1.03] tracking-[-1.5px] text-foreground">
-                A little escape.
-              </h1>
-              <img
-                src="/bird1.webp"
-                alt="Robin perched on a branch"
-                loading="eager"
-                className="hero-bird -mt-4 h-12 w-auto shrink-0 object-contain saturate-[0.7] sm:h-[68px]"
-              />
-            </div>
+              <div className="relative flex items-center gap-3 sm:gap-5">
+                <h1 className="hero-title text-balance font-display text-[clamp(3.1rem,8vw,5.94rem)] font-normal leading-[1.03] tracking-[-1.5px] text-foreground">
+                  A little escape.
+                </h1>
+                <img
+                  src="/bird1.webp"
+                  alt="Robin perched on a branch"
+                  loading="eager"
+                  className="hero-bird absolute right-[33%] top-[50%]  md:right-[23%] md:top-[60%] -translate-y-1/2 h-14 w-auto shrink-0 object-contain saturate-[0.7] sm:h-[100px]"
+                />
+              </div>
             <p className="hero-sub mt-4 max-w-xl font-display text-xl italic leading-snug text-brand-light sm:text-[25px]">
               Choose your dates. Enjoy a slower pace.
             </p>
