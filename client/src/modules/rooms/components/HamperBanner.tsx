@@ -87,16 +87,24 @@ export function HamperBanner({ html }: HamperBannerProps) {
         >
           Welcome hamper included
         </h2>
-        <div
-          className="rich-text mt-3 text-sm leading-relaxed text-foreground"
-          dangerouslySetInnerHTML={{
-            __html: enhanceRichLinks(
-              html?.trim()
-                ? html
-                : "<p>Each cottage includes a complimentary welcome hamper with a selection of teas, coffee, fresh milk and biscuits for guests to enjoy during their stay.</p>",
-            ),
-          }}
-        />
+        <div className="mt-4 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+          <img
+            src="https://hamptworthstays.com/uploads/media/2026/10/07dd8076-hamper-image.png"
+            alt="Welcome hamper"
+            className="h-24 w-24 shrink-0 rounded-lg object-cover sm:h-28 sm:w-28"
+            loading="lazy"
+          />
+          <div
+            className="rich-text text-sm leading-relaxed text-foreground"
+            dangerouslySetInnerHTML={{
+              __html: enhanceRichLinks(
+                html?.trim()
+                  ? html
+                  : "<p>Each cottage includes a complimentary welcome hamper with a selection of teas, coffee, fresh milk and biscuits for guests to enjoy during their stay.</p>",
+              ),
+            }}
+          />
+        </div>
       </Dialog>
     </>
   );
