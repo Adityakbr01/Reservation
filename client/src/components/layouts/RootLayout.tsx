@@ -54,9 +54,7 @@ function NewsletterFooterForm() {
   if (done) return <p className="text-sm">Subscribed — thank you.</p>;
   return (
     <form onSubmit={(e) => void submit(e)} className="mt-6 max-w-xs space-y-2">
-      <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-foreground">
-        Newsletter
-      </p>
+      
       <div className="flex gap-2">
         <input
           type="email"
@@ -407,14 +405,13 @@ export function RootLayout() {
                 <img
                   src="/navlogo.webp"
                   alt="Hamptworth Stays"
-                  className="h-16 w-auto object-contain mix-blend-multiply"
+                  className="h-20 w-auto object-contain mix-blend-multiply"
                   loading="lazy"
                 />
               </Link>
               <p className="mt-4 max-w-[240px] text-sm leading-relaxed text-muted-foreground">
                 Five cottages at Home Farm, Hamptworth.
               </p>
-              <NewsletterFooterForm />
             </div>
 
             <div>
@@ -488,6 +485,7 @@ export function RootLayout() {
                   info@hamptworthgolf.co.uk
                 </a>
               </div>
+              <NewsletterFooterForm />
             </div>
           </div>
 

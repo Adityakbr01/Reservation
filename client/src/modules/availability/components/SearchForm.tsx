@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { ArrowRight, Loader } from "lucide-react";
+import { ArrowRight, ChevronDown, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DateField } from "@/components/common/DateField";
@@ -9,7 +9,7 @@ import { toDayKey } from "@/lib/date";
 import type { AvailabilitySearchParams } from "../types/availability.types";
 
 const selectClass =
-  "h-[46px] w-full min-w-0 rounded-none border border-input bg-card px-3 pr-8 text-[13px] text-foreground outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
+  "h-[46px] w-full min-w-0 rounded-none border border-input bg-card px-3 pr-10 text-[13px] text-foreground outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 appearance-none";
 const fieldLabelClass = "mb-[7px] block text-[13px] font-normal leading-none";
 
 function daysFromNow(days: number): string {
@@ -106,58 +106,67 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
           />
         </div>
 
-        <div className="min-w-0">
+        <div className="min-w-0 relative">
           <Label htmlFor="search-adults" className={fieldLabelClass}>
             Adults
           </Label>
-          <select
-            id="search-adults"
-            value={adults}
-            onChange={(e) => setAdults(e.target.value)}
-            className={selectClass}
-          >
+          <div className="relative">
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+            <select
+              id="search-adults"
+              value={adults}
+              onChange={(e) => setAdults(e.target.value)}
+              className={selectClass}
+            >
             {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
               <option key={n} value={n}>
                 {n}
               </option>
             ))}
           </select>
+          </div>
         </div>
 
-        <div className="min-w-0">
+        <div className="min-w-0 relative">
           <Label htmlFor="search-children" className={fieldLabelClass}>
             Children
           </Label>
-          <select
-            id="search-children"
-            value={children}
-            onChange={(e) => setChildren(e.target.value)}
-            className={selectClass}
-          >
+          <div className="relative">
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+            <select
+              id="search-children"
+              value={children}
+              onChange={(e) => setChildren(e.target.value)}
+              className={selectClass}
+            >
             {Array.from({ length: 21 }, (_, i) => i).map((n) => (
               <option key={n} value={n}>
                 {n}
               </option>
             ))}
           </select>
+          </div>
         </div>
 
-        <div className="min-w-0">
+        <div className="min-w-0 relative">
           <Label htmlFor="search-rooms" className={fieldLabelClass}>
             Cottages
           </Label>
-          <select
-            id="search-rooms"
-            value={rooms}
-            onChange={(e) => setRooms(e.target.value)}
-            className={selectClass}
-          >
+          <div className="relative">
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+            <select
+              id="search-rooms"
+              value={rooms}
+              onChange={(e) => setRooms(e.target.value)}
+              className={selectClass}
+            >
             {Array.from({ length: 5 }, (_, i) => i + 1).map((n) => (
               <option key={n} value={n}>
                 {n}
               </option>
             ))}
           </select>
+          </div>
         </div>
 
         <Button
