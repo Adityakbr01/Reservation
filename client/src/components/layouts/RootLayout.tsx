@@ -12,21 +12,21 @@ import { SITE_LINKS } from "@/config/links";
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return cn(
-    "inline-flex min-h-[44px] items-center rounded-full px-4 text-sm font-medium transition-colors",
+    "inline-flex items-center border-b py-3 text-[13px] leading-none transition-colors",
     "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
     isActive
-      ? "text-brand underline decoration-brand decoration-2 underline-offset-8"
-      : "text-foreground hover:text-brand",
+      ? "border-brand-light text-foreground"
+      : "border-transparent text-foreground/90 hover:border-brand-light hover:text-foreground",
   );
 }
 
 function mobileLinkClass({ isActive }: { isActive: boolean }) {
   return cn(
-    "flex min-h-[44px] items-center rounded-xl px-4 text-sm font-medium transition-colors",
+    "flex min-h-[44px] items-center border-b border-transparent px-1 text-sm transition-colors",
     "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
     isActive
-      ? "bg-surface-2 text-brand"
-      : "text-foreground hover:bg-surface-2 hover:text-brand",
+      ? "border-brand-light text-foreground"
+      : "text-foreground/90 hover:border-brand-light hover:text-foreground",
   );
 }
 
@@ -53,8 +53,10 @@ function NewsletterFooterForm() {
   }
   if (done) return <p className="text-sm">Subscribed — thank you.</p>;
   return (
-    <form onSubmit={(e) => void submit(e)} className="space-y-2">
-      <p className="font-medium text-foreground">Newsletter</p>
+    <form onSubmit={(e) => void submit(e)} className="mt-6 max-w-xs space-y-2">
+      <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-foreground">
+        Newsletter
+      </p>
       <div className="flex gap-2">
         <input
           type="email"
@@ -62,9 +64,12 @@ function NewsletterFooterForm() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
           aria-label="Email for newsletter"
-          className="h-10 min-w-0 flex-1 rounded-full border border-input bg-background px-4 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="h-11 min-w-0 flex-1 rounded-none border border-input bg-card px-3 text-[13px] outline-none focus-visible:ring-1 focus-visible:ring-ring"
         />
-        <Button type="submit" className="h-10 rounded-full px-5">
+        <Button
+          type="submit"
+          className="h-11 rounded-none bg-primary px-4 text-[12px] text-primary-foreground hover:bg-brand-dark"
+        >
           Join
         </Button>
       </div>
@@ -109,11 +114,14 @@ export function RootLayout() {
   const initial = user?.name.trim().charAt(0).toUpperCase() || "?";
 
   return (
-    <div className="flex min-h-screen flex-col bg-background font-sans text-foreground">
-      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
-        <nav className="relative mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-2 sm:px-6">
+    <div id="top" className="flex min-h-screen flex-col bg-background font-sans text-foreground">
+      <header className="sticky top-0 z-50 border-b border-border bg-background">
+        <div className="mx-auto grid h-[72px] w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:px-6 lg:h-[98px] lg:px-12">
           {/* Left links */}
-          <div className="hidden items-center gap-1 sm:gap-3 md:flex">
+          <nav
+            aria-label="Booking navigation"
+            className="hidden items-center gap-6 md:flex"
+          >
             <NavLink to="/" end className={navLinkClass}>
               Find a cottage
             </NavLink>
@@ -121,95 +129,118 @@ export function RootLayout() {
               href={SITE_LINKS.theEstate}
               target="_blank"
               rel="noopener noreferrer"
-              className={cn(
-                "inline-flex min-h-[44px] items-center gap-1 rounded-full px-4 text-sm font-medium transition-colors text-foreground hover:text-brand",
-                "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-              )}
+              className={cn(navLinkClass({ isActive: false }), "hidden gap-1 lg:inline-flex")}
             >
-              The estate <span aria-hidden className="text-xs">↗</span>
+              The estate <span aria-hidden className="text-[10px]">↗</span>
             </a>
-          </div>
+            <a
+              href={SITE_LINKS.bespoke}
+              target={SITE_LINKS.bespoke !== "#" ? "_blank" : undefined}
+              rel={SITE_LINKS.bespoke !== "#" ? "noopener noreferrer" : undefined}
+              className={cn(navLinkClass({ isActive: false }), "hidden lg:inline-flex")}
+            >
+              Bespoke
+            </a>
+          </nav>
 
           {/* Centered logo */}
           <Link
             to="/"
             onClick={closeMenu}
             aria-label="Hamptworth Stays — home"
-            className="inline-flex min-w-0 shrink-0 items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:absolute md:left-1/2 md:-translate-x-1/2"
+            className="col-start-2 inline-flex min-w-0 shrink-0 items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             <img
               src="/navlogo.webp"
               alt="Hamptworth Stays"
-              className="h-10 w-auto shrink-0 rounded-sm mix-blend-multiply sm:h-12"
+              className="h-[52px] w-auto shrink-0 object-contain mix-blend-multiply lg:h-[76px]"
               loading="eager"
             />
           </Link>
 
           {/* Right actions */}
-          <div className="hidden items-center gap-2 sm:gap-3 md:flex">
-            <a
-              href={SITE_LINKS.bespoke}
-              target={SITE_LINKS.bespoke !== "#" ? "_blank" : undefined}
-              rel={SITE_LINKS.bespoke !== "#" ? "noopener noreferrer" : undefined}
-              className="inline-flex items-center gap-1 rounded-full border border-input bg-background px-4 py-2 text-sm font-medium transition hover:border-brand hover:text-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              Bespoke <span aria-hidden>→</span>
-            </a>
-            {user ? (
-              <>
-                <NavLink to="/bookings" className={navLinkClass}>
-                  My bookings
-                </NavLink>
-                <NavLink to="/profile" className={navLinkClass}>
-                  {user.avatarUrl ? (
-                    <img
-                      src={user.avatarUrl}
-                      alt=""
-                      aria-hidden
-                      className="mr-2 size-7 rounded-full object-cover"
-                    />
-                  ) : (
-                    <span
-                      className="mr-2 flex size-7 items-center justify-center rounded-full bg-night text-xs font-semibold text-white"
-                      aria-hidden
-                    >
-                      {initial}
+          <div className="col-start-3 flex items-center justify-end gap-5">
+            <div className="hidden items-center gap-5 md:flex">
+              <Link
+                to="/enquire"
+                className="inline-flex items-center gap-5 border border-input px-4 py-2.5 text-[13px] leading-none text-foreground transition-colors hover:border-brand hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                Enquire
+                <span aria-hidden>→</span>
+              </Link>
+              {user ? (
+                <>
+                  <NavLink
+                    to="/bookings"
+                    className={({ isActive }) =>
+                      cn(navLinkClass({ isActive }), "hidden lg:inline-flex")
+                    }
+                  >
+                    My bookings
+                  </NavLink>
+                  <NavLink
+                    to="/profile"
+                    className={({ isActive }) =>
+                      cn(navLinkClass({ isActive }), "gap-2")
+                    }
+                  >
+                    {user.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt=""
+                        aria-hidden
+                        className="size-7 object-cover"
+                      />
+                    ) : (
+                      <span
+                        className="flex size-7 items-center justify-center bg-primary text-[11px] font-semibold text-primary-foreground"
+                        aria-hidden
+                      >
+                        {initial}
+                      </span>
+                    )}
+                    <span className="hidden max-w-24 truncate lg:inline">
+                      {user.name}
                     </span>
-                  )}
-                  <span className="hidden max-w-28 truncate lg:inline">
-                    {user.name}
-                  </span>
-                  <span className="lg:hidden">Profile</span>
-                </NavLink>
-                <Button className="rounded-full" onClick={handleLogout}>
-                  <LogOut aria-hidden />
-                  <span className="hidden lg:inline ">Logout</span>
-                </Button>
-              </>
-            ) : (
-              <>
-                <NavLink to="/login" className={navLinkClass}>
-                  Login
-                </NavLink>
-                <Button asChild className="h-10 rounded-full px-5">
-                  <Link to="/register">Register</Link>
-                </Button>
-              </>
-            )}
-          </div>
+                    <span className="lg:hidden">Profile</span>
+                  </NavLink>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    aria-label="Logout"
+                    className="inline-flex size-9 items-center justify-center border border-input text-foreground transition-colors hover:border-brand hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  >
+                    <LogOut aria-hidden className="size-4" />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <NavLink to="/login" className={navLinkClass}>
+                    Login
+                  </NavLink>
+                  <Link
+                    to="/register"
+                    className="inline-flex items-center bg-primary px-4 py-2.5 text-[13px] leading-none text-primary-foreground transition-colors hover:bg-brand-dark focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  >
+                    Register
+                  </Link>
+                </>
+              )}
+            </div>
 
-          {/* Hamburger (mobile) */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="ml-auto rounded-full md:hidden"
-            onClick={() => setMenuOpen((open) => !open)}
-            aria-expanded={menuOpen}
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-          >
-            {menuOpen ? <X aria-hidden /> : <Menu aria-hidden />}
-          </Button>
-        </nav>
+            {/* Hamburger (mobile) */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-none md:hidden"
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-expanded={menuOpen}
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+            >
+              {menuOpen ? <X aria-hidden /> : <Menu aria-hidden />}
+            </Button>
+          </div>
+        </div>
       </header>
       {/* Mobile sidebar drawer (outside header: backdrop-blur would trap fixed positioning) */}
       <div
@@ -230,29 +261,29 @@ export function RootLayout() {
         {/* Panel */}
         <aside
           className={cn(
-            "absolute left-0 top-0 flex h-full w-72 max-w-[85vw] flex-col bg-background shadow-xl transition-transform duration-300 ease-out",
+            "absolute left-0 top-0 flex h-full w-80 max-w-[88vw] flex-col bg-background shadow-xl transition-transform duration-300 ease-out",
             menuOpen ? "translate-x-0" : "-translate-x-full",
           )}
           aria-label="Mobile"
         >
-          <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-2">
+          <div className="flex items-center justify-between gap-2 border-b border-border px-5 py-3">
             <img
-              src="/logo.webp"
+              src="/navlogo.webp"
               alt="Hamptworth Stays"
-              className="h-9 w-auto rounded-sm mix-blend-multiply"
+              className="h-12 w-auto object-contain mix-blend-multiply"
               loading="lazy"
             />
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full"
+              className="rounded-none"
               onClick={closeMenu}
               aria-label="Close menu"
             >
               <X aria-hidden />
             </Button>
           </div>
-          <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-4">
+          <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-5 py-5">
             <NavLink to="/" end className={mobileLinkClass} onClick={closeMenu}>
               Find a cottage
             </NavLink>
@@ -272,7 +303,7 @@ export function RootLayout() {
               className={mobileLinkClass({ isActive: false })}
               onClick={closeMenu}
             >
-              Bespoke <span aria-hidden className="ml-1">→</span>
+              Bespoke
             </a>
             <NavLink
               to="/offers"
@@ -280,6 +311,13 @@ export function RootLayout() {
               onClick={closeMenu}
             >
               Offers
+            </NavLink>
+            <NavLink
+              to="/enquire"
+              className={mobileLinkClass}
+              onClick={closeMenu}
+            >
+              Enquire
             </NavLink>
             {user && (
               <>
@@ -300,11 +338,11 @@ export function RootLayout() {
                       src={user.avatarUrl}
                       alt=""
                       aria-hidden
-                      className="mr-3 size-8 rounded-full object-cover"
+                      className="mr-3 size-8 object-cover"
                     />
                   ) : (
                     <span
-                      className="mr-3 flex size-8 items-center justify-center rounded-full bg-night text-xs font-semibold text-white"
+                      className="mr-3 flex size-8 items-center justify-center bg-primary text-xs font-semibold text-primary-foreground"
                       aria-hidden
                     >
                       {initial}
@@ -315,10 +353,10 @@ export function RootLayout() {
               </>
             )}
           </nav>
-          <div className="border-t border-border px-4 py-4">
+          <div className="border-t border-border px-5 py-5">
             {user ? (
               <Button
-                className="min-h-[44px] w-full rounded-xl"
+                className="min-h-[44px] w-full rounded-none"
                 onClick={handleLogout}
               >
                 <LogOut aria-hidden />
@@ -329,13 +367,13 @@ export function RootLayout() {
                 <Button
                   asChild
                   variant="outline"
-                  className="min-h-[44px] rounded-xl"
+                  className="min-h-[44px] rounded-none"
                 >
                   <Link to="/login" onClick={closeMenu}>
                     Login
                   </Link>
                 </Button>
-                <Button asChild className="min-h-[44px] rounded-xl">
+                <Button asChild className="min-h-[44px] rounded-none">
                   <Link to="/register" onClick={closeMenu}>
                     Register
                   </Link>
@@ -348,29 +386,109 @@ export function RootLayout() {
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 pb-8 pt-4 sm:px-6 sm:pb-12 sm:pt-6">
         <Outlet />
       </main>
-      <footer className="border-t border-border bg-surface-2">
-        <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 text-sm text-muted-foreground sm:px-6 lg:grid-cols-3">
-          <div>
-            <p>© 2026 Hamptworth Stays. All rights reserved.</p>
-            <p className="mt-1">Single property · Multiple room types</p>
-            <p className="mt-2">
-              <Link to="/enquire" className="underline">
-                Enquire
-              </Link>{" "}
-              ·{" "}
-              <Link to="/offers" className="underline">
-                Offers
+      <footer className="border-t border-border bg-secondary">
+        <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-12 lg:py-14">
+          <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr_0.9fr_1fr]">
+            <div>
+              <Link
+                to="/"
+                aria-label="Hamptworth Stays booking home"
+                className="inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <img
+                  src="/navlogo.webp"
+                  alt="Hamptworth Stays"
+                  className="h-16 w-auto object-contain mix-blend-multiply"
+                  loading="lazy"
+                />
               </Link>
-            </p>
+              <p className="mt-4 max-w-[240px] text-sm leading-relaxed text-muted-foreground">
+                Five cottages at Home Farm, Hamptworth.
+              </p>
+              <NewsletterFooterForm />
+            </div>
+
+            <div>
+              <h3 className="mb-5 text-[11px] font-medium uppercase tracking-[0.12em]">
+                Your stay
+              </h3>
+              <div className="flex flex-col gap-2.5 text-[13px] leading-relaxed">
+                <Link to="/" className="hover:text-brand">
+                  Find a cottage
+                </Link>
+                <Link to="/enquire" className="hover:text-brand">
+                  Group stays
+                </Link>
+                <Link to="/offers" className="hover:text-brand">
+                  Offers
+                </Link>
+                <a
+                  href="https://hamptworthstays.com/local-area-and-map/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-brand"
+                >
+                  Explore the local area ↗
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="mb-5 text-[11px] font-medium uppercase tracking-[0.12em]">
+                A little help
+              </h3>
+              <div className="flex flex-col gap-2.5 text-[13px] leading-relaxed">
+                <Link to="/enquire" className="hover:text-brand">
+                  Make an enquiry
+                </Link>
+                <a
+                  href={SITE_LINKS.bespoke}
+                  target={SITE_LINKS.bespoke !== "#" ? "_blank" : undefined}
+                  rel={SITE_LINKS.bespoke !== "#" ? "noopener noreferrer" : undefined}
+                  className="hover:text-brand"
+                >
+                  Bespoke ↗
+                </a>
+                <Link to="/faqs" className="hover:text-brand">
+                  FAQs
+                </Link>
+                <Link to="/policies/TERMS" className="hover:text-brand">
+                  Booking terms
+                </Link>
+                <Link to="/policies/PRIVACY" className="hover:text-brand">
+                  Privacy policy
+                </Link>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="mb-5 text-[11px] font-medium uppercase tracking-[0.12em]">
+                Contact
+              </h3>
+              <p className="mb-3 text-[11px] text-muted-foreground">
+                Estate &amp; club team
+              </p>
+              <div className="flex flex-col gap-2.5 text-[13px] leading-relaxed">
+                <a href="tel:+441794390155" className="hover:text-brand">
+                  01794 390155
+                </a>
+                <a
+                  href="mailto:info@hamptworthgolf.co.uk"
+                  className="hover:text-brand"
+                >
+                  info@hamptworthgolf.co.uk
+                </a>
+              </div>
+            </div>
           </div>
-          <div>
-            <p className="font-medium text-foreground">Why book with us?</p>
-            <p className="mt-1">
-              Local knowledge · Quality checked · Customer Satisfaction · 24/7
-              support
-            </p>
+
+          <div className="mt-10 flex flex-wrap items-center gap-x-7 gap-y-3 border-t border-border pt-5 text-[10px] text-muted-foreground">
+            <span>© 2026 Hamptworth Stays</span>
+            <span>Home Farm · Hamptworth</span>
+            <a href="#top" className="ml-auto hover:text-foreground">
+              Back to top ↑
+            </a>
           </div>
-          <NewsletterFooterForm />
         </div>
       </footer>
     </div>

@@ -1,9 +1,7 @@
-import { ArrowRight, Users } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RoomTypeImage } from "@/components/common/RoomTypeImage";
 import { useMediaUrls } from "@/modules/media";
+import { countNights, formatDisplayDate } from "@/lib/date";
 import type { AvailabilitySearchParams, SearchResultItem } from "../types/availability.types";
 import { toSearchRecord } from "../utils/search-params";
 
@@ -26,8 +24,7 @@ export function RoomTypeCard({
   item: SearchResultItem;
   search: AvailabilitySearchParams;
 }) {
-  const { roomType, availableCount, rates } = item;
-  const soldOut = availableCount <= 0;
+  const { roomType, rates } = item;
   const galleryMedia = (roomType as unknown as { media?: Array<{ mediaId: string; kind: string; sortOrder: number }> }).media;
   const coverId =
     galleryMedia && galleryMedia.length > 0
@@ -41,98 +38,104 @@ export function RoomTypeCard({
     search: new URLSearchParams(toSearchRecord(search)).toString(),
   };
 
+  const currency = rates[0]?.currency ?? "GBP";
+  const hasRates = rates.length > 0;
+  const minTotal = hasRates ? Math.min(...rates.map((rate) => rate.total)) : 0;
+  const minPerNight = hasRates ? Math.min(...rates.map((rate) => rate.perNight)) : 0;
+  const nights =
+    search.checkIn && search.checkOut
+      ? countNights(search.checkIn, search.checkOut)
+      : 0;
+  const dateLabel =
+    search.checkIn && search.checkOut
+      ? `${formatDisplayDate(search.checkIn)} – ${formatDisplayDate(search.checkOut)}`
+      : "";
+  const petFriendly =
+    (roomType.maxDogs != null && roomType.maxDogs > 0) ||
+    roomType.amenities?.some((amenity) => /pet|dog/i.test(amenity));
+
   return (
-    <Card className="room-card flex h-full flex-col overflow-hidden shadow-card sm:flex-row">
-      <div className="p-2.5 pb-0 sm:w-[38%] sm:shrink-0 sm:py-2.5 sm:pl-2.5 sm:pr-0">
-        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl sm:aspect-auto sm:h-full sm:min-h-[240px]">
-          <RoomTypeImage
-            name={roomType.name}
-            imageUrl={coverPhoto?.url ?? null}
-            alt={coverPhoto?.alt}
-            className="absolute inset-0"
-          />
-        </div>
-      </div>
-      <div className="flex min-w-0 flex-1 flex-col">
-        <CardHeader className="p-4 pb-2">
-          <CardTitle className="font-display text-xl font-medium">
+    <article className="room-card group grid min-h-[328px] border border-border bg-card sm:grid-cols-[0.82fr_1.18fr]">
+      <Link
+        to={detailTo}
+        state={{ search }}
+        aria-label={`View ${roomType.name}`}
+        className="relative block min-h-[220px] overflow-hidden bg-surface-2 sm:min-h-full"
+      >
+        <RoomTypeImage
+          name={roomType.name}
+          imageUrl={coverPhoto?.url ?? null}
+          alt={coverPhoto?.alt}
+          className="absolute inset-0 transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+        />
+      </Link>
+
+      <div className="flex min-w-0 flex-col p-[23px]">
+        <div className="flex flex-col items-start gap-[9px]">
+          <h3 className="font-display text-[30px] font-normal leading-[1.1] tracking-tight">
             <Link
               to={detailTo}
               state={{ search }}
-              className="hover:text-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               {roomType.name}
             </Link>
-          </CardTitle>
-          <CardDescription className="mt-1 line-clamp-2">
-            {roomType.shortDescription ?? `${roomType.maxAdults} adults · max ${roomType.maxOccupancy} guests`}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-1 flex-col space-y-3 p-4 pt-0">
-        <div className="flex flex-wrap gap-x-3 gap-y-1 text-[13px] text-muted-foreground">
-          <span className="inline-flex items-center gap-1">
-            <Users className="size-4" aria-hidden />
-            {roomType.maxAdults} adults · {roomType.maxChildren} children · max {roomType.maxOccupancy}
+          </h3>
+          {petFriendly ? (
+            <span className="border border-[#c4ceb6] px-1.5 py-[3px] text-[9px] uppercase leading-[1.4] tracking-[0.5px] text-[#6a7d59]">
+              Pet friendly
+            </span>
+          ) : null}
+        </div>
+
+        <div className="mt-3.5 mb-[22px] flex flex-wrap gap-x-3 gap-y-1 text-[12px] leading-[18px] text-foreground">
+          <span>{roomType.maxOccupancy} total guests</span>
+          {roomType.bedrooms != null ? (
+            <>
+              <span aria-hidden>·</span>
+              <span>
+                {roomType.bedrooms} bedroom{roomType.bedrooms === 1 ? "" : "s"}
+              </span>
+            </>
+          ) : null}
+        </div>
+
+        {hasRates ? (
+          <div className="mb-[21px] flex flex-col items-start gap-[5px] leading-6">
+            <span className="text-[10px] uppercase tracking-[0.5px] text-[#6b7565]">
+              Total stay price
+              {nights > 0
+                ? ` · ${nights} night${nights === 1 ? "" : "s"}`
+                : ""}
+            </span>
+            <strong className="font-display text-[33px] font-normal leading-[1.08]">
+              {formatMoney(minTotal, currency)}
+            </strong>
+            <span className="text-[12px] text-[#637359]">
+              {formatMoney(minPerNight, currency)} per night
+              <span className="ml-1.5 whitespace-nowrap text-[9px] text-[#77866c]">
+                Example price
+              </span>
+            </span>
+            {dateLabel ? (
+              <span className="mt-[3px] text-[11px] leading-[16.5px] text-foreground">
+                {dateLabel}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+
+        <Link
+          to={detailTo}
+          state={{ search }}
+          className="btn-arrow mt-auto inline-flex min-h-[39px] items-center justify-between gap-[22px] self-start border border-primary px-[14px] py-[9px] text-[11px] font-medium leading-[1.4] transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        >
+          View cottage
+          <span aria-hidden className="arrow-icon inline-block">
+            →
           </span>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          From <span className="text-base font-bold text-foreground">{formatMoney(Math.min(...rates.map((r) => r.perNight)), rates[0]?.currency ?? "GBP")}</span> Per Night
-        </p>
-        <p className="text-xs font-medium text-muted-foreground">
-          From {formatMoney(Math.min(...rates.map((r) => r.total)), rates[0]?.currency ?? "GBP")} total for {search.checkIn} → {search.checkOut} · incl. taxes & fees
-        </p>
-        {soldOut && (
-          <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
-            Fully booked for these dates — try different dates, or view details.
-          </p>
-        )}
-        <ul className="divide-y divide-border rounded-xl border border-border">
-          {rates.map((rate) => (
-            <li key={rate.ratePlanId} className="flex items-center justify-between gap-3 px-4 py-3">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{rate.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {formatMoney(rate.perNight, rate.currency)}
-                  {rate.pricingType === "PER_NIGHT" ? " / night" : " / stay"}
-                  {rate.nightly && rate.nightly.length > 0 ? ` · ${rate.nightly.length} nights` : ""}
-                </p>
-              </div>
-              <div className="flex shrink-0 flex-col items-end gap-1.5">
-                <p className="font-display text-lg font-light">
-                  {formatMoney(rate.total, rate.currency)}
-                </p>
-                <p className="text-[11px] text-muted-foreground">Total</p>
-                {soldOut ? (
-                  <Button size="sm" disabled className="rounded-full">
-                    Sold out
-                  </Button>
-                ) : (
-                  <Button asChild size="sm" className="btn-shine rounded-full">
-                    <Link
-                      to={`/booking/new?roomTypeId=${item.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&rooms=${search.rooms ?? 1}&roomName=${encodeURIComponent(item.roomType.name)}&rateName=${encodeURIComponent(rate.name)}&roomSlug=${item.roomType.slug}`}
-                      state={{ from: `/rooms/${item.roomType.slug}`, roomSlug: item.roomType.slug }}
-                    >
-                      Book now
-                    </Link>
-                  </Button>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-        <p className="text-[11px] text-muted-foreground">
-          Indicative total — availability and price are confirmed again at booking.
-        </p>
-        <div className="mt-auto flex gap-2 pt-1">
-          <Button asChild variant="outline" className="btn-arrow flex-1 rounded-full">
-            <Link to={detailTo} state={{ search }}>
-              View details
-              <ArrowRight className="arrow-icon size-4" aria-hidden />
-            </Link>
-          </Button>
-        </div>
-      </CardContent>
+        </Link>
       </div>
-    </Card>
+    </article>
   );
 }

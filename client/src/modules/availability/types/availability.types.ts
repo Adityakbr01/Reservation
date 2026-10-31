@@ -24,6 +24,9 @@ export interface SearchResultRoomType {
   maxAdults: number;
   maxChildren: number;
   maxOccupancy: number;
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  maxDogs?: number | null;
   shortDescription: string | null;
   amenities: string[];
   images?: Array<{ mediaId: string; altText: string | null; sortOrder: number }>;

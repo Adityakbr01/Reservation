@@ -1,13 +1,16 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { ArrowRight, Loader, RotateCcw, Search } from "lucide-react";
+import { ArrowRight, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DateField } from "@/components/common/DateField";
 import { addDays } from "date-fns";
 import { toDayKey } from "@/lib/date";
 import type { AvailabilitySearchParams } from "../types/availability.types";
+
+const selectClass =
+  "h-[46px] w-full min-w-0 rounded-none border border-input bg-card px-3 pr-8 text-[13px] text-foreground outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
+const fieldLabelClass = "mb-[7px] block text-[13px] font-normal leading-none";
 
 function daysFromNow(days: number): string {
   return toDayKey(addDays(new Date(), days));
@@ -82,90 +85,106 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
-        <div className="grid min-w-0 flex-1 gap-4 sm:grid-cols-2 lg:grid-cols-[1.35fr_1.35fr_0.75fr_0.75fr_0.8fr]">
-        <DateField
-          id="search-checkin"
-          label="Check-in"
-          value={checkIn}
-          min={today}
-          onChange={setCheckIn}
-        />
-        <DateField
-          id="search-checkout"
-          label="Check-out"
-          value={checkOut}
-          min={checkIn || today}
-          onChange={setCheckOut}
-        />
-        <div className="min-w-0 space-y-2">
-          <Label htmlFor="search-adults">Adults</Label>
-          <Input
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="grid grid-cols-2 gap-3 sm:gap-[14px] lg:grid-cols-[1.4fr_1.4fr_0.7fr_0.7fr_0.7fr_auto_auto] lg:items-end">
+        <div className="col-span-1">
+          <DateField
+            id="search-checkin"
+            label="Check-in"
+            value={checkIn}
+            min={today}
+            onChange={setCheckIn}
+          />
+        </div>
+        <div className="col-span-1">
+          <DateField
+            id="search-checkout"
+            label="Check-out"
+            value={checkOut}
+            min={checkIn || today}
+            onChange={setCheckOut}
+          />
+        </div>
+
+        <div className="min-w-0">
+          <Label htmlFor="search-adults" className={fieldLabelClass}>
+            Adults
+          </Label>
+          <select
             id="search-adults"
-            type="number"
-            required
-            min={1}
-            max={20}
             value={adults}
             onChange={(e) => setAdults(e.target.value)}
-          />
+            className={selectClass}
+          >
+            {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="min-w-0 space-y-2">
-          <Label htmlFor="search-children">Children</Label>
-          <Input
+
+        <div className="min-w-0">
+          <Label htmlFor="search-children" className={fieldLabelClass}>
+            Children
+          </Label>
+          <select
             id="search-children"
-            type="number"
-            required
-            min={0}
-            max={20}
             value={children}
             onChange={(e) => setChildren(e.target.value)}
-          />
+            className={selectClass}
+          >
+            {Array.from({ length: 21 }, (_, i) => i).map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="min-w-0 space-y-2">
-          <Label htmlFor="search-rooms">Rooms</Label>
-          <Input
+
+        <div className="min-w-0">
+          <Label htmlFor="search-rooms" className={fieldLabelClass}>
+            Cottages
+          </Label>
+          <select
             id="search-rooms"
-            type="number"
-            required
-            min={1}
-            max={10}
             value={rooms}
             onChange={(e) => setRooms(e.target.value)}
-          />
-        </div>
-        </div>
-        <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
-          <Button
-            type="submit"
-            className="btn-arrow btn-shine h-12 w-full shrink-0 rounded-full bg-night px-8 text-white hover:bg-night/90 sm:w-auto"
-            disabled={isPending}
+            className={selectClass}
           >
-            {isPending ? (
-              <>
-                <Loader className="size-4 animate-spin" aria-hidden />
-                <span className="sr-only">Searching…</span>
-              </>
-            ) : (
-              <>
-                <Search aria-hidden className="text-gold" />
-                <span className="whitespace-nowrap">Search availability</span>
-                <ArrowRight aria-hidden className="arrow-icon text-gold" />
-              </>
-            )}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleReset}
-            className="h-12 w-full shrink-0 rounded-full border-border bg-background px-5 text-sm font-medium hover:bg-surface-2 sm:w-auto"
-            title="Reset search to show all cottages"
-          >
-            <RotateCcw className="mr-1.5 size-4 text-muted-foreground" aria-hidden />
-            Reset
-          </Button>
+            {Array.from({ length: 5 }, (_, i) => i + 1).map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
         </div>
+
+        <Button
+          type="submit"
+          className="btn-arrow btn-shine col-span-2 h-12 w-full shrink-0 rounded-none bg-primary px-6 text-[12px] font-medium text-primary-foreground hover:bg-brand-dark lg:col-span-1"
+          disabled={isPending}
+        >
+          {isPending ? (
+            <>
+              <Loader className="size-4 animate-spin" aria-hidden />
+              <span className="sr-only">Searching…</span>
+            </>
+          ) : (
+            <>
+              <span className="whitespace-nowrap">Find cottages</span>
+              <ArrowRight aria-hidden className="arrow-icon size-4" />
+            </>
+          )}
+        </Button>
+        <button
+          type="button"
+          onClick={handleReset}
+          title="Reset search to show all cottages"
+          className="col-span-2 h-12 shrink-0 px-1 text-[12px] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring lg:col-span-1"
+        >
+          Reset
+        </button>
       </div>
       {rangeError && <p className="text-xs text-error">{rangeError}</p>}
     </form>

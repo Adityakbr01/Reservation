@@ -580,23 +580,6 @@ export function RoomDetailPage() {
     setParams(next, { replace: true });
   }
 
-  function setRoomCount(newRooms: number) {
-    const next = new URLSearchParams(params);
-    const safeRooms = Math.max(1, Math.min(maxRoomsAvailable, newRooms));
-    next.set("rooms", String(safeRooms));
-    const newMaxOccupancy = baseMaxOccupancy * safeRooms;
-    const newMaxAdults = baseMaxAdults * safeRooms;
-    const newMaxChildren = baseMaxChildren * safeRooms;
-    let finalAdults = Math.min(newMaxAdults, currentAdults);
-    let finalChildren = Math.min(newMaxChildren, currentChildren);
-    if (finalAdults + finalChildren > newMaxOccupancy) {
-      finalChildren = Math.max(0, newMaxOccupancy - finalAdults);
-    }
-    next.set("adults", String(finalAdults));
-    next.set("children", String(finalChildren));
-    setParams(next, { replace: true });
-  }
-
   return (
     <div ref={rootRef} className="relative space-y-5 pb-8">
       {/* Ambient countryside framing foliage — crisp & clear of interactive controls */}
@@ -1307,9 +1290,6 @@ export function RoomDetailPage() {
                         const maxChildrenAllowed = Math.min(effectiveMaxChildren, Math.max(0, totalMaxOccupancy - currentAdults));
                         const isChildrenPlusDisabled = currentChildren >= maxChildrenAllowed || currentGuests >= totalMaxOccupancy;
                         const isChildrenMinusDisabled = currentChildren <= 0;
-
-                        const isRoomsPlusDisabled = roomCount >= maxRoomsAvailable;
-                        const isRoomsMinusDisabled = roomCount <= 1;
 
                         return (
                           <div
