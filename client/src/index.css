@@ -36,7 +36,7 @@
 /*
  * Luxury hotel theme — extracted from "Luxury Hotel Booking Experience" design:
  * warm ivory canvas, deep ink-navy text, brushed-gold accents, bronze CTAs,
- * Playfair Display headlines, pill radii, 8px spacing grid,
+ * Instrument Serif headlines, pill radii, 8px spacing grid,
  * WCAG 2.2 AA focus visibility via --ring.
  */
 
@@ -157,9 +157,9 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* --- brand typography (Playfair Display headlines, Inter body) --- */
-  --font-sans: Inter, system-ui, sans-serif;
-  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
+  /* --- brand typography (Instrument Serif headlines, DM Sans body) --- */
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* --- brand colors (luxury gold + bronze) --- */
