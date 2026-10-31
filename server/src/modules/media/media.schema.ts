@@ -30,6 +30,16 @@ export const uploadMediaBodySchema = z.object({
 
 export const mediaIdParamsSchema = z.object({ id: objectIdSchema });
 
+export const reorderMediaSchema = z.object({
+  items: z.array(
+    z.object({
+      id: objectIdSchema,
+      position: z.number().int().min(0),
+    }),
+  ),
+});
+
 export type ListMediaQuery = z.infer<typeof listMediaQuerySchema>;
 export type UpdateMediaInput = z.infer<typeof updateMediaSchema>;
 export type UploadMediaBody = z.infer<typeof uploadMediaBodySchema>;
+export type ReorderMediaInput = z.infer<typeof reorderMediaSchema>;

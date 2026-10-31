@@ -25,6 +25,7 @@ export interface Media {
   alt: string | null;
   caption: string | null;
   size: number;
+  position: number;
   createdBy: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -57,6 +58,7 @@ export function toMedia(doc: any): Media {
     alt: doc.alt ?? null,
     caption: doc.caption ?? null,
     size: Number(doc.size),
+    position: doc.position ?? 0,
     createdBy: doc.createdBy ? (doc.createdBy.toString?.() ?? String(doc.createdBy)) : null,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
@@ -136,7 +138,7 @@ export async function listMedia(filter: ListMediaFilter): Promise<Paginated<Medi
     prisma.media.count({ where }),
     prisma.media.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ position: "asc" }, { createdAt: "desc" }],
       skip: (filter.page - 1) * filter.limit,
       take: filter.limit,
     }),
@@ -177,6 +179,7 @@ export const MediaModel = {
         alt: data.alt ?? null,
         caption: data.caption ?? null,
         size: Number(data.size),
+        position: data.position ?? 0,
         createdBy: data.createdBy ? String(data.createdBy) : null,
       },
     });

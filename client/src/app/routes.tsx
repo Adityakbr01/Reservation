@@ -1,12 +1,12 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import { RootLayout } from "@/components/layouts/RootLayout";
+import { HomePage } from "@/modules/home/pages/HomePage";
 import { RequireAuth, RequireGuest } from "./guards";
 
 // Route-level code splitting: each page becomes its own chunk so the
 // initial load only downloads what the current route needs.
 // (Direct file imports avoid pulling barrel files into the main chunk.)
-const HomePage = lazy(() => import("@/modules/home/pages/HomePage"));
 const RoomDetailPage = lazy(() => import("@/modules/rooms/pages/RoomDetailPage"));
 const BookingPage = lazy(() => import("@/modules/booking/pages/BookingPage"));
 const BookingConfirmationPage = lazy(

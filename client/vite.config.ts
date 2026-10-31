@@ -48,7 +48,13 @@ function preloadHomeChunks(): Plugin {
         const outDir = options.dir ?? 'dist'
         const manifestPath = join(outDir, '.vite', 'manifest.json')
         const htmlPath = join(outDir, 'index.html')
-        if (!existsSync(manifestPath) || !existsSync(htmlPath)) return
+        if (!existsSync(htmlPath)) return
+
+        const shell = readFileSync(htmlPath, 'utf8')
+        // Non-home deep links hydrate an empty shell (client-rendered), so
+        // they must not receive the preloads or the static home markup.
+        writeFileSync(join(outDir, 'app.html'), shell)
+        if (!existsSync(manifestPath)) return
 
         const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<
           string,

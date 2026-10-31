@@ -6,6 +6,7 @@ import {
   adminDeleteMediaHandler,
   adminListFoldersHandler,
   adminListMediaHandler,
+  adminReorderMediaHandler,
   adminResolveMediaHandler,
   adminUpdateMediaHandler,
   adminUploadMediaHandler,
@@ -14,6 +15,7 @@ import {
 import {
   listMediaQuerySchema,
   mediaIdParamsSchema,
+  reorderMediaSchema,
   updateMediaSchema,
   uploadMediaBodySchema,
 } from "./media.schema";
@@ -34,6 +36,11 @@ adminMediaRouter.patch(
   "/:id",
   validate({ params: mediaIdParamsSchema, body: updateMediaSchema }),
   adminUpdateMediaHandler,
+);
+adminMediaRouter.post(
+  "/reorder",
+  validate({ body: reorderMediaSchema }),
+  adminReorderMediaHandler,
 );
 adminMediaRouter.delete("/:id", validate({ params: mediaIdParamsSchema }), adminDeleteMediaHandler);
 

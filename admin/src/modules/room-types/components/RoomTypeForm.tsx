@@ -1,6 +1,19 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Loader } from "lucide-react";
+import {
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +38,63 @@ interface RoomTypeFormProps {
   onSubmit: (payload: CreateRoomTypePayload) => void;
 }
 
+function SortableImageItem({
+  img,
+  index,
+  setImages,
+  draggedImageId,
+}: {
+  img: RoomTypeImage;
+  index: number;
+  setImages: (updater: (rows: RoomTypeImage[]) => RoomTypeImage[]) => void;
+  draggedImageId: string | null;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: img.mediaId,
+  });
+  const isDragging = draggedImageId === img.mediaId;
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      key={`${img.mediaId}-${index}`}
+      className={`space-y-1 rounded-lg border border-border p-2 ${isDragging ? "opacity-50" : ""}`}
+    >
+      {(img as { kind?: string }).kind === "video" ? (
+        <video src={img.url ?? undefined} className="h-24 w-full rounded-md bg-black object-cover" controls preload="metadata" />
+      ) : img.url ? (
+        <img src={img.url} alt={img.altText ?? ""} className="h-24 w-full rounded-md object-cover" loading="lazy" />
+      ) : (
+        <div className="flex h-24 items-center justify-center rounded-md bg-muted text-xs text-muted-foreground">
+          {img.mediaId.slice(-6)}
+        </div>
+      )}
+      <p className="text-[11px] text-muted-foreground">
+        {(img as { kind?: string }).kind === "video" ? "Video" : "Image"} · position {index + 1}
+      </p>
+      <Input
+        value={img.altText ?? ""}
+        onChange={(e) =>
+          setImages((rows) => rows.map((r, i) => (i === index ? { ...r, altText: e.target.value } : r)))
+        }
+        placeholder="Alt text"
+        aria-label={`Alt text for media ${index + 1}`}
+      />
+      <Button type="button" variant="ghost" size="sm" className="text-destructive" onClick={() => setImages((rows) => rows.filter((_, i) => i !== index))}>
+        Remove
+      </Button>
+    </div>
+  );
+}
+
 export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: RoomTypeFormProps) {
   const [name, setName] = useState(initial?.name ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
@@ -43,6 +113,8 @@ export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: Room
       ? initial.media.map((m) => ({ mediaId: m.mediaId, altText: m.altText, kind: m.kind }))
       : ((initial?.images ?? []) as RoomTypeImage[]);
   const [images, setImages] = useState<RoomTypeImage[]>(gallerySeed);
+  const [draggedImageId, setDraggedImageId] = useState<string | null>(null);
+  const sensors = useSensors(useSensor(PointerSensor));
   const [pickerOpen, setPickerOpen] = useState(false);
   const [floorplanDropOpen, setFloorplanDropOpen] = useState(false);
   const [floorplanSearch, setFloorplanSearch] = useState("");
@@ -143,16 +215,22 @@ export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: Room
     setBeds((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
   }
 
-  function moveImage(index: number, dir: -1 | 1) {
+  function reorderImages(oldIndex: number, newIndex: number) {
+    if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) return;
     setImages((rows) => {
-      const next = [...rows];
-      const target = index + dir;
-      if (target < 0 || target >= next.length) return rows;
-      const [m] = next.splice(index, 1);
-      if (!m) return rows;
-      next.splice(target, 0, m);
-      return next;
+      const next = arrayMove(rows, oldIndex, newIndex);
+      return next.map((img, i) => ({ ...img, sortOrder: i }));
     });
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = images.findIndex((i) => i.mediaId === active.id);
+    const newIndex = images.findIndex((i) => i.mediaId === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    reorderImages(oldIndex, newIndex);
+    setDraggedImageId(null);
   }
 
   function handleSubmit(e: FormEvent) {
@@ -399,45 +477,27 @@ export function RoomTypeForm({ initial, submitLabel, isPending, onSubmit }: Room
       )}
 
       <div className="space-y-3">
-        <Label>Gallery — images & video (use ← → to adjust position)</Label>
+        <Label>Gallery — images & video</Label>
         {images.length > 0 && (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {images.map((img, index) => (
-              <div key={`${img.mediaId}-${index}`} className="space-y-1 rounded-lg border border-border p-2">
-                {(img as { kind?: string }).kind === "video" ? (
-                  <video src={img.url ?? undefined} className="h-24 w-full rounded-md bg-black object-cover" controls preload="metadata" />
-                ) : img.url ? (
-                  <img src={img.url} alt={img.altText ?? ""} className="h-24 w-full rounded-md object-cover" loading="lazy" />
-                ) : (
-                  <div className="flex h-24 items-center justify-center rounded-md bg-muted text-xs text-muted-foreground">
-                    {img.mediaId.slice(-6)}
-                  </div>
-                )}
-                <p className="text-[11px] text-muted-foreground">
-                  {(img as { kind?: string }).kind === "video" ? "Video" : "Image"} · position {index + 1}
-                </p>
-                <Input
-                  value={img.altText ?? ""}
-                  onChange={(e) =>
-                    setImages((rows) => rows.map((r, i) => (i === index ? { ...r, altText: e.target.value } : r)))
-                  }
-                  placeholder="Alt text"
-                  aria-label={`Alt text for media ${index + 1}`}
-                />
-                <div className="flex gap-1">
-                  <Button type="button" variant="ghost" size="sm" disabled={index === 0} onClick={() => moveImage(index, -1)} aria-label="Move earlier">
-                    ←
-                  </Button>
-                  <Button type="button" variant="ghost" size="sm" disabled={index === images.length - 1} onClick={() => moveImage(index, 1)} aria-label="Move later">
-                    →
-                  </Button>
-                  <Button type="button" variant="ghost" size="sm" className="text-destructive" onClick={() => setImages((rows) => rows.filter((_, i) => i !== index))}>
-                    Remove
-                  </Button>
-                </div>
+          <DndContext
+            sensors={sensors}
+            onDragStart={(event) => setDraggedImageId(String(event.active.id))}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={images.map((i) => i.mediaId)}>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {images.map((img, index) => (
+                  <SortableImageItem
+                    key={img.mediaId}
+                    img={img}
+                    index={index}
+                    setImages={setImages}
+                    draggedImageId={draggedImageId}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
         )}
         <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => setPickerOpen(true)}>
           Add photo / video

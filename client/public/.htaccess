@@ -11,7 +11,7 @@
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /index.html [L]
+  RewriteRule . /app.html [L]
 </IfModule>
 
 # Correct content types for pre-compressed files (strip the .gz suffix).

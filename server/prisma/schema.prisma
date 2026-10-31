@@ -534,6 +534,7 @@ model Media {
   alt              String?  @db.VarChar(200)
   caption          String?  @db.VarChar(300)
   size             Int
+  position         Int      @default(0)
   createdBy        String?  @db.Char(24)
   createdAt        DateTime @default(now()) @db.DateTime(3)
   updatedAt        DateTime @updatedAt @db.DateTime(3)
@@ -542,6 +543,7 @@ model Media {
 
   @@index([createdAt])
   @@index([folder, createdAt])
+  @@index([folder, position])
   @@map("media")
 }
 

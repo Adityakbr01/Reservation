@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDisplayDate } from "@/lib/date";
+import { formatDisplayDate, toDayKey } from "@/lib/date";
 import {
   RoomTypeCard,
   SearchForm,
@@ -22,9 +22,17 @@ export function HomePage() {
   const restored =
     (location.state as { search?: AvailabilitySearchParams } | null)?.search ??
     null;
-  const dates = defaultSearchDates();
-  const initial: AvailabilitySearchParams = {
-    ...dates,
+  // Pre-rendered home embeds the build-time default search so the server
+  // and hydration markup match. Later client navigations fall back to live
+  // defaults (the flag is cleared once hydration finishes).
+  const ssgSearch =
+    typeof window === "undefined"
+      ? (globalThis.__HS_SSG_SEARCH__ ?? null)
+      : window.__HS_HYDRATING__
+        ? (window.__HS_SSG_SEARCH__ ?? null)
+        : null;
+  const initial: AvailabilitySearchParams = ssgSearch ?? {
+    ...defaultSearchDates(),
     adults: 2,
     children: 0,
     rooms: 1,
@@ -35,6 +43,14 @@ export function HomePage() {
   const { data, isFetching, isError, refetch } = useAvailabilitySearch(search);
   const isInitialLoading = isFetching && !data;
   const isRevalidating = isFetching && !!data;
+
+  // A static build can age; roll the default dates forward if they are now
+  // in the past, then let React Query revalidate in the background.
+  useEffect(() => {
+    if (!ssgSearch || restored || ssgSearch.checkIn >= toDayKey(new Date())) return;
+    setSearch({ ...ssgSearch, ...defaultSearchDates() });
+  }, [restored, ssgSearch]);
+
   const results = useMemo(() => {
     const list = data?.results ?? [];
     return [...list].sort((a, b) => {

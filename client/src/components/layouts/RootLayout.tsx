@@ -83,6 +83,15 @@ export function RootLayout() {
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
   const [menuOpen, setMenuOpen] = useState(false);
+  // The pre-rendered home is rendered logged out; reveal the persisted
+  // session only after hydration so server and client markup agree.
+  const [sessionReady, setSessionReady] = useState(() =>
+    typeof window === "undefined" ? false : !window.__HS_HYDRATING__,
+  );
+  useEffect(() => {
+    if (!sessionReady) setSessionReady(true);
+  }, [sessionReady]);
+  const sessionUser = sessionReady ? user : null;
 
   function handleLogout() {
     useAuthStore.getState().clearSession();
@@ -111,7 +120,7 @@ export function RootLayout() {
     };
   }, [menuOpen]);
 
-  const initial = user?.name.trim().charAt(0).toUpperCase() || "?";
+  const initial = sessionUser?.name.trim().charAt(0).toUpperCase() || "?";
 
   return (
     <div id="top" className="flex min-h-screen flex-col bg-background font-sans text-foreground">
@@ -168,7 +177,7 @@ export function RootLayout() {
                 Enquire
                 <span aria-hidden>→</span>
               </Link>
-              {user ? (
+              {sessionUser ? (
                 <>
                   <NavLink
                     to="/bookings"
@@ -184,9 +193,9 @@ export function RootLayout() {
                       cn(navLinkClass({ isActive }), "gap-2")
                     }
                   >
-                    {user.avatarUrl ? (
+                    {sessionUser.avatarUrl ? (
                       <img
-                        src={user.avatarUrl}
+                        src={sessionUser.avatarUrl}
                         alt=""
                         aria-hidden
                         className="size-7 object-cover"
@@ -200,7 +209,7 @@ export function RootLayout() {
                       </span>
                     )}
                     <span className="hidden max-w-24 truncate lg:inline">
-                      {user.name}
+                      {sessionUser.name}
                     </span>
                     <span className="lg:hidden">Profile</span>
                   </NavLink>
@@ -319,7 +328,7 @@ export function RootLayout() {
             >
               Enquire
             </NavLink>
-            {user && (
+            {sessionUser && (
               <>
                 <NavLink
                   to="/bookings"
@@ -333,9 +342,9 @@ export function RootLayout() {
                   className={mobileLinkClass}
                   onClick={closeMenu}
                 >
-                  {user.avatarUrl ? (
+                  {sessionUser.avatarUrl ? (
                     <img
-                      src={user.avatarUrl}
+                      src={sessionUser.avatarUrl}
                       alt=""
                       aria-hidden
                       className="mr-3 size-8 object-cover"
@@ -348,13 +357,13 @@ export function RootLayout() {
                       {initial}
                     </span>
                   )}
-                  Profile ({user.name})
+                  Profile ({sessionUser.name})
                 </NavLink>
               </>
             )}
           </nav>
           <div className="border-t border-border px-5 py-5">
-            {user ? (
+            {sessionUser ? (
               <Button
                 className="min-h-[44px] w-full rounded-none"
                 onClick={handleLogout}

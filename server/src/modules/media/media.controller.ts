@@ -4,9 +4,9 @@ import { requireUser } from "../../middleware/auth";
 import type { RequestWithFile, RequestWithFiles } from "../../middleware/upload";
 import type { RequestWithValidatedQuery } from "../../middleware/validate";
 import { AppError } from "../../utils/app-error";
-import { deleteMedia, listAllMedia, resolveMedia, updateMediaMeta, uploadMedia } from "./media.service";
+import { deleteMedia, listAllMedia, reorderMedia, resolveMedia, updateMediaMeta, uploadMedia } from "./media.service";
 import { listMediaFolders } from "./media.model";
-import type { ListMediaQuery, UpdateMediaInput, UploadMediaBody } from "./media.schema";
+import type { ListMediaQuery, ReorderMediaInput, UpdateMediaInput, UploadMediaBody } from "./media.schema";
 
 /**
  * POST /api/v1/admin/media — multipart `file` (single) or `files` (up to 10)
@@ -58,6 +58,13 @@ export const adminListMediaHandler = asyncHandler(async (req: Request, res: Resp
 export const adminUpdateMediaHandler = asyncHandler(async (req: Request, res: Response) => {
   const result = await updateMediaMeta(req.params.id as string, req.body as UpdateMediaInput);
   res.status(200).json({ success: true, data: result });
+});
+
+/** POST /api/v1/admin/media/reorder — batch update positions for drag-drop sort. */
+export const adminReorderMediaHandler = asyncHandler(async (req: Request, res: Response) => {
+  const body = req.body as ReorderMediaInput;
+  await reorderMedia(body.items);
+  res.status(200).json({ success: true, data: { message: "Media reordered" } });
 });
 
 /** DELETE /api/v1/admin/media/:id — blocked while referenced (docs 08 §47). */

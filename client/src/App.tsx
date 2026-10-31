@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { AppProviders } from "@/components/providers/app-providers";
 import { AppRoutes } from "@/app/routes";
@@ -10,6 +10,10 @@ const SmoothScroll = lazy(() =>
 );
 
 function App() {
+  useEffect(() => {
+    window.__HS_HYDRATING__ = false;
+  }, []);
+
   return (
     <AppProviders>
       <Suspense fallback={null}>

@@ -1,13 +1,17 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PaginationControls } from "@/components/common/PaginationControls";
-import { ConfirmButton } from "@/components/common/ConfirmButton";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { useDeleteMedia, useFolders, useMedia, useUpdateMedia, useUploadMedia } from "../hooks/use-media";
+import {
+  useFolders,
+  useMedia,
+  useUploadMedia,
+} from "../hooks/use-media";
+import type { MediaItem } from "../hooks/use-media";
+import { SortableMediaGrid } from "../components/SortableMediaGrid";
 
 const ACCEPT = "image/jpeg,image/png,image/webp,image/avif,video/mp4,video/webm";
 
@@ -72,9 +76,11 @@ export function MediaPage() {
   const { data, isPending, isError, refetch } = useMedia(filters);
   const { data: folders } = useFolders();
   const uploadMutation = useUploadMedia();
-  const updateMutation = useUpdateMedia();
-  const deleteMutation = useDeleteMedia();
-  const items = data?.items ?? [];
+  const [items, setItems] = useState<MediaItem[]>(data?.items ?? []);
+
+  useEffect(() => {
+    if (data?.items) setItems(data.items);
+  }, [data]);
 
   function pickFolder(next: string | null, all: boolean) {
     setFolder(next);
@@ -314,81 +320,18 @@ export function MediaPage() {
               <p className="font-medium">Nothing here — upload files or pick another folder.</p>
             </div>
           ) : (
-            <>
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {items.map((item) => {
-                  const isVideo = item.kind === "video" || item.mime.startsWith("video/");
-                  return (
-                    <Card key={item.id}>
-                      <CardContent className="space-y-3 p-4">
-                        {isVideo ? (
-                          <video src={item.url} className="h-40 w-full rounded-lg bg-black object-cover" controls preload="metadata" />
-                        ) : (
-                          <img
-                            src={item.url}
-                            alt={item.alt ?? item.fileName}
-                            className="h-40 w-full rounded-lg object-cover"
-                            loading="lazy"
-                          />
-                        )}
-                        <p className="truncate text-sm font-medium">{item.fileName}</p>
-                        <p className="truncate text-xs text-muted-foreground">{item.folder ?? "Root (unfiled)"}</p>
-                        <div className="flex gap-2">
-                          <Input
-                            value={alts[item.id] ?? item.alt ?? ""}
-                            onChange={(e) => setAlts((prev) => ({ ...prev, [item.id]: e.target.value }))}
-                            placeholder="Alt text"
-                            aria-label={`Alt text for ${item.fileName}`}
-                          />
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="rounded-full"
-                            disabled={updateMutation.isPending}
-                            onClick={() =>
-                              updateMutation.mutate({ id: item.id, alt: alts[item.id] ?? null })
-                            }
-                          >
-                            Save
-                          </Button>
-                        </div>
-                        <div className="flex gap-2">
-                          <select
-                            value={moves[item.id] ?? item.folder ?? ""}
-                            onChange={(e) => setMoves((prev) => ({ ...prev, [item.id]: e.target.value }))}
-                            className="flex h-9 min-w-0 flex-1 rounded-md border border-input bg-background px-2 text-sm"
-                            aria-label={`Move ${item.fileName} to folder`}
-                          >
-                            <option value="">Root (unfiled)</option>
-                            {(folders ?? []).map((f) => (
-                              <option key={f} value={f}>{f}</option>
-                            ))}
-                          </select>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="rounded-full"
-                            disabled={updateMutation.isPending || (moves[item.id] ?? item.folder ?? "") === (item.folder ?? "")}
-                            onClick={() =>
-                              updateMutation.mutate({ id: item.id, folder: moves[item.id] ? moves[item.id] : null })
-                            }
-                          >
-                            Move
-                          </Button>
-                        </div>
-                        <ConfirmButton
-                          title={isVideo ? "Delete this video?" : "Delete this image?"}
-                          description="The file is permanently removed. Pages using it will show a placeholder."
-                          pending={deleteMutation.isPending}
-                          onConfirm={() => deleteMutation.mutate(item.id)}
-                        />
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-              <PaginationControls page={page} totalPages={data?.totalPages ?? 0} onPage={setPage} />
-            </>
+            <SortableMediaGrid
+              items={items}
+              folders={folders ?? []}
+              onReorder={(reordered) => {
+                // Optimistic update: apply new positions locally
+                setItems(reordered);
+              }}
+              alts={alts}
+              setAlts={setAlts}
+              moves={moves}
+              setMoves={setMoves}
+            />
           )}
         </div>
       </div>

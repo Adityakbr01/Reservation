@@ -17,6 +17,7 @@ export interface UploadMediaInput {
   alt?: string | null;
   caption?: string | null;
   folder?: string | null;
+  position?: number;
   createdBy?: string | null;
 }
 
@@ -48,6 +49,7 @@ export async function uploadMedia(input: UploadMediaInput): Promise<Media> {
       alt: input.alt ?? null,
       caption: input.caption ?? null,
       size: input.size ?? input.data.length,
+      position: input.position ?? 0,
       createdBy: input.createdBy ?? null,
     });
     return toMedia(doc);
@@ -184,6 +186,20 @@ export async function listAllMedia(filter: ListMediaFilter) {
   return listMedia(filter);
 }
 
+/** Reorder media items within a folder. Expects items sorted in the desired order. */
+export async function reorderMedia(
+  items: Array<{ id: string; position: number }>,
+): Promise<void> {
+  if (items.length === 0) return;
+  await prisma.$transaction(
+    items.map(({ id, position }) =>
+      prisma.media.update({
+        where: { id },
+        data: { position },
+      }),
+    ),
+  );
+}
 export interface ResolvedMedia {
   id: string;
   url: string;
