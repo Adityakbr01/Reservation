@@ -1,0 +1,27 @@
+{
+  "intelephense.files.exclude": [
+    "**/.git/**",
+    "**/.svn/**",
+    "**/.hg/**",
+    "**/CVS/**",
+    "**/.DS_Store/**",
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/.build/**",
+    "**/dist/**",
+    "**/storage/framework/cache/**",
+    "**/storage/framework/sessions/**",
+    "**/storage/framework/views/**",
+    "**/storage/logs/**",
+    "**/server/**"
+  ],
+  "intelephense.files.maxSize": 1000000,
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "**/.build/**": true,
+    "**/dist/**": true
+  }
+}
+

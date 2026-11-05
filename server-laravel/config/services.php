@@ -8,6 +8,10 @@ return [
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
+    'resend' => [
+        'key' => env('RESEND_API_KEY'),
+    ],
+
     'mail' => [
         'from' => [
             'address' => env('EMAIL_FROM', 'no-reply@example.com'),
