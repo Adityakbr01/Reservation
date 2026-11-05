@@ -3,6 +3,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
+        "build:deploy": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/build-deploy.ps1",
+        "build:production": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/build-deploy.ps1",
         "dev": "vite"
     },
     "devDependencies": {

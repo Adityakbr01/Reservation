@@ -24,3 +24,5 @@ yarn-error.log
 *.sqlite
 *.sqlite*
 hamptworthstays
+/.build
+/dist
