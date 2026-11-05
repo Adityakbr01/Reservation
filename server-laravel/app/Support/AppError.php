@@ -12,7 +12,9 @@ use RuntimeException;
 class AppError extends RuntimeException
 {
     public readonly int $status;
+
     public readonly string $errorCode;
+
     public readonly mixed $details;
 
     public function __construct(string $message, int $status = 500, string $errorCode = 'INTERNAL_ERROR', mixed $details = null)

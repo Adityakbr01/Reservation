@@ -21,7 +21,7 @@ class AdminBookingController extends Controller
     {
         $booking = Booking::find($id);
 
-        if (!$booking) {
+        if (! $booking) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'BOOKING_NOT_FOUND', 'message' => 'Booking not found'],
@@ -46,7 +46,7 @@ class AdminBookingController extends Controller
     {
         $booking = Booking::find($id);
 
-        if (!$booking) {
+        if (! $booking) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'BOOKING_NOT_FOUND', 'message' => 'Booking not found'],
@@ -74,7 +74,7 @@ class AdminBookingController extends Controller
     {
         $booking = Booking::find($id);
 
-        if (!$booking) {
+        if (! $booking) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'BOOKING_NOT_FOUND', 'message' => 'Booking not found'],
@@ -94,7 +94,7 @@ class AdminBookingController extends Controller
     {
         $booking = Booking::find($id);
 
-        if (!$booking) {
+        if (! $booking) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'BOOKING_NOT_FOUND', 'message' => 'Booking not found'],

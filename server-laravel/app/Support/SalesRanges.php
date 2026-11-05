@@ -15,7 +15,7 @@ class SalesRanges
     {
         $current = $now instanceof DateTimeInterface
             ? DateTimeImmutable::createFromInterface($now)
-            : new DateTimeImmutable();
+            : new DateTimeImmutable;
         $current = $current->setTimezone(new DateTimeZone('UTC'));
         $from = $current->setTime(0, 0, 0);
         $to = clone $current;

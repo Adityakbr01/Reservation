@@ -18,9 +18,9 @@ class UploadMediaRequest extends FormRequest
         $maxKb = (int) ceil(config('media.max_video_bytes', 50 * 1024 * 1024) / 1024);
 
         return [
-            'file' => ['nullable', 'file', 'max:' . $maxKb, 'mimetypes:' . $mimes],
-            'files' => ['nullable', 'array', 'max:' . config('media.max_files', 10)],
-            'files.*' => ['file', 'max:' . $maxKb, 'mimetypes:' . $mimes],
+            'file' => ['nullable', 'file', 'max:'.$maxKb, 'mimetypes:'.$mimes],
+            'files' => ['nullable', 'array', 'max:'.config('media.max_files', 10)],
+            'files.*' => ['file', 'max:'.$maxKb, 'mimetypes:'.$mimes],
             'folder' => ['nullable', 'string', 'max:200'],
             'alt' => ['nullable', 'string', 'max:200'],
             'caption' => ['nullable', 'string', 'max:300'],
@@ -37,6 +37,7 @@ class UploadMediaRequest extends FormRequest
 
             if ($files === []) {
                 $validator->errors()->add('file', 'Attach files with the `file` or `files` field');
+
                 return;
             }
 

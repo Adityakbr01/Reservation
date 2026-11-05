@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -17,7 +18,7 @@ class JwtAuthMiddleware
 
         $token = $request->bearerToken();
 
-        if (!$token) {
+        if (! $token) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'UNAUTHORIZED', 'message' => 'Authentication required'],
@@ -30,19 +31,19 @@ class JwtAuthMiddleware
             $headers = null;
             $decoded = JWT::decode($token, $keys, $headers);
             $userId = $decoded->sub ?? null;
-            \Illuminate\Support\Facades\Log::info('JWT decoded: sub=' . ($userId ?? 'NULL'));
-            
-            if (!$userId) {
+            Log::info('JWT decoded: sub='.($userId ?? 'NULL'));
+
+            if (! $userId) {
                 return response()->json([
                     'success' => false,
                     'error' => ['code' => 'UNAUTHORIZED', 'message' => 'Invalid token'],
                 ], 401);
             }
 
-            $user = \App\Models\User::find($userId);
-            \Illuminate\Support\Facades\Log::info('JWT user found: ' . ($user ? $user->id . ' role=' . $user->role : 'NULL'));
+            $user = User::find($userId);
+            Log::info('JWT user found: '.($user ? $user->id.' role='.$user->role : 'NULL'));
 
-            if (!$user || !$user->is_active) {
+            if (! $user || ! $user->is_active) {
                 return response()->json([
                     'success' => false,
                     'error' => ['code' => 'UNAUTHORIZED', 'message' => 'Authentication required'],

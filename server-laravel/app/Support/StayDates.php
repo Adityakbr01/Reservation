@@ -11,10 +11,11 @@ class StayDates
     {
         if (is_string($input)) {
             $day = substr($input, 0, 10);
-            return new DateTimeImmutable($day . 'T00:00:00.000000Z');
+
+            return new DateTimeImmutable($day.'T00:00:00.000000Z');
         }
 
-        return new DateTimeImmutable($input->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d') . 'T00:00:00.000000Z');
+        return new DateTimeImmutable($input->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d').'T00:00:00.000000Z');
     }
 
     public static function toDayKey(DateTimeInterface|string $date): string

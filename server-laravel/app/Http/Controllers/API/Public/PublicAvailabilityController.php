@@ -4,9 +4,9 @@ namespace App\Http\Controllers\API\Public;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Availability\SearchAvailabilityRequest;
-use App\Models\Room;
 use App\Models\AvailabilityBlock;
 use App\Models\BookingItem;
+use App\Models\Room;
 
 class PublicAvailabilityController extends Controller
 {
@@ -36,7 +36,7 @@ class PublicAvailabilityController extends Controller
                         ->where('check_out', '>', $data['check_in']);
                 })->exists();
 
-            if (!$blocked && !$conflicting) {
+            if (! $blocked && ! $conflicting) {
                 $available[] = [
                     'id' => $room->id,
                     'room_type_id' => $room->room_type_id,

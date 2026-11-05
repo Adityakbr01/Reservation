@@ -21,7 +21,7 @@ class AdminPaymentController extends Controller
     {
         $payment = Payment::find($id);
 
-        if (!$payment) {
+        if (! $payment) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'PAYMENT_NOT_FOUND', 'message' => 'Payment not found'],

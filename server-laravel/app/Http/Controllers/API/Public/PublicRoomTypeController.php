@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\API\Public;
 
 use App\Http\Controllers\Controller;
-use App\Models\RoomType;
 use App\Models\CmsOffer;
+use App\Models\RoomType;
 
 class PublicRoomTypeController extends Controller
 {
@@ -22,7 +22,7 @@ class PublicRoomTypeController extends Controller
     {
         $roomType = RoomType::where('slug', $slug)->where('status', 'ACTIVE')->first();
 
-        if (!$roomType) {
+        if (! $roomType) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'ROOM_TYPE_NOT_FOUND', 'message' => 'Room type not found'],

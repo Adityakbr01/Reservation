@@ -12,9 +12,7 @@ use Illuminate\Support\Str;
 
 class StripeWebhookController extends Controller
 {
-    public function __construct(private readonly StripeWebhookService $webhookService)
-    {
-    }
+    public function __construct(private readonly StripeWebhookService $webhookService) {}
 
     public function handle(Request $request)
     {
@@ -23,7 +21,7 @@ class StripeWebhookController extends Controller
             (string) $request->header('Stripe-Signature', '')
         );
 
-        if (!WebhookEvent::where('stripe_event_id', $event->id)->exists()) {
+        if (! WebhookEvent::where('stripe_event_id', $event->id)->exists()) {
             try {
                 WebhookEvent::create([
                     'id' => (string) Str::uuid(),
@@ -34,7 +32,7 @@ class StripeWebhookController extends Controller
                     'processing_status' => 'RECEIVED',
                 ]);
             } catch (QueryException $error) {
-                if (!$this->isDuplicate($error)) {
+                if (! $this->isDuplicate($error)) {
                     throw $error;
                 }
             }

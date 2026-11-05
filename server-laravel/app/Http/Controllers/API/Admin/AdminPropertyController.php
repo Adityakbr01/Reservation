@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\API\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Property;
 use App\Http\Requests\Settings\UpdateSettingsRequest;
-use Illuminate\Http\Request;
+use App\Models\Property;
 
 class AdminPropertyController extends Controller
 {
@@ -13,7 +12,7 @@ class AdminPropertyController extends Controller
     {
         $property = Property::first();
 
-        if (!$property) {
+        if (! $property) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'PROPERTY_NOT_FOUND', 'message' => 'Property not found'],
@@ -30,7 +29,7 @@ class AdminPropertyController extends Controller
     {
         $property = Property::first();
 
-        if (!$property) {
+        if (! $property) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'PROPERTY_NOT_FOUND', 'message' => 'Property not found'],

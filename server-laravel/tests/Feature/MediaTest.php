@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\CmsPage;
-use App\Models\Media;
 use App\Models\User;
 use Firebase\JWT\JWT;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,7 +27,7 @@ class MediaTest extends TestCase
         $this->admin = User::create([
             'id' => bin2hex(random_bytes(12)),
             'name' => 'Admin User',
-            'email' => 'admin-' . bin2hex(random_bytes(4)) . '@example.com',
+            'email' => 'admin-'.bin2hex(random_bytes(4)).'@example.com',
             'password_hash' => bcrypt('password'),
             'role' => 'admin',
             'is_active' => true,
@@ -47,7 +46,7 @@ class MediaTest extends TestCase
 
     private function authHeaders(): array
     {
-        return ['Authorization' => 'Bearer ' . $this->token];
+        return ['Authorization' => 'Bearer '.$this->token];
     }
 
     public function test_admin_uploads_multiple_files_and_returns_array_with_camel_case_fields(): void
@@ -85,7 +84,7 @@ class MediaTest extends TestCase
         $all = $this->withHeaders($this->authHeaders())->get('/api/v1/admin/media');
         $all->assertOk()->assertJsonPath('meta.total', 3);
 
-        $subtree = $this->withHeaders($this->authHeaders())->get('/api/v1/admin/media?folder=' . urlencode('Cottage/*'));
+        $subtree = $this->withHeaders($this->authHeaders())->get('/api/v1/admin/media?folder='.urlencode('Cottage/*'));
         $subtree->assertOk()->assertJsonPath('meta.total', 1);
 
         $root = $this->withHeaders($this->authHeaders())->get('/api/v1/admin/media?folder=__root__');
@@ -103,7 +102,7 @@ class MediaTest extends TestCase
         $media = $this->upload('photo.jpg', 'Old');
 
         $response = $this->withHeaders($this->authHeaders())->patchJson(
-            '/api/v1/admin/media/' . $media['id'],
+            '/api/v1/admin/media/'.$media['id'],
             ['alt' => 'Updated alt', 'caption' => 'Caption', 'folder' => 'New Folder']
         );
 
@@ -132,7 +131,7 @@ class MediaTest extends TestCase
         $media = $this->upload('photo.jpg', null);
 
         $this->withHeaders($this->authHeaders())
-            ->deleteJson('/api/v1/admin/media/' . $media['id'])
+            ->deleteJson('/api/v1/admin/media/'.$media['id'])
             ->assertOk()
             ->assertJsonPath('data.message', 'Media deleted');
 
@@ -147,7 +146,7 @@ class MediaTest extends TestCase
         CmsPage::create([
             'id' => bin2hex(random_bytes(12)),
             'title' => 'Home',
-            'slug' => 'home-' . bin2hex(random_bytes(3)),
+            'slug' => 'home-'.bin2hex(random_bytes(3)),
             'sections' => [],
             'featured_image_media_id' => $media['id'],
             'status' => 'PUBLISHED',
@@ -155,7 +154,7 @@ class MediaTest extends TestCase
         ]);
 
         $this->withHeaders($this->authHeaders())
-            ->deleteJson('/api/v1/admin/media/' . $media['id'])
+            ->deleteJson('/api/v1/admin/media/'.$media['id'])
             ->assertStatus(409)
             ->assertJsonPath('error.code', 'MEDIA_IN_USE');
 

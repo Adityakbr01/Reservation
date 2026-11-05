@@ -8,9 +8,7 @@ use Illuminate\Http\Request;
 
 class PublicMediaController extends Controller
 {
-    public function __construct(private readonly MediaService $mediaService)
-    {
-    }
+    public function __construct(private readonly MediaService $mediaService) {}
 
     public function resolve(Request $request)
     {

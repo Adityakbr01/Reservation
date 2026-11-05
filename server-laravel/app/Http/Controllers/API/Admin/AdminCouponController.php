@@ -36,7 +36,7 @@ class AdminCouponController extends Controller
     {
         $coupon = Coupon::find($id);
 
-        if (!$coupon) {
+        if (! $coupon) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'COUPON_NOT_FOUND', 'message' => 'Coupon not found'],
@@ -53,7 +53,7 @@ class AdminCouponController extends Controller
     {
         $coupon = Coupon::find($id);
 
-        if (!$coupon) {
+        if (! $coupon) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'COUPON_NOT_FOUND', 'message' => 'Coupon not found'],

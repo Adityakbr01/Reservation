@@ -11,7 +11,7 @@ class PublicPropertyController extends Controller
     {
         $property = Property::first();
 
-        if (!$property) {
+        if (! $property) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'PROPERTY_NOT_FOUND', 'message' => 'Property not found'],

@@ -7,8 +7,6 @@ use App\Http\Requests\Bookings\CreateBookingRequest;
 use App\Http\Requests\Bookings\QuoteRequest;
 use App\Models\Booking;
 use App\Models\BookingItem;
-use App\Models\RoomType;
-use App\Models\RatePlan;
 
 class PublicBookingController extends Controller
 {
@@ -29,7 +27,7 @@ class PublicBookingController extends Controller
 
         $booking = Booking::create(array_merge($data, [
             'id' => bin2hex(random_bytes(12)),
-            'booking_number' => 'BK' . strtoupper(bin2hex(random_bytes(6))),
+            'booking_number' => 'BK'.strtoupper(bin2hex(random_bytes(6))),
             'property_id' => 'prop_000000000001',
             'user_id' => $request->attributes->get('auth_user')->id,
             'status' => 'HELD',
@@ -75,7 +73,7 @@ class PublicBookingController extends Controller
         $userId = request()->attributes->get('auth_user')->id;
         $booking = Booking::where('id', $id)->where('user_id', $userId)->first();
 
-        if (!$booking) {
+        if (! $booking) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'BOOKING_NOT_FOUND', 'message' => 'Booking not found'],
@@ -93,7 +91,7 @@ class PublicBookingController extends Controller
         $userId = request()->attributes->get('auth_user')->id;
         $booking = Booking::where('id', $id)->where('user_id', $userId)->first();
 
-        if (!$booking) {
+        if (! $booking) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'BOOKING_NOT_FOUND', 'message' => 'Booking not found'],
@@ -116,7 +114,7 @@ class PublicBookingController extends Controller
         $userId = request()->attributes->get('auth_user')->id;
         $booking = Booking::where('id', $id)->where('user_id', $userId)->first();
 
-        if (!$booking) {
+        if (! $booking) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'BOOKING_NOT_FOUND', 'message' => 'Booking not found'],
@@ -149,7 +147,7 @@ class PublicBookingController extends Controller
         $userId = request()->attributes->get('auth_user')->id;
         $booking = Booking::where('id', $id)->where('user_id', $userId)->first();
 
-        if (!$booking) {
+        if (! $booking) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'BOOKING_NOT_FOUND', 'message' => 'Booking not found'],
@@ -167,7 +165,7 @@ class PublicBookingController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'client_secret' => 'pi_test_' . bin2hex(random_bytes(12)),
+                'client_secret' => 'pi_test_'.bin2hex(random_bytes(12)),
             ],
         ]);
     }

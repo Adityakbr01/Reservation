@@ -54,7 +54,7 @@ class AdminUserController extends Controller
     {
         $user = User::find($id);
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'USER_NOT_FOUND', 'message' => 'User not found'],
@@ -78,7 +78,7 @@ class AdminUserController extends Controller
     {
         $user = User::find($id);
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'USER_NOT_FOUND', 'message' => 'User not found'],

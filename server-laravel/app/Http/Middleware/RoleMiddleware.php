@@ -12,7 +12,7 @@ class RoleMiddleware
     {
         $user = $request->attributes->get('auth_user');
 
-        if (!$user || !in_array($user->role, $roles)) {
+        if (! $user || ! in_array($user->role, $roles)) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'FORBIDDEN', 'message' => 'You do not have permission for this action'],

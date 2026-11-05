@@ -15,7 +15,7 @@ class EmailTemplatesTest extends TestCase
 {
     private function service(): EmailTemplateService
     {
-        return new EmailTemplateService();
+        return new EmailTemplateService;
     }
 
     private function base(): array

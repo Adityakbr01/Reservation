@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+
 return [
 
     'secret' => env('JWT_SECRET'),
@@ -26,7 +28,7 @@ return [
 
     'user' => [
         'table' => env('JWT_USER_TABLE', 'users'),
-        'model' => \App\Models\User::class,
+        'model' => User::class,
     ],
 
     'cookie' => [

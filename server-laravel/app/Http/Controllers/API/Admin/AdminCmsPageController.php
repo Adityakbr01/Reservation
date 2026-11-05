@@ -35,7 +35,7 @@ class AdminCmsPageController extends Controller
     {
         $page = CmsPage::find($id);
 
-        if (!$page) {
+        if (! $page) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'PAGE_NOT_FOUND', 'message' => 'Page not found'],

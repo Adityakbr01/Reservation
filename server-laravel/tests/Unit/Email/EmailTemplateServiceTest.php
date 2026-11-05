@@ -4,7 +4,6 @@ namespace Tests\Unit\Email;
 
 use App\Services\EmailTemplateService;
 use App\Support\Email\EmailRegistry;
-use App\Support\Email\Templates\WelcomeTemplates;
 use Tests\TestCase;
 
 class EmailTemplateServiceTest extends TestCase
@@ -14,7 +13,7 @@ class EmailTemplateServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new EmailTemplateService();
+        $this->service = new EmailTemplateService;
     }
 
     public function test_dummy_vars_fill_every_required_slot_and_avoid_html_specials(): void

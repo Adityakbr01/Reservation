@@ -11,9 +11,9 @@ use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Auth\SetPasswordRequest;
 use App\Http\Requests\Auth\UpdateMeRequest;
 use App\Models\User;
+use Firebase\JWT\JWT;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -44,14 +44,14 @@ class AuthController extends Controller
     {
         $user = User::where('email', $request->validated('email'))->first();
 
-        if (!$user || !Hash::check($request->validated('password'), $user->password_hash)) {
+        if (! $user || ! Hash::check($request->validated('password'), $user->password_hash)) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'INVALID_CREDENTIALS', 'message' => 'Invalid email or password'],
             ], 401);
         }
 
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'ACCOUNT_DISABLED', 'message' => 'Account is disabled'],
@@ -98,6 +98,7 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         $user = $request->attributes->get('auth_user');
+
         return response()->json([
             'success' => true,
             'data' => $this->userData($user),
@@ -124,7 +125,7 @@ class AuthController extends Controller
     {
         $user = $httpRequest->attributes->get('auth_user');
 
-        if (!Hash::check($request->validated('current_password'), $user->password_hash)) {
+        if (! Hash::check($request->validated('current_password'), $user->password_hash)) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'INVALID_PASSWORD', 'message' => 'Current password is incorrect'],
@@ -166,7 +167,7 @@ class AuthController extends Controller
             'jti' => bin2hex(random_bytes(16)),
         ];
 
-        return \Firebase\JWT\JWT::encode($payload, $secret, config('jwt.algo', 'HS256'), 'default');
+        return JWT::encode($payload, $secret, config('jwt.algo', 'HS256'), 'default');
     }
 
     private function userData(User $user): array

@@ -197,7 +197,7 @@ class EmailRegistry
     public static function definition(string $key): array
     {
         $definitions = self::definitions();
-        if (!isset($definitions[$key])) {
+        if (! isset($definitions[$key])) {
             throw new \InvalidArgumentException("Unknown email template key: {$key}");
         }
 

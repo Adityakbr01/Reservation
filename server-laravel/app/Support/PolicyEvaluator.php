@@ -33,10 +33,10 @@ class PolicyEvaluator
         $checkOut = $input['checkOut'];
         $paidTotal = (int) $input['paidTotal'];
         $policy = $input['policy'] ?? null;
-        $now = $input['now'] ?? new DateTimeImmutable();
+        $now = $input['now'] ?? new DateTimeImmutable;
         $policyName = $policy['name'] ?? self::FALLBACK_POLICY['name'];
 
-        if (!in_array($status, ['HELD', 'PAYMENT_PENDING', 'CONFIRMED'], true)) {
+        if (! in_array($status, ['HELD', 'PAYMENT_PENDING', 'CONFIRMED'], true)) {
             return self::result(false, 0, 0, 'Booking cannot be cancelled in its current state', $policyName);
         }
 

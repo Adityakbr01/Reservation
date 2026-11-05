@@ -1,11 +1,14 @@
 <?php
 
+use App\Console\Commands\ProcessNotifications;
+use App\Http\Middleware\CorsMiddleware;
+use App\Http\Middleware\JwtAuthMiddleware;
+use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
-use App\Console\Commands\ProcessNotifications;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,14 +22,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ])
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'jwt.auth' => \App\Http\Middleware\JwtAuthMiddleware::class,
-            'role' => \App\Http\Middleware\RoleMiddleware::class,
-            'cors.custom' => \App\Http\Middleware\CorsMiddleware::class,
+            'jwt.auth' => JwtAuthMiddleware::class,
+            'role' => RoleMiddleware::class,
+            'cors.custom' => CorsMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (ValidationException $error, Request $request) {
-            if (!$request->is('api/*')) {
+            if (! $request->is('api/*')) {
                 return null;
             }
 

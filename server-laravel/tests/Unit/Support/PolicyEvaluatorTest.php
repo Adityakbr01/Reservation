@@ -11,6 +11,7 @@ class PolicyEvaluatorTest extends TestCase
     private const POLICY = ['name' => 'Standard flexible', 'freeCancellationHours' => 24, 'refundPercentage' => 100];
 
     private DateTimeImmutable $checkIn;
+
     private DateTimeImmutable $checkOut;
 
     protected function setUp(): void

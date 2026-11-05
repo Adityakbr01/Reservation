@@ -45,7 +45,7 @@ class Availability
             return false;
         }
 
-        $now ??= new DateTimeImmutable();
+        $now ??= new DateTimeImmutable;
 
         return $start < $end && $end > $now->getTimestamp();
     }

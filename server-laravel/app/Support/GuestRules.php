@@ -13,7 +13,7 @@ class GuestRules
 
     public static function guestDisplayName(?string $firstName, ?string $lastName): string
     {
-        $name = trim(trim((string) $firstName) . ' ' . trim((string) $lastName));
+        $name = trim(trim((string) $firstName).' '.trim((string) $lastName));
 
         return $name === '' ? 'Guest' : mb_substr($name, 0, 80);
     }
@@ -23,7 +23,7 @@ class GuestRules
      */
     public static function assertGuestAcceptances(bool $acceptPrivacy, bool $acceptTerms): void
     {
-        if (!$acceptPrivacy || !$acceptTerms) {
+        if (! $acceptPrivacy || ! $acceptTerms) {
             throw new AppError(
                 'Please accept the Privacy Terms and Booking Conditions to continue',
                 400,

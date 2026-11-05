@@ -35,7 +35,7 @@ class AdminRoomTypeController extends Controller
     {
         $roomType = RoomType::find($id);
 
-        if (!$roomType) {
+        if (! $roomType) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'ROOM_TYPE_NOT_FOUND', 'message' => 'Room type not found'],
@@ -52,7 +52,7 @@ class AdminRoomTypeController extends Controller
     {
         $roomType = RoomType::find($id);
 
-        if (!$roomType) {
+        if (! $roomType) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'ROOM_TYPE_NOT_FOUND', 'message' => 'Room type not found'],

@@ -2,12 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\AvailabilityBlock;
 use App\Models\Booking;
 use App\Models\BookingItem;
 use App\Models\Room;
-use App\Models\AvailabilityBlock;
-use App\Models\Coupon;
-use App\Models\Property;
 
 class BookingService
 {
@@ -36,7 +34,7 @@ class BookingService
                 ->where('check_out', '>', $checkIn)
                 ->exists();
 
-            if (!$blocked && !$conflicting) {
+            if (! $blocked && ! $conflicting) {
                 $available[] = [
                     'id' => $room->id,
                     'room_type_id' => $room->room_type_id,
@@ -53,7 +51,7 @@ class BookingService
     {
         $booking = Booking::create(array_merge($data, [
             'id' => bin2hex(random_bytes(12)),
-            'booking_number' => 'BK' . strtoupper(bin2hex(random_bytes(6))),
+            'booking_number' => 'BK'.strtoupper(bin2hex(random_bytes(6))),
             'user_id' => $userId,
             'status' => 'HELD',
             'payment_status' => 'PENDING',
@@ -69,7 +67,7 @@ class BookingService
     {
         $booking = Booking::where('id', $id)->where('user_id', $userId)->first();
 
-        if (!$booking) {
+        if (! $booking) {
             return null;
         }
 

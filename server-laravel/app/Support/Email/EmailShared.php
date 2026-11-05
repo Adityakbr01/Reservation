@@ -5,7 +5,9 @@ namespace App\Support\Email;
 class EmailShared
 {
     public const DEFAULT_BRAND_NAME = 'Hamptworth Stays';
+
     public const DEFAULT_BRAND_SITE_URL = 'https://hamptworthstays.com/';
+
     public const DEFAULT_BOOKING_SITE_URL = 'https://book.hamptworthstays.com/';
 
     public const THEME = [
@@ -30,6 +32,7 @@ class EmailShared
     ];
 
     private const SERIF = "Georgia,'Times New Roman',serif";
+
     private const SANS = 'Arial,Helvetica,sans-serif';
 
     private static ?string $configuredLogoUrl = null;
@@ -53,7 +56,7 @@ class EmailShared
 
     public static function money(int $amount, string $currency): string
     {
-        return self::escapeHtml($currency) . ' ' . number_format($amount / 100, 2, '.', '');
+        return self::escapeHtml($currency).' '.number_format($amount / 100, 2, '.', '');
     }
 
     public static function safeSubjectText(string $value): string
@@ -101,7 +104,7 @@ class EmailShared
     public static function isSafeEmailUrl(string $url): bool
     {
         $trimmed = trim($url);
-        if (str_starts_with($trimmed, '/') && !str_starts_with($trimmed, '//')) {
+        if (str_starts_with($trimmed, '/') && ! str_starts_with($trimmed, '//')) {
             return true;
         }
         if (str_starts_with($trimmed, '#')) {
@@ -120,7 +123,7 @@ class EmailShared
         }
 
         if (preg_match('/^(\d{1,2}):(\d{2})$/', trim($time), $match) !== 1) {
-            return $prefix . ' ' . $time;
+            return $prefix.' '.$time;
         }
 
         $hour = (int) $match[1];
@@ -130,7 +133,7 @@ class EmailShared
         if ($twelve === 0) {
             $twelve = 12;
         }
-        $rest = $minutes === '00' ? '' : ':' . $minutes;
+        $rest = $minutes === '00' ? '' : ':'.$minutes;
 
         return "{$prefix} {$twelve}{$rest} {$suffix}";
     }
@@ -151,7 +154,7 @@ class EmailShared
 
         return $trimmed === ''
             ? null
-            : 'https://www.google.com/maps/dir/?api=1&destination=' . rawurlencode($trimmed);
+            : 'https://www.google.com/maps/dir/?api=1&destination='.rawurlencode($trimmed);
     }
 
     public static function emailButton(string $url, string $label): string
@@ -160,17 +163,17 @@ class EmailShared
         $sans = self::SANS;
         $forest = self::THEME['forest'];
 
-        return "<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" style=\"margin: 28px 0 4px 0;\"><tr><td align=\"center\" class=\"hs-btn-cell\" bgcolor=\"{$forest}\" style=\"border-radius: 4px; background-color: {$forest};\"><a href=\"" . self::escapeHtml($safeUrl) . "\" style=\"display: inline-block; padding: 16px 28px; font-family: {$sans}; font-size: 13px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; color: #FFFFFF; text-decoration: none;\"><span style=\"color: #FFFFFF; text-decoration: none;\">{$label} &rarr;</span></a></td></tr></table>";
+        return "<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" style=\"margin: 28px 0 4px 0;\"><tr><td align=\"center\" class=\"hs-btn-cell\" bgcolor=\"{$forest}\" style=\"border-radius: 4px; background-color: {$forest};\"><a href=\"".self::escapeHtml($safeUrl)."\" style=\"display: inline-block; padding: 16px 28px; font-family: {$sans}; font-size: 13px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; color: #FFFFFF; text-decoration: none;\"><span style=\"color: #FFFFFF; text-decoration: none;\">{$label} &rarr;</span></a></td></tr></table>";
     }
 
     public static function goldRule(): string
     {
-        return '<div style="width: 56px; height: 2px; background-color: ' . self::THEME['gold'] . '; margin: 14px 0 4px 0;"></div>';
+        return '<div style="width: 56px; height: 2px; background-color: '.self::THEME['gold'].'; margin: 14px 0 4px 0;"></div>';
     }
 
     public static function goldRuleCentered(): string
     {
-        return '<div style="text-align: center; margin: 12px 0 4px 0;"><div style="display: inline-block; width: 56px; height: 2px; background-color: ' . self::THEME['gold'] . ';"></div></div>';
+        return '<div style="text-align: center; margin: 12px 0 4px 0;"><div style="display: inline-block; width: 56px; height: 2px; background-color: '.self::THEME['gold'].';"></div></div>';
     }
 
     public static function eyebrow(string $text): string
@@ -178,7 +181,7 @@ class EmailShared
         $sans = self::SANS;
         $bronze = self::THEME['bronze'];
 
-        return "<p style=\"margin: 0; font-family: {$sans}; font-size: 11px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; color: {$bronze};\">" . self::escapeHtml($text) . '</p>';
+        return "<p style=\"margin: 0; font-family: {$sans}; font-size: 11px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; color: {$bronze};\">".self::escapeHtml($text).'</p>';
     }
 
     public static function eyebrowOnDark(string $text): string
@@ -186,7 +189,7 @@ class EmailShared
         $sans = self::SANS;
         $gold = self::THEME['goldLight'];
 
-        return "<p style=\"margin: 0; font-family: {$sans}; font-size: 11px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; color: {$gold};\">" . self::escapeHtml($text) . '</p>';
+        return "<p style=\"margin: 0; font-family: {$sans}; font-size: 11px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; color: {$gold};\">".self::escapeHtml($text).'</p>';
     }
 
     public static function sectionTitle(string $text): string
@@ -194,7 +197,7 @@ class EmailShared
         $serif = self::SERIF;
         $ink = self::THEME['ink'];
 
-        return "<h2 style=\"margin: 30px 0 12px 0; font-family: {$serif}; font-size: 22px; line-height: 1.3; font-weight: normal; color: {$ink};\">" . self::escapeHtml($text) . '</h2>';
+        return "<h2 style=\"margin: 30px 0 12px 0; font-family: {$serif}; font-size: 22px; line-height: 1.3; font-weight: normal; color: {$ink};\">".self::escapeHtml($text).'</h2>';
     }
 
     public static function p(string $text): string
@@ -229,7 +232,7 @@ class EmailShared
         $forest = self::THEME['forest'];
         $hairline = self::THEME['hairline'];
 
-        return "<span style=\"display: inline-block; font-family: {$sans}; font-size: 12px; font-weight: bold; letter-spacing: 1px; color: {$forest}; background-color: #FFFFFF; border: 1px solid {$hairline}; border-radius: 999px; padding: 5px 14px;\">" . self::escapeHtml($reference) . '</span>';
+        return "<span style=\"display: inline-block; font-family: {$sans}; font-size: 12px; font-weight: bold; letter-spacing: 1px; color: {$forest}; background-color: #FFFFFF; border: 1px solid {$hairline}; border-radius: 999px; padding: 5px 14px;\">".self::escapeHtml($reference).'</span>';
     }
 
     public static function refPillLight(string $reference): string
@@ -238,7 +241,7 @@ class EmailShared
         $goldLight = self::THEME['goldLight'];
         $gold = self::THEME['gold'];
 
-        return "<span style=\"display: inline-block; font-family: {$sans}; font-size: 12px; font-weight: bold; letter-spacing: 1px; color: {$goldLight}; background-color: transparent; border: 1px solid {$gold}; border-radius: 999px; padding: 5px 14px;\">" . self::escapeHtml($reference) . '</span>';
+        return "<span style=\"display: inline-block; font-family: {$sans}; font-size: 12px; font-weight: bold; letter-spacing: 1px; color: {$goldLight}; background-color: transparent; border: 1px solid {$gold}; border-radius: 999px; padding: 5px 14px;\">".self::escapeHtml($reference).'</span>';
     }
 
     public static function heroCard(string $reference, string $cottageName, string $detailLine): string
@@ -251,7 +254,7 @@ class EmailShared
         $ink = self::THEME['ink'];
         $body = self::THEME['body'];
 
-        return "<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"margin: 24px 0;\"><tr><td bgcolor=\"{$ivory}\" style=\"background-color: {$ivory}; border: 1px solid {$border}; border-radius: 4px; padding: 24px 24px 22px 24px;\"><p style=\"margin: 0 0 6px 0; font-family: {$sans}; font-size: 11px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; color: {$muted};\">Your stay</p><p style=\"margin: 0 0 8px 0; font-family: {$serif}; font-size: 24px; line-height: 1.25; color: {$ink};\">" . self::escapeHtml($cottageName) . "</p><p style=\"margin: 0 0 14px 0; font-family: {$sans}; font-size: 14px; line-height: 1.8; color: {$body};\">{$detailLine}</p>" . self::refPill($reference) . '</td></tr></table>';
+        return "<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"margin: 24px 0;\"><tr><td bgcolor=\"{$ivory}\" style=\"background-color: {$ivory}; border: 1px solid {$border}; border-radius: 4px; padding: 24px 24px 22px 24px;\"><p style=\"margin: 0 0 6px 0; font-family: {$sans}; font-size: 11px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; color: {$muted};\">Your stay</p><p style=\"margin: 0 0 8px 0; font-family: {$serif}; font-size: 24px; line-height: 1.25; color: {$ink};\">".self::escapeHtml($cottageName)."</p><p style=\"margin: 0 0 14px 0; font-family: {$sans}; font-size: 14px; line-height: 1.8; color: {$body};\">{$detailLine}</p>".self::refPill($reference).'</td></tr></table>';
     }
 
     /**
@@ -266,7 +269,7 @@ class EmailShared
         $items = [];
         foreach ($links as $link) {
             $safeUrl = self::isSafeEmailUrl($link['url']) ? $link['url'] : '#';
-            $items[] = "<a href=\"" . self::escapeHtml($safeUrl) . "\" style=\"font-family: {$sans}; font-size: 14px; font-weight: bold; color: {$forest}; text-decoration: underline;\"><span style=\"color: {$forest};\">{$link['label']}</span></a>";
+            $items[] = '<a href="'.self::escapeHtml($safeUrl)."\" style=\"font-family: {$sans}; font-size: 14px; font-weight: bold; color: {$forest}; text-decoration: underline;\"><span style=\"color: {$forest};\">{$link['label']}</span></a>";
         }
         $joined = implode("<span style=\"color: {$muted}; padding: 0 10px;\">|</span>", $items);
 
@@ -297,10 +300,10 @@ class EmailShared
         $serif = self::SERIF;
         $brand = self::escapeHtml(self::DEFAULT_BRAND_NAME);
         $mastheadMark = $logoUrl !== null
-            ? '<img src="' . self::escapeHtml($logoUrl) . '" alt="' . $brand . '" width="150" style="display: inline-block; width: 150px; max-width: 62%; height: auto; border: 0; margin: 0 0 12px 0;" /><br />'
-            : '<a href="' . self::escapeHtml($brandSiteUrl) . "\" style=\"font-family: {$serif}; font-size: 28px; letter-spacing: 1px; color: #FFFFFF; text-decoration: none;\"><span style=\"color: #FFFFFF;\">{$brand}</span></a>";
+            ? '<img src="'.self::escapeHtml($logoUrl).'" alt="'.$brand.'" width="150" style="display: inline-block; width: 150px; max-width: 62%; height: auto; border: 0; margin: 0 0 12px 0;" /><br />'
+            : '<a href="'.self::escapeHtml($brandSiteUrl)."\" style=\"font-family: {$serif}; font-size: 28px; letter-spacing: 1px; color: #FFFFFF; text-decoration: none;\"><span style=\"color: #FFFFFF;\">{$brand}</span></a>";
         $year = date('Y');
-        $hello = 'Hello' . ($greeting !== '' ? ' ' . $greeting : '') . ',';
+        $hello = 'Hello'.($greeting !== '' ? ' '.$greeting : '').',';
         $greetingLine = $hello;
         $footerHtml = $footer;
         $titleEscaped = $title;
@@ -395,7 +398,7 @@ HTML;
             }
         }
         if ($missing !== []) {
-            throw new \RuntimeException("Email template {$templateKey} is missing required variables: " . implode(', ', $missing));
+            throw new \RuntimeException("Email template {$templateKey} is missing required variables: ".implode(', ', $missing));
         }
     }
 
@@ -407,7 +410,7 @@ HTML;
     {
         $unknown = array_values(array_diff(self::extractPlaceholders($template), $allowed));
         if ($unknown !== []) {
-            throw new \RuntimeException("Email template {$templateKey} uses unknown variables: " . implode(', ', $unknown));
+            throw new \RuntimeException("Email template {$templateKey} uses unknown variables: ".implode(', ', $unknown));
         }
 
         return preg_replace_callback(
@@ -425,7 +428,7 @@ HTML;
             static function (array $match) use (&$styles): string {
                 $styles[] = $match[0];
 
-                return '__EMAIL_STYLE_' . (count($styles) - 1) . '__';
+                return '__EMAIL_STYLE_'.(count($styles) - 1).'__';
             },
             $html
         ) ?? '';
@@ -439,10 +442,10 @@ HTML;
                 $attr = $m[1];
                 $value = trim($m[3] ?? $m[4] ?? $m[5] ?? '');
                 if (preg_match('/^(javascript|vbscript|data):/i', $value)) {
-                    return ' ' . $attr . '="#"';
+                    return ' '.$attr.'="#"';
                 }
 
-                return ' ' . $attr . '="' . str_replace('"', '&quot;', $value) . '"';
+                return ' '.$attr.'="'.str_replace('"', '&quot;', $value).'"';
             },
             $clean
         ) ?? '';

@@ -35,7 +35,7 @@ class AdminRoomController extends Controller
     {
         $room = Room::find($id);
 
-        if (!$room) {
+        if (! $room) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'ROOM_NOT_FOUND', 'message' => 'Room not found'],
@@ -52,7 +52,7 @@ class AdminRoomController extends Controller
     {
         $room = Room::find($id);
 
-        if (!$room) {
+        if (! $room) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'ROOM_NOT_FOUND', 'message' => 'Room not found'],

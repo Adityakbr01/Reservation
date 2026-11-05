@@ -12,10 +12,10 @@ class RoomOffers
     public static function offerBadgeLabel(string $discountType, int $discountValue, string $currency): string
     {
         if ($discountType === 'PERCENTAGE') {
-            return $discountValue . '% OFF';
+            return $discountValue.'% OFF';
         }
 
-        return 'SAVE ' . self::formatMinor($discountValue, $currency);
+        return 'SAVE '.self::formatMinor($discountValue, $currency);
     }
 
     public static function formatMinor(int $minor, string $currency): string
@@ -28,6 +28,6 @@ class RoomOffers
 
         return $formatted !== false
             ? $formatted
-            : number_format($minor / 100, 2) . ' ' . $currency;
+            : number_format($minor / 100, 2).' '.$currency;
     }
 }

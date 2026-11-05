@@ -49,7 +49,7 @@ class AdminAvailabilityController extends Controller
     {
         $block = AvailabilityBlock::find($id);
 
-        if (!$block) {
+        if (! $block) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'BLOCK_NOT_FOUND', 'message' => 'Availability block not found'],

@@ -21,12 +21,12 @@ class StripeWebhookTest extends TestCase
     private function signedHeaders(string $payload, ?int $timestamp = null): array
     {
         $timestamp ??= time();
-        $signature = hash_hmac('sha256', $timestamp . '.' . $payload, self::SECRET);
+        $signature = hash_hmac('sha256', $timestamp.'.'.$payload, self::SECRET);
 
         return [
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => 'application/json',
-            'HTTP_STRIPE_SIGNATURE' => 't=' . $timestamp . ',v1=' . $signature,
+            'HTTP_STRIPE_SIGNATURE' => 't='.$timestamp.',v1='.$signature,
         ];
     }
 

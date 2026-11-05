@@ -4,18 +4,20 @@ use App\Http\Controllers\API\Admin\AdminAmenitiesController;
 use App\Http\Controllers\API\Admin\AdminAuditLogsController;
 use App\Http\Controllers\API\Admin\AdminAvailabilityController;
 use App\Http\Controllers\API\Admin\AdminBookingController;
-use App\Http\Controllers\API\Admin\AdminCouponController;
 use App\Http\Controllers\API\Admin\AdminCmsBlogPostController;
 use App\Http\Controllers\API\Admin\AdminCmsFaqController;
 use App\Http\Controllers\API\Admin\AdminCmsOfferController;
 use App\Http\Controllers\API\Admin\AdminCmsPageController;
 use App\Http\Controllers\API\Admin\AdminCmsPolicyController;
+use App\Http\Controllers\API\Admin\AdminCouponController;
 use App\Http\Controllers\API\Admin\AdminDashboardController;
 use App\Http\Controllers\API\Admin\AdminEmailTemplateController;
 use App\Http\Controllers\API\Admin\AdminEnquiriesController;
 use App\Http\Controllers\API\Admin\AdminMediaController;
+use App\Http\Controllers\API\Admin\AdminNewsletterController;
 use App\Http\Controllers\API\Admin\AdminNotificationController;
 use App\Http\Controllers\API\Admin\AdminPaymentController;
+use App\Http\Controllers\API\Admin\AdminPolicyController;
 use App\Http\Controllers\API\Admin\AdminPropertyController;
 use App\Http\Controllers\API\Admin\AdminRatePlanController;
 use App\Http\Controllers\API\Admin\AdminRefundController;
@@ -24,35 +26,33 @@ use App\Http\Controllers\API\Admin\AdminRoomController;
 use App\Http\Controllers\API\Admin\AdminRoomTypeController;
 use App\Http\Controllers\API\Admin\AdminSettingsController;
 use App\Http\Controllers\API\Admin\AdminUserController;
-use App\Http\Controllers\API\Admin\AdminNewsletterController;
+use App\Http\Controllers\API\Auth\AuthController;
 use App\Http\Controllers\API\Public\PublicAmenitiesController;
 use App\Http\Controllers\API\Public\PublicAvailabilityController;
 use App\Http\Controllers\API\Public\PublicBookingController;
-use App\Http\Controllers\API\Public\PublicCouponController;
 use App\Http\Controllers\API\Public\PublicCmsController;
+use App\Http\Controllers\API\Public\PublicCouponController;
 use App\Http\Controllers\API\Public\PublicEnquiriesController;
 use App\Http\Controllers\API\Public\PublicMediaController;
 use App\Http\Controllers\API\Public\PublicNewsletterController;
 use App\Http\Controllers\API\Public\PublicPropertyController;
-use App\Http\Controllers\API\Public\PublicRatingController;
-use App\Http\Controllers\API\Public\PublicRoomTypeController;
 use App\Http\Controllers\API\Public\PublicReviewController;
+use App\Http\Controllers\API\Public\PublicRoomTypeController;
 use App\Http\Controllers\API\Public\PublicSettingsController;
-use App\Http\Controllers\API\Auth\AuthController;
 use App\Http\Controllers\Webhook\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'service' => 'reservation-api',
-                'status' => 'ok',
-                'health' => '/health',
-                'ready' => '/ready',
-            ],
-        ]);
-    });
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'service' => 'reservation-api',
+            'status' => 'ok',
+            'health' => '/health',
+            'ready' => '/ready',
+        ],
+    ]);
+});
 
 Route::get('/health', function () {
     return response()->json([
@@ -66,12 +66,13 @@ Route::get('/health', function () {
 
 Route::get('/ready', function () {
     $dbConnected = app()->make('db')->connection()->getPdo();
-    if (!$dbConnected) {
+    if (! $dbConnected) {
         return response()->json([
             'success' => false,
             'error' => ['code' => 'NOT_READY', 'message' => 'Dependencies are not ready'],
         ], 503);
     }
+
     return response()->json([
         'success' => true,
         'data' => ['ready' => true],
@@ -322,10 +323,10 @@ Route::prefix('/v1/admin/audit-logs')->middleware('jwt.auth', 'role:admin')->gro
 
 // Admin policies
 Route::prefix('/v1/admin/policies')->middleware('jwt.auth', 'role:admin')->group(function () {
-    Route::get('/', [App\Http\Controllers\API\Admin\AdminPolicyController::class, 'index']);
-    Route::post('/', [App\Http\Controllers\API\Admin\AdminPolicyController::class, 'store']);
-    Route::get('/{id}', [App\Http\Controllers\API\Admin\AdminPolicyController::class, 'show']);
-    Route::patch('/{id}', [App\Http\Controllers\API\Admin\AdminPolicyController::class, 'update']);
+    Route::get('/', [AdminPolicyController::class, 'index']);
+    Route::post('/', [AdminPolicyController::class, 'store']);
+    Route::get('/{id}', [AdminPolicyController::class, 'show']);
+    Route::patch('/{id}', [AdminPolicyController::class, 'update']);
 });
 
 // Admin amenities

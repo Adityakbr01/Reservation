@@ -15,7 +15,7 @@ class BookingRules
             return false;
         }
 
-        $now ??= new DateTimeImmutable();
+        $now ??= new DateTimeImmutable;
 
         return $expiresAt->getTimestamp() < $now->getTimestamp();
     }
@@ -29,7 +29,7 @@ class BookingRules
         $paymentStatus = self::get($booking, 'paymentStatus', 'payment_status');
         $checkIn = self::date(self::get($booking, 'checkIn', 'check_in'));
         $contact = self::get($booking, 'contact') ?? [];
-        $now ??= new DateTimeImmutable();
+        $now ??= new DateTimeImmutable;
 
         if ($status !== 'CONFIRMED') {
             return 'Only confirmed bookings can be checked in';
@@ -74,7 +74,7 @@ class BookingRules
             $suffix .= self::BOOKING_NUMBER_ALPHABET[random_int(0, $max)];
         }
 
-        return 'QB-' . $suffix;
+        return 'QB-'.$suffix;
     }
 
     /**

@@ -46,7 +46,7 @@ class MediaFolders
             $prefix = substr($folder, 0, -2);
             $escaped = str_replace('\\/', '/', preg_quote($prefix, '/'));
 
-            return ['$regex' => '^' . $escaped . '/'];
+            return ['$regex' => '^'.$escaped.'/'];
         }
 
         return $folder;

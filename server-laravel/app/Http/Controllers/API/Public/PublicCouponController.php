@@ -25,7 +25,7 @@ class PublicCouponController extends Controller
             })
             ->first();
 
-        if (!$coupon) {
+        if (! $coupon) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'COUPON_INVALID', 'message' => 'Coupon is invalid or expired'],

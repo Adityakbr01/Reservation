@@ -49,7 +49,7 @@ class StorageKeysTest extends TestCase
     public function test_rejects_disallowed_mime_types(): void
     {
         $this->expectException(AppError::class);
-        StorageKeys::buildMediaKey('x.svg', 'image/svg+xml', new DateTimeImmutable(), '');
+        StorageKeys::buildMediaKey('x.svg', 'image/svg+xml', new DateTimeImmutable, '');
     }
 
     public function test_scopes_avatars_by_user_with_timestamp(): void

@@ -35,7 +35,7 @@ class AdminRatePlanController extends Controller
     {
         $ratePlan = RatePlan::find($id);
 
-        if (!$ratePlan) {
+        if (! $ratePlan) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'RATE_PLAN_NOT_FOUND', 'message' => 'Rate plan not found'],
@@ -52,7 +52,7 @@ class AdminRatePlanController extends Controller
     {
         $ratePlan = RatePlan::find($id);
 
-        if (!$ratePlan) {
+        if (! $ratePlan) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'RATE_PLAN_NOT_FOUND', 'message' => 'Rate plan not found'],

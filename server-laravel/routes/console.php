@@ -1,6 +1,5 @@
 <?php
 
-use App\Console\Commands\ProcessNotifications;
 use Illuminate\Support\Facades\Artisan;
 
 // Schedule: php artisan schedule:run

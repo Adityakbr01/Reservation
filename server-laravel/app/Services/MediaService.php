@@ -70,7 +70,7 @@ class MediaService
 
         $q = trim((string) ($filter['q'] ?? ''));
         if ($q !== '') {
-            $query->where('file_name', 'like', '%' . MediaFolders::escapeLike($q) . '%');
+            $query->where('file_name', 'like', '%'.MediaFolders::escapeLike($q).'%');
         }
 
         $kind = $filter['kind'] ?? null;
@@ -89,7 +89,7 @@ class MediaService
                 $query->whereNull('folder');
             } elseif (is_array($folderFilter)) {
                 $prefix = substr($folder, 0, -2);
-                $query->where('folder', 'like', MediaFolders::escapeLike($prefix) . '/%');
+                $query->where('folder', 'like', MediaFolders::escapeLike($prefix).'/%');
             } else {
                 $query->where('folder', $folderFilter);
             }
@@ -241,7 +241,7 @@ class MediaService
     private function findOrFail(string $id): Media
     {
         $media = $this->find($id);
-        if (!$media) {
+        if (! $media) {
             throw new AppError('Media not found', 404, 'MEDIA_NOT_FOUND');
         }
 
@@ -262,7 +262,7 @@ class MediaService
 
     private function assertAllowedFile(string $mime, int $size, string $fileName): void
     {
-        if (!in_array($mime, config('media.allowed_mimes', []), true)) {
+        if (! in_array($mime, config('media.allowed_mimes', []), true)) {
             throw new AppError(
                 'Only JPEG, PNG, WebP, AVIF images or MP4/WebM video are allowed',
                 400,
@@ -407,7 +407,7 @@ class MediaService
 
     private function objectsUseMedia(mixed $items, string $mediaId): bool
     {
-        if (!is_array($items)) {
+        if (! is_array($items)) {
             return false;
         }
 

@@ -2,8 +2,8 @@
 
 namespace App\Support;
 
-use DateTimeInterface;
 use DateTimeImmutable;
+use DateTimeInterface;
 
 /**
  * Storage keys are relative to the disk jail root:
@@ -22,6 +22,7 @@ class StorageKeys
     ];
 
     private const SEGMENT_PATTERN = '/^[A-Za-z0-9][A-Za-z0-9._-]*$/';
+
     private const MAX_KEY_LENGTH = 220;
 
     /**
@@ -42,7 +43,7 @@ class StorageKeys
 
         $segments = explode('/', $cleaned);
         foreach ($segments as $segment) {
-            if ($segment === 'media' || $segment === 'avatars' || !preg_match(self::SEGMENT_PATTERN, $segment)) {
+            if ($segment === 'media' || $segment === 'avatars' || ! preg_match(self::SEGMENT_PATTERN, $segment)) {
                 throw new AppError('Invalid GODADDY_FTP_PREFIX', 500, 'INVALID_STORAGE_CONFIG');
             }
         }
@@ -59,7 +60,7 @@ class StorageKeys
         $segments = explode('/', $key);
         $kindIndex = null;
         foreach ($segments as $index => $segment) {
-            if (!preg_match(self::SEGMENT_PATTERN, $segment)) {
+            if (! preg_match(self::SEGMENT_PATTERN, $segment)) {
                 throw new AppError('Invalid storage key', 500, 'INVALID_STORAGE_KEY');
             }
             if ($kindIndex === null && ($segment === 'media' || $segment === 'avatars')) {
@@ -88,7 +89,7 @@ class StorageKeys
             $base = 'file';
         }
 
-        return substr(bin2hex(random_bytes(4)), 0, 8) . '-' . substr($base, 0, 60) . $ext;
+        return substr(bin2hex(random_bytes(4)), 0, 8).'-'.substr($base, 0, 60).$ext;
     }
 
     private static function datePrefix(DateTimeInterface $now): string
@@ -113,7 +114,7 @@ class StorageKeys
         ?DateTimeInterface $now = null,
         ?string $prefix = null
     ): string {
-        $now ??= new DateTimeImmutable();
+        $now ??= new DateTimeImmutable;
 
         return self::withPrefix(
             ['media', self::datePrefix($now), self::safeFileSuffix($originalName, $mime)],
@@ -134,7 +135,7 @@ class StorageKeys
         }
 
         return self::withPrefix(
-            ['avatars', $safeUser . '-' . ($nowMs ?? (int) floor(microtime(true) * 1000)) . '-' . self::safeFileSuffix($originalName, $mime)],
+            ['avatars', $safeUser.'-'.($nowMs ?? (int) floor(microtime(true) * 1000)).'-'.self::safeFileSuffix($originalName, $mime)],
             $prefix
         );
     }
@@ -143,7 +144,7 @@ class StorageKeys
     {
         self::assertStorageKey($key);
 
-        return rtrim($baseUrl, '/') . '/' . $key;
+        return rtrim($baseUrl, '/').'/'.$key;
     }
 
     public static function parentDirOf(string $key): string

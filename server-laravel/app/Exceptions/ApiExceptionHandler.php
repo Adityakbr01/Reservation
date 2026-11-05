@@ -6,8 +6,8 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class ApiExceptionHandler
 {
@@ -34,7 +34,7 @@ class ApiExceptionHandler
             ], $exception->getStatusCode());
         }
 
-        Log::error('Unhandled exception: ' . $exception->getMessage(), [
+        Log::error('Unhandled exception: '.$exception->getMessage(), [
             'trace' => $exception->getTraceAsString(),
         ]);
 

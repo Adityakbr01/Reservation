@@ -10,7 +10,6 @@ use App\Support\Email\Templates\AuthTemplates;
 use App\Support\Email\Templates\BookingTemplates;
 use App\Support\Email\Templates\PaymentTemplates;
 use App\Support\Email\Templates\WelcomeTemplates;
-use App\Support\RoomOffers;
 
 class EmailTemplateService
 {
@@ -96,7 +95,7 @@ class EmailTemplateService
 
         $pairs = [];
         foreach ($vars as $name => $value) {
-            if (isset($allowed[$name]) && !isset($skipPlain[$name]) && mb_strlen(trim($value)) >= 4) {
+            if (isset($allowed[$name]) && ! isset($skipPlain[$name]) && mb_strlen(trim($value)) >= 4) {
                 $pairs[$name] = $value;
             }
         }
@@ -116,7 +115,7 @@ class EmailTemplateService
                 if ($value === '') {
                     continue;
                 }
-                $out = str_replace($value, '{{' . $name . '}}', $out);
+                $out = str_replace($value, '{{'.$name.'}}', $out);
             }
 
             return $out;
@@ -136,7 +135,7 @@ class EmailTemplateService
     {
         $definition = EmailRegistry::definition($key);
         $allVars = array_merge($definition['requiredVars'], $definition['optionalVars']);
-        $varComment = '<!-- Available variables: ' . implode(' ', array_map(static fn (string $name): string => '{{' . $name . '}}', $allVars)) . ' -->';
+        $varComment = '<!-- Available variables: '.implode(' ', array_map(static fn (string $name): string => '{{'.$name.'}}', $allVars)).' -->';
         $subject = preg_replace_callback('/QB-[A-Z0-9]+|Fern Cottage|Deluxe Room/', static function (array $m): string {
             return str_starts_with($m[0], 'QB-') ? '{{bookingReference}}' : '{{cottageName}}';
         }, $this->codeDefaultFor($key)['subject']) ?? '';
@@ -154,7 +153,7 @@ class EmailTemplateService
      */
     public function renderWithOverride(string $key, array $vars, array $codeDefault, ?array $override): array
     {
-        if ($override === null || !($override['isEnabled'] ?? $override['is_enabled'] ?? true)) {
+        if ($override === null || ! ($override['isEnabled'] ?? $override['is_enabled'] ?? true)) {
             return ['rendered' => $codeDefault, 'source' => 'default'];
         }
 
@@ -169,14 +168,14 @@ class EmailTemplateService
         $unknown = [];
         foreach ([$subjectCustom, $htmlCustom, $textCustom] as $field) {
             foreach (EmailShared::extractPlaceholders($field) as $name) {
-                if (!in_array($name, $allowed, true)) {
+                if (! in_array($name, $allowed, true)) {
                     $unknown[] = $name;
                 }
             }
         }
         $unknown = array_values(array_unique($unknown));
         if ($unknown !== []) {
-            throw new \RuntimeException('unknown variables: ' . implode(', ', $unknown));
+            throw new \RuntimeException('unknown variables: '.implode(', ', $unknown));
         }
 
         $html = $htmlCustom !== ''
@@ -210,7 +209,7 @@ class EmailTemplateService
         $unknown = [];
         foreach ($provided as $field) {
             foreach (EmailShared::extractPlaceholders($field) as $name) {
-                if (!in_array($name, $allowed, true)) {
+                if (! in_array($name, $allowed, true)) {
                     $unknown[$name] = $name;
                 }
             }
@@ -218,7 +217,7 @@ class EmailTemplateService
         if ($unknown !== []) {
             sort($unknown);
             throw new AppError(
-                'Unknown variables: ' . implode(', ', $unknown) . '. Allowed: ' . implode(', ', $allowed),
+                'Unknown variables: '.implode(', ', $unknown).'. Allowed: '.implode(', ', $allowed),
                 400,
                 'EMAIL_TEMPLATE_VARS_UNKNOWN'
             );

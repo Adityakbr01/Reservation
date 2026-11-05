@@ -26,7 +26,7 @@ class AdminEmailTemplateController extends Controller
     {
         $template = EmailTemplate::where('key', $key)->first();
 
-        if (!$template) {
+        if (! $template) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'TEMPLATE_NOT_FOUND', 'message' => 'Template not found'],

@@ -2,9 +2,11 @@
 
 namespace App\Resources;
 
+use Illuminate\Http\JsonResponse;
+
 class ApiResponse
 {
-    public static function success($data = null, int $status = 200): \Illuminate\Http\JsonResponse
+    public static function success($data = null, int $status = 200): JsonResponse
     {
         return response()->json([
             'success' => true,
@@ -12,7 +14,7 @@ class ApiResponse
         ], $status);
     }
 
-    public static function error(string $code, string $message, int $status = 400, $errors = null): \Illuminate\Http\JsonResponse
+    public static function error(string $code, string $message, int $status = 400, $errors = null): JsonResponse
     {
         $body = [
             'success' => false,

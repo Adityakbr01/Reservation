@@ -19,7 +19,7 @@ class CouponService
             })
             ->first();
 
-        if (!$coupon) {
+        if (! $coupon) {
             return ['valid' => false, 'reason' => 'COUPON_INVALID'];
         }
 
