@@ -1,0 +1,37 @@
+# GoDaddy cPanel Laravel Deployment - Reservation API
+# ====================================================
+
+# This .htaccess protects the Laravel application when deployed
+# on GoDaddy Deluxe Web Hosting with cPanel.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block access to sensitive files
+    RewriteRule ^\.env - [F,L]
+    RewriteRule ^composer\.json - [F,L]
+    RewriteRule ^composer\.lock - [F,L]
+    RewriteRule ^artisan - [F,L]
+    RewriteRule ^vendor/ - [F,L]
+    RewriteRule ^storage/framework/ - [F,L]
+    RewriteRule ^app/ - [F,L]
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^database/ - [F,L]
+    RewriteRule ^routes/ - [F,L]
+
+    # Handle Authorization header for JWT
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect all requests to public/index.php
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
