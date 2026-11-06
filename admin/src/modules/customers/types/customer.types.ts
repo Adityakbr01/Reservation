@@ -4,8 +4,11 @@ export interface Customer {
   email: string;
   role: string;
   isActive: boolean;
-  lastLoginAt: string | null;
+  is_active?: boolean;
+  lastLoginAt?: string | null;
+  last_login_at?: string | null;
   createdAt: string;
+  created_at?: string;
 }
 
 export interface CustomerFilters {

@@ -15,7 +15,8 @@ import { StatusBadge } from "@/components/common/StatusBadge";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useCustomers } from "../hooks/use-customers";
 
-function formatDate(value: string): string {
+function formatDate(value?: string | null): string {
+  if (!value) return "—";
   const date = new Date(value);
   return Number.isNaN(date.getTime())
     ? value
@@ -102,9 +103,9 @@ export function CustomersPage() {
                   <TableCell className="text-muted-foreground">{customer.email}</TableCell>
                   <TableCell>{customer.role}</TableCell>
                   <TableCell>
-                    <StatusBadge status={customer.isActive ? "ACTIVE" : "DISABLED"} />
+                    <StatusBadge status={(customer.isActive ?? customer.is_active) ? "ACTIVE" : "DISABLED"} />
                   </TableCell>
-                  <TableCell>{formatDate(customer.createdAt)}</TableCell>
+                  <TableCell>{formatDate(customer.createdAt ?? customer.created_at)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

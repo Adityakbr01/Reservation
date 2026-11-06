@@ -55,6 +55,8 @@ export function CustomerDetailPage() {
   }
 
   const { user, bookings, paymentSummary, cancellations } = data;
+  const isActive = Boolean(user.isActive ?? user.is_active);
+  const createdAt = user.createdAt ?? user.created_at;
 
   return (
     <div className="space-y-6">
@@ -65,18 +67,18 @@ export function CustomerDetailPage() {
           </Link>
           <h1 className="mt-2 font-display text-3xl font-light tracking-tight">{user.name}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {user.email} · joined {formatDate(user.createdAt)}
+            {user.email} · joined {formatDate(createdAt)}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <StatusBadge status={user.isActive ? "ACTIVE" : "DISABLED"} />
+          <StatusBadge status={isActive ? "ACTIVE" : "DISABLED"} />
           <Button
-            variant={user.isActive ? "destructive" : "outline"}
+            variant={isActive ? "destructive" : "outline"}
             className="rounded-full"
             disabled={statusMutation.isPending}
-            onClick={() => statusMutation.mutate(!user.isActive)}
+            onClick={() => statusMutation.mutate(!isActive)}
           >
-            {statusMutation.isPending ? "Saving…" : user.isActive ? "Disable" : "Enable"}
+            {statusMutation.isPending ? "Saving…" : isActive ? "Disable" : "Enable"}
           </Button>
         </div>
       </div>
