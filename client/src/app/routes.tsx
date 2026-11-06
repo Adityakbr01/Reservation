@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
+import { AuthLayout } from "@/components/layouts/AuthLayout";
 import { RootLayout } from "@/components/layouts/RootLayout";
 import { HomePage } from "@/modules/home/pages/HomePage";
 import { RequireAuth, RequireGuest } from "./guards";
@@ -64,7 +65,6 @@ export function AppRoutes() {
           <Route path="faqs" element={<FaqsPage />} />
           <Route path="offers" element={<OffersPage />} />
           <Route path="policies/:key" element={<PolicyPage />} />
-          <Route path="enquire" element={<EnquirePage />} />
           <Route path="booking/new" element={<BookingPage />} />
           <Route
             path="booking/confirmation/:id"
@@ -82,6 +82,17 @@ export function AppRoutes() {
               </RequireAuth>
             }
           />
+          <Route
+            path="profile"
+            element={
+              <RequireAuth>
+                <ProfilePage />
+              </RequireAuth>
+            }
+          />
+          <Route path="*" element={<div className="py-10 text-center">Page not found</div>} />
+        </Route>
+        <Route element={<AuthLayout />}>
           <Route
             path="login"
             element={
@@ -114,15 +125,7 @@ export function AppRoutes() {
               </RequireGuest>
             }
           />
-          <Route
-            path="profile"
-            element={
-              <RequireAuth>
-                <ProfilePage />
-              </RequireAuth>
-            }
-          />
-          <Route path="*" element={<div className="py-10 text-center">Page not found</div>} />
+          <Route path="enquire" element={<EnquirePage />} />
         </Route>
       </Routes>
     </Suspense>

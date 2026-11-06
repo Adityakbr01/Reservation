@@ -81,18 +81,47 @@ class AdminRoomController extends Controller
         ]);
     }
 
+    private function isoDate(mixed $date): ?string
+    {
+        if (! $date) {
+            return null;
+        }
+        if (is_string($date)) {
+            try {
+                return \Carbon\Carbon::parse($date)->toIso8601String();
+            } catch (\Throwable) {
+                return $date;
+            }
+        }
+        if ($date instanceof \DateTimeInterface) {
+            return $date->format(\DateTimeInterface::ATOM);
+        }
+
+        return (string) $date;
+    }
+
     private function roomData(Room $r): array
     {
+        $createdAt = $this->isoDate($r->created_at);
+        $updatedAt = $this->isoDate($r->updated_at);
+
         return [
-            'id' => $r->id,
-            'property_id' => $r->property_id,
-            'room_type_id' => $r->room_type_id,
-            'name' => $r->name,
-            'room_number' => $r->room_number,
+            'id' => (string) $r->id,
+            'property_id' => (string) ($r->property_id ?? ''),
+            'propertyId' => (string) ($r->property_id ?? ''),
+            'room_type_id' => (string) ($r->room_type_id ?? ''),
+            'roomTypeId' => (string) ($r->room_type_id ?? ''),
+            'name' => (string) ($r->name ?? ''),
+            'room_number' => (string) ($r->room_number ?? ''),
+            'roomNumber' => (string) ($r->room_number ?? ''),
             'floor' => $r->floor,
-            'status' => $r->status,
+            'status' => (string) ($r->status ?? 'ACTIVE'),
             'condition' => $r->condition,
             'notes' => $r->notes,
+            'created_at' => $createdAt,
+            'createdAt' => $createdAt,
+            'updated_at' => $updatedAt,
+            'updatedAt' => $updatedAt,
         ];
     }
 }

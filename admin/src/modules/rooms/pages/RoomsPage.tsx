@@ -120,7 +120,7 @@ export function RoomsPage() {
     [roomTypes],
   );
   const typeName = useMemo(() => {
-    return (id: string) => typeById.get(id)?.name ?? id.slice(-6);
+    return (id?: string | null) => (id ? (typeById.get(id)?.name ?? (id.length > 6 ? id.slice(-6) : id)) : "—");
   }, [typeById]);
 
   // All rooms cache for global prefix calculation & inventory
@@ -161,16 +161,21 @@ export function RoomsPage() {
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
       let cmp = 0;
+      const roomNumA = String(a.roomNumber ?? (a as any).room_number ?? "");
+      const roomNumB = String(b.roomNumber ?? (b as any).room_number ?? "");
+      const roomTypeA = String(a.roomTypeId ?? (a as any).room_type_id ?? "");
+      const roomTypeB = String(b.roomTypeId ?? (b as any).room_type_id ?? "");
+
       if (sortField === "room") {
-        cmp = a.roomNumber.localeCompare(b.roomNumber, undefined, { numeric: true });
+        cmp = roomNumA.localeCompare(roomNumB, undefined, { numeric: true });
       } else if (sortField === "type") {
-        cmp = typeName(a.roomTypeId).localeCompare(typeName(b.roomTypeId));
+        cmp = typeName(roomTypeA).localeCompare(typeName(roomTypeB));
       } else if (sortField === "capacity") {
-        const capA = typeById.get(a.roomTypeId)?.maxOccupancy ?? 0;
-        const capB = typeById.get(b.roomTypeId)?.maxOccupancy ?? 0;
+        const capA = typeById.get(roomTypeA)?.maxOccupancy ?? 0;
+        const capB = typeById.get(roomTypeB)?.maxOccupancy ?? 0;
         cmp = capA - capB;
       } else if (sortField === "status") {
-        cmp = a.status.localeCompare(b.status);
+        cmp = String(a.status ?? "").localeCompare(String(b.status ?? ""));
       } else if (sortField === "occupancy") {
         const occA = occupancyByRoom.get(a.id)?.status ?? "FREE";
         const occB = occupancyByRoom.get(b.id)?.status ?? "FREE";
@@ -432,14 +437,16 @@ export function RoomsPage() {
             <TableBody>
               {sortedItems.map((room) => {
                 const occ = occupancyByRoom.get(room.id);
-                const type = typeById.get(room.roomTypeId);
+                const rTypeId = room.roomTypeId ?? (room as any).room_type_id;
+                const type = typeById.get(rTypeId);
+                const roomNum = room.roomNumber ?? (room as any).room_number ?? "—";
                 return (
                   <TableRow key={room.id}>
                     <TableCell>
-                      <div className="font-semibold font-mono text-foreground">{room.roomNumber}</div>
+                      <div className="font-semibold font-mono text-foreground">{roomNum}</div>
                       <div className="text-xs text-muted-foreground">{room.name}</div>
                     </TableCell>
-                    <TableCell className="font-medium">{typeName(room.roomTypeId)}</TableCell>
+                    <TableCell className="font-medium">{typeName(rTypeId)}</TableCell>
                     <TableCell>
                       {type ? (
                         <div className="space-y-0.5">

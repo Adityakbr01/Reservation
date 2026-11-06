@@ -5,11 +5,28 @@ import type { CreateRoomPayload, Room, RoomFilters, UpdateRoomPayload } from "..
 
 const BASE = "/admin/rooms";
 
+function normalizeRoom(raw: any): Room {
+  return {
+    id: String(raw?.id ?? ""),
+    propertyId: String(raw?.propertyId ?? raw?.property_id ?? ""),
+    roomTypeId: String(raw?.roomTypeId ?? raw?.room_type_id ?? ""),
+    name: String(raw?.name ?? ""),
+    roomNumber: String(raw?.roomNumber ?? raw?.room_number ?? ""),
+    floor: raw?.floor ?? null,
+    status: raw?.status ?? "ACTIVE",
+    condition: raw?.condition ?? null,
+    notes: raw?.notes ?? null,
+    createdAt: raw?.createdAt ?? raw?.created_at ?? "",
+    updatedAt: raw?.updatedAt ?? raw?.updated_at ?? "",
+  };
+}
+
 export async function listRooms(filters: RoomFilters): Promise<Paged<Room>> {
   const { data } = await apiClient.get<ApiEnvelope<Room[]>>(BASE, { params: filters });
+  const list = Array.isArray(data?.data) ? data.data.map(normalizeRoom) : [];
   return {
-    items: data.data,
-    total: data.meta?.total ?? data.data.length,
+    items: list,
+    total: data.meta?.total ?? list.length,
     page: data.meta?.page ?? 1,
     totalPages: data.meta?.totalPages ?? 1,
   };
@@ -17,17 +34,17 @@ export async function listRooms(filters: RoomFilters): Promise<Paged<Room>> {
 
 export async function getRoom(id: string): Promise<Room> {
   const response = await apiClient.get<ApiEnvelope<Room>>(`${BASE}/${id}`);
-  return unwrapResponse(response);
+  return normalizeRoom(unwrapResponse(response));
 }
 
 export async function createRoom(payload: CreateRoomPayload): Promise<Room> {
   const response = await apiClient.post<ApiEnvelope<Room>>(BASE, payload);
-  return unwrapResponse(response);
+  return normalizeRoom(unwrapResponse(response));
 }
 
 export async function updateRoom(id: string, payload: UpdateRoomPayload): Promise<Room> {
   const response = await apiClient.patch<ApiEnvelope<Room>>(`${BASE}/${id}`, payload);
-  return unwrapResponse(response);
+  return normalizeRoom(unwrapResponse(response));
 }
 
 export interface RoomOccupancy {

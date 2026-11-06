@@ -1,21 +1,29 @@
-import { Link } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AuthSection } from "@/components/ui/auth-section-1";
 import { EnquiryForm } from "../components/EnquiryForm";
 
 export function EnquirePage() {
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 pb-8">
-      <Link to="/" className="text-sm font-medium text-brand hover:text-brand-dark">← Back to search</Link>
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-display text-3xl font-light">Enquire</CardTitle>
-          <CardDescription>Tell us about your ideal holiday — budget, party, bedrooms, dates, location, dog friendly…</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <EnquiryForm submitLabel="Send enquiry" />
-        </CardContent>
-      </Card>
-    </div>
+    <AuthSection
+      mode="enquiry"
+      wide
+      eyebrow="Enquire"
+      title="Plan your stay"
+      description="A few details and we'll come back with the right cottage and price."
+      footer={
+        <p>
+          Prefer to talk?{" "}
+          <a
+            href="tel:+441794390155"
+            className="font-medium text-brand underline underline-offset-4 hover:text-brand-dark focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          >
+            Call 01794 390155
+          </a>
+          .
+        </p>
+      }
+    >
+      <EnquiryForm variant="page" submitLabel="Send enquiry" />
+    </AuthSection>
   );
 }
 

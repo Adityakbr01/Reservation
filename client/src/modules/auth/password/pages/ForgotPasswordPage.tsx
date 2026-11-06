@@ -1,21 +1,30 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router-dom";
+import { AuthSection } from "@/components/ui/auth-section-1";
 import { ForgotPasswordForm } from "../components/ForgotPasswordForm";
 import { useRedirectIfAuthenticated } from "@/app/use-redirect-if-authenticated";
 
 export function ForgotPasswordPage() {
   useRedirectIfAuthenticated();
   return (
-    <div className="mx-auto w-full max-w-sm pb-8 sm:pb-12">
-      <Card className="shadow-card">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl sm:text-3xl">Forgot password</CardTitle>
-          <CardDescription>Enter your account email and we will send a reset link</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ForgotPasswordForm />
-        </CardContent>
-      </Card>
-    </div>
+    <AuthSection
+      mode="forgot"
+      eyebrow="Password help"
+      title="Forgot your password?"
+      description="Enter the email linked to your account and we'll send you a secure reset link."
+      footer={
+        <p>
+          Remembered it?{" "}
+          <Link
+            to="/login"
+            className="font-medium text-brand underline underline-offset-4 hover:text-brand-dark focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          >
+            Sign in
+          </Link>
+        </p>
+      }
+    >
+      <ForgotPasswordForm />
+    </AuthSection>
   );
 }
 

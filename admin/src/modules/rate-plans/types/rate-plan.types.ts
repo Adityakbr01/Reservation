@@ -27,6 +27,7 @@ export interface RatePlan {
   description: string | null;
   pricing: RatePlanPricing;
   restrictions: RatePlanRestrictions;
+  cancellationPolicyId?: string | null;
   status: RatePlanStatus;
   createdAt: string;
   updatedAt: string;

@@ -66,6 +66,8 @@ class PublicAvailabilityController extends Controller
                     $basePrice = (int) $rp->pricing['basePrice'];
                 } elseif (is_array($rp->pricing) && isset($rp->pricing['base_price'])) {
                     $basePrice = (int) $rp->pricing['base_price'];
+                } elseif (is_array($rp->pricing) && isset($rp->pricing['amount'])) {
+                    $basePrice = (int) round($rp->pricing['amount'] / 100);
                 }
                 $rates[] = [
                     'ratePlanId' => $rp->id,
@@ -111,11 +113,86 @@ class PublicAvailabilityController extends Controller
         ]);
     }
 
-    public function calendar()
+    public function calendar(\Illuminate\Http\Request $request)
     {
+        $now = \Carbon\Carbon::now();
+        $from = $request->query('from') ?? $now->copy()->startOfMonth()->toDateString();
+        $to = $request->query('to') ?? $now->copy()->endOfMonth()->toDateString();
+        $roomTypeId = $request->query('roomTypeId') ?? $request->query('room_type_id');
+
+        try {
+            $startDate = \Carbon\Carbon::parse($from);
+            $endDate = \Carbon\Carbon::parse($to);
+        } catch (\Throwable) {
+            $startDate = $now->copy()->startOfMonth();
+            $endDate = $now->copy()->endOfMonth();
+            $from = $startDate->toDateString();
+            $to = $endDate->toDateString();
+        }
+
+        $query = \App\Models\RoomType::where('status', 'ACTIVE');
+        if ($roomTypeId && $roomTypeId !== 'all') {
+            $query->where('id', $roomTypeId);
+        }
+        $roomTypes = $query->get();
+
+        $typesData = [];
+        foreach ($roomTypes as $rt) {
+            $rooms = Room::where('room_type_id', $rt->id)->where('status', 'ACTIVE')->get();
+            $totalRooms = $rooms->count();
+            $roomIds = $rooms->pluck('id')->all();
+
+            $days = [];
+            $cursor = $startDate->copy();
+            // Cap at 62 days max to prevent large loops
+            $limit = 0;
+            while ($cursor->lte($endDate) && $limit < 62) {
+                $limit++;
+                $curDate = $cursor->toDateString();
+                $nextDate = $cursor->copy()->addDay()->toDateString();
+
+                $blockedCount = 0;
+                $bookedCount = 0;
+
+                if ($totalRooms > 0) {
+                    $blockedCount = AvailabilityBlock::whereIn('room_id', $roomIds)
+                        ->where('start_date', '<', $nextDate)
+                        ->where('end_date', '>', $curDate)
+                        ->count();
+
+                    $bookedCount = BookingItem::whereIn('room_id', $roomIds)
+                        ->where('check_in', '<', $nextDate)
+                        ->where('check_out', '>', $curDate)
+                        ->count();
+                }
+
+                $availableCount = max(0, $totalRooms - $blockedCount - $bookedCount);
+
+                $days[] = [
+                    'date' => $curDate,
+                    'total' => $totalRooms,
+                    'available' => $availableCount,
+                    'booked' => $bookedCount,
+                    'blocked' => $blockedCount,
+                ];
+
+                $cursor->addDay();
+            }
+
+            $typesData[] = [
+                'roomTypeId' => (string) $rt->id,
+                'name' => (string) $rt->name,
+                'days' => $days,
+            ];
+        }
+
         return response()->json([
             'success' => true,
-            'data' => [],
+            'data' => [
+                'from' => $from,
+                'to' => $to,
+                'types' => $typesData,
+            ],
         ]);
     }
 }

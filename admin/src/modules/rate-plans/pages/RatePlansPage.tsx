@@ -40,7 +40,7 @@ export function RatePlansPage() {
   const roomTypes = useMemo(() => typesData?.items ?? [], [typesData]);
   const typeName = useMemo(() => {
     const map = new Map(roomTypes.map((type) => [type.id, type.name] as const));
-    return (id: string) => map.get(id) ?? id.slice(-6);
+    return (id?: string | null) => (id ? (map.get(id) ?? (id.length > 6 ? id.slice(-6) : id)) : "—");
   }, [roomTypes]);
 
   const filters = useMemo(
@@ -163,13 +163,22 @@ export function RatePlansPage() {
                     <div className="font-medium">{plan.name}</div>
                     <div className="text-xs text-muted-foreground">{plan.slug}</div>
                   </TableCell>
-                  <TableCell>{typeName(plan.roomTypeId)}</TableCell>
+                  <TableCell>{typeName(plan.roomTypeId ?? (plan as any).room_type_id)}</TableCell>
                   <TableCell>
-                    {formatAmount(plan.pricing.amount, plan.pricing.currency)}
-                    <span className="text-xs text-muted-foreground">
-                      {" "}
-                      {plan.pricing.type === "PER_NIGHT" ? "/ night" : "/ stay"}
-                    </span>
+                    {plan.pricing ? (
+                      <>
+                        {formatAmount(
+                          plan.pricing.amount ?? (plan.pricing as any).basePrice ?? 0,
+                          plan.pricing.currency ?? "GBP",
+                        )}
+                        <span className="text-xs text-muted-foreground">
+                          {" "}
+                          {plan.pricing.type === "PER_NIGHT" ? "/ night" : "/ stay"}
+                        </span>
+                      </>
+                    ) : (
+                      "—"
+                    )}
                   </TableCell>
                   <TableCell>
                     <StatusBadge status={plan.status} />

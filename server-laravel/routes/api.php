@@ -108,10 +108,12 @@ Route::prefix('/v1/admin/users')->middleware('jwt.auth', 'role:admin')->group(fu
     Route::patch('/{id}/status', [AdminUserController::class, 'setStatus']);
 });
 
-// Public property
-Route::prefix('/public/property')->group(function () {
-    Route::get('/', [PublicPropertyController::class, 'show']);
-});
+// Public property (available at both /api/public/* and /api/v1/public/*)
+foreach (['/public/property', '/v1/public/property'] as $prefix) {
+    Route::prefix($prefix)->group(function () {
+        Route::get('/', [PublicPropertyController::class, 'show']);
+    });
+}
 
 // Admin property
 Route::prefix('/v1/admin/properties')->middleware('jwt.auth', 'role:admin')->group(function () {
@@ -123,12 +125,14 @@ Route::prefix('/v1/admin/property')->middleware('jwt.auth', 'role:admin')->group
     Route::patch('/', [AdminPropertyController::class, 'update']);
 });
 
-// Public room types
-Route::prefix('/public/room-types')->group(function () {
-    Route::get('/', [PublicRoomTypeController::class, 'index']);
-    Route::get('/{slug}', [PublicRoomTypeController::class, 'showBySlug']);
-    Route::get('/{id}/offers', [PublicRoomTypeController::class, 'offers']);
-});
+// Public room types (available at both /api/public/* and /api/v1/public/*)
+foreach (['/public/room-types', '/v1/public/room-types'] as $prefix) {
+    Route::prefix($prefix)->group(function () {
+        Route::get('/', [PublicRoomTypeController::class, 'index']);
+        Route::get('/{slug}', [PublicRoomTypeController::class, 'showBySlug']);
+        Route::get('/{id}/offers', [PublicRoomTypeController::class, 'offers']);
+    });
+}
 
 // Admin room types
 Route::prefix('/v1/admin/room-types')->middleware('jwt.auth', 'role:admin')->group(function () {
@@ -158,11 +162,13 @@ Route::prefix('/v1/admin/rate-plans')->middleware('jwt.auth', 'role:admin')->gro
     Route::delete('/{id}/prices/{date}', [AdminRatePlanController::class, 'deletePrice']);
 });
 
-// Public availability
-Route::prefix('/public/availability')->group(function () {
-    Route::post('/search', [PublicAvailabilityController::class, 'search']);
-    Route::get('/calendar', [PublicAvailabilityController::class, 'calendar']);
-});
+// Public availability (available at both /api/public/* and /api/v1/public/*)
+foreach (['/public/availability', '/v1/public/availability'] as $prefix) {
+    Route::prefix($prefix)->group(function () {
+        Route::post('/search', [PublicAvailabilityController::class, 'search']);
+        Route::get('/calendar', [PublicAvailabilityController::class, 'calendar']);
+    });
+}
 
 // Admin availability
 Route::prefix('/v1/admin/availability')->middleware('jwt.auth', 'role:admin')->group(function () {
@@ -171,10 +177,12 @@ Route::prefix('/v1/admin/availability')->middleware('jwt.auth', 'role:admin')->g
     Route::delete('/blocks/{id}', [AdminAvailabilityController::class, 'deleteBlock']);
 });
 
-// Public coupons
-Route::prefix('/public/coupons')->group(function () {
-    Route::post('/validate', [PublicCouponController::class, 'validate']);
-});
+// Public coupons (available at both /api/public/* and /api/v1/public/*)
+foreach (['/public/coupons', '/v1/public/coupons'] as $prefix) {
+    Route::prefix($prefix)->group(function () {
+        Route::post('/validate', [PublicCouponController::class, 'validate']);
+    });
+}
 
 // Admin coupons
 Route::prefix('/v1/admin/coupons')->middleware('jwt.auth', 'role:admin')->group(function () {
@@ -283,16 +291,19 @@ Route::prefix('/v1/admin/cms')->middleware('jwt.auth', 'role:admin')->group(func
     Route::post('/policies/{key}/status', [AdminCmsPolicyController::class, 'status']);
 });
 
-// Public CMS
-Route::prefix('/public/cms')->group(function () {
-    Route::get('/pages/{slug}', [PublicCmsController::class, 'page']);
-    Route::get('/blogs', [PublicCmsController::class, 'blogs']);
-    Route::get('/blogs/{slug}', [PublicCmsController::class, 'blog']);
-    Route::get('/faqs', [PublicCmsController::class, 'faqs']);
-    Route::get('/offers', [PublicCmsController::class, 'offers']);
-    Route::get('/policies/{key}', [PublicCmsController::class, 'policy']);
-    Route::get('/preview/{token}', [PublicCmsController::class, 'preview']);
-});
+// Public CMS (available at both /api/public/* and /api/v1/public/*)
+foreach (['/public/cms', '/v1/public/cms'] as $prefix) {
+    Route::prefix($prefix)->group(function () {
+        Route::get('/site-settings', [PublicSettingsController::class, 'show']);
+        Route::get('/pages/{slug}', [PublicCmsController::class, 'page']);
+        Route::get('/blogs', [PublicCmsController::class, 'blogs']);
+        Route::get('/blogs/{slug}', [PublicCmsController::class, 'blog']);
+        Route::get('/faqs', [PublicCmsController::class, 'faqs']);
+        Route::get('/offers', [PublicCmsController::class, 'offers']);
+        Route::get('/policies/{key}', [PublicCmsController::class, 'policy']);
+        Route::get('/preview/{token}', [PublicCmsController::class, 'preview']);
+    });
+}
 
 // Admin media
 Route::prefix('/v1/admin/media')->middleware('jwt.auth', 'role:admin')->group(function () {
@@ -304,10 +315,12 @@ Route::prefix('/v1/admin/media')->middleware('jwt.auth', 'role:admin')->group(fu
     Route::delete('/{id}', [AdminMediaController::class, 'destroy']);
 });
 
-// Public media
-Route::prefix('/public/media')->group(function () {
-    Route::post('/resolve', [PublicMediaController::class, 'resolve']);
-});
+// Public media (available at both /api/public/* and /api/v1/public/*)
+foreach (['/public/media', '/v1/public/media'] as $prefix) {
+    Route::prefix($prefix)->group(function () {
+        Route::post('/resolve', [PublicMediaController::class, 'resolve']);
+    });
+}
 
 // Admin settings
 Route::prefix('/v1/admin/settings')->middleware('jwt.auth', 'role:admin')->group(function () {
@@ -315,10 +328,12 @@ Route::prefix('/v1/admin/settings')->middleware('jwt.auth', 'role:admin')->group
     Route::patch('/', [AdminSettingsController::class, 'update']);
 });
 
-// Public settings
-Route::prefix('/public/cms/site-settings')->group(function () {
-    Route::get('/', [PublicSettingsController::class, 'show']);
-});
+// Public settings (available at both /api/public/* and /api/v1/public/*)
+foreach (['/public/cms/site-settings', '/v1/public/cms/site-settings'] as $prefix) {
+    Route::prefix($prefix)->group(function () {
+        Route::get('/', [PublicSettingsController::class, 'show']);
+    });
+}
 
 // Admin audit logs
 Route::prefix('/v1/admin/audit-logs')->middleware('jwt.auth', 'role:admin')->group(function () {
@@ -338,42 +353,50 @@ Route::prefix('/v1/admin/amenities')->middleware('jwt.auth', 'role:admin')->grou
     Route::get('/', [AdminAmenitiesController::class, 'index']);
 });
 
-// Public amenities
-Route::prefix('/public/amenities')->group(function () {
-    Route::get('/', [PublicAmenitiesController::class, 'index']);
-});
+// Public amenities (available at both /api/public/* and /api/v1/public/*)
+foreach (['/public/amenities', '/v1/public/amenities'] as $prefix) {
+    Route::prefix($prefix)->group(function () {
+        Route::get('/', [PublicAmenitiesController::class, 'index']);
+    });
+}
 
 // Admin enquiries
 Route::prefix('/v1/admin/enquiries')->middleware('jwt.auth', 'role:admin')->group(function () {
     Route::get('/', [AdminEnquiriesController::class, 'index']);
 });
 
-// Public enquiries
-Route::prefix('/public/enquiries')->group(function () {
-    Route::get('/', [PublicEnquiriesController::class, 'index']);
-    Route::post('/', [PublicEnquiriesController::class, 'store']);
-});
+// Public enquiries (available at both /api/public/* and /api/v1/public/*)
+foreach (['/public/enquiries', '/v1/public/enquiries'] as $prefix) {
+    Route::prefix($prefix)->group(function () {
+        Route::get('/', [PublicEnquiriesController::class, 'index']);
+        Route::post('/', [PublicEnquiriesController::class, 'store']);
+    });
+}
 
 // Admin newsletter
 Route::prefix('/v1/admin/newsletter')->middleware('jwt.auth', 'role:admin')->group(function () {
     Route::get('/', [AdminNewsletterController::class, 'index']);
 });
 
-// Public newsletter
-Route::prefix('/public/newsletter')->group(function () {
-    Route::get('/', [PublicNewsletterController::class, 'index']);
-    Route::post('/subscribe', [PublicNewsletterController::class, 'subscribe']);
-});
+// Public newsletter (available at both /api/public/* and /api/v1/public/*)
+foreach (['/public/newsletter', '/v1/public/newsletter'] as $prefix) {
+    Route::prefix($prefix)->group(function () {
+        Route::get('/', [PublicNewsletterController::class, 'index']);
+        Route::post('/subscribe', [PublicNewsletterController::class, 'subscribe']);
+    });
+}
 
 // Admin reviews
 Route::prefix('/v1/admin/reviews')->middleware('jwt.auth', 'role:admin')->group(function () {
     Route::get('/', [AdminReviewController::class, 'index']);
 });
 
-// Public reviews
-Route::prefix('/public/reviews')->group(function () {
-    Route::get('/', [PublicReviewController::class, 'index']);
-});
+// Public reviews (available at both /api/public/* and /api/v1/public/*)
+foreach (['/public/reviews', '/v1/public/reviews'] as $prefix) {
+    Route::prefix($prefix)->group(function () {
+        Route::get('/', [PublicReviewController::class, 'index']);
+    });
+}
 
 // Reviews
 Route::prefix('/v1/reviews')->group(function () {

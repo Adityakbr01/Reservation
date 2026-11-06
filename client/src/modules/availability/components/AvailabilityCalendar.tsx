@@ -62,7 +62,10 @@ export function AvailabilityCalendar({
   const month = base.getUTCMonth();
   const { from, to } = monthBounds(year, month);
   const { data, isPending } = useAvailabilityCalendar(roomTypeId, from, to);
-  const days = data?.types[0]?.days ?? [];
+  const matchingType =
+    (Array.isArray(data?.types) ? data.types.find((t) => t.roomTypeId === roomTypeId) : null) ??
+    data?.types?.[0];
+  const days = matchingType?.days ?? [];
   const today = now.toISOString().slice(0, 10);
 
   const blockedDates = useMemo(() => {

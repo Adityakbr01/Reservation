@@ -1,31 +1,30 @@
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AuthSection } from "@/components/ui/auth-section-1";
 import { RegisterForm } from "../components/RegisterForm";
 import { useRedirectIfAuthenticated } from "@/app/use-redirect-if-authenticated";
 
 export function RegisterPage() {
   useRedirectIfAuthenticated();
   return (
-    <div className="mx-auto w-full max-w-sm pb-8 sm:pb-12">
-      <Card className="shadow-card">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl sm:text-3xl">Create an account</CardTitle>
-          <CardDescription>Get started in seconds</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <RegisterForm />
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="font-medium text-brand hover:text-brand-dark focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              Sign in
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+    <AuthSection
+      mode="register"
+      eyebrow="Create your account"
+      title="Make yourself at home"
+      description="Save your details, book directly and keep every cottage break in one place."
+      footer={
+        <p>
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="font-medium text-brand underline underline-offset-4 hover:text-brand-dark focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          >
+            Sign in
+          </Link>
+        </p>
+      }
+    >
+      <RegisterForm />
+    </AuthSection>
   );
 }
 

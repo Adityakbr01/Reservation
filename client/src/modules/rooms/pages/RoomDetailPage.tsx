@@ -322,7 +322,14 @@ export function RoomDetailPage() {
       ).matches;
       if (reduceMotion) return;
 
-      gsap.to(".detail-butterfly", {
+      const animateIfPresent = (selector: string, vars: gsap.TweenVars) => {
+        const el = rootRef.current?.querySelectorAll(selector);
+        if (el && el.length > 0) {
+          gsap.to(el, vars);
+        }
+      };
+
+      animateIfPresent(".detail-butterfly", {
         y: -4,
         rotation: 3,
         duration: 3.5,
@@ -330,7 +337,7 @@ export function RoomDetailPage() {
         repeat: -1,
         ease: "sine.inOut",
       });
-      gsap.to(".detail-flying-butterfly-1", {
+      animateIfPresent(".detail-flying-butterfly-1", {
         x: 16,
         y: -14,
         rotation: 8,
@@ -339,7 +346,7 @@ export function RoomDetailPage() {
         repeat: -1,
         ease: "sine.inOut",
       });
-      gsap.to(".detail-flying-butterfly-2", {
+      animateIfPresent(".detail-flying-butterfly-2", {
         x: -18,
         y: -12,
         rotation: -10,
@@ -348,7 +355,7 @@ export function RoomDetailPage() {
         repeat: -1,
         ease: "sine.inOut",
       });
-      gsap.to(".detail-bird", {
+      animateIfPresent(".detail-bird", {
         y: -6,
         rotation: -2,
         duration: 4.8,
@@ -356,7 +363,7 @@ export function RoomDetailPage() {
         repeat: -1,
         ease: "sine.inOut",
       });
-      gsap.to(".detail-wildflower", {
+      animateIfPresent(".detail-wildflower", {
         rotation: -6,
         y: -3,
         duration: 5.2,
@@ -364,7 +371,7 @@ export function RoomDetailPage() {
         repeat: -1,
         ease: "sine.inOut",
       });
-      gsap.to(".detail-leaf-top", {
+      animateIfPresent(".detail-leaf-top", {
         x: 6,
         y: -14,
         rotation: -4,
@@ -374,7 +381,7 @@ export function RoomDetailPage() {
         repeat: -1,
         ease: "sine.inOut",
       });
-      gsap.to(".detail-leaf-left", {
+      animateIfPresent(".detail-leaf-left", {
         x: -6,
         y: 14,
         rotation: 4,

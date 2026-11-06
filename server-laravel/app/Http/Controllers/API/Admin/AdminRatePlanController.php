@@ -97,19 +97,67 @@ class AdminRatePlanController extends Controller
         ]);
     }
 
+    private function isoDate(mixed $date): ?string
+    {
+        if (! $date) {
+            return null;
+        }
+        if (is_string($date)) {
+            try {
+                return \Carbon\Carbon::parse($date)->toIso8601String();
+            } catch (\Throwable) {
+                return $date;
+            }
+        }
+        if ($date instanceof \DateTimeInterface) {
+            return $date->format(\DateTimeInterface::ATOM);
+        }
+
+        return (string) $date;
+    }
+
     private function ratePlanData(RatePlan $rp): array
     {
+        $pricing = $rp->pricing ?? [
+            'type' => 'PER_NIGHT',
+            'amount' => 0,
+            'currency' => 'GBP',
+        ];
+
+        // Ensure pricing has both amount & basePrice for backwards-compatibility
+        if (is_array($pricing)) {
+            if (! isset($pricing['amount']) && isset($pricing['basePrice'])) {
+                $pricing['amount'] = (int) $pricing['basePrice'] * 100;
+            }
+            if (! isset($pricing['currency'])) {
+                $pricing['currency'] = 'GBP';
+            }
+            if (! isset($pricing['type'])) {
+                $pricing['type'] = 'PER_NIGHT';
+            }
+        }
+
+        $createdAt = $this->isoDate($rp->created_at);
+        $updatedAt = $this->isoDate($rp->updated_at);
+
         return [
-            'id' => $rp->id,
-            'property_id' => $rp->property_id,
-            'room_type_id' => $rp->room_type_id,
-            'name' => $rp->name,
-            'slug' => $rp->slug,
+            'id' => (string) $rp->id,
+            'property_id' => (string) ($rp->property_id ?? ''),
+            'propertyId' => (string) ($rp->property_id ?? ''),
+            'room_type_id' => (string) ($rp->room_type_id ?? ''),
+            'roomTypeId' => (string) ($rp->room_type_id ?? ''),
+            'name' => (string) ($rp->name ?? ''),
+            'slug' => (string) ($rp->slug ?? ''),
             'description' => $rp->description,
-            'pricing' => $rp->pricing,
-            'restrictions' => $rp->restrictions,
+            'pricing' => $pricing,
+            'restrictions' => $rp->restrictions ?? [],
             'cancellation_policy_id' => $rp->cancellation_policy_id,
-            'status' => $rp->status,
+            'cancellationPolicyId' => $rp->cancellation_policy_id,
+            'status' => (string) ($rp->status ?? 'ACTIVE'),
+            'created_at' => $createdAt,
+            'createdAt' => $createdAt,
+            'updated_at' => $updatedAt,
+            'updatedAt' => $updatedAt,
         ];
     }
 }
