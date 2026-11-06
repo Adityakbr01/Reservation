@@ -8,25 +8,20 @@ Set-Location -LiteralPath $ProjectRoot
 $SevenZip = 'C:\Program Files\7-Zip\7z.exe'
 $ZipName = 'server-laravel-deploy.zip'
 $ZipPath = Join-Path $ProjectRoot $ZipName
-$RootZipPath = Join-Path (Split-Path -Parent $ProjectRoot) $ZipName
-$DistDir = Join-Path $ProjectRoot 'dist'
 
 Write-Host ''
 Write-Host '==> Packaging Laravel for cPanel...' -ForegroundColor Cyan
 
 # 1. Clean previous build files & junk
 if (Test-Path -LiteralPath $ZipPath) { Remove-Item -LiteralPath $ZipPath -Force }
-if (Test-Path -LiteralPath $RootZipPath) { Remove-Item -LiteralPath $RootZipPath -Force }
 if (Test-Path -LiteralPath (Join-Path $ProjectRoot '.build')) { 
     Remove-Item -LiteralPath (Join-Path $ProjectRoot '.build') -Recurse -Force -ErrorAction SilentlyContinue 
-}
-if (-not (Test-Path -LiteralPath $DistDir)) { 
-    New-Item -ItemType Directory -Path $DistDir -Force | Out-Null 
 }
 
 # 2. Exclude dev files, tests, env, logs, and dev vendor packages
 $excludeArgs = @(
     '-xr!.git',
+    '-xr!*.zip',
     '-xr!node_modules',
     '-xr!tests',
     '-xr!.env.example',
@@ -69,10 +64,6 @@ if (Test-Path -LiteralPath $SevenZip) {
     }
 }
 
-# Copy convenience copies
-Copy-Item -LiteralPath $ZipPath -Destination $RootZipPath -Force
-Copy-Item -LiteralPath $ZipPath -Destination (Join-Path $DistDir $ZipName) -Force
-
 $zipSizeMb = [math]::Round((Get-Item -LiteralPath $ZipPath).Length / 1MB, 2)
 
 Write-Host ''
@@ -80,7 +71,6 @@ Write-Host '====================================================' -ForegroundCol
 Write-Host ' BUILD SUCCESSFUL - READY FOR GODADDY CPANEL' -ForegroundColor Green
 Write-Host '====================================================' -ForegroundColor Green
 Write-Host "ZIP File: $ZipPath ($zipSizeMb MB)" -ForegroundColor White
-Write-Host "Root ZIP: $RootZipPath" -ForegroundColor White
 Write-Host ''
 Write-Host 'Upload server-laravel-deploy.zip to cPanel and Extract.' -ForegroundColor Cyan
 Write-Host ''

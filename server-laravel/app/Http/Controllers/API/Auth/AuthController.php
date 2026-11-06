@@ -31,6 +31,19 @@ class AuthController extends Controller
 
         $token = $this->generateToken($user);
 
+        try {
+            $name = $user->name ?: 'Guest';
+            $welcome = \App\Support\Email\Templates\WelcomeTemplates::welcome($name);
+            app(\App\Services\NotificationService::class)->sendViaResend(
+                $user->email,
+                $welcome['subject'],
+                $welcome['html'],
+                $welcome['text']
+            );
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Welcome email failed: ' . $e->getMessage());
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -58,6 +71,9 @@ class AuthController extends Controller
             ], 403);
         }
 
+        $user->last_login_at = now();
+        $user->save();
+
         $token = $this->generateToken($user);
 
         return response()->json([
@@ -79,6 +95,30 @@ class AuthController extends Controller
 
     public function forgotPassword(ForgotPasswordRequest $request)
     {
+        $user = User::where('email', $request->validated('email'))->first();
+        if ($user && $user->is_active) {
+            $token = bin2hex(random_bytes(32));
+            $user->password_reset_token_hash = hash('sha256', $token);
+            $user->password_reset_expires = now()->addHours(2);
+            $user->save();
+
+            $clientUrl = env('CLIENT_URL', 'https://hamptworthstays.com');
+            $resetUrl = rtrim($clientUrl, '/') . '/reset-password?token=' . $token;
+
+            try {
+                $name = $user->name ?: 'Guest';
+                $resetMail = \App\Support\Email\Templates\AuthTemplates::passwordReset($name, $resetUrl);
+                app(\App\Services\NotificationService::class)->sendViaResend(
+                    $user->email,
+                    $resetMail['subject'],
+                    $resetMail['html'],
+                    $resetMail['text']
+                );
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Password reset email failed: ' . $e->getMessage());
+            }
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -89,6 +129,38 @@ class AuthController extends Controller
 
     public function resetPassword(ResetPasswordRequest $request)
     {
+        $token = $request->validated('token');
+        $hash = hash('sha256', $token);
+
+        $user = User::where('password_reset_token_hash', $hash)
+            ->where('password_reset_expires', '>', now())
+            ->first();
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'error' => ['code' => 'RESET_TOKEN_INVALID', 'message' => 'Reset link is invalid or has expired'],
+            ], 400);
+        }
+
+        $user->password_hash = Hash::make($request->validated('password'));
+        $user->password_reset_token_hash = null;
+        $user->password_reset_expires = null;
+        $user->save();
+
+        try {
+            $name = $user->name ?: 'Guest';
+            $changedMail = \App\Support\Email\Templates\AuthTemplates::passwordChanged($name);
+            app(\App\Services\NotificationService::class)->sendViaResend(
+                $user->email,
+                $changedMail['subject'],
+                $changedMail['html'],
+                $changedMail['text']
+            );
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Password changed email failed: ' . $e->getMessage());
+        }
+
         return response()->json([
             'success' => true,
             'data' => ['message' => 'Password has been reset'],

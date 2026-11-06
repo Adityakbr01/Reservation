@@ -347,6 +347,7 @@ Route::prefix('/v1/admin/enquiries')->middleware('jwt.auth', 'role:admin')->grou
 // Public enquiries
 Route::prefix('/public/enquiries')->group(function () {
     Route::get('/', [PublicEnquiriesController::class, 'index']);
+    Route::post('/', [PublicEnquiriesController::class, 'store']);
 });
 
 // Admin newsletter
@@ -357,6 +358,7 @@ Route::prefix('/v1/admin/newsletter')->middleware('jwt.auth', 'role:admin')->gro
 // Public newsletter
 Route::prefix('/public/newsletter')->group(function () {
     Route::get('/', [PublicNewsletterController::class, 'index']);
+    Route::post('/subscribe', [PublicNewsletterController::class, 'subscribe']);
 });
 
 // Admin reviews
