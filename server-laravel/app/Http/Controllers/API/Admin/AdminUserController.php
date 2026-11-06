@@ -7,27 +7,50 @@ use App\Http\Requests\Users\ListUsersQueryRequest;
 use App\Http\Requests\Users\UserStatusRequest;
 use App\Models\Booking;
 use App\Models\User;
+use DateTimeInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class AdminUserController extends Controller
 {
+    private function isoDate(mixed $date): ?string
+    {
+        if (empty($date)) {
+            return null;
+        }
+
+        if ($date instanceof DateTimeInterface) {
+            return $date->format('Y-m-d\TH:i:s.v\Z');
+        }
+
+        if (is_string($date)) {
+            try {
+                return Carbon::parse($date)->utc()->format('Y-m-d\TH:i:s.v\Z');
+            } catch (\Throwable) {
+                return $date;
+            }
+        }
+
+        return (string) $date;
+    }
+
     private function formatUser(User $u): array
     {
-        $isActive = (bool) $u->is_active;
-        $createdAt = $u->created_at?->toIso8601String() ?? (string) $u->created_at;
-        $lastLoginAt = $u->last_login_at?->toIso8601String() ?? (string) $u->last_login_at;
+        $isActive = (bool) ($u->is_active ?? $u->isActive ?? true);
+        $createdAt = $this->isoDate($u->created_at ?? $u->createdAt);
+        $lastLoginAt = $this->isoDate($u->last_login_at ?? $u->lastLoginAt);
 
         return [
-            'id' => $u->id,
-            'name' => $u->name,
-            'email' => $u->email,
-            'role' => $u->role,
+            'id' => (string) $u->id,
+            'name' => (string) ($u->name ?? ''),
+            'email' => (string) ($u->email ?? ''),
+            'role' => (string) ($u->role ?? 'user'),
             'is_active' => $isActive,
             'isActive' => $isActive,
             'created_at' => $createdAt,
             'createdAt' => $createdAt,
-            'last_login_at' => $lastLoginAt ?: null,
-            'lastLoginAt' => $lastLoginAt ?: null,
+            'last_login_at' => $lastLoginAt,
+            'lastLoginAt' => $lastLoginAt,
         ];
     }
 
@@ -46,8 +69,8 @@ class AdminUserController extends Controller
             $query->where('role', $role);
         }
 
-        $page = $request->validated('page', 1);
-        $limit = $request->validated('limit', 20);
+        $page = (int) $request->validated('page', 1);
+        $limit = (int) $request->validated('limit', 20);
         $offset = ($page - 1) * $limit;
 
         $total = $query->count();
@@ -89,14 +112,14 @@ class AdminUserController extends Controller
                 ->get();
 
             $bookings = $userBookings->map(fn ($b) => [
-                'id' => $b->id,
-                'bookingNumber' => $b->booking_number ?? $b->id,
-                'status' => $b->status ?? 'CONFIRMED',
-                'paymentStatus' => $b->payment_status ?? 'PAID',
-                'checkIn' => $b->check_in?->toIso8601String() ?? (string) $b->check_in,
-                'checkOut' => $b->check_out?->toIso8601String() ?? (string) $b->check_out,
+                'id' => (string) $b->id,
+                'bookingNumber' => (string) ($b->booking_number ?? $b->id),
+                'status' => (string) ($b->status ?? 'CONFIRMED'),
+                'paymentStatus' => (string) ($b->payment_status ?? 'PAID'),
+                'checkIn' => $this->isoDate($b->check_in),
+                'checkOut' => $this->isoDate($b->check_out),
                 'total' => (float) ($b->total_price ?? 0),
-                'currency' => $b->currency ?? 'GBP',
+                'currency' => (string) ($b->currency ?? 'GBP'),
             ])->all();
 
             foreach ($userBookings as $b) {
@@ -134,7 +157,7 @@ class AdminUserController extends Controller
             ], 404);
         }
 
-        $isActive = $request->validated('is_active');
+        $isActive = (bool) $request->validated('is_active');
         $user->is_active = $isActive;
         $user->save();
 

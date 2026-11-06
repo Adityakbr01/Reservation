@@ -255,7 +255,23 @@ class MediaService
 
     private function isoDate(mixed $date): ?string
     {
-        return $date?->utc()->format('Y-m-d\TH:i:s.v\Z');
+        if (empty($date)) {
+            return null;
+        }
+
+        if ($date instanceof \DateTimeInterface) {
+            return $date->format('Y-m-d\TH:i:s.v\Z');
+        }
+
+        if (is_string($date)) {
+            try {
+                return \Illuminate\Support\Carbon::parse($date)->utc()->format('Y-m-d\TH:i:s.v\Z');
+            } catch (\Throwable) {
+                return $date;
+            }
+        }
+
+        return (string) $date;
     }
 
     private function assertAllowedFile(string $mime, int $size, string $fileName): void

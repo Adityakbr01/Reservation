@@ -90,6 +90,9 @@ class User extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'last_login_at' => 'datetime',
     ];
 
     public function bookings(): HasMany

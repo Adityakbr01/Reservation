@@ -1,0 +1,2060 @@
+[
+  {
+    "id": "6ac3fe92d1f8bc5e7b25ae9f",
+    "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+    "name": "Oakwood Cottage",
+    "slug": "oakwood-cottage",
+    "shortDescription": "Cottage in Hamptworth, Hampshire — sleeps 3",
+    "description": "Located in the peaceful village of Hamptworth, close to the New Forest National Park and the highly regarded Hamptworth Golf & Country Club, Oakwood Cottage offers a stylish countryside escape in a truly enviable setting. Part of the beautifully converted Home Farm development, this charming cottage is one of five thoughtfully restored barn conversions that seamlessly blend rural character with contemporary design.",
+    "maxAdults": 3,
+    "maxChildren": 2,
+    "maxOccupancy": 3,
+    "beds": "[]",
+    "amenities": "[]",
+    "images": [
+      {
+        "altText": "Oakwood Cottage photo 1",
+        "mediaId": "6ac3fc451aa14a97bd46a1ac",
+        "sortOrder": 0,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/30d77fcf-1-6a9a4dd18d411-1515061-6-1.jpg",
+        "fileName": "1-6a9a4dd18d411-1515061 (6)-1.jpg"
+      },
+      {
+        "altText": "Oakwood Cottage photo 2",
+        "mediaId": "6ac3fc461aa14a97bd46a1ad",
+        "sortOrder": 1,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/88eb8ad7-1515061-10.jpg",
+        "fileName": "1515061 (10).jpg"
+      },
+      {
+        "altText": "Oakwood Cottage photo 3",
+        "mediaId": "6ac3fc471aa14a97bd46a1ae",
+        "sortOrder": 2,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/fa8dcc53-1515061-12.jpg",
+        "fileName": "1515061 (12).jpg"
+      },
+      {
+        "altText": "Oakwood Cottage photo 4",
+        "mediaId": "6ac3fc491aa14a97bd46a1af",
+        "sortOrder": 3,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/c43418ba-1515061-15.jpg",
+        "fileName": "1515061 (15).jpg"
+      },
+      {
+        "altText": "Oakwood Cottage photo 5",
+        "mediaId": "6ac3fc4a1aa14a97bd46a1b0",
+        "sortOrder": 4,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/102314c5-1515061-18.jpg",
+        "fileName": "1515061 (18).jpg"
+      },
+      {
+        "altText": "Oakwood Cottage photo 6",
+        "mediaId": "6ac3fc4c1aa14a97bd46a1b1",
+        "sortOrder": 5,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/822f798f-1515061-19.jpg",
+        "fileName": "1515061 (19).jpg"
+      },
+      {
+        "altText": "Oakwood Cottage photo 7",
+        "mediaId": "6ac3fc4d1aa14a97bd46a1b2",
+        "sortOrder": 6,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/061dc3cb-1515061-20.jpg",
+        "fileName": "1515061 (20).jpg"
+      },
+      {
+        "altText": "Oakwood Cottage photo 8",
+        "mediaId": "6ac3fc4f1aa14a97bd46a1b3",
+        "sortOrder": 7,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/24db1cd7-1515061-25.jpg",
+        "fileName": "1515061 (25).jpg"
+      },
+      {
+        "altText": "Oakwood Cottage photo 9",
+        "mediaId": "6ac3fc501aa14a97bd46a1b4",
+        "sortOrder": 8,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/5315e42c-1515061-26.jpg",
+        "fileName": "1515061 (26).jpg"
+      },
+      {
+        "altText": "Oakwood Cottage photo 10",
+        "mediaId": "6ac3fc521aa14a97bd46a1b5",
+        "sortOrder": 9,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/f5d08700-1515061-29.jpg",
+        "fileName": "1515061 (29).jpg"
+      },
+      {
+        "altText": "Oakwood Cottage photo 11",
+        "mediaId": "6ac3fc531aa14a97bd46a1b6",
+        "sortOrder": 10,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/ee82b18a-1515061-35.jpg",
+        "fileName": "1515061 (35).jpg"
+      },
+      {
+        "altText": "Oakwood Cottage photo 12",
+        "mediaId": "6ac3fc541aa14a97bd46a1b7",
+        "sortOrder": 11,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/d7efa333-1515061-8.jpg",
+        "fileName": "1515061 (8).jpg"
+      }
+    ],
+    "media": [
+      {
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 1",
+        "mediaId": "6ac3fc451aa14a97bd46a1ac",
+        "sortOrder": 0,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/30d77fcf-1-6a9a4dd18d411-1515061-6-1.jpg",
+        "fileName": "1-6a9a4dd18d411-1515061 (6)-1.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 2",
+        "mediaId": "6ac3fc461aa14a97bd46a1ad",
+        "sortOrder": 1,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/88eb8ad7-1515061-10.jpg",
+        "fileName": "1515061 (10).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 3",
+        "mediaId": "6ac3fc471aa14a97bd46a1ae",
+        "sortOrder": 2,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/fa8dcc53-1515061-12.jpg",
+        "fileName": "1515061 (12).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 4",
+        "mediaId": "6ac3fc491aa14a97bd46a1af",
+        "sortOrder": 3,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/c43418ba-1515061-15.jpg",
+        "fileName": "1515061 (15).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 5",
+        "mediaId": "6ac3fc4a1aa14a97bd46a1b0",
+        "sortOrder": 4,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/102314c5-1515061-18.jpg",
+        "fileName": "1515061 (18).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 6",
+        "mediaId": "6ac3fc4c1aa14a97bd46a1b1",
+        "sortOrder": 5,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/822f798f-1515061-19.jpg",
+        "fileName": "1515061 (19).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 7",
+        "mediaId": "6ac3fc4d1aa14a97bd46a1b2",
+        "sortOrder": 6,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/061dc3cb-1515061-20.jpg",
+        "fileName": "1515061 (20).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 8",
+        "mediaId": "6ac3fc4f1aa14a97bd46a1b3",
+        "sortOrder": 7,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/24db1cd7-1515061-25.jpg",
+        "fileName": "1515061 (25).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 9",
+        "mediaId": "6ac3fc501aa14a97bd46a1b4",
+        "sortOrder": 8,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/5315e42c-1515061-26.jpg",
+        "fileName": "1515061 (26).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 10",
+        "mediaId": "6ac3fc521aa14a97bd46a1b5",
+        "sortOrder": 9,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/f5d08700-1515061-29.jpg",
+        "fileName": "1515061 (29).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 11",
+        "mediaId": "6ac3fc531aa14a97bd46a1b6",
+        "sortOrder": 10,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/ee82b18a-1515061-35.jpg",
+        "fileName": "1515061 (35).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Oakwood Cottage photo 12",
+        "mediaId": "6ac3fc541aa14a97bd46a1b7",
+        "sortOrder": 11,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/d7efa333-1515061-8.jpg",
+        "fileName": "1515061 (8).jpg"
+      }
+    ],
+    "propertyDetailsHtml": "<h3>Welcome to Oakwood Cottage</h3>",
+    "layoutHtml": "<p><strong>Ground floor:</strong> open-plan kitchen/diner, lounge with wood burner, ground floor bedroom with ensuite.</p><p><strong>First floor:</strong> 2 bedrooms and family bathroom.</p><ul><li>2 bedrooms, 1 bathroom</li><li>Electric hob &amp; oven</li><li>Washer/dryer</li></ul>",
+    "floorplanMediaIds": "[\"6acb6e77a458b0c2bef54efb\"]",
+    "locationText": "Hamptworth, Hampshire, Dorset Borders",
+    "surroundingsHtml": "<p>Information correct at the time of writing:-</p>\n<p>The cottages at Home Farm are conveniently located on the border with Wiltshire and Hampshire, so there are lots of opportunities for things to do and days out.</p>\n<p>Enjoy the facilities at <strong>Hamptworth Golf &amp; Country Club</strong>, including: Championship golf course, Padel courts, Pickleball courts, Croquet, Clubhouse, restaurant and bar.</p>\n<p>Explore the <strong>New Forest National Park</strong> - walk or cycle through ancient woodland, heathland and open moorland - spot the famous free-roaming ponies, cattle and deer. Visit charming villages, traditional pubs and farm shops. Enjoy picnics, nature trails and scenic viewpoints.</p>\n<p>Discover <strong>Salisbury</strong> &amp; its history - visit <strong>Salisbury Cathedral</strong>, home to the tallest church spire in Britain, and one of the best-preserved original copies of the Magna Carta - Visit <strong>Mompesson House</strong>, wander Salisbury's independent shops, cafes and restaurants or explore <strong>Old Sarum</strong>, one of southern England's most important historic sites, with its impressive ancient earthworks and panoramic views.</p>\n<p>Discover Wiltshire's World Heritage Sites - visit the iconic <strong>Stonehenge</strong>, and explore <strong>Avebury</strong>, home to the world's largest prehistoric stone circle, and discover the rich ancient history that makes this UNESCO World Heritage landscape so special.</p>\n<p>Take a trip to <strong>Shaftesbury</strong> and see the famous <strong>Gold Hill</strong>, featured in the classic Hovis advert.</p>\n<p>For gardens, heritage &amp; historic houses visit the magnificent gardens at <strong>Stourhead</strong>, explore the picturesque village and historic buildings of <strong>Lacock Abbey</strong>, and wander the beautiful rose gardens and grounds at <strong>Mottisfont</strong>.</p>",
+    "mapLat": 50.9622,
+    "mapLng": -1.7347,
+    "mapEmbedUrl": null,
+    "welcomeHamperIncluded": 1,
+    "welcomeHamperDescription": "Each cottage includes a complimentary welcome hamper with a selection of teas, coffee, fresh milk and biscuits for guests to enjoy during their stay.",
+    "welcomeHamperImageMediaId": null,
+    "welcomeHamperHtml": "<p>Each cottage includes a complimentary welcome hamper with a selection of teas, coffee, fresh milk and biscuits for guests to enjoy during their stay.</p>",
+    "amenityIds": "[\"6ac3e2bced148dd299f90fb0\", \"6ac3e2bced148dd299f90fb1\", \"6ac3e2bced148dd299f90fb2\", \"6ac3e2bced148dd299f90fb3\", \"6ac3e2bced148dd299f90fb4\", \"6ac3e2bced148dd299f90fb5\", \"6ac3e2bced148dd299f90fb6\", \"6ac3e2bced148dd299f90fb7\", \"6ac3e2bded148dd299f90fb8\", \"6ac3e2bded148dd299f90fb9\", \"6ac3e2bded148dd299f90fba\", \"6ac3ece4f55bc9c9731d99e3\", \"6ac3e2bbed148dd299f90fa7\", \"6ac3e2bbed148dd299f90fa8\", \"6ac3e2bbed148dd299f90fa9\", \"6ac3e2bbed148dd299f90faa\", \"6ac3e2bbed148dd299f90fab\", \"6ac3e2bbed148dd299f90fac\", \"6ac3e2bced148dd299f90fad\", \"6ac3e2bced148dd299f90fae\", \"6ac3e2bced148dd299f90faf\", \"1af5d93f980aec69f00aa837\", \"f6632456e87c9c5265df2836\"]",
+    "nearbyAttractions": [
+      {
+        "url": "https://www.newforestnpa.gov.uk/",
+        "name": "New Forest National Park",
+        "description": "Walking & cycling",
+        "imageMediaId": null
+      },
+      {
+        "url": null,
+        "name": "Hamptworth Golf & Country Club",
+        "description": "Golf, dining & clubhouse",
+        "imageMediaId": null
+      },
+      {
+        "url": "https://www.salisburycathedral.org.uk/",
+        "name": "Salisbury Cathedral",
+        "description": "Historic landmark",
+        "imageMediaId": null
+      },
+      {
+        "url": "https://www.english-heritage.org.uk/visit/places/stonehenge/",
+        "name": "Stonehenge",
+        "description": "World heritage site",
+        "imageMediaId": null
+      }
+    ],
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "maxDogs": 1,
+    "status": "ACTIVE",
+    "seo": null,
+    "createdAt": "2026-10-05 19:46:26",
+    "updatedAt": "2026-10-27 04:03:27",
+    "amenityList": [
+      {
+        "id": "6ac3e2bced148dd299f90fb0",
+        "name": "Electric hob & oven",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb1",
+        "name": "Garden furniture",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb2",
+        "name": "Television",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb3",
+        "name": "Washer/dryer",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb4",
+        "name": "Dog-friendly",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb5",
+        "name": "Bed Linen",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb6",
+        "name": "Dishwasher",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb7",
+        "name": "Fridge/Freezer",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bded148dd299f90fb8",
+        "name": "Microwave",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bded148dd299f90fb9",
+        "name": "Towels",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bded148dd299f90fba",
+        "name": "Unknown/deleted amenity (ID referenced but no row exists)",
+        "group": null
+      },
+      {
+        "id": "6ac3ece4f55bc9c9731d99e3",
+        "name": "One dog allowed",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fa7",
+        "name": "Parking",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fa8",
+        "name": "WiFi",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fa9",
+        "name": "Baby Welcome",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90faa",
+        "name": "Bird Watching (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fab",
+        "name": "Ground Floor Bedroom (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fac",
+        "name": "Cycling (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fad",
+        "name": "Romantic Breaks (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fae",
+        "name": "Golfing",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90faf",
+        "name": "Walking",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "1af5d93f980aec69f00aa837",
+        "name": "Padel",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "f6632456e87c9c5265df2836",
+        "name": "Infants",
+        "group": "FACILITY"
+      }
+    ],
+    "ratePlans": [
+      {
+        "id": "6ac3fe92d1f8bc5e7b25aea1",
+        "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+        "roomTypeId": "6ac3fe92d1f8bc5e7b25ae9f",
+        "name": "Standard Rate",
+        "slug": "oakwood-cottage-standard-rate",
+        "description": "Base nightly rate — set the price and activate to publish.",
+        "pricing": {
+          "type": "PER_NIGHT",
+          "amount": 26000,
+          "currency": "GBP"
+        },
+        "restrictions": {
+          "maxNights": null,
+          "minNights": 2,
+          "validFrom": null,
+          "daysOfWeek": [],
+          "validUntil": null,
+          "maxAdvanceDays": null,
+          "minAdvanceDays": null
+        },
+        "cancellationPolicyId": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-10-05 19:46:26",
+        "updatedAt": "2026-10-29 11:30:22"
+      }
+    ],
+    "rooms": [
+      {
+        "id": "6ac3fe92d1f8bc5e7b25aea0",
+        "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+        "roomTypeId": "6ac3fe92d1f8bc5e7b25ae9f",
+        "name": "Oakwood Cottage",
+        "roomNumber": "OAK-1",
+        "floor": null,
+        "status": "ACTIVE",
+        "condition": null,
+        "notes": null,
+        "createdAt": "2026-10-05 19:46:26",
+        "updatedAt": "2026-10-05 19:46:26"
+      }
+    ],
+    "floorplanUrls": [
+      "https://hamptworthstays.com/uploads/media/2026/10/798b7fd0-oukwoord-floorplan.jpg"
+    ]
+  },
+  {
+    "id": "6ac3fe92d1f8bc5e7b25aea2",
+    "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+    "name": "The Dales Cottage",
+    "slug": "the-dales-cottage",
+    "shortDescription": "Cottage in Hamptworth, Hampshire — sleeps 4",
+    "description": "Surrounded by the beautiful countryside of Hamptworth and perfectly positioned on the edge of the New Forest, The Dales Cottage offers a peaceful retreat where comfort, style and rural charm come together. Part of the exclusive Home Farm collection of converted barns, this thoughtfully designed cottage provides a wonderful base for exploring the local area or simply enjoying a slower pace of life.",
+    "maxAdults": 4,
+    "maxChildren": 3,
+    "maxOccupancy": 4,
+    "beds": "[]",
+    "amenities": "[]",
+    "images": [
+      {
+        "altText": "The Dales Cottage photo 1",
+        "mediaId": "6ac3fc561aa14a97bd46a1b8",
+        "sortOrder": 0,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/8a9030bc-1515065-12-6a9983e4e49c9.jpg",
+        "fileName": "1515065-12-6a9983e4e49c9.jpg"
+      },
+      {
+        "altText": "The Dales Cottage photo 2",
+        "mediaId": "6ac3fc581aa14a97bd46a1b9",
+        "sortOrder": 1,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/f0394ae0-1515065-18-6a9984585b041.jpg",
+        "fileName": "1515065-18-6a9984585b041.jpg"
+      },
+      {
+        "altText": "The Dales Cottage photo 3",
+        "mediaId": "6ac3fc591aa14a97bd46a1ba",
+        "sortOrder": 2,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/be9cb60d-1515065-19-6a9984c701407.jpg",
+        "fileName": "1515065-19-6a9984c701407.jpg"
+      },
+      {
+        "altText": "The Dales Cottage photo 4",
+        "mediaId": "6ac3fc5a1aa14a97bd46a1bb",
+        "sortOrder": 3,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/842cb6fb-1515065-22-6a9985f972bfd.jpg",
+        "fileName": "1515065-22-6a9985f972bfd.jpg"
+      },
+      {
+        "altText": "The Dales Cottage photo 5",
+        "mediaId": "6ac3fc5c1aa14a97bd46a1bc",
+        "sortOrder": 4,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/f397f10f-1515065-24-6a998bc27db19.jpg",
+        "fileName": "1515065-24-6a998bc27db19.jpg"
+      },
+      {
+        "altText": "The Dales Cottage photo 6",
+        "mediaId": "6ac3fc5d1aa14a97bd46a1bd",
+        "sortOrder": 5,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/69f6427c-1515065-29-6a998c2ac7676.jpg",
+        "fileName": "1515065-29-6a998c2ac7676.jpg"
+      },
+      {
+        "altText": "The Dales Cottage photo 7",
+        "mediaId": "6ac3fc5f1aa14a97bd46a1be",
+        "sortOrder": 6,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/23a8f86d-1515065-3-6a9983726e6d7.jpg",
+        "fileName": "1515065-3-6a9983726e6d7.jpg"
+      },
+      {
+        "altText": "The Dales Cottage photo 8",
+        "mediaId": "6ac3fc601aa14a97bd46a1bf",
+        "sortOrder": 7,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/02440e49-1515065-32-6a998c9bb9947.jpg",
+        "fileName": "1515065-32-6a998c9bb9947.jpg"
+      },
+      {
+        "altText": "The Dales Cottage photo 9",
+        "mediaId": "6ac3fc611aa14a97bd46a1c0",
+        "sortOrder": 8,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/6ced2bf4-1515065-36-6a998d4c761dd.jpg",
+        "fileName": "1515065-36-6a998d4c761dd.jpg"
+      },
+      {
+        "altText": "The Dales Cottage photo 10",
+        "mediaId": "6ac3fc631aa14a97bd46a1c1",
+        "sortOrder": 9,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/826df699-1515065-37-6a998d6d289e5.jpg",
+        "fileName": "1515065-37-6a998d6d289e5.jpg"
+      },
+      {
+        "altText": "The Dales Cottage photo 11",
+        "mediaId": "6ac3fc641aa14a97bd46a1c2",
+        "sortOrder": 10,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/9c75a557-1515065-38-6a998d9652007.jpg",
+        "fileName": "1515065-38-6a998d9652007.jpg"
+      }
+    ],
+    "media": [
+      {
+        "kind": "image",
+        "altText": "The Dales Cottage photo 1",
+        "mediaId": "6ac3fc561aa14a97bd46a1b8",
+        "sortOrder": 0,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/8a9030bc-1515065-12-6a9983e4e49c9.jpg",
+        "fileName": "1515065-12-6a9983e4e49c9.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "The Dales Cottage photo 2",
+        "mediaId": "6ac3fc581aa14a97bd46a1b9",
+        "sortOrder": 1,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/f0394ae0-1515065-18-6a9984585b041.jpg",
+        "fileName": "1515065-18-6a9984585b041.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "The Dales Cottage photo 3",
+        "mediaId": "6ac3fc591aa14a97bd46a1ba",
+        "sortOrder": 2,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/be9cb60d-1515065-19-6a9984c701407.jpg",
+        "fileName": "1515065-19-6a9984c701407.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "The Dales Cottage photo 4",
+        "mediaId": "6ac3fc5a1aa14a97bd46a1bb",
+        "sortOrder": 3,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/842cb6fb-1515065-22-6a9985f972bfd.jpg",
+        "fileName": "1515065-22-6a9985f972bfd.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "The Dales Cottage photo 5",
+        "mediaId": "6ac3fc5c1aa14a97bd46a1bc",
+        "sortOrder": 4,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/f397f10f-1515065-24-6a998bc27db19.jpg",
+        "fileName": "1515065-24-6a998bc27db19.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "The Dales Cottage photo 6",
+        "mediaId": "6ac3fc5d1aa14a97bd46a1bd",
+        "sortOrder": 5,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/69f6427c-1515065-29-6a998c2ac7676.jpg",
+        "fileName": "1515065-29-6a998c2ac7676.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "The Dales Cottage photo 7",
+        "mediaId": "6ac3fc5f1aa14a97bd46a1be",
+        "sortOrder": 6,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/23a8f86d-1515065-3-6a9983726e6d7.jpg",
+        "fileName": "1515065-3-6a9983726e6d7.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "The Dales Cottage photo 8",
+        "mediaId": "6ac3fc601aa14a97bd46a1bf",
+        "sortOrder": 7,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/02440e49-1515065-32-6a998c9bb9947.jpg",
+        "fileName": "1515065-32-6a998c9bb9947.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "The Dales Cottage photo 9",
+        "mediaId": "6ac3fc611aa14a97bd46a1c0",
+        "sortOrder": 8,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/6ced2bf4-1515065-36-6a998d4c761dd.jpg",
+        "fileName": "1515065-36-6a998d4c761dd.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "The Dales Cottage photo 10",
+        "mediaId": "6ac3fc631aa14a97bd46a1c1",
+        "sortOrder": 9,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/826df699-1515065-37-6a998d6d289e5.jpg",
+        "fileName": "1515065-37-6a998d6d289e5.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "The Dales Cottage photo 11",
+        "mediaId": "6ac3fc641aa14a97bd46a1c2",
+        "sortOrder": 10,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/9c75a557-1515065-38-6a998d9652007.jpg",
+        "fileName": "1515065-38-6a998d9652007.jpg"
+      }
+    ],
+    "propertyDetailsHtml": "<h3>Welcome to The Dales Cottage</h3>",
+    "layoutHtml": "<p><strong>Ground floor:</strong> open-plan kitchen/diner, lounge with wood burner.</p><p><strong>First floor:</strong> 2 bedrooms and family bathroom.</p><ul><li>2 bedrooms, 1 bathroom</li><li>Electric hob &amp; oven</li><li>Washer/dryer</li></ul>",
+    "floorplanMediaIds": "[\"6acb6e65a458b0c2bef54ef9\"]",
+    "locationText": "Hamptworth, Hampshire, Dorset Borders",
+    "surroundingsHtml": "<p>Information correct at the time of writing:-</p>\n<p>The cottages at Home Farm are conveniently located on the border with Wiltshire and Hampshire, so there are lots of opportunities for things to do and days out.</p>\n<p>Enjoy the facilities at <strong>Hamptworth Golf &amp; Country Club</strong>, including: Championship golf course, Padel courts, Pickleball courts, Croquet, Clubhouse, restaurant and bar.</p>\n<p>Explore the <strong>New Forest National Park</strong> - walk or cycle through ancient woodland, heathland and open moorland - spot the famous free-roaming ponies, cattle and deer. Visit charming villages, traditional pubs and farm shops. Enjoy picnics, nature trails and scenic viewpoints.</p>\n<p>Discover <strong>Salisbury</strong> &amp; its history - visit <strong>Salisbury Cathedral</strong>, home to the tallest church spire in Britain, and one of the best-preserved original copies of the Magna Carta - Visit <strong>Mompesson House</strong>, wander Salisbury's independent shops, cafes and restaurants or explore <strong>Old Sarum</strong>, one of southern England's most important historic sites, with its impressive ancient earthworks and panoramic views.</p>\n<p>Discover Wiltshire's World Heritage Sites - visit the iconic <strong>Stonehenge</strong>, and explore <strong>Avebury</strong>, home to the world's largest prehistoric stone circle, and discover the rich ancient history that makes this UNESCO World Heritage landscape so special.</p>\n<p>Take a trip to <strong>Shaftesbury</strong> and see the famous <strong>Gold Hill</strong>, featured in the classic Hovis advert.</p>\n<p>For gardens, heritage &amp; historic houses visit the magnificent gardens at <strong>Stourhead</strong>, explore the picturesque village and historic buildings of <strong>Lacock Abbey</strong>, and wander the beautiful rose gardens and grounds at <strong>Mottisfont</strong>.</p>",
+    "mapLat": 50.9622,
+    "mapLng": -1.7347,
+    "mapEmbedUrl": null,
+    "welcomeHamperIncluded": 1,
+    "welcomeHamperDescription": "Each cottage includes a complimentary welcome hamper with a selection of teas, coffee, fresh milk and biscuits for guests to enjoy during their stay.",
+    "welcomeHamperImageMediaId": null,
+    "welcomeHamperHtml": "<p>Each cottage includes a complimentary welcome hamper with a selection of teas, coffee, fresh milk and biscuits for guests to enjoy during their stay.</p>",
+    "amenityIds": "[\"6ac3e2bced148dd299f90fb0\", \"6ac3e2bced148dd299f90fb1\", \"6ac3e2bced148dd299f90fb2\", \"6ac3e2bced148dd299f90fb3\", \"6ac3e2bced148dd299f90fb4\", \"6ac3e2bced148dd299f90fb5\", \"6ac3e2bced148dd299f90fb6\", \"6ac3e2bced148dd299f90fb7\", \"6ac3e2bded148dd299f90fb8\", \"6ac3e2bded148dd299f90fb9\", \"6ac3e2bded148dd299f90fba\", \"6ac3ece4f55bc9c9731d99e3\", \"6ac3e2bbed148dd299f90fa7\", \"6ac3e2bbed148dd299f90fa8\", \"6ac3e2bbed148dd299f90fa9\", \"6ac3e2bbed148dd299f90faa\", \"6ac3e2bbed148dd299f90fab\", \"6ac3e2bbed148dd299f90fac\", \"6ac3e2bced148dd299f90fad\", \"6ac3e2bced148dd299f90fae\", \"6ac3e2bced148dd299f90faf\", \"1af5d93f980aec69f00aa837\", \"f6632456e87c9c5265df2836\"]",
+    "nearbyAttractions": [
+      {
+        "url": "https://www.newforestnpa.gov.uk/",
+        "name": "New Forest National Park",
+        "description": "Walking & cycling",
+        "imageMediaId": null
+      },
+      {
+        "url": null,
+        "name": "Hamptworth Golf & Country Club",
+        "description": "Golf, dining & clubhouse",
+        "imageMediaId": null
+      },
+      {
+        "url": "https://www.salisburycathedral.org.uk/",
+        "name": "Salisbury Cathedral",
+        "description": "Historic landmark",
+        "imageMediaId": null
+      },
+      {
+        "url": "https://www.english-heritage.org.uk/visit/places/stonehenge/",
+        "name": "Stonehenge",
+        "description": "World heritage site",
+        "imageMediaId": null
+      }
+    ],
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "maxDogs": null,
+    "status": "ACTIVE",
+    "seo": null,
+    "createdAt": "2026-10-05 19:46:26",
+    "updatedAt": "2026-10-27 04:03:29",
+    "amenityList": [
+      {
+        "id": "6ac3e2bced148dd299f90fb0",
+        "name": "Electric hob & oven",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb1",
+        "name": "Garden furniture",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb2",
+        "name": "Television",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb3",
+        "name": "Washer/dryer",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb4",
+        "name": "Dog-friendly",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb5",
+        "name": "Bed Linen",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb6",
+        "name": "Dishwasher",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb7",
+        "name": "Fridge/Freezer",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bded148dd299f90fb8",
+        "name": "Microwave",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bded148dd299f90fb9",
+        "name": "Towels",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bded148dd299f90fba",
+        "name": "Unknown/deleted amenity (ID referenced but no row exists)",
+        "group": null
+      },
+      {
+        "id": "6ac3ece4f55bc9c9731d99e3",
+        "name": "One dog allowed",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fa7",
+        "name": "Parking",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fa8",
+        "name": "WiFi",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fa9",
+        "name": "Baby Welcome",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90faa",
+        "name": "Bird Watching (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fab",
+        "name": "Ground Floor Bedroom (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fac",
+        "name": "Cycling (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fad",
+        "name": "Romantic Breaks (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fae",
+        "name": "Golfing",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90faf",
+        "name": "Walking",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "1af5d93f980aec69f00aa837",
+        "name": "Padel",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "f6632456e87c9c5265df2836",
+        "name": "Infants",
+        "group": "FACILITY"
+      }
+    ],
+    "ratePlans": [
+      {
+        "id": "6ac3fe93d1f8bc5e7b25aea4",
+        "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+        "roomTypeId": "6ac3fe92d1f8bc5e7b25aea2",
+        "name": "Standard Rate",
+        "slug": "the-dales-cottage-standard-rate",
+        "description": "Base nightly rate — set the price and activate to publish.",
+        "pricing": {
+          "type": "PER_NIGHT",
+          "amount": 26000,
+          "currency": "GBP"
+        },
+        "restrictions": {
+          "maxNights": null,
+          "minNights": 2,
+          "validFrom": null,
+          "daysOfWeek": [],
+          "validUntil": null,
+          "maxAdvanceDays": null,
+          "minAdvanceDays": null
+        },
+        "cancellationPolicyId": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-10-05 19:46:27",
+        "updatedAt": "2026-10-27 04:00:45"
+      }
+    ],
+    "rooms": [
+      {
+        "id": "6ac3fe92d1f8bc5e7b25aea3",
+        "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+        "roomTypeId": "6ac3fe92d1f8bc5e7b25aea2",
+        "name": "The Dales Cottage",
+        "roomNumber": "DAL-1",
+        "floor": null,
+        "status": "ACTIVE",
+        "condition": null,
+        "notes": null,
+        "createdAt": "2026-10-05 19:46:26",
+        "updatedAt": "2026-10-05 19:46:26"
+      }
+    ],
+    "floorplanUrls": [
+      "https://hamptworthstays.com/uploads/media/2026/10/59bc3dfd-dales-floorplan.jpg"
+    ]
+  },
+  {
+    "id": "6ac3fe93d1f8bc5e7b25aea5",
+    "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+    "name": "Willow Brook",
+    "slug": "willow-brook",
+    "shortDescription": "Cottage in Hamptworth, Hampshire — sleeps 4",
+    "description": "Tucked away within the peaceful surroundings of Home Farm in Hamptworth, Willow Brook offers a delightful rural retreat on the edge of the New Forest. One of five beautifully converted barn cottages, it combines contemporary styling with thoughtful comforts, creating a welcoming base for exploring this stunning part of Hampshire.",
+    "maxAdults": 4,
+    "maxChildren": 3,
+    "maxOccupancy": 4,
+    "beds": "[]",
+    "amenities": "[]",
+    "images": [
+      {
+        "altText": "Willow Brook photo 1",
+        "mediaId": "6ac3fc661aa14a97bd46a1c3",
+        "sortOrder": 0,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/e4b9c4f0-1515062-12-result.jpg",
+        "fileName": "1515062 (12)_result.jpg"
+      },
+      {
+        "altText": "Willow Brook photo 2",
+        "mediaId": "6ac3fc671aa14a97bd46a1c4",
+        "sortOrder": 1,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/952bb720-1515062-13-result.jpg",
+        "fileName": "1515062 (13)_result.jpg"
+      },
+      {
+        "altText": "Willow Brook photo 3",
+        "mediaId": "6ac3fc691aa14a97bd46a1c5",
+        "sortOrder": 2,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/b2b2165f-1515062-14-result.jpg",
+        "fileName": "1515062 (14)_result.jpg"
+      },
+      {
+        "altText": "Willow Brook photo 4",
+        "mediaId": "6ac3fc6a1aa14a97bd46a1c6",
+        "sortOrder": 3,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/b8532654-1515062-15-result.jpg",
+        "fileName": "1515062 (15)_result.jpg"
+      },
+      {
+        "altText": "Willow Brook photo 5",
+        "mediaId": "6ac3fc6c1aa14a97bd46a1c7",
+        "sortOrder": 4,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/0dd8a2a4-1515062-21-result.jpg",
+        "fileName": "1515062 (21)_result.jpg"
+      },
+      {
+        "altText": "Willow Brook photo 6",
+        "mediaId": "6ac3fc6d1aa14a97bd46a1c8",
+        "sortOrder": 5,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/0a1f700c-1515062-24-result.jpg",
+        "fileName": "1515062 (24)_result.jpg"
+      },
+      {
+        "altText": "Willow Brook photo 7",
+        "mediaId": "6ac3fc6f1aa14a97bd46a1c9",
+        "sortOrder": 6,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/a2f7421a-1515062-28-result.jpg",
+        "fileName": "1515062 (28)_result.jpg"
+      },
+      {
+        "altText": "Willow Brook photo 8",
+        "mediaId": "6ac3fc701aa14a97bd46a1ca",
+        "sortOrder": 7,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/529c9fee-1515062-3-result.jpg",
+        "fileName": "1515062 (3)_result.jpg"
+      },
+      {
+        "altText": "Willow Brook photo 9",
+        "mediaId": "6ac3fc721aa14a97bd46a1cb",
+        "sortOrder": 8,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/43a77a24-1515062-31-result.jpg",
+        "fileName": "1515062 (31)_result.jpg"
+      },
+      {
+        "altText": "Willow Brook photo 10",
+        "mediaId": "6ac3fc731aa14a97bd46a1cc",
+        "sortOrder": 9,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/077e68aa-1515062-39-result.jpg",
+        "fileName": "1515062 (39)_result.jpg"
+      },
+      {
+        "altText": "Willow Brook photo 11",
+        "mediaId": "6ac3fc751aa14a97bd46a1cd",
+        "sortOrder": 10,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/5ab795e2-1515062-42-result.jpg",
+        "fileName": "1515062 (42)_result.jpg"
+      },
+      {
+        "altText": "Willow Brook photo 12",
+        "mediaId": "6ac3fc761aa14a97bd46a1ce",
+        "sortOrder": 11,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/31e772c9-1515062-5-result.jpg",
+        "fileName": "1515062 (5)_result.jpg"
+      }
+    ],
+    "media": [
+      {
+        "kind": "image",
+        "altText": "Willow Brook photo 1",
+        "mediaId": "6ac3fc661aa14a97bd46a1c3",
+        "sortOrder": 0,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/e4b9c4f0-1515062-12-result.jpg",
+        "fileName": "1515062 (12)_result.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Willow Brook photo 2",
+        "mediaId": "6ac3fc671aa14a97bd46a1c4",
+        "sortOrder": 1,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/952bb720-1515062-13-result.jpg",
+        "fileName": "1515062 (13)_result.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Willow Brook photo 3",
+        "mediaId": "6ac3fc691aa14a97bd46a1c5",
+        "sortOrder": 2,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/b2b2165f-1515062-14-result.jpg",
+        "fileName": "1515062 (14)_result.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Willow Brook photo 4",
+        "mediaId": "6ac3fc6a1aa14a97bd46a1c6",
+        "sortOrder": 3,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/b8532654-1515062-15-result.jpg",
+        "fileName": "1515062 (15)_result.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Willow Brook photo 5",
+        "mediaId": "6ac3fc6c1aa14a97bd46a1c7",
+        "sortOrder": 4,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/0dd8a2a4-1515062-21-result.jpg",
+        "fileName": "1515062 (21)_result.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Willow Brook photo 6",
+        "mediaId": "6ac3fc6d1aa14a97bd46a1c8",
+        "sortOrder": 5,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/0a1f700c-1515062-24-result.jpg",
+        "fileName": "1515062 (24)_result.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Willow Brook photo 7",
+        "mediaId": "6ac3fc6f1aa14a97bd46a1c9",
+        "sortOrder": 6,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/a2f7421a-1515062-28-result.jpg",
+        "fileName": "1515062 (28)_result.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Willow Brook photo 8",
+        "mediaId": "6ac3fc701aa14a97bd46a1ca",
+        "sortOrder": 7,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/529c9fee-1515062-3-result.jpg",
+        "fileName": "1515062 (3)_result.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Willow Brook photo 9",
+        "mediaId": "6ac3fc721aa14a97bd46a1cb",
+        "sortOrder": 8,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/43a77a24-1515062-31-result.jpg",
+        "fileName": "1515062 (31)_result.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Willow Brook photo 10",
+        "mediaId": "6ac3fc731aa14a97bd46a1cc",
+        "sortOrder": 9,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/077e68aa-1515062-39-result.jpg",
+        "fileName": "1515062 (39)_result.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Willow Brook photo 11",
+        "mediaId": "6ac3fc751aa14a97bd46a1cd",
+        "sortOrder": 10,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/5ab795e2-1515062-42-result.jpg",
+        "fileName": "1515062 (42)_result.jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Willow Brook photo 12",
+        "mediaId": "6ac3fc761aa14a97bd46a1ce",
+        "sortOrder": 11,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/31e772c9-1515062-5-result.jpg",
+        "fileName": "1515062 (5)_result.jpg"
+      }
+    ],
+    "propertyDetailsHtml": "<h3>Welcome to Willow Brook</h3>",
+    "layoutHtml": "<p><strong>Ground floor:</strong> open-plan kitchen/diner, lounge with wood burner.</p><p><strong>First floor:</strong> 2 bedrooms and family bathroom.</p><ul><li>2 bedrooms, 1 bathroom</li><li>Electric hob &amp; oven</li><li>Washer/dryer</li></ul>",
+    "floorplanMediaIds": "[\"6acb6b5ba458b0c2bef54ed4\"]",
+    "locationText": "Hamptworth, Hampshire, Dorset Borders",
+    "surroundingsHtml": "<p>Information correct at the time of writing:-</p>\n<p>The cottages at Home Farm are conveniently located on the border with Wiltshire and Hampshire, so there are lots of opportunities for things to do and days out.</p>\n<p>Enjoy the facilities at <strong>Hamptworth Golf &amp; Country Club</strong>, including: Championship golf course, Padel courts, Pickleball courts, Croquet, Clubhouse, restaurant and bar.</p>\n<p>Explore the <strong>New Forest National Park</strong> - walk or cycle through ancient woodland, heathland and open moorland - spot the famous free-roaming ponies, cattle and deer. Visit charming villages, traditional pubs and farm shops. Enjoy picnics, nature trails and scenic viewpoints.</p>\n<p>Discover <strong>Salisbury</strong> &amp; its history - visit <strong>Salisbury Cathedral</strong>, home to the tallest church spire in Britain, and one of the best-preserved original copies of the Magna Carta - Visit <strong>Mompesson House</strong>, wander Salisbury's independent shops, cafes and restaurants or explore <strong>Old Sarum</strong>, one of southern England's most important historic sites, with its impressive ancient earthworks and panoramic views.</p>\n<p>Discover Wiltshire's World Heritage Sites - visit the iconic <strong>Stonehenge</strong>, and explore <strong>Avebury</strong>, home to the world's largest prehistoric stone circle, and discover the rich ancient history that makes this UNESCO World Heritage landscape so special.</p>\n<p>Take a trip to <strong>Shaftesbury</strong> and see the famous <strong>Gold Hill</strong>, featured in the classic Hovis advert.</p>\n<p>For gardens, heritage &amp; historic houses visit the magnificent gardens at <strong>Stourhead</strong>, explore the picturesque village and historic buildings of <strong>Lacock Abbey</strong>, and wander the beautiful rose gardens and grounds at <strong>Mottisfont</strong>.</p>",
+    "mapLat": 50.9622,
+    "mapLng": -1.7347,
+    "mapEmbedUrl": null,
+    "welcomeHamperIncluded": 1,
+    "welcomeHamperDescription": "Each cottage includes a complimentary welcome hamper with a selection of teas, coffee, fresh milk and biscuits for guests to enjoy during their stay.",
+    "welcomeHamperImageMediaId": null,
+    "welcomeHamperHtml": "<p>Each cottage includes a complimentary welcome hamper with a selection of teas, coffee, fresh milk and biscuits for guests to enjoy during their stay.</p>",
+    "amenityIds": "[\"6ac3e2bced148dd299f90fb0\", \"6ac3e2bced148dd299f90fb1\", \"6ac3e2bced148dd299f90fb2\", \"6ac3e2bced148dd299f90fb3\", \"6ac3e2bced148dd299f90fb4\", \"6ac3e2bced148dd299f90fb5\", \"6ac3e2bced148dd299f90fb6\", \"6ac3e2bced148dd299f90fb7\", \"6ac3e2bded148dd299f90fb8\", \"6ac3e2bded148dd299f90fb9\", \"6ac3e2bded148dd299f90fba\", \"6ac3ece4f55bc9c9731d99e3\", \"6ac3e2bbed148dd299f90fa7\", \"6ac3e2bbed148dd299f90fa8\", \"6ac3e2bbed148dd299f90fa9\", \"6ac3e2bbed148dd299f90faa\", \"6ac3e2bbed148dd299f90fab\", \"6ac3e2bbed148dd299f90fac\", \"6ac3e2bced148dd299f90fad\", \"6ac3e2bced148dd299f90fae\", \"6ac3e2bced148dd299f90faf\", \"1af5d93f980aec69f00aa837\", \"f6632456e87c9c5265df2836\"]",
+    "nearbyAttractions": [
+      {
+        "url": "https://www.newforestnpa.gov.uk/",
+        "name": "New Forest National Park",
+        "description": "Walking & cycling",
+        "imageMediaId": null
+      },
+      {
+        "url": null,
+        "name": "Hamptworth Golf & Country Club",
+        "description": "Golf, dining & clubhouse",
+        "imageMediaId": null
+      },
+      {
+        "url": "https://www.salisburycathedral.org.uk/",
+        "name": "Salisbury Cathedral",
+        "description": "Historic landmark",
+        "imageMediaId": null
+      },
+      {
+        "url": "https://www.english-heritage.org.uk/visit/places/stonehenge/",
+        "name": "Stonehenge",
+        "description": "World heritage site",
+        "imageMediaId": null
+      }
+    ],
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "maxDogs": null,
+    "status": "ACTIVE",
+    "seo": null,
+    "createdAt": "2026-10-05 19:46:27",
+    "updatedAt": "2026-10-27 04:03:31",
+    "amenityList": [
+      {
+        "id": "6ac3e2bced148dd299f90fb0",
+        "name": "Electric hob & oven",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb1",
+        "name": "Garden furniture",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb2",
+        "name": "Television",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb3",
+        "name": "Washer/dryer",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb4",
+        "name": "Dog-friendly",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb5",
+        "name": "Bed Linen",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb6",
+        "name": "Dishwasher",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb7",
+        "name": "Fridge/Freezer",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bded148dd299f90fb8",
+        "name": "Microwave",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bded148dd299f90fb9",
+        "name": "Towels",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bded148dd299f90fba",
+        "name": "Unknown/deleted amenity (ID referenced but no row exists)",
+        "group": null
+      },
+      {
+        "id": "6ac3ece4f55bc9c9731d99e3",
+        "name": "One dog allowed",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fa7",
+        "name": "Parking",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fa8",
+        "name": "WiFi",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fa9",
+        "name": "Baby Welcome",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90faa",
+        "name": "Bird Watching (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fab",
+        "name": "Ground Floor Bedroom (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fac",
+        "name": "Cycling (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fad",
+        "name": "Romantic Breaks (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fae",
+        "name": "Golfing",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90faf",
+        "name": "Walking",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "1af5d93f980aec69f00aa837",
+        "name": "Padel",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "f6632456e87c9c5265df2836",
+        "name": "Infants",
+        "group": "FACILITY"
+      }
+    ],
+    "ratePlans": [
+      {
+        "id": "6ac3fe93d1f8bc5e7b25aea7",
+        "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+        "roomTypeId": "6ac3fe93d1f8bc5e7b25aea5",
+        "name": "Standard Rate",
+        "slug": "willow-brook-standard-rate",
+        "description": "Base nightly rate — set the price and activate to publish.",
+        "pricing": {
+          "type": "PER_NIGHT",
+          "amount": 26000,
+          "currency": "GBP"
+        },
+        "restrictions": {
+          "maxNights": null,
+          "minNights": 2,
+          "validFrom": null,
+          "daysOfWeek": [],
+          "validUntil": null,
+          "maxAdvanceDays": null,
+          "minAdvanceDays": null
+        },
+        "cancellationPolicyId": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-10-05 19:46:27",
+        "updatedAt": "2026-10-27 04:00:51"
+      }
+    ],
+    "rooms": [
+      {
+        "id": "6ac3fe93d1f8bc5e7b25aea6",
+        "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+        "roomTypeId": "6ac3fe93d1f8bc5e7b25aea5",
+        "name": "Willow Brook",
+        "roomNumber": "WIL-1",
+        "floor": null,
+        "status": "ACTIVE",
+        "condition": null,
+        "notes": null,
+        "createdAt": "2026-10-05 19:46:27",
+        "updatedAt": "2026-10-05 19:46:27"
+      }
+    ],
+    "floorplanUrls": [
+      "https://hamptworthstays.com/uploads/media/2026/10/815b4603-willow-floorplan.jpg"
+    ]
+  },
+  {
+    "id": "6ac3fe93d1f8bc5e7b25aea8",
+    "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+    "name": "Foxglove Cottage",
+    "slug": "foxglove-cottage",
+    "shortDescription": "Cottage in Hamptworth, Hampshire — sleeps 4",
+    "description": "Tucked away in the tranquil surroundings of Home Farm in Hamptworth, Foxglove Cottage offers a charming countryside escape on the edge of the enchanting New Forest. One of five beautifully converted barn cottages, it effortlessly blends rustic character with modern comforts, creating a peaceful haven where guests can slow down, relax and reconnect.",
+    "maxAdults": 4,
+    "maxChildren": 3,
+    "maxOccupancy": 4,
+    "beds": "[]",
+    "amenities": "[]",
+    "images": [
+      {
+        "altText": "Foxglove Cottage photo 1",
+        "mediaId": "6ac3fc301aa14a97bd46a19f",
+        "sortOrder": 0,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/0ce209af-1515063-10.jpg",
+        "fileName": "1515063 (10).jpg"
+      },
+      {
+        "altText": "Foxglove Cottage photo 2",
+        "mediaId": "6ac3fc321aa14a97bd46a1a0",
+        "sortOrder": 1,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/c208db9b-1515063-15.jpg",
+        "fileName": "1515063 (15).jpg"
+      },
+      {
+        "altText": "Foxglove Cottage photo 3",
+        "mediaId": "6ac3fc331aa14a97bd46a1a1",
+        "sortOrder": 2,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/f4155fac-1515063-16.jpg",
+        "fileName": "1515063 (16).jpg"
+      },
+      {
+        "altText": "Foxglove Cottage photo 4",
+        "mediaId": "6ac3fc351aa14a97bd46a1a2",
+        "sortOrder": 3,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/a84e3ae9-1515063-22.jpg",
+        "fileName": "1515063 (22).jpg"
+      },
+      {
+        "altText": "Foxglove Cottage photo 5",
+        "mediaId": "6ac3fc361aa14a97bd46a1a3",
+        "sortOrder": 4,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/990a907b-1515063-26.jpg",
+        "fileName": "1515063 (26).jpg"
+      },
+      {
+        "altText": "Foxglove Cottage photo 6",
+        "mediaId": "6ac3fc381aa14a97bd46a1a4",
+        "sortOrder": 5,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/fcc8ec33-1515063-28.jpg",
+        "fileName": "1515063 (28).jpg"
+      },
+      {
+        "altText": "Foxglove Cottage photo 7",
+        "mediaId": "6ac3fc391aa14a97bd46a1a5",
+        "sortOrder": 6,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/71aba5de-1515063-29.jpg",
+        "fileName": "1515063 (29).jpg"
+      },
+      {
+        "altText": "Foxglove Cottage photo 8",
+        "mediaId": "6ac3fc3a1aa14a97bd46a1a6",
+        "sortOrder": 7,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/e36a357b-1515063-31.jpg",
+        "fileName": "1515063 (31).jpg"
+      },
+      {
+        "altText": "Foxglove Cottage photo 9",
+        "mediaId": "6ac3fc3c1aa14a97bd46a1a7",
+        "sortOrder": 8,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/62e9be18-1515063-33.jpg",
+        "fileName": "1515063 (33).jpg"
+      },
+      {
+        "altText": "Foxglove Cottage photo 10",
+        "mediaId": "6ac3fc3f1aa14a97bd46a1a8",
+        "sortOrder": 9,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/eb61efc9-1515063-37.jpg",
+        "fileName": "1515063 (37).jpg"
+      },
+      {
+        "altText": "Foxglove Cottage photo 11",
+        "mediaId": "6ac3fc401aa14a97bd46a1a9",
+        "sortOrder": 10,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/4c1de4f2-1515063-38.jpg",
+        "fileName": "1515063 (38).jpg"
+      },
+      {
+        "altText": "Foxglove Cottage photo 12",
+        "mediaId": "6ac3fc421aa14a97bd46a1aa",
+        "sortOrder": 11,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/7b0cc442-1515063-41.jpg",
+        "fileName": "1515063 (41).jpg"
+      },
+      {
+        "altText": "Foxglove Cottage photo 13",
+        "mediaId": "6ac3fc431aa14a97bd46a1ab",
+        "sortOrder": 12,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/91b48f9b-1515063-46.jpg",
+        "fileName": "1515063 (46).jpg"
+      }
+    ],
+    "media": [
+      {
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 1",
+        "mediaId": "6ac3fc301aa14a97bd46a19f",
+        "sortOrder": 0,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/0ce209af-1515063-10.jpg",
+        "fileName": "1515063 (10).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 2",
+        "mediaId": "6ac3fc321aa14a97bd46a1a0",
+        "sortOrder": 1,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/c208db9b-1515063-15.jpg",
+        "fileName": "1515063 (15).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 3",
+        "mediaId": "6ac3fc331aa14a97bd46a1a1",
+        "sortOrder": 2,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/f4155fac-1515063-16.jpg",
+        "fileName": "1515063 (16).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 4",
+        "mediaId": "6ac3fc351aa14a97bd46a1a2",
+        "sortOrder": 3,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/a84e3ae9-1515063-22.jpg",
+        "fileName": "1515063 (22).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 5",
+        "mediaId": "6ac3fc361aa14a97bd46a1a3",
+        "sortOrder": 4,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/990a907b-1515063-26.jpg",
+        "fileName": "1515063 (26).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 6",
+        "mediaId": "6ac3fc381aa14a97bd46a1a4",
+        "sortOrder": 5,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/fcc8ec33-1515063-28.jpg",
+        "fileName": "1515063 (28).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 7",
+        "mediaId": "6ac3fc391aa14a97bd46a1a5",
+        "sortOrder": 6,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/71aba5de-1515063-29.jpg",
+        "fileName": "1515063 (29).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 8",
+        "mediaId": "6ac3fc3a1aa14a97bd46a1a6",
+        "sortOrder": 7,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/e36a357b-1515063-31.jpg",
+        "fileName": "1515063 (31).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 9",
+        "mediaId": "6ac3fc3c1aa14a97bd46a1a7",
+        "sortOrder": 8,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/62e9be18-1515063-33.jpg",
+        "fileName": "1515063 (33).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 10",
+        "mediaId": "6ac3fc3f1aa14a97bd46a1a8",
+        "sortOrder": 9,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/eb61efc9-1515063-37.jpg",
+        "fileName": "1515063 (37).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 11",
+        "mediaId": "6ac3fc401aa14a97bd46a1a9",
+        "sortOrder": 10,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/4c1de4f2-1515063-38.jpg",
+        "fileName": "1515063 (38).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 12",
+        "mediaId": "6ac3fc421aa14a97bd46a1aa",
+        "sortOrder": 11,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/7b0cc442-1515063-41.jpg",
+        "fileName": "1515063 (41).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Foxglove Cottage photo 13",
+        "mediaId": "6ac3fc431aa14a97bd46a1ab",
+        "sortOrder": 12,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/91b48f9b-1515063-46.jpg",
+        "fileName": "1515063 (46).jpg"
+      }
+    ],
+    "propertyDetailsHtml": "<h3>Welcome to Foxglove Cottage</h3>",
+    "layoutHtml": "<p><strong>Ground floor:</strong> open-plan kitchen/diner, lounge with wood burner.</p><p><strong>First floor:</strong> 2 bedrooms and family bathroom.</p><ul><li>2 bedrooms, 1 bathroom</li><li>Electric hob &amp; oven</li><li>Washer/dryer</li></ul>",
+    "floorplanMediaIds": "[\"6acb6e6fa458b0c2bef54efa\"]",
+    "locationText": "Hamptworth, Hampshire, Dorset Borders",
+    "surroundingsHtml": "<p>Information correct at the time of writing:-</p>\n<p>The cottages at Home Farm are conveniently located on the border with Wiltshire and Hampshire, so there are lots of opportunities for things to do and days out.</p>\n<p>Enjoy the facilities at <strong>Hamptworth Golf &amp; Country Club</strong>, including: Championship golf course, Padel courts, Pickleball courts, Croquet, Clubhouse, restaurant and bar.</p>\n<p>Explore the <strong>New Forest National Park</strong> - walk or cycle through ancient woodland, heathland and open moorland - spot the famous free-roaming ponies, cattle and deer. Visit charming villages, traditional pubs and farm shops. Enjoy picnics, nature trails and scenic viewpoints.</p>\n<p>Discover <strong>Salisbury</strong> &amp; its history - visit <strong>Salisbury Cathedral</strong>, home to the tallest church spire in Britain, and one of the best-preserved original copies of the Magna Carta - Visit <strong>Mompesson House</strong>, wander Salisbury's independent shops, cafes and restaurants or explore <strong>Old Sarum</strong>, one of southern England's most important historic sites, with its impressive ancient earthworks and panoramic views.</p>\n<p>Discover Wiltshire's World Heritage Sites - visit the iconic <strong>Stonehenge</strong>, and explore <strong>Avebury</strong>, home to the world's largest prehistoric stone circle, and discover the rich ancient history that makes this UNESCO World Heritage landscape so special.</p>\n<p>Take a trip to <strong>Shaftesbury</strong> and see the famous <strong>Gold Hill</strong>, featured in the classic Hovis advert.</p>\n<p>For gardens, heritage &amp; historic houses visit the magnificent gardens at <strong>Stourhead</strong>, explore the picturesque village and historic buildings of <strong>Lacock Abbey</strong>, and wander the beautiful rose gardens and grounds at <strong>Mottisfont</strong>.</p>",
+    "mapLat": 50.9622,
+    "mapLng": -1.7347,
+    "mapEmbedUrl": null,
+    "welcomeHamperIncluded": 1,
+    "welcomeHamperDescription": "Each cottage includes a complimentary welcome hamper with a selection of teas, coffee, fresh milk and biscuits for guests to enjoy during their stay.",
+    "welcomeHamperImageMediaId": null,
+    "welcomeHamperHtml": "<p>Each cottage includes a complimentary welcome hamper with a selection of teas, coffee, fresh milk and biscuits for guests to enjoy during their stay.</p>",
+    "amenityIds": "[\"6ac3e2bced148dd299f90fb0\", \"6ac3e2bced148dd299f90fb2\", \"6ac3e2bced148dd299f90fb3\", \"6ac3e2bced148dd299f90fb4\", \"6ac3e2bced148dd299f90fb5\", \"6ac3e2bced148dd299f90fb6\", \"6ac3e2bced148dd299f90fb7\", \"6ac3e2bded148dd299f90fb8\", \"6ac3e2bded148dd299f90fb9\", \"6ac3ece4f55bc9c9731d99e3\", \"6ac3e2bbed148dd299f90fa7\", \"6ac3e2bbed148dd299f90fa8\", \"6ac3e2bbed148dd299f90fa9\", \"6ac3e2bbed148dd299f90faa\", \"6ac3e2bbed148dd299f90fab\", \"6ac3e2bbed148dd299f90fac\", \"6ac3e2bced148dd299f90fad\", \"6ac3e2bced148dd299f90fae\", \"6ac3e2bced148dd299f90faf\", \"6ac3e2bded148dd299f90fba\", \"6ac3e2bced148dd299f90fb1\", \"1af5d93f980aec69f00aa837\", \"f6632456e87c9c5265df2836\"]",
+    "nearbyAttractions": [
+      {
+        "url": "https://www.newforestnpa.gov.uk/",
+        "name": "New Forest National Park",
+        "description": "Walking & cycling",
+        "imageMediaId": null
+      },
+      {
+        "url": null,
+        "name": "Hamptworth Golf & Country Club",
+        "description": "Golf, dining & clubhouse",
+        "imageMediaId": null
+      },
+      {
+        "url": "https://www.salisburycathedral.org.uk/",
+        "name": "Salisbury Cathedral",
+        "description": "Historic landmark",
+        "imageMediaId": null
+      },
+      {
+        "url": "https://www.english-heritage.org.uk/visit/places/stonehenge/",
+        "name": "Stonehenge",
+        "description": "World heritage site",
+        "imageMediaId": null
+      }
+    ],
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "maxDogs": null,
+    "status": "ACTIVE",
+    "seo": null,
+    "createdAt": "2026-10-05 19:46:27",
+    "updatedAt": "2026-10-27 04:03:32",
+    "amenityList": [
+      {
+        "id": "6ac3e2bced148dd299f90fb0",
+        "name": "Electric hob & oven",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb2",
+        "name": "Television",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb3",
+        "name": "Washer/dryer",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb4",
+        "name": "Dog-friendly",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb5",
+        "name": "Bed Linen",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb6",
+        "name": "Dishwasher",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb7",
+        "name": "Fridge/Freezer",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bded148dd299f90fb8",
+        "name": "Microwave",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bded148dd299f90fb9",
+        "name": "Towels",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3ece4f55bc9c9731d99e3",
+        "name": "One dog allowed",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fa7",
+        "name": "Parking",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fa8",
+        "name": "WiFi",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fa9",
+        "name": "Baby Welcome",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90faa",
+        "name": "Bird Watching (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fab",
+        "name": "Ground Floor Bedroom (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fac",
+        "name": "Cycling (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fad",
+        "name": "Romantic Breaks (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fae",
+        "name": "Golfing",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90faf",
+        "name": "Walking",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bded148dd299f90fba",
+        "name": "Unknown/deleted amenity (ID referenced but no row exists)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb1",
+        "name": "Garden furniture",
+        "group": "FACILITY"
+      },
+      {
+        "id": "1af5d93f980aec69f00aa837",
+        "name": "Padel",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "f6632456e87c9c5265df2836",
+        "name": "Infants",
+        "group": "FACILITY"
+      }
+    ],
+    "ratePlans": [
+      {
+        "id": "6ac3fe93d1f8bc5e7b25aeaa",
+        "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+        "roomTypeId": "6ac3fe93d1f8bc5e7b25aea8",
+        "name": "Standard Rate",
+        "slug": "foxglove-cottage-standard-rate",
+        "description": "Base nightly rate — set the price and activate to publish.",
+        "pricing": {
+          "type": "PER_NIGHT",
+          "amount": 26000,
+          "currency": "GBP"
+        },
+        "restrictions": {
+          "maxNights": null,
+          "minNights": 2,
+          "validFrom": null,
+          "daysOfWeek": [],
+          "validUntil": null,
+          "maxAdvanceDays": null,
+          "minAdvanceDays": null
+        },
+        "cancellationPolicyId": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-10-05 19:46:27",
+        "updatedAt": "2026-10-29 11:30:40"
+      }
+    ],
+    "rooms": [
+      {
+        "id": "6ac3fe93d1f8bc5e7b25aea9",
+        "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+        "roomTypeId": "6ac3fe93d1f8bc5e7b25aea8",
+        "name": "Foxglove Cottage",
+        "roomNumber": "FOX-1",
+        "floor": null,
+        "status": "ACTIVE",
+        "condition": null,
+        "notes": null,
+        "createdAt": "2026-10-05 19:46:27",
+        "updatedAt": "2026-10-05 19:46:27"
+      }
+    ],
+    "floorplanUrls": [
+      "https://hamptworthstays.com/uploads/media/2026/10/a13d2ebc-foxlove-floorplan.jpg"
+    ]
+  },
+  {
+    "id": "6ac3fe93d1f8bc5e7b25aeab",
+    "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+    "name": "Fern Cottage",
+    "slug": "fern-cottage",
+    "shortDescription": "Cottage in Hamptworth, Hampshire — sleeps 6",
+    "description": "Set amidst peaceful surroundings on the fringes of the New Forest and close to the renowned Hamptworth Golf & Country Club, Fern Cottage is one of Home Farm's charming barns which have been beautifully renovated to create five distinctive cottages. Combining sophisticated interiors, modern conveniences and luxurious finishes, each cottage offers the perfect balance of countryside charm and contemporary living.",
+    "maxAdults": 6,
+    "maxChildren": 6,
+    "maxOccupancy": 12,
+    "beds": "[]",
+    "amenities": "[]",
+    "images": [
+      {
+        "altText": "Fern Cottage photo 2",
+        "mediaId": "6ac3fc1e1aa14a97bd46a193",
+        "sortOrder": 0,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/26c4c818-1515066-16.jpg",
+        "fileName": "1515066 (16).jpg"
+      },
+      {
+        "altText": "Fern Cottage photo 1",
+        "mediaId": "6ac3fc1d1aa14a97bd46a192",
+        "sortOrder": 1,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/b0940222-1515066-14.jpg",
+        "fileName": "1515066 (14).jpg"
+      },
+      {
+        "altText": "Fern Cottage photo 3",
+        "mediaId": "6ac3fc201aa14a97bd46a194",
+        "sortOrder": 2,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/88a9de36-1515066-17.jpg",
+        "fileName": "1515066 (17).jpg"
+      },
+      {
+        "altText": "Fern Cottage photo 4",
+        "mediaId": "6ac3fc211aa14a97bd46a195",
+        "sortOrder": 3,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/bafe5a5a-1515066-26.jpg",
+        "fileName": "1515066 (26).jpg"
+      },
+      {
+        "altText": "Fern Cottage photo 5",
+        "mediaId": "6ac3fc231aa14a97bd46a196",
+        "sortOrder": 4,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/cff77ff5-1515066-29.jpg",
+        "fileName": "1515066 (29).jpg"
+      },
+      {
+        "altText": "Fern Cottage photo 6",
+        "mediaId": "6ac3fc241aa14a97bd46a197",
+        "sortOrder": 5,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/d92839a6-1515066-34.jpg",
+        "fileName": "1515066 (34).jpg"
+      },
+      {
+        "altText": "Fern Cottage photo 7",
+        "mediaId": "6ac3fc261aa14a97bd46a198",
+        "sortOrder": 6,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/5081c0f3-1515066-35.jpg",
+        "fileName": "1515066 (35).jpg"
+      },
+      {
+        "altText": "Fern Cottage photo 8",
+        "mediaId": "6ac3fc271aa14a97bd46a199",
+        "sortOrder": 7,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/ff7fb652-1515066-37.jpg",
+        "fileName": "1515066 (37).jpg"
+      },
+      {
+        "altText": "Fern Cottage photo 9",
+        "mediaId": "6ac3fc291aa14a97bd46a19a",
+        "sortOrder": 8,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/9dde4c46-1515066-38.jpg",
+        "fileName": "1515066 (38).jpg"
+      },
+      {
+        "altText": "Fern Cottage photo 10",
+        "mediaId": "6ac3fc2a1aa14a97bd46a19b",
+        "sortOrder": 9,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/a7a1ef5e-1515066-42.jpg",
+        "fileName": "1515066 (42).jpg"
+      },
+      {
+        "altText": "Fern Cottage photo 11",
+        "mediaId": "6ac3fc2c1aa14a97bd46a19c",
+        "sortOrder": 10,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/695911c8-1515066-44.jpg",
+        "fileName": "1515066 (44).jpg"
+      },
+      {
+        "altText": "Fern Cottage photo 12",
+        "mediaId": "6ac3fc2d1aa14a97bd46a19d",
+        "sortOrder": 11,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/b4836b83-1515066-45.jpg",
+        "fileName": "1515066 (45).jpg"
+      },
+      {
+        "altText": "Fern Cottage photo 13",
+        "mediaId": "6ac3fc2f1aa14a97bd46a19e",
+        "sortOrder": 12,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/64931f69-1515066-48.jpg",
+        "fileName": "1515066 (48).jpg"
+      }
+    ],
+    "media": [
+      {
+        "kind": "image",
+        "altText": "Fern Cottage photo 2",
+        "mediaId": "6ac3fc1e1aa14a97bd46a193",
+        "sortOrder": 0,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/26c4c818-1515066-16.jpg",
+        "fileName": "1515066 (16).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Fern Cottage photo 1",
+        "mediaId": "6ac3fc1d1aa14a97bd46a192",
+        "sortOrder": 1,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/b0940222-1515066-14.jpg",
+        "fileName": "1515066 (14).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Fern Cottage photo 3",
+        "mediaId": "6ac3fc201aa14a97bd46a194",
+        "sortOrder": 2,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/88a9de36-1515066-17.jpg",
+        "fileName": "1515066 (17).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Fern Cottage photo 4",
+        "mediaId": "6ac3fc211aa14a97bd46a195",
+        "sortOrder": 3,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/bafe5a5a-1515066-26.jpg",
+        "fileName": "1515066 (26).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Fern Cottage photo 5",
+        "mediaId": "6ac3fc231aa14a97bd46a196",
+        "sortOrder": 4,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/cff77ff5-1515066-29.jpg",
+        "fileName": "1515066 (29).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Fern Cottage photo 6",
+        "mediaId": "6ac3fc241aa14a97bd46a197",
+        "sortOrder": 5,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/d92839a6-1515066-34.jpg",
+        "fileName": "1515066 (34).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Fern Cottage photo 7",
+        "mediaId": "6ac3fc261aa14a97bd46a198",
+        "sortOrder": 6,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/5081c0f3-1515066-35.jpg",
+        "fileName": "1515066 (35).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Fern Cottage photo 8",
+        "mediaId": "6ac3fc271aa14a97bd46a199",
+        "sortOrder": 7,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/ff7fb652-1515066-37.jpg",
+        "fileName": "1515066 (37).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Fern Cottage photo 9",
+        "mediaId": "6ac3fc291aa14a97bd46a19a",
+        "sortOrder": 8,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/9dde4c46-1515066-38.jpg",
+        "fileName": "1515066 (38).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Fern Cottage photo 10",
+        "mediaId": "6ac3fc2a1aa14a97bd46a19b",
+        "sortOrder": 9,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/a7a1ef5e-1515066-42.jpg",
+        "fileName": "1515066 (42).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Fern Cottage photo 11",
+        "mediaId": "6ac3fc2c1aa14a97bd46a19c",
+        "sortOrder": 10,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/695911c8-1515066-44.jpg",
+        "fileName": "1515066 (44).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Fern Cottage photo 12",
+        "mediaId": "6ac3fc2d1aa14a97bd46a19d",
+        "sortOrder": 11,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/b4836b83-1515066-45.jpg",
+        "fileName": "1515066 (45).jpg"
+      },
+      {
+        "kind": "image",
+        "altText": "Fern Cottage photo 13",
+        "mediaId": "6ac3fc2f1aa14a97bd46a19e",
+        "sortOrder": 12,
+        "url": "https://hamptworthstays.com/uploads/media/2026/10/64931f69-1515066-48.jpg",
+        "fileName": "1515066 (48).jpg"
+      }
+    ],
+    "propertyDetailsHtml": "<h3>Welcome to Fern Cottage<br><br><a href=\"https://hamptworthstays.com/uploads/media/2026/10/a8a03cac-whatsapp-image-2026-10-29-at-12-13-12-am.jpg\">https://hamptworthstays.com/uploads/media/2026/10/a8a03cac-whatsapp-image-2026-10-29-at-12-13-12-am.jpg</a></h3>",
+    "layoutHtml": "<p><strong>Ground floor:</strong> open-plan kitchen/diner, lounge with wood burner, ground floor bedroom with ensuite.</p><p><strong>First floor:</strong> two further bedrooms and family bathroom.</p><ul><li>Electric hob &amp; oven</li><li>Washer/dryer</li><li>Garden furniture</li></ul>",
+    "floorplanMediaIds": "[\"6acb6e5ca458b0c2bef54ef3\"]",
+    "locationText": "Home Farm, Hamptworth, Salisbury SP5 2DU — on the Hampshire/Wiltshire border, minutes from Hamptworth Golf & Country Club.",
+    "surroundingsHtml": "<p>Information correct at the time of writing:-</p><p>The cottages at Home Farm are conveniently located on the border with Wiltshire and Hampshire, so there are lots of opportunities for things to do and days out.</p><p>Enjoy the facilities at <strong>Hamptworth Golf &amp; Country Club</strong> — Championship golf course, padel, pickleball and clubhouse restaurant.</p><p>Explore the <a href=\"https://www.newforestnpa.gov.uk/\" target=\"_blank\">New Forest National Park</a> — walk or cycle through ancient woodland and spot free-roaming ponies.</p><p>Discover <a href=\"https://www.salisburycathedral.org.uk/\" target=\"_blank\">Salisbury Cathedral</a>, home to the tallest spire in Britain and the Magna Carta.</p><p>Visit the iconic <a href=\"https://www.english-heritage.org.uk/visit/places/stonehenge/\" target=\"_blank\">Stonehenge</a> and <a href=\"https://www.nationaltrust.org.uk/visit/wiltshire/stourhead\" target=\"_blank\">Stourhead gardens</a>.</p>",
+    "mapLat": 50.9622,
+    "mapLng": -1.7347,
+    "mapEmbedUrl": null,
+    "welcomeHamperIncluded": 1,
+    "welcomeHamperDescription": "Each cottage includes a complimentary welcome hamper with a selection of teas, coffee, fresh milk and biscuits for guests to enjoy during their stay.",
+    "welcomeHamperImageMediaId": null,
+    "welcomeHamperHtml": "<p>Each cottage includes a complimentary welcome hamper with a selection of teas, coffee, fresh milk and biscuits for guests to enjoy during their stay.</p>",
+    "amenityIds": "[\"6ac3e2bced148dd299f90fb0\", \"6ac3e2bced148dd299f90fb1\", \"6ac3e2bced148dd299f90fb2\", \"6ac3e2bced148dd299f90fb3\", \"6ac3e2bced148dd299f90fb4\", \"6ac3e2bced148dd299f90fb5\", \"6ac3e2bced148dd299f90fb7\", \"6ac3e2bded148dd299f90fb8\", \"6ac3e2bded148dd299f90fb9\", \"6ac3ece4f55bc9c9731d99e3\", \"6ac3e2bbed148dd299f90fa7\", \"6ac3e2bbed148dd299f90fa8\", \"6ac3e2bbed148dd299f90fa9\", \"6ac3e2bbed148dd299f90faa\", \"6ac3e2bbed148dd299f90fab\", \"6ac3e2bbed148dd299f90fac\", \"6ac3e2bced148dd299f90fae\", \"6ac3e2bced148dd299f90fad\", \"6ac3e2bced148dd299f90faf\", \"6ac3e2bced148dd299f90fb6\", \"6ac3e2bded148dd299f90fba\", \"1af5d93f980aec69f00aa837\", \"f6632456e87c9c5265df2836\"]",
+    "nearbyAttractions": [
+      {
+        "url": "https://www.newforestnpa.gov.uk/",
+        "name": "New Forest National Park",
+        "description": "Walking & cycling",
+        "imageMediaId": "6ac4fd9dffefee1267f07f06"
+      },
+      {
+        "url": null,
+        "name": "Hamptworth Golf & Country Club",
+        "description": "Golf, dining & clubhouse",
+        "imageMediaId": null
+      },
+      {
+        "url": "https://www.salisburycathedral.org.uk/",
+        "name": "Salisbury Cathedral",
+        "description": "Historic landmark",
+        "imageMediaId": null
+      },
+      {
+        "url": "https://www.english-heritage.org.uk/visit/places/stonehenge/",
+        "name": "Stonehenge",
+        "description": "World heritage site",
+        "imageMediaId": null
+      }
+    ],
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "maxDogs": null,
+    "status": "ACTIVE",
+    "seo": null,
+    "createdAt": "2026-10-05 19:46:27",
+    "updatedAt": "2026-10-31 14:34:29",
+    "amenityList": [
+      {
+        "id": "6ac3e2bced148dd299f90fb0",
+        "name": "Electric hob & oven",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb1",
+        "name": "Garden furniture",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb2",
+        "name": "Television",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb3",
+        "name": "Washer/dryer",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb4",
+        "name": "Dog-friendly",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb5",
+        "name": "Bed Linen",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb7",
+        "name": "Fridge/Freezer",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bded148dd299f90fb8",
+        "name": "Microwave",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bded148dd299f90fb9",
+        "name": "Towels",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3ece4f55bc9c9731d99e3",
+        "name": "One dog allowed",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fa7",
+        "name": "Parking",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fa8",
+        "name": "WiFi",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fa9",
+        "name": "Baby Welcome",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90faa",
+        "name": "Bird Watching (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fab",
+        "name": "Ground Floor Bedroom (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bbed148dd299f90fac",
+        "name": "Cycling (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fae",
+        "name": "Golfing",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fad",
+        "name": "Romantic Breaks (deleted)",
+        "group": null
+      },
+      {
+        "id": "6ac3e2bced148dd299f90faf",
+        "name": "Walking",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "6ac3e2bced148dd299f90fb6",
+        "name": "Dishwasher",
+        "group": "FACILITY"
+      },
+      {
+        "id": "6ac3e2bded148dd299f90fba",
+        "name": "Unknown/deleted amenity (ID referenced but no row exists)",
+        "group": null
+      },
+      {
+        "id": "1af5d93f980aec69f00aa837",
+        "name": "Padel",
+        "group": "HIGHLIGHT"
+      },
+      {
+        "id": "f6632456e87c9c5265df2836",
+        "name": "Infants",
+        "group": "FACILITY"
+      }
+    ],
+    "ratePlans": [
+      {
+        "id": "6ac3fe94d1f8bc5e7b25aead",
+        "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+        "roomTypeId": "6ac3fe93d1f8bc5e7b25aeab",
+        "name": "Standard Rate",
+        "slug": "fern-cottage-standard-rate",
+        "description": "Base nightly rate — set the price and activate to publish.",
+        "pricing": {
+          "type": "PER_NIGHT",
+          "amount": 38400,
+          "currency": "GBP"
+        },
+        "restrictions": {
+          "maxNights": null,
+          "minNights": 2,
+          "validFrom": null,
+          "daysOfWeek": [],
+          "validUntil": null,
+          "maxAdvanceDays": null,
+          "minAdvanceDays": null
+        },
+        "cancellationPolicyId": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-10-05 19:46:28",
+        "updatedAt": "2026-10-29 11:29:17"
+      }
+    ],
+    "rooms": [
+      {
+        "id": "6ac3fe94d1f8bc5e7b25aeac",
+        "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+        "roomTypeId": "6ac3fe93d1f8bc5e7b25aeab",
+        "name": "Fern Cottage",
+        "roomNumber": "FER-1",
+        "floor": null,
+        "status": "ACTIVE",
+        "condition": null,
+        "notes": null,
+        "createdAt": "2026-10-05 19:46:28",
+        "updatedAt": "2026-10-05 19:46:28"
+      },
+      {
+        "id": "6acb742ea458b0c2bef54f24",
+        "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+        "roomTypeId": "6ac3fe93d1f8bc5e7b25aeab",
+        "name": "Deluxe 102",
+        "roomNumber": "102",
+        "floor": null,
+        "status": "ACTIVE",
+        "condition": null,
+        "notes": null,
+        "createdAt": "2026-10-11 11:34:06",
+        "updatedAt": "2026-10-11 11:34:06"
+      }
+    ],
+    "floorplanUrls": [
+      "https://hamptworthstays.com/uploads/media/2026/10/6bbbae63-fern-floorplan.jpg"
+    ]
+  }
+]
