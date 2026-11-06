@@ -30,9 +30,17 @@ class UploadMediaRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
+            $filesInput = $this->file('files');
+            if ($filesInput instanceof \Illuminate\Http\UploadedFile) {
+                $filesInput = [$filesInput];
+            } elseif (! is_array($filesInput)) {
+                $filesInput = [];
+            }
+
+            $singleFile = $this->file('file');
             $files = array_merge(
-                $this->file('file') ? [$this->file('file')] : [],
-                $this->file('files', []) ?: []
+                $singleFile instanceof \Illuminate\Http\UploadedFile ? [$singleFile] : [],
+                $filesInput
             );
 
             if ($files === []) {

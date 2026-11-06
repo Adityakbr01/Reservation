@@ -29,11 +29,19 @@ class AdminMediaController extends Controller
         $user = $request->attributes->get('auth_user');
 
         $files = [];
-        if ($request->file('file')) {
+        if ($request->file('file') instanceof \Illuminate\Http\UploadedFile) {
             $files[] = $request->file('file');
         }
-        foreach ($request->file('files', []) ?: [] as $file) {
-            $files[] = $file;
+
+        $multiple = $request->file('files');
+        if ($multiple instanceof \Illuminate\Http\UploadedFile) {
+            $files[] = $multiple;
+        } elseif (is_array($multiple)) {
+            foreach ($multiple as $file) {
+                if ($file instanceof \Illuminate\Http\UploadedFile) {
+                    $files[] = $file;
+                }
+            }
         }
 
         $results = [];
