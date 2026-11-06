@@ -21,8 +21,11 @@ class AdminRoomTypeController extends Controller
 
     public function store(CreateRoomTypeRequest $request)
     {
-        $property = \App\Models\Property::first();
-        $propertyId = $request->input('property_id') ?? ($property ? $property->id : '6ac0cc41a287cfd3dfbbf8a9');
+        $defaultProp = \App\Models\Property::defaultProperty();
+        $propertyId = $request->input('property_id');
+        if (! $propertyId || ! \App\Models\Property::where('id', $propertyId)->exists()) {
+            $propertyId = $defaultProp->id;
+        }
 
         $roomType = RoomType::create(array_merge($request->validated(), [
             'id' => bin2hex(random_bytes(12)),

@@ -118,7 +118,7 @@ export function RatePlanForm({ initial, submitLabel, isPending, onSubmit }: Rate
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="rp-slug">Slug (optional)</Label>
+          <Label htmlFor="rp-slug">Slug</Label>
           <Input
             id="rp-slug"
             value={slug}

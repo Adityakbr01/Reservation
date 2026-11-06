@@ -28,8 +28,14 @@ class AdminAvailabilityController extends Controller
 
     public function createBlock(CreateBlockRequest $request)
     {
+        $room = \App\Models\Room::find($request->validated('room_id'));
+        $defaultProp = \App\Models\Property::defaultProperty();
+        $propertyId = $room?->property_id ?? $defaultProp->id;
+
         $block = AvailabilityBlock::create(array_merge($request->validated(), [
             'id' => bin2hex(random_bytes(12)),
+            'property_id' => $propertyId,
+            'created_by' => auth()->id() ?? '6ac0cc40a287cfd3dfbbf8a8',
         ]));
 
         return response()->json([

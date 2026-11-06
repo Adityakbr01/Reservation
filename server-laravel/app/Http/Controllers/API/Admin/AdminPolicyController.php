@@ -21,9 +21,11 @@ class AdminPolicyController extends Controller
 
     public function store(Request $request)
     {
-        $propertyId = $request->input('property_id')
-            ?? Property::first()?->id
-            ?? '6ac0cc41a287cfd3dfbbf8a9';
+        $defaultProp = Property::defaultProperty();
+        $propertyId = $request->input('property_id');
+        if (! $propertyId || ! Property::where('id', $propertyId)->exists()) {
+            $propertyId = $defaultProp->id;
+        }
 
         $policy = CancellationPolicy::create([
             'id' => bin2hex(random_bytes(12)),

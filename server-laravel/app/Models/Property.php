@@ -22,6 +22,23 @@ class Property extends Model
         'contact' => 'array',
     ];
 
+    public static function defaultProperty(): self
+    {
+        return static::firstOrCreate(
+            ['id' => '6ac0cc41a287cfd3dfbbf8a9'],
+            [
+                'name' => 'Hamptworth Stays',
+                'slug' => 'hamptworth-stays',
+                'description' => 'Luxury holiday cottages in Hamptworth, Hampshire',
+                'check_in_time' => '14:00',
+                'check_out_time' => '12:00',
+                'timezone' => 'Europe/London',
+                'currency' => 'GBP',
+                'status' => 'ACTIVE',
+            ]
+        );
+    }
+
     public function roomTypes(): HasMany
     {
         return $this->hasMany(RoomType::class, 'property_id');
