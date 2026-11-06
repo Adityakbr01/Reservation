@@ -10,25 +10,27 @@ class CorsMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $allowedOrigins = array_filter(array_map('trim', explode(',', config('app.allowed_origins', ''))));
-        $origin = $request->headers->get('Origin');
+        $origin = $request->header('Origin') ?: '*';
+
+        if ($request->isMethod('OPTIONS')) {
+            $response = new Response('', 204);
+            $this->addCorsHeaders($response, $origin);
+
+            return $response;
+        }
 
         $response = $next($request);
-
-        if ($origin && (in_array($origin, $allowedOrigins) || preg_match('/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/', $origin) || preg_match('/^https?:\/\/([a-z0-9-]+\.)*(hamptworthstays\.com|airoapp\.ai)$/i', $origin))) {
-            $response->headers->set('Access-Control-Allow-Origin', $origin);
-            $response->headers->set('Access-Control-Allow-Credentials', 'true');
-            $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Idempotency-Key, Accept, Origin');
-        }
-
-        if ($request->method() === 'OPTIONS') {
-            return response('', 200)->headers->set('Access-Control-Allow-Origin', $origin ?? '*')
-                ->set('Access-Control-Allow-Credentials', 'true')
-                ->set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-                ->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Idempotency-Key, Accept, Origin');
-        }
+        $this->addCorsHeaders($response, $origin);
 
         return $response;
+    }
+
+    private function addCorsHeaders(Response $response, string $origin): void
+    {
+        $response->headers->set('Access-Control-Allow-Origin', $origin);
+        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Idempotency-Key, Accept, Origin, Application');
+        $response->headers->set('Access-Control-Allow-Credentials', 'true');
+        $response->headers->set('Access-Control-Max-Age', '86400');
     }
 }

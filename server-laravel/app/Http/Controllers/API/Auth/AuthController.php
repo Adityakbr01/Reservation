@@ -38,6 +38,19 @@ class AuthController extends Controller
         if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'isActive')) {
             $data['isActive'] = true;
         }
+        $now = now();
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'created_at')) {
+            $data['created_at'] = $now;
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'createdAt')) {
+            $data['createdAt'] = $now;
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'updated_at')) {
+            $data['updated_at'] = $now;
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'updatedAt')) {
+            $data['updatedAt'] = $now;
+        }
 
         $user = User::create(array_merge([
             'id' => bin2hex(random_bytes(12)),
@@ -265,13 +278,18 @@ class AuthController extends Controller
 
     private function userData(User $user): array
     {
+        $avatar = $user->avatar_url ?? $user->avatarUrl ?? null;
+        $isActive = (bool) ($user->is_active ?? $user->isActive ?? true);
+
         return [
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'role' => $user->role,
-            'is_active' => $user->is_active,
-            'avatar_url' => $user->avatar_url,
+            'isActive' => $isActive,
+            'is_active' => $isActive,
+            'avatarUrl' => $avatar,
+            'avatar_url' => $avatar,
         ];
     }
 }

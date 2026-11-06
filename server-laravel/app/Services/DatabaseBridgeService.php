@@ -259,8 +259,68 @@ class DatabaseBridgeService
             'updatedAt' => 'updated_at',
         ]);
 
-        // 3. Ensure admin user is seeded with correct hash in both columns
+        // 3. Relax NOT NULL constraints on Prisma legacy columns across ALL tables
+        try {
+            $dbName = DB::connection()->getDatabaseName();
+            $tables = DB::select('SHOW TABLES');
+            $keyName = "Tables_in_" . $dbName;
+            $relaxedCount = 0;
+
+            foreach ($tables as $t) {
+                $tableName = $t->$keyName;
+                if (Schema::hasColumn($tableName, 'createdAt')) {
+                    try {
+                        DB::statement("ALTER TABLE `{$tableName}` MODIFY COLUMN `createdAt` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3)");
+                        $relaxedCount++;
+                    } catch (\Throwable $e) {}
+                }
+                if (Schema::hasColumn($tableName, 'updatedAt')) {
+                    try {
+                        DB::statement("ALTER TABLE `{$tableName}` MODIFY COLUMN `updatedAt` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)");
+                        $relaxedCount++;
+                    } catch (\Throwable $e) {}
+                }
+                if (Schema::hasColumn($tableName, 'created_at')) {
+                    try {
+                        DB::statement("ALTER TABLE `{$tableName}` MODIFY COLUMN `created_at` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3)");
+                        $relaxedCount++;
+                    } catch (\Throwable $e) {}
+                }
+                if (Schema::hasColumn($tableName, 'updated_at')) {
+                    try {
+                        DB::statement("ALTER TABLE `{$tableName}` MODIFY COLUMN `updated_at` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)");
+                        $relaxedCount++;
+                    } catch (\Throwable $e) {}
+                }
+            }
+            $log['relaxed_columns'] = "Relaxed constraints on {$relaxedCount} timestamp columns across tables";
+        } catch (\Throwable $e) {
+            $log['relaxed_columns_error'] = $e->getMessage();
+        }
+
+        // Specific relaxation for users table
+        if (Schema::hasTable('users')) {
+            try {
+                if (Schema::hasColumn('users', 'passwordHash')) {
+                    DB::statement("ALTER TABLE `users` MODIFY COLUMN `passwordHash` VARCHAR(255) NULL");
+                }
+                if (Schema::hasColumn('users', 'password_hash')) {
+                    DB::statement("ALTER TABLE `users` MODIFY COLUMN `password_hash` VARCHAR(255) NULL");
+                }
+                if (Schema::hasColumn('users', 'isActive')) {
+                    DB::statement("ALTER TABLE `users` MODIFY COLUMN `isActive` TINYINT(1) NULL DEFAULT 1");
+                }
+                if (Schema::hasColumn('users', 'is_active')) {
+                    DB::statement("ALTER TABLE `users` MODIFY COLUMN `is_active` TINYINT(1) NULL DEFAULT 1");
+                }
+            } catch (\Throwable $e) {
+                // Ignore
+            }
+        }
+
+        // 4. Ensure admin user is seeded with correct hash in both columns
         $hash = Hash::make('admin@gmail.com');
+        $now = now();
         $admin = DB::table('users')->where('email', 'admin@gmail.com')->first();
         if ($admin) {
             $update = [
@@ -277,6 +337,12 @@ class DatabaseBridgeService
             }
             if (Schema::hasColumn('users', 'isActive')) {
                 $update['isActive'] = 1;
+            }
+            if (Schema::hasColumn('users', 'updated_at')) {
+                $update['updated_at'] = $now;
+            }
+            if (Schema::hasColumn('users', 'updatedAt')) {
+                $update['updatedAt'] = $now;
             }
             DB::table('users')->where('email', 'admin@gmail.com')->update($update);
             $log['admin_status'] = 'admin@gmail.com updated with password admin@gmail.com';
@@ -298,6 +364,18 @@ class DatabaseBridgeService
             }
             if (Schema::hasColumn('users', 'isActive')) {
                 $insert['isActive'] = 1;
+            }
+            if (Schema::hasColumn('users', 'created_at')) {
+                $insert['created_at'] = $now;
+            }
+            if (Schema::hasColumn('users', 'createdAt')) {
+                $insert['createdAt'] = $now;
+            }
+            if (Schema::hasColumn('users', 'updated_at')) {
+                $insert['updated_at'] = $now;
+            }
+            if (Schema::hasColumn('users', 'updatedAt')) {
+                $insert['updatedAt'] = $now;
             }
             DB::table('users')->insert($insert);
             $log['admin_status'] = 'admin@gmail.com created with password admin@gmail.com';

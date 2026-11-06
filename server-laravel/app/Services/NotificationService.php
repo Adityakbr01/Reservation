@@ -199,17 +199,8 @@ class NotificationService
 
     public function sendViaResend(string $to, string $subject, string $html, ?string $text = null): ?string
     {
-        $apiKey = config('services.resend.key', env('RESEND_API_KEY'));
-        if (! $apiKey) {
-            Log::info("Resend not configured: email to {$to} skipped.");
-            return null;
-        }
-
-        $from = env('RESEND_FROM_EMAIL', env('EMAIL_FROM', 'no-reply@hamptworthstays.com'));
-        $replyTo = env('EMAIL_REPLY_TO');
-
         $payload = [
-            'from' => $from,
+            'from' => env('RESEND_FROM_EMAIL', env('EMAIL_FROM', 'no-reply@hamptworthstays.com')),
             'to' => [$to],
             'subject' => $subject,
             'html' => $html ?: '<p>' . htmlspecialchars($subject) . '</p>',
@@ -218,18 +209,14 @@ class NotificationService
         if ($text) {
             $payload['text'] = $text;
         }
-        if ($replyTo) {
+        if ($replyTo = env('EMAIL_REPLY_TO')) {
             $payload['reply_to'] = $replyTo;
         }
 
-        $response = Http::withToken($apiKey)->post('https://api.resend.com/emails', $payload);
+        $resend = \App\Support\Resend\Resend::client();
+        $result = $resend->emails->send($payload);
 
-        if ($response->failed()) {
-            Log::error('Resend API failed: ' . $response->body());
-            throw new \RuntimeException('Resend API error: ' . $response->body());
-        }
-
-        return $response->json('id');
+        return $result['id'] ?? null;
     }
 }
 

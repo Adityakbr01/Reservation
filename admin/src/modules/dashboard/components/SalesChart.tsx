@@ -43,8 +43,8 @@ function dayLabel(start: string, fallback: string): string {
  * Second-half vs first-half momentum within the visible buckets.
  * Labelled honestly wherever rendered ("vs earlier in range").
  */
-export function bucketTrend(buckets: SalesBucket[]): { pct: number | null; up: boolean } {
-  if (buckets.length < 2) return { pct: null, up: true };
+export function bucketTrend(buckets: SalesBucket[] = []): { pct: number | null; up: boolean } {
+  if (!buckets || buckets.length < 2) return { pct: null, up: true };
   const mid = Math.floor(buckets.length / 2);
   const first = buckets.slice(0, mid).reduce((s, b) => s + b.gross, 0);
   const second = buckets.slice(mid).reduce((s, b) => s + b.gross, 0);
@@ -77,7 +77,7 @@ const SERIES: Array<{ key: SeriesKey; label: string; dot: string }> = [
   { key: "refunded", label: "Refunded", dot: "bg-rose-400" },
 ];
 
-export function SalesChart({ buckets, currency }: { buckets: SalesBucket[]; currency: string | null }) {
+export function SalesChart({ buckets = [], currency }: { buckets?: SalesBucket[]; currency: string | null }) {
   const [hidden, setHidden] = useState<Set<SeriesKey>>(new Set());
   const visible = SERIES.filter((s) => !hidden.has(s.key));
 

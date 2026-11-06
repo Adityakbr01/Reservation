@@ -98,11 +98,11 @@ export function DashboardPage() {
                 <div className="mb-3 flex flex-wrap gap-x-6 gap-y-1 text-sm">
                   <span>
                     Booked{" "}
-                    <strong>{money(salesWeek.data.grossValue, salesWeek.data.currency)}</strong>
+                    <strong>{money(salesWeek.data?.grossValue ?? 0, salesWeek.data?.currency ?? "GBP")}</strong>
                   </span>
                   <span>
                     Net{" "}
-                    <strong>{money(salesWeek.data.netCollected, salesWeek.data.currency)}</strong>
+                    <strong>{money(salesWeek.data?.netCollected ?? 0, salesWeek.data?.currency ?? "GBP")}</strong>
                   </span>
                   <Link
                     to="/sales"
@@ -111,7 +111,7 @@ export function DashboardPage() {
                     Full report →
                   </Link>
                 </div>
-                <SalesChart buckets={salesWeek.data.buckets} currency={salesWeek.data.currency} />
+                <SalesChart buckets={salesWeek.data?.buckets ?? []} currency={salesWeek.data?.currency ?? "GBP"} />
               </>
             )}
           </CardContent>
@@ -129,7 +129,7 @@ export function DashboardPage() {
                   <Skeleton key={row} className="h-12 w-full" />
                 ))}
               </div>
-            ) : (salesWeek.data?.recent.length ?? 0) === 0 ? (
+            ) : (salesWeek.data?.recent?.length ?? 0) === 0 ? (
               <p className="py-4 text-center text-sm text-muted-foreground">
                 No confirmed bookings yet.
               </p>
@@ -299,13 +299,13 @@ export function DashboardPage() {
                   <Skeleton key={row} className="h-12 w-full" />
                 ))}
               </div>
-            ) : (blocks.data?.items.length ?? 0) === 0 ? (
+            ) : (blocks.data?.items?.length ?? 0) === 0 ? (
               <p className="py-4 text-center text-sm text-muted-foreground">
                 No blocks — every room is sellable unless booked.
               </p>
             ) : (
               <ul className="divide-y divide-border">
-                {blocks.data?.items.map((block) => (
+                {blocks.data?.items?.map((block) => (
                   <li key={block.id} className="flex items-center justify-between py-3">
                     <div>
                       <p className="text-sm font-medium">
