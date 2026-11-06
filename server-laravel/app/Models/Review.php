@@ -5,8 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use App\Models\Concerns\HasHexId;
+
 class Review extends Model
 {
+    use HasHexId;
     protected $keyType = 'string';
 
     public $incrementing = false;

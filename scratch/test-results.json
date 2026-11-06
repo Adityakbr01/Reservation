@@ -1,0 +1,174 @@
+{
+  "passedCount": 28,
+  "totalCount": 28,
+  "results": [
+    {
+      "category": "CORS",
+      "name": "Preflight OPTIONS returns CORS headers",
+      "passed": true,
+      "details": "Status: 204, Origin: http://localhost:5174"
+    },
+    {
+      "category": "Auth",
+      "name": "Admin login with admin@gmail.com",
+      "passed": true,
+      "details": "Token: eyJ0eXAiOiJKV1Q..."
+    },
+    {
+      "category": "Auth",
+      "name": "Get authenticated profile (/auth/me)",
+      "passed": true,
+      "details": "Role: admin"
+    },
+    {
+      "category": "Auth",
+      "name": "New user registration (with auto Resend welcome email)",
+      "passed": true,
+      "details": "Email: guest_1793977937777@hamptworthstays.com, UserID: 94c0f094b233f6de5ca14937"
+    },
+    {
+      "category": "Auth",
+      "name": "Prevent duplicate registration with 422",
+      "passed": true,
+      "details": "Status: 422, Error: This email is already registered."
+    },
+    {
+      "category": "Auth",
+      "name": "Login with newly registered user",
+      "passed": true,
+      "details": "Role: user"
+    },
+    {
+      "category": "Email",
+      "name": "Send test email via Resend API",
+      "passed": true,
+      "details": "Resend ID: null"
+    },
+    {
+      "category": "Media",
+      "name": "Upload single image using field \"files\" (Frontend contract)",
+      "passed": true,
+      "details": "Media ID: 5824a457c49e46ae503bfcbc"
+    },
+    {
+      "category": "Media",
+      "name": "Upload single image using field \"file\"",
+      "passed": true,
+      "details": "Items: 1"
+    },
+    {
+      "category": "Media",
+      "name": "List media items with pagination",
+      "passed": true,
+      "details": "Count: 10"
+    },
+    {
+      "category": "Media",
+      "name": "List media folders",
+      "passed": true,
+      "details": "Folders: [\"amenities\",\"cottages\"]"
+    },
+    {
+      "category": "Property",
+      "name": "Get Admin Property Details",
+      "passed": true,
+      "details": "Property ID: 6ac0cc41a287cfd3dfbbf8a9"
+    },
+    {
+      "category": "Cottage",
+      "name": "Create Cottage / Room Type (Oakwood Cottage)",
+      "passed": true,
+      "details": "Cottage ID: 110e4f4aa75be62d632e0709"
+    },
+    {
+      "category": "Cottage",
+      "name": "Public room types listing (/api/public/room-types)",
+      "passed": true,
+      "details": "Items: 5"
+    },
+    {
+      "category": "Cottage",
+      "name": "Admin get single cottage details",
+      "passed": true,
+      "details": "Name: Oakwood Cottage"
+    },
+    {
+      "category": "Rooms",
+      "name": "Create Room Unit (U232)",
+      "passed": true,
+      "details": "Room ID: bbf4682a5bdade48520b8be1"
+    },
+    {
+      "category": "Rooms",
+      "name": "List Rooms in Admin panel",
+      "passed": true,
+      "details": "Count: 5"
+    },
+    {
+      "category": "Policies",
+      "name": "Create Cancellation Policy (Flexible 48h)",
+      "passed": true,
+      "details": "Policy ID: 5829d725449169b1a07e8bb9"
+    },
+    {
+      "category": "RatePlans",
+      "name": "Create Rate Plan for Cottage",
+      "passed": true,
+      "details": "Plan ID: 4ca1f258d26f83932c11c571"
+    },
+    {
+      "category": "Availability",
+      "name": "Public search availability (Nov 20 to Nov 23)",
+      "passed": true,
+      "details": "Results: 0"
+    },
+    {
+      "category": "Coupons",
+      "name": "Create Discount Coupon",
+      "passed": true,
+      "details": "Coupon ID: b497b993de6dc437aa1a5b22"
+    },
+    {
+      "category": "Reservations",
+      "name": "Admin list reservations",
+      "passed": true,
+      "details": "Reservations Count: 0"
+    },
+    {
+      "category": "AuditLogs",
+      "name": "Admin list audit logs",
+      "passed": true,
+      "details": "Audit logs: 0"
+    },
+    {
+      "category": "Amenities",
+      "name": "Admin list amenities",
+      "passed": true,
+      "details": "Amenities: 0"
+    },
+    {
+      "category": "Dashboard",
+      "name": "Get Admin Dashboard Summary stats",
+      "passed": true,
+      "details": "Arrivals: 0"
+    },
+    {
+      "category": "Dashboard",
+      "name": "Get Sales Report (recent list + buckets)",
+      "passed": true,
+      "details": "Recent length: 0"
+    },
+    {
+      "category": "CMS",
+      "name": "Create / Upsert CMS Policy Document",
+      "passed": true,
+      "details": "Doc Key: terms"
+    },
+    {
+      "category": "CMS",
+      "name": "Public fetch CMS Policy Doc (terms)",
+      "passed": true,
+      "details": "Title: Terms & Conditions"
+    }
+  ]
+}

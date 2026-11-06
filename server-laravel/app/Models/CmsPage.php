@@ -5,8 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use App\Models\Concerns\HasHexId;
+
 class CmsPage extends Model
 {
+    use HasHexId;
     protected $keyType = 'string';
 
     public $incrementing = false;

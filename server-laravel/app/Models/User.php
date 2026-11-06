@@ -28,6 +28,9 @@ class User extends Model
         parent::boot();
 
         static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = bin2hex(random_bytes(12));
+            }
             $now = now();
             if (\Illuminate\Support\Facades\Schema::hasColumn($model->getTable(), 'createdAt') && empty($model->createdAt)) {
                 $model->createdAt = $now;

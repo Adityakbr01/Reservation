@@ -87,11 +87,20 @@ class AdminDashboardController extends Controller
         }
 
         $bookingsCount = Booking::count();
-        $grossValue = (int) (Booking::sum('total_amount') ?: 0);
+        $grossValue = 0;
+        $occupancyNights = 0;
+        foreach (Booking::all() as $b) {
+            $grossValue += (int) ($b->total_amount ?? ($b->pricing['total'] ?? 0));
+            $nights = $b->nights ?? ($b->stay['nights'] ?? null);
+            if ($nights === null && $b->check_in && $b->check_out) {
+                $nights = \Carbon\Carbon::parse($b->check_in)->diffInDays(\Carbon\Carbon::parse($b->check_out));
+            }
+            $occupancyNights += (int) ($nights ?: 0);
+        }
+
         $collected = (int) (Payment::where('status', 'SUCCEEDED')->sum('amount') ?: 0);
         $refunded = 0;
         $netCollected = $collected - $refunded;
-        $occupancyNights = (int) (Booking::sum('nights') ?: 0);
 
         return response()->json([
             'success' => true,

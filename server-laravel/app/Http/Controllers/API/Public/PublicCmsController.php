@@ -33,7 +33,19 @@ class PublicCmsController extends Controller
 
     public function policy(string $key)
     {
-        return response()->json(['success' => true, 'data' => ['key' => $key]]);
+        $doc = \App\Models\CmsPolicyDoc::where('key', $key)->first();
+
+        if (! $doc) {
+            return response()->json([
+                'success' => false,
+                'error' => ['code' => 'NOT_FOUND', 'message' => 'Policy document not found'],
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $doc,
+        ]);
     }
 
     public function preview(string $token)

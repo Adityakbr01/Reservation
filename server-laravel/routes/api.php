@@ -118,6 +118,10 @@ Route::prefix('/v1/admin/properties')->middleware('jwt.auth', 'role:admin')->gro
     Route::get('/', [AdminPropertyController::class, 'show']);
     Route::patch('/', [AdminPropertyController::class, 'update']);
 });
+Route::prefix('/v1/admin/property')->middleware('jwt.auth', 'role:admin')->group(function () {
+    Route::get('/', [AdminPropertyController::class, 'show']);
+    Route::patch('/', [AdminPropertyController::class, 'update']);
+});
 
 // Public room types
 Route::prefix('/public/room-types')->group(function () {

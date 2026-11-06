@@ -20,8 +20,13 @@ class AdminCouponController extends Controller
 
     public function store(CreateCouponRequest $request)
     {
+        $propertyId = $request->input('property_id')
+            ?? \App\Models\Property::first()?->id
+            ?? '6ac0cc41a287cfd3dfbbf8a9';
+
         $coupon = Coupon::create(array_merge($request->validated(), [
             'id' => bin2hex(random_bytes(12)),
+            'property_id' => $propertyId,
             'normalized_code' => strtoupper($request->validated('code')),
             'usage_count' => 0,
         ]));

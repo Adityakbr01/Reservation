@@ -21,8 +21,14 @@ class AdminRoomController extends Controller
 
     public function store(CreateRoomRequest $request)
     {
+        $propertyId = $request->input('property_id')
+            ?? \App\Models\RoomType::find($request->validated('room_type_id'))?->property_id
+            ?? \App\Models\Property::first()?->id
+            ?? '6ac0cc41a287cfd3dfbbf8a9';
+
         $room = Room::create(array_merge($request->validated(), [
             'id' => bin2hex(random_bytes(12)),
+            'property_id' => $propertyId,
         ]));
 
         return response()->json([

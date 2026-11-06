@@ -11,6 +11,13 @@ class CreateRoomTypeRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('status') && is_string($this->status)) {
+            $this->merge(['status' => strtoupper($this->status)]);
+        }
+    }
+
     public function rules(): array
     {
         return [
@@ -21,7 +28,7 @@ class CreateRoomTypeRequest extends FormRequest
             'max_adults' => ['required', 'integer', 'min:1'],
             'max_children' => ['nullable', 'integer', 'min:0'],
             'max_occupancy' => ['required', 'integer', 'min:1'],
-            'status' => ['nullable', 'string', 'in:DRAFT,ACTIVE,ARCHIVED'],
+            'status' => ['nullable', 'string', 'in:DRAFT,ACTIVE,ARCHIVED,draft,active,archived'],
         ];
     }
 }

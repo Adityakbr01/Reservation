@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasHexId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Property extends Model
 {
+    use HasHexId;
     protected $keyType = 'string';
 
     public $incrementing = false;
