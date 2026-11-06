@@ -24,7 +24,7 @@
       "category": "Auth",
       "name": "New user registration (with auto Resend welcome email)",
       "passed": true,
-      "details": "Email: guest_1793977937777@hamptworthstays.com, UserID: 94c0f094b233f6de5ca14937"
+      "details": "Email: guest_1793979414477@hamptworthstays.com, UserID: f7b2e462cf4c50747e483ece"
     },
     {
       "category": "Auth",
@@ -48,7 +48,7 @@
       "category": "Media",
       "name": "Upload single image using field \"files\" (Frontend contract)",
       "passed": true,
-      "details": "Media ID: 5824a457c49e46ae503bfcbc"
+      "details": "Media ID: 490617e1854ec9d4ecbcd3d9"
     },
     {
       "category": "Media",
@@ -78,13 +78,13 @@
       "category": "Cottage",
       "name": "Create Cottage / Room Type (Oakwood Cottage)",
       "passed": true,
-      "details": "Cottage ID: 110e4f4aa75be62d632e0709"
+      "details": "Cottage ID: d2272e5ca41f11122fac579a"
     },
     {
       "category": "Cottage",
       "name": "Public room types listing (/api/public/room-types)",
       "passed": true,
-      "details": "Items: 5"
+      "details": "Items: 6"
     },
     {
       "category": "Cottage",
@@ -94,27 +94,27 @@
     },
     {
       "category": "Rooms",
-      "name": "Create Room Unit (U232)",
+      "name": "Create Room Unit (U112)",
       "passed": true,
-      "details": "Room ID: bbf4682a5bdade48520b8be1"
+      "details": "Room ID: f733704f05fb12eea460c142"
     },
     {
       "category": "Rooms",
       "name": "List Rooms in Admin panel",
       "passed": true,
-      "details": "Count: 5"
+      "details": "Count: 6"
     },
     {
       "category": "Policies",
       "name": "Create Cancellation Policy (Flexible 48h)",
       "passed": true,
-      "details": "Policy ID: 5829d725449169b1a07e8bb9"
+      "details": "Policy ID: 1b35b1ebba7972e53dba14ca"
     },
     {
       "category": "RatePlans",
       "name": "Create Rate Plan for Cottage",
       "passed": true,
-      "details": "Plan ID: 4ca1f258d26f83932c11c571"
+      "details": "Plan ID: 14407b75cacc746460fb28e2"
     },
     {
       "category": "Availability",
@@ -126,7 +126,7 @@
       "category": "Coupons",
       "name": "Create Discount Coupon",
       "passed": true,
-      "details": "Coupon ID: b497b993de6dc437aa1a5b22"
+      "details": "Coupon ID: 99191020b20049a9a70951dc"
     },
     {
       "category": "Reservations",

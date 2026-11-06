@@ -6,6 +6,7 @@
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    Options +FollowSymLinks
 
     # Block access to sensitive files
     RewriteRule ^\.env - [F,L]

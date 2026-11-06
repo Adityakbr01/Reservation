@@ -57,30 +57,22 @@ export interface UploadProgress {
   total: number;
 }
 
-/** Groups entries by folder and uploads in chunks of 10. Returns total uploaded. */
+/** Uploads files in chunks of 10. Returns total uploaded. */
 async function uploadMedia(
   entries: UploadEntry[],
   onProgress?: (progress: UploadProgress) => void,
 ): Promise<number> {
-  const byFolder = new Map<string | null, File[]>();
-  for (const entry of entries) {
-    const list = byFolder.get(entry.folder) ?? [];
-    list.push(entry.file);
-    byFolder.set(entry.folder, list);
-  }
-  const chunks: Array<{ folder: string | null; files: File[] }> = [];
-  for (const [folder, files] of byFolder) {
-    for (let i = 0; i < files.length; i += BATCH_SIZE) {
-      chunks.push({ folder, files: files.slice(i, i + BATCH_SIZE) });
-    }
+  const allFiles = entries.map((e) => e.file);
+  const chunks: File[][] = [];
+  for (let i = 0; i < allFiles.length; i += BATCH_SIZE) {
+    chunks.push(allFiles.slice(i, i + BATCH_SIZE));
   }
   onProgress?.({ done: 0, total: chunks.length });
   let total = 0;
   let done = 0;
-  for (const { folder, files } of chunks) {
+  for (const files of chunks) {
     const form = new FormData();
     for (const file of files) form.append("files", file);
-    if (folder) form.append("folder", folder);
     const response = await apiClient.post<ApiEnvelope<MediaItem[]>>("/admin/media", form, {
       headers: { "Content-Type": "multipart/form-data" },
     });

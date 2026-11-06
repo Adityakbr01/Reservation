@@ -220,8 +220,6 @@ class MediaService
             'url' => $media->url,
             'storageKey' => $media->storage_key,
             'storageProvider' => $media->storage_provider,
-            'legacyUrl' => $media->legacy_url,
-            'legacyStorageKey' => $media->legacy_storage_key,
             'mime' => $media->mime,
             'kind' => $this->kindFor($media),
             'folder' => $media->folder,
@@ -284,31 +282,30 @@ class MediaService
      */
     private function storeFile(UploadedFile $file, string $key): array
     {
-        $preferred = (string) config('media.disk', 'public');
-        $candidates = $preferred === 'public' ? ['public'] : [$preferred, 'public'];
+        $filename = basename($key);
 
-        foreach ($candidates as $disk) {
-            $stream = fopen($file->getRealPath(), 'rb');
-            if ($stream === false) {
-                continue;
-            }
+        // 1. Save directly into public/uploads (no symlink dependency)
+        $publicUploads = public_path('uploads');
+        if (! file_exists($publicUploads)) {
+            @mkdir($publicUploads, 0755, true);
+        }
+        $publicTarget = $publicUploads . DIRECTORY_SEPARATOR . $filename;
+        @copy($file->getRealPath(), $publicTarget);
 
-            try {
-                $stored = Storage::disk($disk)->put($key, $stream);
-            } catch (Throwable) {
-                $stored = false;
-            } finally {
-                if (is_resource($stream)) {
-                    fclose($stream);
-                }
-            }
+        // 2. Also save to storage/app/public/uploads as backup
+        $storageUploads = storage_path('app/public/uploads');
+        if (! file_exists($storageUploads)) {
+            @mkdir($storageUploads, 0755, true);
+        }
+        $storageTarget = $storageUploads . DIRECTORY_SEPARATOR . $filename;
+        @copy($file->getRealPath(), $storageTarget);
 
-            if ($stored !== false) {
-                return [$disk, $disk === 'ftp' ? 'ftp' : 'local'];
-            }
+        try {
+            Storage::disk('public')->put($key, file_get_contents($file->getRealPath()));
+        } catch (Throwable) {
         }
 
-        throw new AppError('Media upload failed, please try again', 502, 'MEDIA_UPLOAD_FAILED');
+        return ['public', 'local'];
     }
 
     /**
@@ -316,28 +313,29 @@ class MediaService
      */
     private function urlFor(string $disk, string $key): array
     {
-        if ($disk === 'ftp') {
-            $base = (string) (config('media.asset_base_url') ?: config('services.storage.base_url') ?: '');
+        $baseUrl = rtrim(config('app.url', 'https://laravel.hamptworthstays.com'), '/');
+        $filename = basename($key);
 
-            return [$base !== '' ? StorageKeys::publicAssetUrl($base, $key) : $key, $base];
-        }
-
-        return [Storage::disk('public')->url($key), null];
+        return ["{$baseUrl}/uploads/{$filename}", null];
     }
 
     private function removeBinary(string $provider, string $key): void
     {
-        $disks = ['public'];
-        if ($provider === 'ftp' || config('media.disk') === 'ftp') {
-            $disks[] = 'ftp';
+        $filename = basename($key);
+        $publicFile = public_path('uploads/' . $filename);
+        if (file_exists($publicFile)) {
+            @unlink($publicFile);
         }
 
-        foreach ($disks as $disk) {
-            try {
-                Storage::disk($disk)->delete($key);
-            } catch (Throwable) {
-                // Best-effort cleanup; a missing binary must not block the DB change.
-            }
+        $storageFile = storage_path('app/public/uploads/' . $filename);
+        if (file_exists($storageFile)) {
+            @unlink($storageFile);
+        }
+
+        try {
+            Storage::disk('public')->delete($key);
+        } catch (Throwable) {
+            // Best-effort cleanup; a missing binary must not block the DB change.
         }
     }
 

@@ -63,7 +63,7 @@ class StorageKeys
             if (! preg_match(self::SEGMENT_PATTERN, $segment)) {
                 throw new AppError('Invalid storage key', 500, 'INVALID_STORAGE_KEY');
             }
-            if ($kindIndex === null && ($segment === 'media' || $segment === 'avatars')) {
+            if ($kindIndex === null && ($segment === 'media' || $segment === 'avatars' || $segment === 'uploads')) {
                 $kindIndex = $index;
             }
         }
@@ -114,10 +114,8 @@ class StorageKeys
         ?DateTimeInterface $now = null,
         ?string $prefix = null
     ): string {
-        $now ??= new DateTimeImmutable;
-
         return self::withPrefix(
-            ['media', self::datePrefix($now), self::safeFileSuffix($originalName, $mime)],
+            ['uploads', self::safeFileSuffix($originalName, $mime)],
             $prefix
         );
     }

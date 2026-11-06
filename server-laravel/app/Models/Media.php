@@ -15,9 +15,13 @@ class Media extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'id', 'file_name', 'url', 'storage_key', 'storage_provider', 'legacy_url',
-        'legacy_storage_key', 'mime', 'kind', 'folder', 'width', 'height',
+        'id', 'file_name', 'url', 'storage_key', 'storage_provider',
+        'mime', 'kind', 'folder', 'width', 'height',
         'duration_sec', 'alt', 'caption', 'size', 'position', 'created_by',
+    ];
+
+    protected $hidden = [
+        'legacy_url', 'legacy_storage_key',
     ];
 
     protected $casts = [

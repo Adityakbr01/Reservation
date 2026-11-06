@@ -175,6 +175,57 @@ Route::match(['get', 'post'], '/db-purify', function () {
         $log['admin'] = 'admin@gmail.com created';
     }
 
+    // 5. Remove broken/forbidden public/storage symlink if present (prevents Apache 403 on GoDaddy)
+    $storageSymlink = public_path('storage');
+    if (is_link($storageSymlink) || (! is_dir($storageSymlink) && file_exists($storageSymlink))) {
+        @unlink($storageSymlink);
+        $log['storage_symlink_removed'] = true;
+    }
+
+    // 6. Migrate existing media files to public/uploads/
+    $publicUploads = public_path('uploads');
+    if (! file_exists($publicUploads)) {
+        @mkdir($publicUploads, 0755, true);
+    }
+    $mediaMigrated = 0;
+    $allMedia = \App\Models\Media::all();
+    $baseUrl = rtrim(config('app.url', 'https://laravel.hamptworthstays.com'), '/');
+    foreach ($allMedia as $m) {
+        $filename = basename($m->storage_key ?? $m->url ?? '');
+        if (! $filename) {
+            continue;
+        }
+
+        $sourceCandidates = [
+            storage_path('app/public/' . ($m->storage_key ?? '')),
+            storage_path('app/public/media/' . ($m->storage_key ?? '')),
+            storage_path('app/public/media/2026/11/' . $filename),
+            public_path('uploads/' . $filename),
+        ];
+
+        foreach ($sourceCandidates as $src) {
+            if (file_exists($src) && ! is_dir($src)) {
+                $target = $publicUploads . DIRECTORY_SEPARATOR . $filename;
+                if (! file_exists($target)) {
+                    @copy($src, $target);
+                }
+                break;
+            }
+        }
+
+        $newUrl = "{$baseUrl}/uploads/{$filename}";
+        $newKey = "uploads/{$filename}";
+        if ($m->url !== $newUrl || $m->storage_key !== $newKey) {
+            \Illuminate\Support\Facades\DB::table('media')->where('id', $m->id)->update([
+                'url' => $newUrl,
+                'storage_key' => $newKey,
+                'folder' => null,
+            ]);
+            $mediaMigrated++;
+        }
+    }
+    $log['media_migrated_to_uploads'] = $mediaMigrated;
+
     try {
         Artisan::call('optimize:clear');
     } catch (\Throwable $e) {}
@@ -282,3 +333,88 @@ Route::match(['get', 'post'], '/test-email', function () {
         ], 500);
     }
 });
+
+Route::match(['get', 'post'], '/fix-env', function () {
+    if (request('token') !== 'hamptworth2026') {
+        abort(403, 'Unauthorized');
+    }
+
+    $envPath = base_path('.env');
+    if (! file_exists($envPath)) {
+        return response()->json(['error' => '.env file not found'], 404);
+    }
+
+    $content = file_get_contents($envPath);
+    $content = preg_replace('/^DB_HOST=.*$/m', 'DB_HOST=localhost', $content);
+    $content = preg_replace('/^DB_DATABASE=.*$/m', 'DB_DATABASE=hamptworthstays', $content);
+    $content = preg_replace('/^DB_USERNAME=.*$/m', 'DB_USERNAME=hamptworthstays-user', $content);
+    $content = preg_replace('/^DB_PASSWORD=.*$/m', 'DB_PASSWORD="ZZhXesv]esB?+-FM"', $content);
+    file_put_contents($envPath, $content);
+
+    $storageSymlink = public_path('storage');
+    if (is_link($storageSymlink) || (! is_dir($storageSymlink) && file_exists($storageSymlink))) {
+        @unlink($storageSymlink);
+    }
+
+    try {
+        Artisan::call('config:clear');
+    } catch (\Throwable $e) {
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Production database credentials restored in .env successfully',
+        'db_user' => 'hamptworthstays-user',
+        'db_database' => 'hamptworthstays',
+    ]);
+});
+
+// Direct file serving for uploads and legacy storage paths
+Route::get('/uploads/{path}', function (string $path) {
+    $filename = basename($path);
+    $candidates = [
+        public_path('uploads/' . $filename),
+        public_path('uploads/' . $path),
+        storage_path('app/public/uploads/' . $filename),
+        storage_path('app/public/' . $path),
+    ];
+
+    foreach ($candidates as $file) {
+        if (file_exists($file) && ! is_dir($file)) {
+            $mime = mime_content_type($file) ?: 'application/octet-stream';
+
+            return response()->file($file, [
+                'Content-Type' => $mime,
+                'Access-Control-Allow-Origin' => '*',
+                'Cache-Control' => 'public, max-age=31536000',
+            ]);
+        }
+    }
+
+    abort(404, 'File not found');
+})->where('path', '.*');
+
+Route::get('/storage/{path}', function (string $path) {
+    $filename = basename($path);
+    $candidates = [
+        public_path('uploads/' . $filename),
+        storage_path('app/public/' . $path),
+        public_path('storage/' . $path),
+        storage_path('app/public/media/' . $path),
+        storage_path('app/public/media/2026/11/' . $filename),
+    ];
+
+    foreach ($candidates as $file) {
+        if (file_exists($file) && ! is_dir($file)) {
+            $mime = mime_content_type($file) ?: 'application/octet-stream';
+
+            return response()->file($file, [
+                'Content-Type' => $mime,
+                'Access-Control-Allow-Origin' => '*',
+                'Cache-Control' => 'public, max-age=31536000',
+            ]);
+        }
+    }
+
+    abort(404, 'File not found');
+})->where('path', '.*');
