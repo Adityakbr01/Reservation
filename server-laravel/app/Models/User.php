@@ -15,7 +15,7 @@ class User extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'id', 'name', 'email', 'password_hash', 'role', 'is_active',
+        'id', 'name', 'email', 'password_hash', 'passwordHash', 'role', 'is_active', 'isActive',
         'avatar_url', 'avatar_file_id', 'avatar_storage_provider',
         'legacy_avatar_url', 'legacy_avatar_file_id',
         'password_reset_token_hash', 'password_reset_expires',
@@ -23,8 +23,18 @@ class User extends Model
     ];
 
     protected $hidden = [
-        'password_hash', 'password_reset_token_hash',
+        'password_hash', 'passwordHash', 'password_reset_token_hash',
     ];
+
+    public function getPasswordHashAttribute()
+    {
+        return $this->attributes['password_hash'] ?? $this->attributes['passwordHash'] ?? null;
+    }
+
+    public function getIsActiveAttribute()
+    {
+        return (bool) ($this->attributes['is_active'] ?? $this->attributes['isActive'] ?? true);
+    }
 
     protected $casts = [
         'is_active' => 'boolean',
@@ -97,6 +107,6 @@ class User extends Model
 
     public function getAuthPassword(): string
     {
-        return $this->password_hash;
+        return (string) ($this->password_hash ?? $this->passwordHash ?? '');
     }
 }

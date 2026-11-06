@@ -36,19 +36,9 @@ Route::match(['get', 'post'], '/db-migrate', function () {
     }
 
     try {
-        $admin = \App\Models\User::updateOrCreate(
-            ['email' => 'admin@gmail.com'],
-            [
-                'id' => '6ac0cc40a287cfd3dfbbf8a8',
-                'name' => 'Administrator',
-                'password_hash' => \Illuminate\Support\Facades\Hash::make('admin@gmail.com'),
-                'role' => 'admin',
-                'is_active' => true,
-            ]
-        );
-        $results['admin_seeded'] = "Admin user {$admin->email} ready";
+        $results['bridge'] = \App\Services\DatabaseBridgeService::syncAll();
     } catch (\Throwable $e) {
-        $results['admin_error'] = $e->getMessage();
+        $results['bridge_error'] = $e->getMessage();
     }
 
     return response()->json([
@@ -81,11 +71,16 @@ Route::match(['get', 'post'], '/db-inspect', function () {
         ? \Illuminate\Support\Facades\DB::table('users')->select('id', 'name', 'email', 'role')->get() 
         : [];
 
+    $userColumns = \Illuminate\Support\Facades\Schema::hasTable('users')
+        ? \Illuminate\Support\Facades\Schema::getColumnListing('users')
+        : [];
+
     return response()->json([
         'database' => $dbName,
         'table_count' => count($tables),
         'tables' => $tableStats,
         'users' => $users,
+        'user_columns' => $userColumns,
     ]);
 });
 
@@ -102,26 +97,19 @@ Route::match(['get', 'post'], '/seed-admin', function () {
         abort(403, 'Unauthorized');
     }
 
-    $admin = \App\Models\User::updateOrCreate(
-        ['email' => 'admin@gmail.com'],
-        [
-            'id' => '6ac0cc40a287cfd3dfbbf8a8',
-            'name' => 'Administrator',
-            'password_hash' => \Illuminate\Support\Facades\Hash::make('admin@gmail.com'),
-            'role' => 'admin',
-            'is_active' => true,
-        ]
-    );
+    try {
+        $bridgeLog = \App\Services\DatabaseBridgeService::syncAll();
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+        ], 500);
+    }
 
     return response()->json([
         'success' => true,
-        'message' => 'Admin seeded successfully: email: admin@gmail.com / password: admin@gmail.com',
-        'user' => [
-            'id' => $admin->id,
-            'name' => $admin->name,
-            'email' => $admin->email,
-            'role' => $admin->role,
-        ],
+        'message' => 'Database synchronized and Admin ready: admin@gmail.com / admin@gmail.com',
+        'details' => $bridgeLog,
     ]);
 });
 

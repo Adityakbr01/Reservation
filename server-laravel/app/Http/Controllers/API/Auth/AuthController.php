@@ -19,15 +19,29 @@ class AuthController extends Controller
 {
     public function register(RegisterRequest $request)
     {
-        $user = User::create(array_merge([
-            'id' => bin2hex(random_bytes(12)),
-        ], [
+        $hash = Hash::make($request->validated('password'));
+        $data = [
             'name' => $request->validated('name'),
             'email' => $request->validated('email'),
-            'password_hash' => Hash::make($request->validated('password')),
             'role' => 'user',
-            'is_active' => true,
-        ]));
+        ];
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'password_hash')) {
+            $data['password_hash'] = $hash;
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'passwordHash')) {
+            $data['passwordHash'] = $hash;
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_active')) {
+            $data['is_active'] = true;
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'isActive')) {
+            $data['isActive'] = true;
+        }
+
+        $user = User::create(array_merge([
+            'id' => bin2hex(random_bytes(12)),
+        ], $data));
 
         $token = $this->generateToken($user);
 
@@ -56,22 +70,29 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         $user = User::where('email', $request->validated('email'))->first();
+        $userHash = $user ? ($user->password_hash ?? $user->passwordHash ?? null) : null;
 
-        if (! $user || ! Hash::check($request->validated('password'), $user->password_hash)) {
+        if (! $user || ! $userHash || ! Hash::check($request->validated('password'), $userHash)) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'INVALID_CREDENTIALS', 'message' => 'Invalid email or password'],
             ], 401);
         }
 
-        if (! $user->is_active) {
+        $isActive = $user->is_active ?? $user->isActive ?? true;
+        if (! $isActive) {
             return response()->json([
                 'success' => false,
                 'error' => ['code' => 'ACCOUNT_DISABLED', 'message' => 'Account is disabled'],
             ], 403);
         }
 
-        $user->last_login_at = now();
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'last_login_at')) {
+            $user->last_login_at = now();
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'lastLoginAt')) {
+            $user->lastLoginAt = now();
+        }
         $user->save();
 
         $token = $this->generateToken($user);
