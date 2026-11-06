@@ -22,6 +22,13 @@ Route::match(['get', 'post'], '/db-migrate', function () {
     }
 
     try {
+        Artisan::call('db:seed', ['--force' => true]);
+        $results['seed'] = Artisan::output();
+    } catch (\Throwable $e) {
+        $results['seed_error'] = $e->getMessage();
+    }
+
+    try {
         Artisan::call('storage:link');
         $results['storage'] = Artisan::output();
     } catch (\Throwable $e) {
@@ -35,15 +42,9 @@ Route::match(['get', 'post'], '/db-migrate', function () {
         $results['cache_clear_error'] = $e->getMessage();
     }
 
-    try {
-        $results['bridge'] = \App\Services\DatabaseBridgeService::syncAll();
-    } catch (\Throwable $e) {
-        $results['bridge_error'] = $e->getMessage();
-    }
-
     return response()->json([
         'success' => true,
-        'message' => 'Laravel migrations and setup completed',
+        'message' => '100% Pure Laravel & MySQL migrations completed and Admin seeded.',
         'results' => $results,
         'php_version' => PHP_VERSION,
         'app_env' => config('app.env'),
@@ -242,20 +243,45 @@ Route::match(['get', 'post'], '/db-fresh', function () {
         abort(403, 'Unauthorized');
     }
 
+    $dropped = [];
     $migrateOutput = '';
     $seedOutput = '';
 
+    // 1. Drop all tables cleanly with foreign key checks disabled (InnoDB safe)
     try {
-        Artisan::call('migrate:fresh', ['--force' => true]);
-        $migrateOutput = Artisan::output();
+        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS = 0;');
+        $dbName = \Illuminate\Support\Facades\DB::connection()->getDatabaseName();
+        $tables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
+        $keyName = "Tables_in_" . $dbName;
+        foreach ($tables as $t) {
+            $tbl = $t->$keyName;
+            \Illuminate\Support\Facades\DB::statement("DROP TABLE IF EXISTS `{$tbl}`");
+            $dropped[] = $tbl;
+        }
+        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
     } catch (\Throwable $e) {
+        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
         return response()->json([
             'success' => false,
-            'step' => 'migrate:fresh',
+            'step' => 'drop_tables',
             'error' => $e->getMessage(),
         ], 500);
     }
 
+    // 2. Run pure Laravel migrations from scratch
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        $migrateOutput = Artisan::output();
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'step' => 'migrate',
+            'error' => $e->getMessage(),
+            'dropped_tables' => $dropped,
+        ], 500);
+    }
+
+    // 3. Seed ONLY Admin (No dummy data)
     try {
         Artisan::call('db:seed', ['--force' => true]);
         $seedOutput = Artisan::output();
@@ -268,12 +294,39 @@ Route::match(['get', 'post'], '/db-fresh', function () {
         ], 500);
     }
 
+    // 4. Ensure public/uploads directory exists
+    $publicUploads = public_path('uploads');
+    if (! file_exists($publicUploads)) {
+        @mkdir($publicUploads, 0755, true);
+    }
+
+    // 5. Clear caches
+    try {
+        Artisan::call('optimize:clear');
+    } catch (\Throwable $e) {}
+
+    // Verify created tables
+    $finalTables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
+    $createdList = array_map(fn($t) => $t->$keyName, $finalTables);
+
     return response()->json([
         'success' => true,
-        'message' => 'Database wiped and rebuilt with pure Laravel migrations and seeded from scratch',
+        'message' => '100% Pure Laravel & MySQL database wiped, migrated and seeded with ONLY Admin. Zero dummy data.',
+        'dropped_tables_count' => count($dropped),
+        'created_tables_count' => count($createdList),
+        'created_tables' => $createdList,
+        'admin' => [
+            'email' => 'admin@gmail.com',
+            'password' => 'admin@gmail.com',
+            'role' => 'admin',
+        ],
         'migrate' => $migrateOutput,
         'seed' => $seedOutput,
     ]);
+});
+
+Route::match(['get', 'post'], '/setup-fresh', function () {
+    return redirect('/db-fresh?token=' . request('token'));
 });
 
 Route::match(['get', 'post'], '/artisan-setup', function () {
@@ -286,7 +339,16 @@ Route::match(['get', 'post'], '/seed-admin', function () {
     }
 
     try {
-        $bridgeLog = \App\Services\DatabaseBridgeService::syncAll();
+        $admin = \App\Models\User::updateOrCreate(
+            ['email' => 'admin@gmail.com'],
+            [
+                'id' => '6ac0cc40a287cfd3dfbbf8a8',
+                'name' => 'Administrator',
+                'password_hash' => \Illuminate\Support\Facades\Hash::make('admin@gmail.com'),
+                'role' => 'admin',
+                'is_active' => true,
+            ]
+        );
     } catch (\Throwable $e) {
         return response()->json([
             'success' => false,
@@ -296,8 +358,12 @@ Route::match(['get', 'post'], '/seed-admin', function () {
 
     return response()->json([
         'success' => true,
-        'message' => 'Database synchronized and Admin ready: admin@gmail.com / admin@gmail.com',
-        'details' => $bridgeLog,
+        'message' => 'Admin user ready (100% pure Laravel Eloquent): admin@gmail.com / admin@gmail.com',
+        'admin' => [
+            'id' => $admin->id,
+            'email' => $admin->email,
+            'role' => $admin->role,
+        ],
     ]);
 });
 
