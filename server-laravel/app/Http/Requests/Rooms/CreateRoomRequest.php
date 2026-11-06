@@ -13,8 +13,26 @@ class CreateRoomRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $map = [
+            'roomNumber' => 'room_number',
+            'roomTypeId' => 'room_type_id',
+            'propertyId' => 'property_id',
+        ];
+
+        $merges = [];
+        $all = $this->all();
+        foreach ($map as $camel => $snake) {
+            if (array_key_exists($camel, $all) && ! array_key_exists($snake, $all)) {
+                $merges[$snake] = $all[$camel];
+            }
+        }
+
         if ($this->has('status') && is_string($this->status)) {
-            $this->merge(['status' => strtoupper($this->status)]);
+            $merges['status'] = strtoupper($this->status);
+        }
+
+        if (! empty($merges)) {
+            $this->merge($merges);
         }
     }
 

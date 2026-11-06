@@ -15,6 +15,12 @@ class CreateRatePlanRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $merge = [];
+        if ($this->has('roomTypeId') && ! $this->has('room_type_id')) {
+            $merge['room_type_id'] = $this->input('roomTypeId');
+        }
+        if ($this->has('cancellationPolicyId') && ! $this->has('cancellation_policy_id')) {
+            $merge['cancellation_policy_id'] = $this->input('cancellationPolicyId');
+        }
         if (! $this->has('slug') && $this->has('name')) {
             $merge['slug'] = Str::slug($this->input('name'));
         }

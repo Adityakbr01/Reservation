@@ -31,7 +31,7 @@ class AdminRoomTypeController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $this->roomTypeData($roomType),
+            'data' => $this->roomTypeData($roomType->fresh()),
         ], 201);
     }
 
@@ -48,7 +48,7 @@ class AdminRoomTypeController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $this->roomTypeData($roomType),
+            'data' => $this->roomTypeData($roomType->fresh()),
         ]);
     }
 
@@ -67,7 +67,7 @@ class AdminRoomTypeController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $this->roomTypeData($roomType),
+            'data' => $this->roomTypeData($roomType->fresh()),
         ]);
     }
 

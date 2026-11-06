@@ -33,7 +33,7 @@ class AdminRatePlanController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $this->ratePlanData($ratePlan),
+            'data' => $this->ratePlanData($ratePlan->fresh()),
         ], 201);
     }
 
@@ -50,7 +50,7 @@ class AdminRatePlanController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $this->ratePlanData($ratePlan),
+            'data' => $this->ratePlanData($ratePlan->fresh()),
         ]);
     }
 
@@ -69,7 +69,7 @@ class AdminRatePlanController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $this->ratePlanData($ratePlan),
+            'data' => $this->ratePlanData($ratePlan->fresh()),
         ]);
     }
 
