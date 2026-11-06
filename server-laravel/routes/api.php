@@ -325,7 +325,7 @@ foreach (['/public/media', '/v1/public/media'] as $prefix) {
 // Admin settings
 Route::prefix('/v1/admin/settings')->middleware('jwt.auth', 'role:admin')->group(function () {
     Route::get('/', [AdminSettingsController::class, 'show']);
-    Route::patch('/', [AdminSettingsController::class, 'update']);
+    Route::match(['patch', 'put', 'post'], '/', [AdminSettingsController::class, 'update']);
 });
 
 // Public settings (available at both /api/public/* and /api/v1/public/*)

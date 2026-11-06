@@ -26,4 +26,28 @@ class SiteSettings extends Model
         'why_book_with_us' => 'array',
         'reminder_hours_before' => 'integer',
     ];
+
+    public static function defaultSettings(): self
+    {
+        return static::firstOrCreate(
+            ['key' => 'site'],
+            [
+                'id' => '6ac0cc40a287cfd3dfbbf8a7',
+                'property_name' => 'Hamptworth Stays',
+                'phone' => '+44 1794 390155',
+                'support_email' => 'hamptworthstays@gmail.com',
+                'address' => 'Home Farm, Hamptworth, Salisbury SP5 2DU',
+                'timezone' => 'Europe/London',
+                'currency' => 'GBP',
+                'check_in_time' => '16:00',
+                'check_out_time' => '10:00',
+                'reminder_hours_before' => 24,
+                'why_book_with_us' => [
+                    ['title' => 'Charming Luxury Cottages', 'text' => 'Set on the edge of the New Forest.'],
+                    ['title' => 'Complimentary Welcome Hamper', 'text' => 'Fresh local treats on arrival.'],
+                    ['title' => 'Golf & Country Club Facilities', 'text' => 'Direct access to Hamptworth Golf & Country Club.'],
+                ],
+            ]
+        );
+    }
 }

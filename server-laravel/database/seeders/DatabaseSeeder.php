@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Property;
+use App\Models\SiteSettings;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -37,5 +38,8 @@ class DatabaseSeeder extends Seeder
                 'status' => 'ACTIVE',
             ]
         );
+
+        // 3. Guarantee Default Site Settings exist
+        SiteSettings::defaultSettings();
     }
 }

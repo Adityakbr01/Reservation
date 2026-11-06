@@ -351,6 +351,7 @@ Route::match(['get', 'post'], '/seed-admin', function () {
         );
 
         $property = \App\Models\Property::defaultProperty();
+        $settings = \App\Models\SiteSettings::defaultSettings();
     } catch (\Throwable $e) {
         return response()->json([
             'success' => false,
@@ -360,7 +361,7 @@ Route::match(['get', 'post'], '/seed-admin', function () {
 
     return response()->json([
         'success' => true,
-        'message' => 'Admin user and default property ready (100% pure Laravel & MySQL): admin@gmail.com / admin@gmail.com',
+        'message' => 'Admin user, default property, and site settings ready (100% pure Laravel & MySQL): admin@gmail.com / admin@gmail.com',
         'admin' => [
             'id' => $admin->id,
             'email' => $admin->email,
@@ -369,6 +370,10 @@ Route::match(['get', 'post'], '/seed-admin', function () {
         'property' => [
             'id' => $property->id,
             'name' => $property->name,
+        ],
+        'settings' => [
+            'id' => $settings->id,
+            'propertyName' => $settings->property_name,
         ],
     ]);
 });
