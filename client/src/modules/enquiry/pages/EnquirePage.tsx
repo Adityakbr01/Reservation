@@ -16,7 +16,7 @@ export function EnquirePage() {
             href="tel:+441794390155"
             className="font-medium text-brand underline underline-offset-4 hover:text-brand-dark focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
-            Call 01794 390155
+            Call +44 7943 547557
           </a>
           .
         </p>

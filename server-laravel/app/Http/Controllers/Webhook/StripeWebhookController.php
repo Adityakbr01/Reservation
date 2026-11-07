@@ -54,6 +54,12 @@ class StripeWebhookController extends Controller
                             Log::info("Booking {$bookingId} confirmed via Stripe webhook");
                         }
                     }
+                    $payment = \App\Models\Payment::where('provider_payment_intent_id', $intent->id)->first();
+                    if ($payment) {
+                        $payment->status = 'PAID';
+                        $payment->paid_at = now();
+                        $payment->save();
+                    }
                     break;
                 case 'payment_intent.payment_failed':
                     $intent = $event->data->object;
@@ -66,18 +72,26 @@ class StripeWebhookController extends Controller
                             Log::warning("Booking {$bookingId} payment failed via Stripe webhook");
                         }
                     }
+                    $payment = \App\Models\Payment::where('provider_payment_intent_id', $intent->id)->first();
+                    if ($payment) {
+                        $payment->status = 'FAILED';
+                        $payment->failure_message = $intent->last_payment_error->message ?? 'Payment failed';
+                        $payment->save();
+                    }
                     break;
                 case 'charge.refunded':
                     $charge = $event->data->object;
                     $paymentIntentId = $charge->payment_intent ?? null;
                     if ($paymentIntentId) {
-                        $payment = \App\Models\Payment::where('payment_intent_id', $paymentIntentId)->first();
+                        $payment = \App\Models\Payment::where('provider_payment_intent_id', $paymentIntentId)->first();
                         if ($payment && $payment->booking_id) {
                             $booking = \App\Models\Booking::find($payment->booking_id);
                             if ($booking) {
                                 $booking->payment_status = 'REFUNDED';
                                 $booking->save();
                             }
+                            $payment->status = 'REFUNDED';
+                            $payment->save();
                         }
                     }
                     break;

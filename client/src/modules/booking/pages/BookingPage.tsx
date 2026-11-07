@@ -3,7 +3,7 @@ import { Link, Navigate, useLocation, useNavigate, useSearchParams } from "react
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { CalendarDays, CheckCircle2, ChevronDown } from "lucide-react";
+import { CalendarDays, CheckCircle2, ChevronDown, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -86,7 +86,14 @@ function PayButton({ bookingId, totalLabel }: { bookingId: string; totalLabel: s
   const [paying, setPaying] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
 
-  if (!stripe || !elements) return null;
+  if (!stripe || !elements) {
+    return (
+      <div className="flex items-center justify-center py-6 text-sm text-muted-foreground gap-2">
+        <Loader className="size-4 animate-spin text-brand" />
+        <span>Loading secure payment…</span>
+      </div>
+    );
+  }
 
   async function handlePay() {
     if (!stripe || !elements) return;
@@ -108,7 +115,11 @@ function PayButton({ bookingId, totalLabel }: { bookingId: string; totalLabel: s
 
   return (
     <div className="space-y-4">
-      <PaymentElement />
+      <PaymentElement
+        onLoadError={(err) => {
+          setFailed(err.error?.message ?? "Unable to load card payment fields. Please try again.");
+        }}
+      />
       {failed && (
         <p role="alert" className="text-sm text-destructive">
           {failed}

@@ -325,7 +325,15 @@ class PublicBookingController extends Controller
 
         // Generate silent token for seamless guest checkout
         $token = $this->generateJwtToken($user);
-        $clientSecret = 'pi_mock_' . bin2hex(random_bytes(12)) . '_secret_' . bin2hex(random_bytes(8));
+        
+        // Create real Stripe PaymentIntent
+        $paymentService = app(\App\Services\PaymentService::class);
+        $paymentResult = $paymentService->createIntent($booking);
+
+        $clientSecret = $paymentResult['client_secret'] ?? null;
+        $paymentId = $paymentResult['payment_id'] ?? ('pay_' . bin2hex(random_bytes(8)));
+        $reused = $paymentResult['reused'] ?? false;
+        $paymentError = $paymentResult['success'] ? null : ($paymentResult['error'] ?? 'Payment setup failed');
 
         return response()->json([
             'success' => true,
@@ -353,11 +361,11 @@ class PublicBookingController extends Controller
                 'isNewAccount' => $isNewAccount,
                 'idempotentReplay' => false,
                 'payment' => [
-                    'paymentId' => 'pay_' . bin2hex(random_bytes(8)),
+                    'paymentId' => $paymentId,
                     'clientSecret' => $clientSecret,
-                    'reused' => false,
+                    'reused' => $reused,
                 ],
-                'paymentError' => null,
+                'paymentError' => $paymentError,
             ],
         ], 201);
     }
@@ -424,15 +432,31 @@ class PublicBookingController extends Controller
     public function createIntent(Request $request)
     {
         $bookingId = $request->input('bookingId') ?? $request->input('booking_id');
-        $clientSecret = 'pi_' . bin2hex(random_bytes(10)) . '_secret_' . bin2hex(random_bytes(8));
+        $booking = Booking::where('id', $bookingId)->first();
+        if (!$booking) {
+            return response()->json([
+                'success' => false,
+                'error' => ['code' => 'BOOKING_NOT_FOUND', 'message' => 'Booking not found'],
+            ], 404);
+        }
+
+        $paymentService = app(\App\Services\PaymentService::class);
+        $result = $paymentService->createIntent($booking);
+
+        if (!$result['success']) {
+            return response()->json([
+                'success' => false,
+                'error' => ['code' => 'PAYMENT_INTENT_FAILED', 'message' => $result['error'] ?? 'Failed to create payment intent'],
+            ], 500);
+        }
 
         return response()->json([
             'success' => true,
             'data' => [
-                'paymentId' => 'pay_' . bin2hex(random_bytes(8)),
-                'clientSecret' => $clientSecret,
-                'client_secret' => $clientSecret,
-                'reused' => false,
+                'paymentId' => $result['payment_id'] ?? null,
+                'clientSecret' => $result['client_secret'] ?? null,
+                'client_secret' => $result['client_secret'] ?? null,
+                'reused' => $result['reused'] ?? false,
             ],
         ]);
     }

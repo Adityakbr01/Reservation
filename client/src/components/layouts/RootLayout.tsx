@@ -55,7 +55,6 @@ function NewsletterFooterForm() {
   if (done) return <p className="text-sm">Subscribed — thank you.</p>;
   return (
     <form onSubmit={(e) => void submit(e)} className="mt-6 max-w-xs space-y-2">
-      
       <div className="flex gap-2">
         <input
           type="email"
@@ -123,7 +122,10 @@ export function RootLayout() {
   const initial = sessionUser?.name.trim().charAt(0).toUpperCase() || "?";
 
   return (
-    <div id="top" className="flex min-h-screen flex-col bg-background font-sans text-foreground">
+    <div
+      id="top"
+      className="flex min-h-screen flex-col bg-background font-sans text-foreground"
+    >
       <header className="sticky top-0 z-50 border-b border-border bg-background">
         <div className="mx-auto grid h-[72px] w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:px-6 lg:h-[98px] lg:px-12">
           {/* Left links */}
@@ -138,15 +140,26 @@ export function RootLayout() {
               href={SITE_LINKS.theEstate}
               target="_blank"
               rel="noopener noreferrer"
-              className={cn(navLinkClass({ isActive: false }), "hidden gap-1 lg:inline-flex")}
+              className={cn(
+                navLinkClass({ isActive: false }),
+                "hidden gap-1 lg:inline-flex",
+              )}
             >
-              The estate <span aria-hidden className="text-[10px]">↗</span>
+              The estate{" "}
+              <span aria-hidden className="text-[10px]">
+                ↗
+              </span>
             </a>
             <a
               href={SITE_LINKS.bespoke}
               target={SITE_LINKS.bespoke !== "#" ? "_blank" : undefined}
-              rel={SITE_LINKS.bespoke !== "#" ? "noopener noreferrer" : undefined}
-              className={cn(navLinkClass({ isActive: false }), "hidden lg:inline-flex")}
+              rel={
+                SITE_LINKS.bespoke !== "#" ? "noopener noreferrer" : undefined
+              }
+              className={cn(
+                navLinkClass({ isActive: false }),
+                "hidden lg:inline-flex",
+              )}
             >
               Bespoke
             </a>
@@ -303,12 +316,17 @@ export function RootLayout() {
               className={mobileLinkClass({ isActive: false })}
               onClick={closeMenu}
             >
-              The estate <span aria-hidden className="ml-1 text-xs">↗</span>
+              The estate{" "}
+              <span aria-hidden className="ml-1 text-xs">
+                ↗
+              </span>
             </a>
             <a
               href={SITE_LINKS.bespoke}
               target={SITE_LINKS.bespoke !== "#" ? "_blank" : undefined}
-              rel={SITE_LINKS.bespoke !== "#" ? "noopener noreferrer" : undefined}
+              rel={
+                SITE_LINKS.bespoke !== "#" ? "noopener noreferrer" : undefined
+              }
               className={mobileLinkClass({ isActive: false })}
               onClick={closeMenu}
             >
@@ -452,7 +470,11 @@ export function RootLayout() {
                 <a
                   href={SITE_LINKS.bespoke}
                   target={SITE_LINKS.bespoke !== "#" ? "_blank" : undefined}
-                  rel={SITE_LINKS.bespoke !== "#" ? "noopener noreferrer" : undefined}
+                  rel={
+                    SITE_LINKS.bespoke !== "#"
+                      ? "noopener noreferrer"
+                      : undefined
+                  }
                   className="hover:text-brand"
                 >
                   Bespoke ↗
@@ -478,13 +500,13 @@ export function RootLayout() {
               </p>
               <div className="flex flex-col gap-2.5 text-[13px] leading-relaxed">
                 <a href="tel:+441794390155" className="hover:text-brand">
-                  01794 390155
+                  +44 7943 547557
                 </a>
                 <a
-                  href="mailto:info@hamptworthgolf.co.uk"
+                  href="mailto:info@hamptworthstays.com"
                   className="hover:text-brand"
                 >
-                  info@hamptworthgolf.co.uk
+                  info@hamptworthstays.com
                 </a>
               </div>
               <NewsletterFooterForm />
