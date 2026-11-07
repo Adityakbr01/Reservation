@@ -38,7 +38,9 @@ import { LocationMap } from "@/components/common/LocationMap";
 import { useMediaUrls } from "@/modules/media";
 import {
   AvailabilityCalendar,
+  monthBounds,
   parseAvailabilitySearchParams,
+  useAvailabilityCalendar,
   useAvailabilitySearch,
 } from "@/modules/availability";
 import {
@@ -132,6 +134,18 @@ export function CottageDetailPage() {
   const mainSwiperRef = useRef<SwiperType | null>(null);
   const thumbsSwiperRef = useRef<SwiperType | null>(null);
   const [activeTab, setActiveTab] = useState<string>("overview");
+
+  // Prefetch current month calendar immediately so switching to the Availability tab is instant
+  const calendarNow = useMemo(() => new Date(), []);
+  const initialCalendarBounds = useMemo(
+    () => monthBounds(calendarNow.getUTCFullYear(), calendarNow.getUTCMonth()),
+    [calendarNow]
+  );
+  useAvailabilityCalendar(
+    roomType?.id ?? null,
+    initialCalendarBounds.from,
+    initialCalendarBounds.to
+  );
 
   function openAvailabilityTab() {
     setActiveTab("availability");

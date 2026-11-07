@@ -124,13 +124,34 @@ class AdminBookingController extends Controller
         $booking->status = 'CANCELLED';
         $cancellation = is_array($booking->cancellation) ? $booking->cancellation : [];
         $cancellation['cancelledAt'] = now()->toIso8601String();
-        $cancellation['reason'] = request('reason');
+        $cancellation['reason'] = request('reason') ?: 'Cancelled by admin';
         $booking->cancellation = $cancellation;
         $booking->save();
 
         return response()->json([
             'success' => true,
             'data' => $this->bookingData($booking),
+        ]);
+    }
+
+    public function destroy(string $id)
+    {
+        $booking = Booking::with(['items', 'payments'])->find($id);
+
+        if (! $booking) {
+            return response()->json([
+                'success' => false,
+                'error' => ['code' => 'BOOKING_NOT_FOUND', 'message' => 'Booking not found'],
+            ], 404);
+        }
+
+        $booking->items()->delete();
+        $booking->payments()->delete();
+        $booking->delete();
+
+        return response()->json([
+            'success' => true,
+            'data' => ['deleted' => true, 'id' => $id],
         ]);
     }
 

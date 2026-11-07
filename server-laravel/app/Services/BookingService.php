@@ -29,7 +29,8 @@ class BookingService
                 ->where('end_date', '>', $checkIn)
                 ->exists();
 
-            $conflicting = BookingItem::where('room_id', $room->id)
+            $conflicting = BookingItem::activeBookings()
+                ->where('room_id', $room->id)
                 ->where('check_in', '<', $checkOut)
                 ->where('check_out', '>', $checkIn)
                 ->exists();

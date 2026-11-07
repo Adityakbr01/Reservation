@@ -59,13 +59,15 @@ export function HamperBanner({ html }: HamperBannerProps) {
               <p className="text-sm font-semibold text-brand-dark">
                 Welcome hamper included
               </p>
-              <p className="text-xs text-muted-foreground">
-                Artisanal local goods &amp; countryside treats waiting in your
-                cottage
-              </p>
+              <div
+                className="rich-text text-xs leading-snug text-muted-foreground"
+                dangerouslySetInnerHTML={{
+                  __html: enhanceRichLinks(html),
+                }}
+              />
             </div>
           </div>
-          <button
+          {/* <button
             type="button"
             onClick={() => setOpen(true)}
             aria-haspopup="dialog"
@@ -73,7 +75,7 @@ export function HamperBanner({ html }: HamperBannerProps) {
           >
             View details
             <span aria-hidden>→</span>
-          </button>
+          </button> */}
         </div>
       </section>
       <Dialog

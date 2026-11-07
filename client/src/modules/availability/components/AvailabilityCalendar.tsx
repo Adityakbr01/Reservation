@@ -13,7 +13,7 @@ import { formatMoney } from "@/lib/money";
 import { useAvailabilityCalendar } from "../hooks/use-availability-search";
 import type { CalendarDay } from "../api/availability.api";
 
-function monthBounds(year: number, month: number): { from: string; to: string } {
+export function monthBounds(year: number, month: number): { from: string; to: string } {
   const pad = (n: number) => String(n).padStart(2, "0");
   const last = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
   return { from: `${year}-${pad(month + 1)}-01`, to: `${year}-${pad(month + 1)}-${last}` };

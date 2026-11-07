@@ -440,7 +440,7 @@ export function RootLayout() {
             </div>
 
             <div>
-              <h3 className="mb-5 text-[10px] font-medium uppercase leading-4 tracking-[1.3px]">
+              <h3 className="mb-5 text-[12px] font-extrabold font-georgia uppercase leading-5 tracking-[1.3px]">
                 Your stay
               </h3>
               <div className="flex flex-col gap-2.5">
@@ -467,7 +467,7 @@ export function RootLayout() {
             </div>
 
             <div>
-              <h3 className="mb-5 text-[10px] font-medium uppercase leading-4 tracking-[1.3px]">
+              <h3 className="mb-5 text-[12px] font-bold uppercase leading-5 tracking-[1.3px]">
                 A little help
               </h3>
               <div className="flex flex-col gap-2.5">
@@ -502,12 +502,10 @@ export function RootLayout() {
             </div>
 
             <div className="col-span-2 lg:col-span-1">
-              <h3 className="mb-5 text-[10px] font-medium uppercase leading-4 tracking-[1.3px]">
+              <h3 className="mb-5 text-[12px] font-bold uppercase leading-5 tracking-[1.3px]">
                 Contact
               </h3>
-              <p className="mb-3 text-[10px] text-[#758466]">
-                Estate &amp; club team
-              </p>
+
               <div className="flex flex-col gap-2.5">
                 <a href="tel:+441794390155" className="hover:text-brand">
                   +44 7943 547557
@@ -523,12 +521,14 @@ export function RootLayout() {
             </div>
           </div>
 
-          <div className="mt-[33px] flex flex-wrap items-center gap-[18px] border-t-[0.8px] border-[#cbd2c0] pt-5 text-[9px] leading-[12.6px] text-[#748165]">
+          <div className="mt-[33px] flex flex-wrap items-center justify-between gap-[18px] border-t-[0.8px] border-[#cbd2c0] pt-5 text-[9px] leading-[12.6px] text-[#748165]">
             <span>© 2026 Hamptworth Stays</span>
-            <span>Home Farm · Hamptworth</span>
-            <a href="#top" className="ml-auto hover:text-foreground">
-              Back to top ↑
-            </a>
+            <div className="ml-auto flex flex-wrap items-center gap-[18px]">
+              <span>Home Farm · Hamptworth</span>
+              <a href="#top" className="hover:text-foreground">
+                Back to top ↑
+              </a>
+            </div>
           </div>
         </div>
       </footer>

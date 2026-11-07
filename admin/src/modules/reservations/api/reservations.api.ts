@@ -53,3 +53,8 @@ export async function reassignReservation(id: string, roomId: string): Promise<R
   });
   return unwrapResponse(response);
 }
+
+export async function deleteReservation(id: string): Promise<{ deleted: boolean; id: string }> {
+  const response = await apiClient.delete<ApiEnvelope<{ deleted: boolean; id: string }>>(`${BASE}/${id}`);
+  return unwrapResponse(response);
+}

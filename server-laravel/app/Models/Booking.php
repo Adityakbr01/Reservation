@@ -66,4 +66,28 @@ class Booking extends Model
     {
         return $this->hasMany(Review::class, 'booking_id');
     }
+
+    /**
+     * Cancel / expire unpaid HELD bookings older than $minutes (default: 20 mins).
+     */
+    public static function unholdExpired(int $minutes = 20): int
+    {
+        $cutoff = now()->subMinutes($minutes);
+        $expired = static::where('status', 'HELD')
+            ->where('created_at', '<', $cutoff)
+            ->get();
+
+        $count = 0;
+        foreach ($expired as $b) {
+            $cancellation = is_array($b->cancellation) ? $b->cancellation : [];
+            $cancellation['cancelledAt'] = now()->toIso8601String();
+            $cancellation['reason'] = "Hold expired (unpaid after {$minutes} minutes)";
+            $b->status = 'EXPIRED';
+            $b->cancellation = $cancellation;
+            $b->save();
+            $count++;
+        }
+
+        return $count;
+    }
 }

@@ -228,6 +228,7 @@ foreach (['/admin/reservations', '/v1/admin/reservations'] as $prefix) {
         Route::get('/{id}', [AdminBookingController::class, 'show']);
         Route::get('/{id}/cancel-preview', [AdminBookingController::class, 'cancelPreview']);
         Route::post('/{id}/cancel', [AdminBookingController::class, 'cancel']);
+        Route::delete('/{id}', [AdminBookingController::class, 'destroy']);
         Route::post('/{id}/refund', [AdminBookingController::class, 'refund']);
         Route::post('/{id}/check-in', [AdminBookingController::class, 'checkIn']);
         Route::post('/{id}/check-out', [AdminBookingController::class, 'checkOut']);

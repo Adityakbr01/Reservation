@@ -44,4 +44,17 @@ class BookingItem extends Model
     {
         return $this->belongsTo(RatePlan::class, 'rate_plan_id');
     }
+
+    /**
+     * Scope a query to only include booking items that actively reserve inventory.
+     * Option 1: Zero Pre-Hold / Pay-First architecture.
+     * Only CONFIRMED or PAID bookings block availability.
+     * Drafts, HELD (unpaid checkout), CANCELLED, and EXPIRED bookings NEVER block dates.
+     */
+    public function scopeActiveBookings($query)
+    {
+        return $query->whereHas('booking', function ($q) {
+            $q->whereIn('status', ['CONFIRMED', 'PAID']);
+        });
+    }
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,7 @@ import {
   useCancelReservation,
   useCheckInReservation,
   useCheckOutReservation,
+  useDeleteReservation,
   useReassignReservation,
   useReservation,
 } from "../hooks/use-reservations";
@@ -44,11 +45,13 @@ function formatDate(value: string | null): string {
 
 export function ReservationDetailPage() {
   const { id = "" } = useParams();
+  const navigate = useNavigate();
   const [showCancel, setShowCancel] = useState(false);
   const [reason, setReason] = useState("");
   const { data, isPending, isError, refetch } = useReservation(id);
   const previewQuery = useCancelPreview(id, showCancel);
   const cancelMutation = useCancelReservation(id);
+  const deleteMutation = useDeleteReservation(id);
   const refundMutation = useRefundBooking(id);
   const checkInMutation = useCheckInReservation(id);
   const checkOutMutation = useCheckOutReservation(id);
@@ -242,6 +245,22 @@ export function ReservationDetailPage() {
               triggerClassName="rounded-full"
               pending={refundMutation.isPending}
               onConfirm={() => refundMutation.mutate(null)}
+            />
+          )}
+          {(booking.status === "CANCELLED" || booking.status === "HELD" || booking.status === "EXPIRED") && (
+            <ConfirmButton
+              title="Delete this reservation record?"
+              description="Permanently delete this reservation and all its items. This cannot be undone."
+              confirmLabel="Delete permanently"
+              triggerLabel={deleteMutation.isPending ? "Deleting…" : "Delete reservation"}
+              triggerVariant="outline"
+              triggerClassName="rounded-full text-destructive border-destructive/40 hover:bg-destructive/10"
+              pending={deleteMutation.isPending}
+              onConfirm={() => {
+                deleteMutation.mutate(undefined, {
+                  onSuccess: () => navigate("/reservations"),
+                });
+              }}
             />
           )}
         </div>

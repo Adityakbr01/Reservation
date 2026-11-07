@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { getApiErrorMessage } from "@/lib/api-client";
-import { reservationKeys } from "@/lib/query-keys";
+import { availabilityKeys, reservationKeys } from "@/lib/query-keys";
 import {
   cancelReservation,
   checkInReservation,
   checkOutReservation,
+  deleteReservation,
   getReservation,
   listReservations,
   previewReservationCancel,
@@ -42,6 +43,7 @@ export function useCancelReservation(id: string) {
     mutationFn: (reason: string | null) => cancelReservation(id, reason),
     onSuccess: (booking) => {
       void queryClient.invalidateQueries({ queryKey: reservationKeys.all });
+      void queryClient.invalidateQueries({ queryKey: availabilityKeys.all });
       toast.success(`Booking ${booking.bookingNumber} cancelled`);
     },
     onError: (error) => {
@@ -85,6 +87,21 @@ export function useReassignReservation(id: string) {
     onSuccess: (booking) => {
       void queryClient.invalidateQueries({ queryKey: reservationKeys.all });
       toast.success(`Booking ${booking.bookingNumber} moved`);
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error));
+    },
+  });
+}
+
+export function useDeleteReservation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => deleteReservation(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: reservationKeys.all });
+      void queryClient.invalidateQueries({ queryKey: availabilityKeys.all });
+      toast.success("Reservation deleted");
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error));

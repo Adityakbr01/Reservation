@@ -403,6 +403,26 @@ class PublicBookingController extends Controller
             ], 404);
         }
 
+        if ($booking->status === 'HELD' || $booking->payment_status === 'PENDING') {
+            $payment = \App\Models\Payment::where('booking_id', $booking->id)->latest()->first();
+            if ($payment && $payment->provider_payment_intent_id) {
+                try {
+                    \Stripe\Stripe::setApiKey(config('services.stripe.secret') ?? env('STRIPE_SECRET_KEY'));
+                    $intent = \Stripe\PaymentIntent::retrieve($payment->provider_payment_intent_id);
+                    if ($intent && $intent->status === 'succeeded') {
+                        $booking->status = 'CONFIRMED';
+                        $booking->payment_status = 'PAID';
+                        $booking->save();
+                        $payment->status = 'PAID';
+                        $payment->paid_at = now();
+                        $payment->save();
+                    }
+                } catch (\Throwable) {
+                    // Ignore transient stripe retrieval error
+                }
+            }
+        }
+
         $contact = is_array($booking->contact) ? $booking->contact : [];
         $guestName = trim(($contact['firstName'] ?? '') . ' ' . ($contact['lastName'] ?? '')) ?: ($booking->user?->name ?? 'Guest Customer');
 

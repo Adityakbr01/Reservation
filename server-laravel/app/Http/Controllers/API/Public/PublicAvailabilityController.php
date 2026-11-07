@@ -20,6 +20,9 @@ class PublicAvailabilityController extends Controller
         $checkOut = \Carbon\Carbon::parse($checkOutDate);
         $nights = max(1, $checkIn->diffInDays($checkOut));
 
+        // Auto-unhold any expired holds older than 20 minutes
+        \App\Models\Booking::unholdExpired();
+
         // 1. Bulk query: Get all blocked room IDs in date range with 1 query
         $blockedRoomIds = AvailabilityBlock::where('start_date', '<', $checkOutDate)
             ->where('end_date', '>', $checkInDate)
@@ -27,8 +30,9 @@ class PublicAvailabilityController extends Controller
             ->filter()
             ->all();
 
-        // 2. Bulk query: Get all booked room IDs in date range with 1 query
-        $bookedRoomIds = BookingItem::where('check_in', '<', $checkOutDate)
+        // 2. Bulk query: Get all active booked/held room IDs in date range with 1 query
+        $bookedRoomIds = BookingItem::activeBookings()
+            ->where('check_in', '<', $checkOutDate)
             ->where('check_out', '>', $checkInDate)
             ->pluck('room_id')
             ->filter()
@@ -166,6 +170,9 @@ class PublicAvailabilityController extends Controller
 
     public function calendar(\Illuminate\Http\Request $request)
     {
+        // Auto-unhold any expired holds older than 20 minutes
+        \App\Models\Booking::unholdExpired();
+
         $now = \Carbon\Carbon::now();
         $from = $request->query('from') ?? $now->copy()->startOfMonth()->toDateString();
         $to = $request->query('to') ?? $now->copy()->endOfMonth()->toDateString();
@@ -224,7 +231,8 @@ class PublicAvailabilityController extends Controller
                         ->where('end_date', '>', $curDate)
                         ->count();
 
-                    $bookedCount = BookingItem::whereIn('room_id', $roomIds)
+                    $bookedCount = BookingItem::activeBookings()
+                        ->whereIn('room_id', $roomIds)
                         ->where('check_in', '<', $nextDate)
                         ->where('check_out', '>', $curDate)
                         ->count();

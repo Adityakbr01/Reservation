@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
@@ -94,8 +95,38 @@ function PayButton({ bookingId, totalLabel }: { bookingId: string; totalLabel: s
   const navigate = useNavigate();
   const [paying, setPaying] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
+  const [timeoutExceeded, setTimeoutExceeded] = useState(false);
+
+  useEffect(() => {
+    if (stripe && elements) return;
+    const timer = setTimeout(() => {
+      setTimeoutExceeded(true);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, [stripe, elements]);
 
   if (!stripe || !elements) {
+    if (timeoutExceeded) {
+      return (
+        <div className="space-y-3 rounded-md border border-amber-300 bg-amber-50 p-4 text-center">
+          <p className="text-sm font-medium text-amber-900">
+            Payment form is taking longer than expected to load.
+          </p>
+          <p className="text-xs text-amber-800">
+            Please check your internet connection or ensure ad-blockers / shields allow Stripe to load.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="rounded-full"
+            onClick={() => window.location.reload()}
+          >
+            Refresh page
+          </Button>
+        </div>
+      );
+    }
     return (
       <div className="flex items-center justify-center py-6 text-sm text-muted-foreground gap-2">
         <Loader className="size-4 animate-spin text-brand" />
@@ -144,6 +175,49 @@ function PayButton({ bookingId, totalLabel }: { bookingId: string; totalLabel: s
       </Button>
     </div>
   );
+}
+
+class PaymentErrorBoundary extends React.Component<
+  { children: React.ReactNode; onRetry?: () => void },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error("Stripe payment element error:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="space-y-3 rounded-md border border-destructive/30 bg-destructive/10 p-4">
+          <p role="alert" className="text-sm font-medium text-destructive">
+            Payment form could not be displayed ({this.state.error?.message || "Gateway error"}).
+          </p>
+          <p className="text-xs text-muted-foreground">
+            If you are using an ad-blocker or content filter, please disable it for this page and retry.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="rounded-full"
+            onClick={() => {
+              this.setState({ hasError: false, error: null });
+              this.props.onRetry?.();
+            }}
+          >
+            Retry payment setup
+          </Button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 export function BookingPage() {
@@ -894,17 +968,26 @@ export function BookingPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {!stripePromise ? (
-                  <p role="alert" className="text-sm text-destructive">
-                    Payments are not configured (missing publishable key). Please try again later.
-                  </p>
+                  <div className="space-y-2 rounded-md border border-destructive/30 bg-destructive/10 p-4">
+                    <p role="alert" className="text-sm text-destructive">
+                      Payments are not configured (missing publishable key). Please try again later.
+                    </p>
+                  </div>
                 ) : clientSecret ? (
-                  <Elements
-                    key={clientSecret}
-                    stripe={stripePromise}
-                    options={{ clientSecret, appearance: { theme: "stripe" } }}
-                  >
-                    <PayButton bookingId={bookingId} totalLabel={totalLabel} />
-                  </Elements>
+                  <PaymentErrorBoundary onRetry={() => void handleRetryIntent()}>
+                    <Elements
+                      key={clientSecret}
+                      stripe={stripePromise}
+                      options={{ clientSecret, appearance: { theme: "stripe" } }}
+                    >
+                      <PayButton bookingId={bookingId} totalLabel={totalLabel} />
+                    </Elements>
+                  </PaymentErrorBoundary>
+                ) : !holdFailed ? (
+                  <div className="flex items-center justify-center py-6 text-sm text-muted-foreground gap-2">
+                    <Loader className="size-4 animate-spin text-brand" />
+                    <span>Preparing payment gateway…</span>
+                  </div>
                 ) : null}
                 {holdFailed && (
                   <div className="space-y-2 rounded-md border border-amber-300 bg-amber-50 p-3">
