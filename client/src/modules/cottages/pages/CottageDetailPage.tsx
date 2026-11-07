@@ -1497,7 +1497,10 @@ export function CottageDetailPage() {
             </CardContent>
           </Card>
 
-          <WhyBookWithUsCard items={settings?.whyBookWithUs ?? []} />
+          <WhyBookWithUsCard
+            heading={settings?.whyBookWithUsHeading}
+            items={settings?.whyBookWithUs ?? []}
+          />
         </aside>
       </div>
     </div>

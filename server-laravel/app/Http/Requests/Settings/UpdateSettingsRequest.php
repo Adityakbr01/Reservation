@@ -25,7 +25,10 @@ class UpdateSettingsRequest extends FormRequest
             'reminder_hours_before' => ['nullable', 'integer', 'min:1'],
             'social' => ['nullable', 'array'],
             'default_seo' => ['nullable', 'array'],
-            'why_book_with_us' => ['nullable', 'array'],
+            'why_book_with_us' => ['nullable'],
+            'whyBookWithUs' => ['nullable'],
+            'why_book_with_us_heading' => ['nullable', 'string', 'max:200'],
+            'whyBookWithUsHeading' => ['nullable', 'string', 'max:200'],
         ];
     }
 }

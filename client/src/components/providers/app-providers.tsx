@@ -10,7 +10,15 @@ interface SiteSettingsData {
   currency?: string;
   timezone?: string;
   propertyName?: string;
-  whyBookWithUs?: Array<{ title: string; text?: string | null }>;
+  whyBookWithUsHeading?: string | null;
+  whyBookWithUs?: Array<{
+    title: string;
+    text?: string | null;
+    icon?: string | null;
+    imageMediaId?: string | null;
+    imageUrl?: string | null;
+    badgeColor?: string | null;
+  }>;
 }
 
 function SettingsInitializer({ children }: { children: ReactNode }) {

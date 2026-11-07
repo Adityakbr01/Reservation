@@ -1,11 +1,17 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Building2,
+  Gift,
   Headphones,
   Heart,
+  Home,
+  KeyRound,
+  Leaf,
   Map as MapIcon,
   ShieldCheck,
   Sparkles,
+  Star,
+  Wifi,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -19,17 +25,45 @@ export function whyIconFor(title: string): LucideIcon {
   return Sparkles;
 }
 
+const ICON_MAP: Record<string, LucideIcon> = {
+  sparkles: Sparkles,
+  heart: Heart,
+  shield: ShieldCheck,
+  map: MapIcon,
+  headphones: Headphones,
+  home: Home,
+  building: Building2,
+  leaf: Leaf,
+  star: Star,
+  gift: Gift,
+  key: KeyRound,
+  wifi: Wifi,
+};
+
+export function resolveWhyIcon(icon?: string | null, title?: string): LucideIcon {
+  if (icon) {
+    const key = icon.toLowerCase().trim();
+    if (ICON_MAP[key]) return ICON_MAP[key];
+  }
+  return whyIconFor(title || "");
+}
+
 export interface WhyBookItem {
   title: string;
   text?: string | null;
+  icon?: string | null;
+  imageMediaId?: string | null;
+  imageUrl?: string | null;
+  badgeColor?: string | null;
 }
 
 export interface WhyBookWithUsCardProps {
+  heading?: string | null;
   items: WhyBookItem[];
 }
 
-export function WhyBookWithUsCard({ items }: WhyBookWithUsCardProps) {
-  if (items.length === 0) return null;
+export function WhyBookWithUsCard({ heading, items }: WhyBookWithUsCardProps) {
+  if (!items || items.length === 0) return null;
   return (
     <Card className="relative overflow-hidden shadow-card">
       {/* Subtle ambient leaf accent at the bottom corner */}
@@ -46,15 +80,30 @@ export function WhyBookWithUsCard({ items }: WhyBookWithUsCardProps) {
       </div>
       <CardContent className="relative z-10 space-y-4 p-5">
         <h2 className="font-display text-xl font-medium tracking-tight">
-          Why book with us?
+          {heading?.trim() || "Why book with us?"}
         </h2>
         <ul className="space-y-4">
           {items.map((w, i) => {
-            const Icon = whyIconFor(w.title);
+            const Icon = resolveWhyIcon(w.icon, w.title);
+            const customBg = w.badgeColor ? { backgroundColor: w.badgeColor } : undefined;
             return (
               <li key={i} className="flex gap-3">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand/10 text-brand-dark">
-                  <Icon className="size-5" aria-hidden />
+                <span
+                  className={`flex size-10 shrink-0 items-center justify-center rounded-full ${
+                    w.badgeColor ? "" : "bg-brand/10"
+                  } text-brand-dark overflow-hidden`}
+                  style={customBg}
+                >
+                  {w.imageUrl ? (
+                    <img
+                      src={w.imageUrl}
+                      alt=""
+                      className="size-5 object-contain"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <Icon className="size-5" aria-hidden />
+                  )}
                 </span>
                 <span className="min-w-0">
                   <span className="block text-sm font-semibold">

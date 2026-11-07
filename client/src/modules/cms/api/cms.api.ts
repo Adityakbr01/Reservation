@@ -65,6 +65,15 @@ export interface CmsPolicy {
   updatedAt: string;
 }
 
+export interface WhyBookWithUsItem {
+  title: string;
+  text?: string | null;
+  icon?: string | null;
+  imageMediaId?: string | null;
+  imageUrl?: string | null;
+  badgeColor?: string | null;
+}
+
 export interface SiteSettings {
   propertyName: string | null;
   currency: string | null;
@@ -74,7 +83,8 @@ export interface SiteSettings {
   address: string | null;
   phone: string | null;
   supportEmail: string | null;
-  whyBookWithUs?: Array<{ title: string; text?: string | null }>;
+  whyBookWithUsHeading?: string | null;
+  whyBookWithUs?: WhyBookWithUsItem[];
 }
 
 const BASE = "/public/cms";

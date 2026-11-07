@@ -2,8 +2,9 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -51,6 +52,37 @@ const PRESET_TIMEZONES = [
   { value: "UTC", label: "UTC (Universal Coordinated Time)" },
 ] as const;
 
+const PRESET_BADGE_COLORS = [
+  { label: "Soft Sage", hex: "#EEF3EA" },
+  { label: "Warm Cream", hex: "#F7F3EE" },
+  { label: "Sky Mist", hex: "#EBF3F8" },
+  { label: "Peach", hex: "#FDF2E9" },
+  { label: "Lavender", hex: "#F5EEF8" },
+] as const;
+
+const WHY_ICONS = [
+  { value: "auto", label: "Auto (deduce from title)" },
+  { value: "sparkles", label: "Sparkles (Luxury / Highlights)" },
+  { value: "heart", label: "Heart (Guest Favorite / Care)" },
+  { value: "shield", label: "Shield (Quality & Verified)" },
+  { value: "map", label: "Map (Location & Local Knowledge)" },
+  { value: "headphones", label: "Headphones (24/7 Support)" },
+  { value: "home", label: "Home / Cottage" },
+  { value: "leaf", label: "Leaf (Nature & Scenery)" },
+  { value: "star", label: "Star (Top Rated)" },
+  { value: "gift", label: "Gift (Welcome Hamper / Treats)" },
+  { value: "key", label: "Key (Frictionless Access)" },
+  { value: "wifi", label: "Wifi (Fast Broadband)" },
+] as const;
+
+export interface WhyBookItem {
+  title: string;
+  text?: string | null;
+  icon?: string | null;
+  imageMediaId?: string | null;
+  badgeColor?: string | null;
+}
+
 interface Settings {
   propertyName: string;
   logoMediaId: string | null;
@@ -63,7 +95,8 @@ interface Settings {
   checkInTime: string | null;
   checkOutTime: string | null;
   reminderHoursBefore: number;
-  whyBookWithUs?: Array<{ title: string; text?: string | null }>;
+  whyBookWithUsHeading?: string | null;
+  whyBookWithUs?: WhyBookItem[];
 }
 
 export function SettingsPage() {
@@ -313,55 +346,249 @@ function SettingsForm({ initial }: { initial: Settings }) {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl">Why book with us?</CardTitle>
+            <div className="flex flex-col gap-1">
+              <CardTitle className="text-xl">Why book with us?</CardTitle>
+              <CardDescription>
+                Customize the direct-booking benefits shown to guests on cottage detail pages. You can set a custom icon, custom image, and badge background color for each reason.
+              </CardDescription>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-5">
-            {(form.whyBookWithUs ?? []).map((item, i) => (
-              <div key={i} className="space-y-3 rounded-lg border border-border p-4">
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 space-y-2">
-                    <Label htmlFor={`why-title-${i}`}>Title</Label>
-                    <Input
-                      id={`why-title-${i}`}
-                      value={item.title}
-                      onChange={(e) =>
-                        set("whyBookWithUs", (form.whyBookWithUs ?? []).map((w, j) => (j === i ? { ...w, title: e.target.value } : w)))
-                      }
-                      placeholder="Local knowledge"
-                      aria-label={`Why book title ${i + 1}`}
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="mt-6 text-destructive"
-                    onClick={() =>
-                      set("whyBookWithUs", (form.whyBookWithUs ?? []).filter((_, j) => j !== i))
-                    }
-                    aria-label={`Remove reason ${i + 1}`}
+          <CardContent className="space-y-6">
+            <div className="max-w-md space-y-2">
+              <Label htmlFor="why-heading">Section Heading</Label>
+              <Input
+                id="why-heading"
+                value={form.whyBookWithUsHeading ?? ""}
+                onChange={(e) => set("whyBookWithUsHeading", e.target.value)}
+                placeholder="Why book with us?"
+              />
+            </div>
+
+            <div className="space-y-4">
+              {(form.whyBookWithUs ?? []).map((item, i) => {
+                const total = (form.whyBookWithUs ?? []).length;
+                return (
+                  <div
+                    key={i}
+                    className="space-y-4 rounded-xl border border-border/80 bg-muted/20 p-4 transition-colors hover:border-border sm:p-5"
                   >
-                    Remove
-                  </Button>
-                </div>
-                <CkEditorField
-                  label={`Body ${i + 1}`}
-                  value={item.text ?? ""}
-                  onChange={(html) =>
-                    set("whyBookWithUs", (form.whyBookWithUs ?? []).map((w, j) => (j === i ? { ...w, text: html || null } : w)))
-                  }
-                  placeholder="What makes booking direct better…"
-                />
-              </div>
-            ))}
+                    <div className="flex items-center justify-between gap-3 border-b border-border/60 pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                          {i + 1}
+                        </span>
+                        <span className="text-sm font-semibold text-foreground">
+                          {item.title ? item.title : `Benefit #${i + 1}`}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          disabled={i === 0}
+                          onClick={() => {
+                            const list = [...(form.whyBookWithUs ?? [])];
+                            const temp = list[i];
+                            list[i] = list[i - 1];
+                            list[i - 1] = temp;
+                            set("whyBookWithUs", list);
+                          }}
+                          aria-label={`Move benefit ${i + 1} up`}
+                          title="Move up"
+                        >
+                          <ArrowUp className="size-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          disabled={i === total - 1}
+                          onClick={() => {
+                            const list = [...(form.whyBookWithUs ?? [])];
+                            const temp = list[i];
+                            list[i] = list[i + 1];
+                            list[i + 1] = temp;
+                            set("whyBookWithUs", list);
+                          }}
+                          aria-label={`Move benefit ${i + 1} down`}
+                          title="Move down"
+                        >
+                          <ArrowDown className="size-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:bg-destructive/10"
+                          onClick={() =>
+                            set(
+                              "whyBookWithUs",
+                              (form.whyBookWithUs ?? []).filter((_, j) => j !== i),
+                            )
+                          }
+                          aria-label={`Remove benefit ${i + 1}`}
+                          title="Remove benefit"
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-2 sm:col-span-2">
+                        <Label htmlFor={`why-title-${i}`}>Title</Label>
+                        <Input
+                          id={`why-title-${i}`}
+                          value={item.title}
+                          onChange={(e) => {
+                            const list = (form.whyBookWithUs ?? []).map((w, j) =>
+                              j === i ? { ...w, title: e.target.value } : w,
+                            );
+                            set("whyBookWithUs", list);
+                          }}
+                          placeholder="e.g. Charming Luxury Cottages"
+                          aria-label={`Why book title ${i + 1}`}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`why-icon-${i}`}>Preset Icon</Label>
+                        <Select
+                          value={item.icon || "auto"}
+                          onValueChange={(val) => {
+                            const list = (form.whyBookWithUs ?? []).map((w, j) =>
+                              j === i ? { ...w, icon: val === "auto" ? null : val } : w,
+                            );
+                            set("whyBookWithUs", list);
+                          }}
+                        >
+                          <SelectTrigger id={`why-icon-${i}`}>
+                            <SelectValue placeholder="Choose icon" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {WHY_ICONS.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Badge Background Color</Label>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <input
+                            type="color"
+                            value={
+                              item.badgeColor && /^#[0-9A-Fa-f]{6}$/.test(item.badgeColor)
+                                ? item.badgeColor
+                                : "#EEF3EA"
+                            }
+                            onChange={(e) => {
+                              const list = (form.whyBookWithUs ?? []).map((w, j) =>
+                                j === i ? { ...w, badgeColor: e.target.value } : w,
+                              );
+                              set("whyBookWithUs", list);
+                            }}
+                            className="size-9 cursor-pointer rounded-md border border-border p-0.5"
+                            title="Pick color"
+                          />
+                          <Input
+                            value={item.badgeColor ?? ""}
+                            onChange={(e) => {
+                              const val = e.target.value.trim();
+                              const list = (form.whyBookWithUs ?? []).map((w, j) =>
+                                j === i ? { ...w, badgeColor: val || null } : w,
+                              );
+                              set("whyBookWithUs", list);
+                            }}
+                            placeholder="#EEF3EA"
+                            className="w-28 font-mono text-xs uppercase"
+                          />
+                          <div className="flex items-center gap-1">
+                            {PRESET_BADGE_COLORS.map((c) => (
+                              <button
+                                key={c.hex}
+                                type="button"
+                                className="size-6 rounded-full border border-border/80 shadow-xs transition hover:scale-110"
+                                style={{ backgroundColor: c.hex }}
+                                title={c.label}
+                                onClick={() => {
+                                  const list = (form.whyBookWithUs ?? []).map((w, j) =>
+                                    j === i ? { ...w, badgeColor: c.hex } : w,
+                                  );
+                                  set("whyBookWithUs", list);
+                                }}
+                              />
+                            ))}
+                          </div>
+                          {item.badgeColor && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 text-xs text-muted-foreground"
+                              onClick={() => {
+                                const list = (form.whyBookWithUs ?? []).map((w, j) =>
+                                  j === i ? { ...w, badgeColor: null } : w,
+                                );
+                                set("whyBookWithUs", list);
+                              }}
+                            >
+                              Reset
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 sm:col-span-2">
+                        <ImageField
+                          label="Custom Icon / Image (Overrides preset icon with your uploaded asset)"
+                          mediaId={item.imageMediaId ?? null}
+                          onChange={(mediaId) => {
+                            const list = (form.whyBookWithUs ?? []).map((w, j) =>
+                              j === i ? { ...w, imageMediaId: mediaId } : w,
+                            );
+                            set("whyBookWithUs", list);
+                          }}
+                        />
+                      </div>
+
+                      <div className="space-y-2 sm:col-span-2">
+                        <CkEditorField
+                          label={`Description / Body ${i + 1}`}
+                          value={item.text ?? ""}
+                          onChange={(html) => {
+                            const list = (form.whyBookWithUs ?? []).map((w, j) =>
+                              j === i ? { ...w, text: html || null } : w,
+                            );
+                            set("whyBookWithUs", list);
+                          }}
+                          placeholder="What makes booking direct better…"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
             <Button
               type="button"
               variant="outline"
               size="sm"
               className="rounded-full"
-              onClick={() => set("whyBookWithUs", [...(form.whyBookWithUs ?? []), { title: "", text: null }])}
+              onClick={() =>
+                set("whyBookWithUs", [
+                  ...(form.whyBookWithUs ?? []),
+                  { title: "", text: null, icon: null, imageMediaId: null, badgeColor: null },
+                ])
+              }
             >
-              Add reason
+              <Plus className="mr-1.5 size-4" />
+              Add benefit
             </Button>
           </CardContent>
         </Card>
