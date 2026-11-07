@@ -125,34 +125,48 @@ export function ReservationsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((booking) => (
-                <TableRow key={booking.id}>
-                  <TableCell>
-                    <div className="font-medium">{booking.bookingNumber}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {formatDate(booking.createdAt)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      {booking.contact.firstName} {booking.contact.lastName}
-                    </div>
-                    <div className="text-xs text-muted-foreground">{booking.contact.email}</div>
-                  </TableCell>
-                  <TableCell>
-                    {formatDate(booking.checkIn)} → {formatDate(booking.checkOut)}
-                  </TableCell>
-                  <TableCell>{formatMoney(booking.pricing.total, booking.pricing.currency)}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={booking.status} />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button asChild variant="ghost" size="sm" className="rounded-full">
-                      <Link to={`/reservations/${booking.id}`}>View</Link>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {items.map((b) => {
+                const booking = b as any;
+                const bookingNumber = booking.bookingNumber ?? booking.booking_number ?? booking.id;
+                const createdAt = booking.createdAt ?? booking.created_at ?? "";
+                const firstName = booking.contact?.firstName ?? booking.contact?.first_name ?? "";
+                const lastName = booking.contact?.lastName ?? booking.contact?.last_name ?? "";
+                const email = booking.contact?.email ?? "";
+                const checkIn = booking.checkIn ?? booking.check_in ?? "";
+                const checkOut = booking.checkOut ?? booking.check_out ?? "";
+                const total = Number(booking.pricing?.total ?? 0);
+                const currency = booking.pricing?.currency ?? "GBP";
+                const status = booking.status ?? "HELD";
+
+                return (
+                  <TableRow key={booking.id}>
+                    <TableCell>
+                      <div className="font-medium">{bookingNumber}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {createdAt ? formatDate(createdAt) : "—"}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        {firstName || lastName ? `${firstName} ${lastName}`.trim() : "Guest"}
+                      </div>
+                      <div className="text-xs text-muted-foreground">{email}</div>
+                    </TableCell>
+                    <TableCell>
+                      {checkIn ? formatDate(checkIn) : "—"} → {checkOut ? formatDate(checkOut) : "—"}
+                    </TableCell>
+                    <TableCell>{formatMoney(total, currency)}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={status} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button asChild variant="ghost" size="sm" className="rounded-full">
+                        <Link to={`/reservations/${booking.id}`}>View</Link>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
           <PaginationControls page={data?.page ?? 1} totalPages={totalPages} onPage={setPage} />

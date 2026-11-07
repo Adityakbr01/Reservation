@@ -261,7 +261,7 @@ const HAMPER_SEED =
   "<h3>What’s in the hamper</h3>" +
   "<p>Every stay starts with a welcome hamper of local favourites, ready in the kitchen on arrival.</p>" +
   "<ul><li>Fresh bread and local cheese</li><li>Farm eggs and butter</li><li>Tea, coffee and biscuits</li></ul>" +
-  '<p>Tell us about dietary needs in <a href="/enquire">your enquiry</a> and we will adjust it.</p>';
+  '<p>Tell us about dietary needs in <a href="https://hamptworthstays.com/plan-your-experience/">your enquiry</a> and we will adjust it.</p>';
 
 /**
  * Fills hamper content only where the admin left

@@ -1,7 +1,8 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import { AuthLayout } from "@/components/layouts/AuthLayout";
 import { RootLayout } from "@/components/layouts/RootLayout";
+import { SITE_LINKS } from "@/config/links";
 import { HomePage } from "@/modules/home/pages/HomePage";
 import { RequireAuth, RequireGuest } from "./guards";
 
@@ -42,7 +43,6 @@ const OffersPage = lazy(() =>
 const PolicyPage = lazy(() =>
   import("@/modules/cms/pages/CmsPages").then((m) => ({ default: m.PolicyPage })),
 );
-const EnquirePage = lazy(() => import("@/modules/enquiry/pages/EnquirePage"));
 
 function PageFallback() {
   return (
@@ -50,6 +50,13 @@ function PageFallback() {
       Loading…
     </div>
   );
+}
+
+function ExternalRedirect({ to }: { to: string }) {
+  useEffect(() => {
+    window.location.replace(to);
+  }, [to]);
+  return <PageFallback />;
 }
 
 export function AppRoutes() {
@@ -125,7 +132,7 @@ export function AppRoutes() {
               </RequireGuest>
             }
           />
-          <Route path="enquire" element={<EnquirePage />} />
+          <Route path="enquire" element={<ExternalRedirect to={SITE_LINKS.enquireNow} />} />
         </Route>
       </Routes>
     </Suspense>

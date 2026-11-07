@@ -623,13 +623,13 @@ export function BookingPage() {
           );
         }
         setBookingId(result.booking.id);
-        if (result.payment) {
-          setClientSecret(result.payment.clientSecret);
+        const secret = result.payment?.clientSecret ?? (result.payment as any)?.client_secret;
+        if (secret) {
+          setClientSecret(secret);
+          setHoldFailed(null);
         } else {
           setHoldFailed(
-            result.paymentError === "PAYMENT_INTENT_FAILED"
-              ? "Your cottage is held but payment setup failed. Retry below — your hold is safe."
-              : "Your cottage is held but payment setup failed. Retry below — your hold is safe.",
+            result.paymentError || "Your cottage is held but payment setup failed. Retry below — your hold is safe.",
           );
         }
       }
@@ -643,8 +643,13 @@ export function BookingPage() {
     if (!bookingId) return;
     try {
       const intent = await paymentIntent.mutateAsync(bookingId);
-      setClientSecret(intent.clientSecret);
-      setHoldFailed(null);
+      const secret = intent.clientSecret ?? (intent as any)?.client_secret;
+      if (secret) {
+        setClientSecret(secret);
+        setHoldFailed(null);
+      } else {
+        setHoldFailed("Unable to initialize payment. Please try again.");
+      }
     } catch {
       // Toasts are shown by the mutation hook.
     }

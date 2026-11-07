@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { FormEvent } from "react";
+// import type { FormEvent } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -31,49 +31,49 @@ function mobileLinkClass({ isActive }: { isActive: boolean }) {
   );
 }
 
-function NewsletterFooterForm() {
-  const [email, setEmail] = useState("");
-  const [done, setDone] = useState(false);
-  async function submit(e: FormEvent) {
-    e.preventDefault();
-    if (!/.+@.+\..+/.test(email)) {
-      toast.error("Enter a valid email");
-      return;
-    }
-    try {
-      const { publicApiClient } = await import("@/lib/api-client");
-      await publicApiClient.post("/public/newsletter/subscribe", {
-        email: email.trim(),
-        source: "footer",
-      });
-      setDone(true);
-      toast.success("Subscribed — welcome!");
-    } catch {
-      toast.error("Could not subscribe");
-    }
-  }
-  if (done) return <p className="text-sm">Subscribed — thank you.</p>;
-  return (
-    <form onSubmit={(e) => void submit(e)} className="mt-6 max-w-xs space-y-2">
-      <div className="flex gap-2">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
-          aria-label="Email for newsletter"
-          className="h-11 min-w-0 flex-1 rounded-none border border-input bg-card px-3 text-[13px] outline-none focus-visible:ring-1 focus-visible:ring-ring"
-        />
-        <Button
-          type="submit"
-          className="h-11 rounded-none bg-primary px-4 text-[12px] text-primary-foreground hover:bg-brand-dark"
-        >
-          Join
-        </Button>
-      </div>
-    </form>
-  );
-}
+// function NewsletterFooterForm() {
+//   const [email, setEmail] = useState("");
+//   const [done, setDone] = useState(false);
+//   async function submit(e: FormEvent) {
+//     e.preventDefault();
+//     if (!/.+@.+\..+/.test(email)) {
+//       toast.error("Enter a valid email");
+//       return;
+//     }
+//     try {
+//       const { publicApiClient } = await import("@/lib/api-client");
+//       await publicApiClient.post("/public/newsletter/subscribe", {
+//         email: email.trim(),
+//         source: "footer",
+//       });
+//       setDone(true);
+//       toast.success("Subscribed — welcome!");
+//     } catch {
+//       toast.error("Could not subscribe");
+//     }
+//   }
+//   if (done) return <p className="text-sm">Subscribed — thank you.</p>;
+//   return (
+//     <form onSubmit={(e) => void submit(e)} className="mt-6 max-w-xs space-y-2">
+//       <div className="flex gap-2">
+//         <input
+//           type="email"
+//           value={email}
+//           onChange={(e) => setEmail(e.target.value)}
+//           placeholder="you@example.com"
+//           aria-label="Email for newsletter"
+//           className="h-11 min-w-0 flex-1 rounded-none border border-input bg-card px-3 text-[13px] outline-none focus-visible:ring-1 focus-visible:ring-ring"
+//         />
+//         <Button
+//           type="submit"
+//           className="h-11 rounded-none bg-primary px-4 text-[12px] text-primary-foreground hover:bg-brand-dark"
+//         >
+//           Join
+//         </Button>
+//       </div>
+//     </form>
+//   );
+// }
 
 export function RootLayout() {
   useAuthInit();
@@ -183,13 +183,15 @@ export function RootLayout() {
           {/* Right actions */}
           <div className="col-start-3 flex items-center justify-end gap-5">
             <div className="hidden items-center gap-5 md:flex">
-              <Link
-                to="/enquire"
+              <a
+                href={SITE_LINKS.enquireNow}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="water-fill inline-flex items-center gap-5 border border-input px-4 py-2.5 text-[13px] leading-none text-foreground hover:border-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 Enquire
                 <span aria-hidden>→</span>
-              </Link>
+              </a>
               {sessionUser ? (
                 <>
                   <NavLink
@@ -339,13 +341,15 @@ export function RootLayout() {
             >
               Offers
             </NavLink>
-            <NavLink
-              to="/enquire"
-              className={mobileLinkClass}
+            <a
+              href={SITE_LINKS.enquireNow}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={mobileLinkClass({ isActive: false })}
               onClick={closeMenu}
             >
               Enquire
-            </NavLink>
+            </a>
             {sessionUser && (
               <>
                 <NavLink
@@ -442,9 +446,14 @@ export function RootLayout() {
                 <Link to="/" className="hover:text-brand">
                   Find a cottage
                 </Link>
-                <Link to="/enquire" className="hover:text-brand">
+                <a
+                  href={SITE_LINKS.enquireNow}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-brand"
+                >
                   Group stays
-                </Link>
+                </a>
                 <Link to="/offers" className="hover:text-brand">
                   Offers
                 </Link>
@@ -464,9 +473,14 @@ export function RootLayout() {
                 A little help
               </h3>
               <div className="flex flex-col gap-2.5 text-[13px] leading-relaxed">
-                <Link to="/enquire" className="hover:text-brand">
+                <a
+                  href={SITE_LINKS.enquireNow}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-brand"
+                >
                   Make an enquiry
-                </Link>
+                </a>
                 <a
                   href={SITE_LINKS.bespoke}
                   target={SITE_LINKS.bespoke !== "#" ? "_blank" : undefined}
@@ -479,9 +493,7 @@ export function RootLayout() {
                 >
                   Bespoke ↗
                 </a>
-                <Link to="/faqs" className="hover:text-brand">
-                  FAQs
-                </Link>
+
                 <Link to="/policies/TERMS" className="hover:text-brand">
                   Booking terms
                 </Link>
@@ -509,7 +521,7 @@ export function RootLayout() {
                   info@hamptworthstays.com
                 </a>
               </div>
-              <NewsletterFooterForm />
+              {/* <NewsletterFooterForm /> */}
             </div>
           </div>
 

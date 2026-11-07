@@ -7,6 +7,6 @@ export const SITE_LINKS = {
   theEstate: "https://hamptworthstays.com/",
   /** Bespoke booking / bespoke service link */
   bespoke: "https://hamptworthstays.com/private-bespoke/",
-  /** Cottage detail Enquire Now button target link */
-  enquireNow: "https://hamptworthstays.com/enquire-now",
+  /** Enquire button target link (all enquiry CTAs) */
+  enquireNow: "https://hamptworthstays.com/plan-your-experience/",
 };

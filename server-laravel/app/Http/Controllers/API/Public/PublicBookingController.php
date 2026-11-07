@@ -360,11 +360,12 @@ class PublicBookingController extends Controller
                 'token' => $token,
                 'isNewAccount' => $isNewAccount,
                 'idempotentReplay' => false,
-                'payment' => [
+                'payment' => ($paymentResult['success'] && $clientSecret) ? [
                     'paymentId' => $paymentId,
                     'clientSecret' => $clientSecret,
+                    'client_secret' => $clientSecret,
                     'reused' => $reused,
-                ],
+                ] : null,
                 'paymentError' => $paymentError,
             ],
         ], 201);

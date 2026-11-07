@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SITE_LINKS } from "@/config/links";
 import { formatDisplayDate, toDayKey } from "@/lib/date";
 import {
   CottageCard,
@@ -287,8 +288,10 @@ export function HomePage() {
             <h2 className="font-display text-[32px] leading-[1.05] tracking-tight sm:text-[42px]">
               Available cottages
             </h2>
-            <Link
-              to="/enquire"
+            <a
+              href={SITE_LINKS.enquireNow}
+              target="_blank"
+              rel="noopener noreferrer"
               className="group flex max-w-[360px] items-center justify-between gap-5 border-b border-brand-light pb-2 text-[12px] leading-relaxed text-foreground transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               Booking several cottages? Enquire about a group stay
@@ -298,7 +301,7 @@ export function HomePage() {
               >
                 →
               </span>
-            </Link>
+            </a>
           </div>
 
           {isInitialLoading ? (

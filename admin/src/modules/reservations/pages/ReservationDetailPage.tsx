@@ -33,6 +33,7 @@ import {
 } from "../hooks/use-reservations";
 import { useCottages } from "@/modules/cottages";
 import { useRefundBooking } from "../../payments/hooks/use-payments";
+import type { Reservation, ReservationItem } from "../types/reservation.types";
 
 const CANCELLABLE = ["HELD", "PAYMENT_PENDING", "CONFIRMED"];
 
@@ -86,7 +87,75 @@ export function ReservationDetailPage() {
     );
   }
 
-  const { booking, items, payments } = data;
+  const rawData = data as any;
+  const rawBooking = rawData?.booking ?? rawData;
+  const booking: Reservation = {
+    ...rawBooking,
+    id: rawBooking?.id ?? "",
+    bookingNumber: rawBooking?.bookingNumber ?? rawBooking?.booking_number ?? "",
+    propertyId: rawBooking?.propertyId ?? rawBooking?.property_id ?? "",
+    userId: rawBooking?.userId ?? rawBooking?.user_id ?? null,
+    status: rawBooking?.status ?? "HELD",
+    paymentStatus: rawBooking?.paymentStatus ?? rawBooking?.payment_status ?? "PENDING",
+    checkIn: rawBooking?.checkIn ?? rawBooking?.check_in ?? "",
+    checkOut: rawBooking?.checkOut ?? rawBooking?.check_out ?? "",
+    guests: {
+      adults: Number(rawBooking?.guests?.adults ?? 1),
+      children: Number(rawBooking?.guests?.children ?? 0),
+    },
+    contact: {
+      title: rawBooking?.contact?.title ?? null,
+      firstName: rawBooking?.contact?.firstName ?? rawBooking?.contact?.first_name ?? "",
+      lastName: rawBooking?.contact?.lastName ?? rawBooking?.contact?.last_name ?? "",
+      email: rawBooking?.contact?.email ?? "",
+      phone: rawBooking?.contact?.phone ?? "",
+      mobile: rawBooking?.contact?.mobile ?? null,
+      address1: rawBooking?.contact?.address1 ?? null,
+      address2: rawBooking?.contact?.address2 ?? null,
+      city: rawBooking?.contact?.city ?? null,
+      county: rawBooking?.contact?.county ?? null,
+      postcode: rawBooking?.contact?.postcode ?? null,
+      country: rawBooking?.contact?.country ?? null,
+    },
+    pricing: {
+      currency: rawBooking?.pricing?.currency ?? "GBP",
+      subtotal: Number(rawBooking?.pricing?.subtotal ?? 0),
+      discount: Number(rawBooking?.pricing?.discount ?? 0),
+      taxes: Number(rawBooking?.pricing?.taxes ?? 0),
+      fees: Number(rawBooking?.pricing?.fees ?? 0),
+      total: Number(rawBooking?.pricing?.total ?? 0),
+      couponCode: rawBooking?.pricing?.couponCode ?? rawBooking?.pricing?.coupon_code ?? null,
+    },
+    cancellation: {
+      cancelledAt: rawBooking?.cancellation?.cancelledAt ?? rawBooking?.cancellation?.cancelled_at ?? null,
+      cancelledBy: rawBooking?.cancellation?.cancelledBy ?? rawBooking?.cancellation?.cancelled_by ?? null,
+      reason: rawBooking?.cancellation?.reason ?? null,
+    },
+    hold: {
+      holdId: rawBooking?.hold?.holdId ?? rawBooking?.hold?.hold_id ?? null,
+      expiresAt: rawBooking?.hold?.expiresAt ?? rawBooking?.hold?.expires_at ?? null,
+    },
+    stay: {
+      checkedInAt: rawBooking?.stay?.checkedInAt ?? rawBooking?.stay?.checked_in_at ?? null,
+      checkedInBy: rawBooking?.stay?.checkedInBy ?? rawBooking?.stay?.checked_in_by ?? null,
+      checkedOutAt: rawBooking?.stay?.checkedOutAt ?? rawBooking?.stay?.checked_out_at ?? null,
+      checkedOutBy: rawBooking?.stay?.checkedOutBy ?? rawBooking?.stay?.checked_out_by ?? null,
+    },
+    source: rawBooking?.source ?? "DIRECT",
+    notes: rawBooking?.notes ?? null,
+    createdAt: rawBooking?.createdAt ?? rawBooking?.created_at ?? "",
+    updatedAt: rawBooking?.updatedAt ?? rawBooking?.updated_at ?? "",
+  };
+  const items: ReservationItem[] = Array.isArray(rawData?.items)
+    ? rawData.items
+    : Array.isArray(rawBooking?.items)
+      ? rawBooking.items
+      : [];
+  const payments: any[] = Array.isArray(rawData?.payments)
+    ? rawData.payments
+    : Array.isArray(rawBooking?.payments)
+      ? rawBooking.payments
+      : [];
   const canCancel = CANCELLABLE.includes(booking.status);
   const preview = previewQuery.data ?? null;
   const canReassign =
