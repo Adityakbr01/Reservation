@@ -244,17 +244,19 @@ export function HomePage() {
             <span className="hero-eyebrow mb-5 block text-[11px] font-medium uppercase tracking-[0.17em] text-foreground sm:mb-6">
               Hamptworth Stays · Home Farm
             </span>
-            <div className="relative flex items-center gap-3 sm:gap-5">
-              <h1 className="hero-title text-balance font-display text-[clamp(3.1rem,8vw,5.94rem)] font-normal leading-[1.03] tracking-[-1.5px] text-foreground">
-                A little escape.
-              </h1>
-              <img
-                src="/bird1.webp"
-                alt="Robin perched on a branch"
-                loading="eager"
-                className="hero-bird absolute right-[33%] top-[50%]  md:right-[23%] md:top-[60%] -translate-y-1/2 h-14 w-auto shrink-0 object-contain saturate-[0.7] sm:h-[100px]"
-              />
-            </div>
+            <h1 className="hero-title text-balance font-display text-[clamp(3.1rem,8vw,5.94rem)] font-normal leading-[1.03] tracking-[-1.5px] text-foreground">
+              A little{" "}
+              <span className="relative inline-block">
+                escape.
+                <img
+                  src="/bird1.webp"
+                  alt=""
+                  aria-hidden
+                  loading="eager"
+                  className="hero-bird pointer-events-none absolute bottom-0 left-full -ml-[0.22em] h-14 w-auto max-w-none object-contain saturate-[0.7] sm:h-[104px]"
+                />
+              </span>
+            </h1>
             <p className="hero-sub mt-4 max-w-xl font-display text-xl italic leading-snug text-brand-light sm:text-[25px]">
               Choose your dates. Enjoy a slower pace.
             </p>
