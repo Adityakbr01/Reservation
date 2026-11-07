@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -11,6 +11,8 @@ import {
   CottageCard,
   SearchForm,
   defaultSearchDates,
+  parseAvailabilitySearchParams,
+  toSearchRecord,
   useAvailabilitySearch,
 } from "@/modules/availability";
 import type { AvailabilitySearchParams } from "@/modules/availability";
@@ -19,6 +21,11 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 export function HomePage() {
   const location = useLocation();
+  const [urlParams, setUrlParams] = useSearchParams();
+  const urlSearch = useMemo(
+    () => parseAvailabilitySearchParams(urlParams),
+    [urlParams],
+  );
   const restored =
     (location.state as { search?: AvailabilitySearchParams } | null)?.search ??
     null;
@@ -31,51 +38,42 @@ export function HomePage() {
       : window.__HS_HYDRATING__
         ? (window.__HS_SSG_SEARCH__ ?? null)
         : null;
-  const initial: AvailabilitySearchParams = ssgSearch ?? {
+  const initial: AvailabilitySearchParams = urlSearch ?? restored ?? ssgSearch ?? {
     ...defaultSearchDates(),
     adults: 2,
     children: 0,
     rooms: 1,
   };
-  const [search, setSearch] = useState<AvailabilitySearchParams>(
-    restored ?? initial,
-  );
+  const [search, setSearch] = useState<AvailabilitySearchParams>(initial);
   const { data, isFetching, isError, refetch } = useAvailabilitySearch(search);
   const isInitialLoading = isFetching && !data;
   const isRevalidating = isFetching && !!data;
 
+  function handleSearch(next: AvailabilitySearchParams) {
+    setSearch(next);
+    setUrlParams(toSearchRecord(next), { replace: true });
+  }
+
   // A static build can age; roll the default dates forward if they are now
   // in the past, then let React Query revalidate in the background.
   useEffect(() => {
-    if (!ssgSearch || restored || ssgSearch.checkIn >= toDayKey(new Date()))
-      return;
-    setSearch({ ...ssgSearch, ...defaultSearchDates() });
-  }, [restored, ssgSearch]);
+    if (urlSearch || restored) return;
+    if (!ssgSearch || ssgSearch.checkIn >= toDayKey(new Date())) return;
+    const fresh = { ...ssgSearch, ...defaultSearchDates() };
+    setSearch(fresh);
+  }, [restored, ssgSearch, urlSearch]);
 
   const results = useMemo(() => {
     const list = data?.results ?? [];
+    // Keep stable alphabetical ordering so cards stay in place and never jump
     return [...list].sort((a, b) => {
       const soldOutDiff =
         Number(a.availableCount === 0) - Number(b.availableCount === 0);
       if (soldOutDiff !== 0) return soldOutDiff;
-      const minA =
-        a.rates.length > 0
-          ? Math.min(...a.rates.map((r) => r.total))
-          : Infinity;
-      const minB =
-        b.rates.length > 0
-          ? Math.min(...b.rates.map((r) => r.total))
-          : Infinity;
-      return minA - minB;
+      return a.roomType.name.localeCompare(b.roomType.name);
     });
   }, [data?.results]);
-  const resultsKey = search
-    ? [
-        search.checkIn,
-        search.checkOut,
-        results.map((r) => r.roomType.id).join("|"),
-      ].join("~")
-    : "empty";
+
   const rootRef = useRef<HTMLDivElement>(null);
   const reduceMotion =
     typeof window !== "undefined" &&
@@ -153,24 +151,22 @@ export function HomePage() {
     { scope: rootRef },
   );
 
-  // Results entrance whenever a fresh search lands.
+  // Results header entrance on mount only (cards stay firmly in place without re-rendering or flashing)
   useGSAP(
     () => {
-      if (reduceMotion || resultsKey === "empty") return;
+      if (reduceMotion) return;
       gsap.fromTo(
-        ".results-head, .room-card",
-        { y: 40, opacity: 0 },
+        ".results-head",
+        { y: 24, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          duration: 0.9,
-          stagger: 0.1,
+          duration: 0.8,
           ease: "power3.out",
-          overwrite: true,
         },
       );
     },
-    { scope: rootRef, dependencies: [resultsKey] },
+    { scope: rootRef },
   );
 
   const guestTotal = search.adults + search.children;
@@ -266,9 +262,9 @@ export function HomePage() {
       <div className="relative z-10 mx-auto -mt-10 w-full max-w-7xl px-4 sm:-mt-14 sm:px-6 lg:px-12">
         <div className="search-card border border-border bg-card p-4 shadow-card sm:p-6">
           <SearchForm
-            initial={initial}
+            initial={search}
             isPending={isInitialLoading}
-            onSearch={setSearch}
+            onSearch={handleSearch}
           />
         </div>
 

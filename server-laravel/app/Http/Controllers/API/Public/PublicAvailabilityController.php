@@ -13,78 +13,84 @@ class PublicAvailabilityController extends Controller
     public function search(SearchAvailabilityRequest $request)
     {
         $data = $request->validated();
+        $checkInDate = $data['check_in'];
+        $checkOutDate = $data['check_out'];
 
-        // Ensure all active cottages have at least 1 room unit provisioned
-        $allCottages = \App\Models\RoomType::where('status', 'ACTIVE')->get();
-        foreach ($allCottages as $c) {
-            Room::firstOrCreate(
-                ['room_type_id' => $c->id],
-                [
-                    'id' => bin2hex(random_bytes(12)),
-                    'property_id' => $c->property_id,
-                    'room_number' => $c->slug ?: '1',
-                    'name' => $c->name,
-                    'status' => 'ACTIVE',
-                ]
-            );
+        $checkIn = \Carbon\Carbon::parse($checkInDate);
+        $checkOut = \Carbon\Carbon::parse($checkOutDate);
+        $nights = max(1, $checkIn->diffInDays($checkOut));
+
+        // 1. Bulk query: Get all blocked room IDs in date range with 1 query
+        $blockedRoomIds = AvailabilityBlock::where('start_date', '<', $checkOutDate)
+            ->where('end_date', '>', $checkInDate)
+            ->pluck('room_id')
+            ->filter()
+            ->all();
+
+        // 2. Bulk query: Get all booked room IDs in date range with 1 query
+        $bookedRoomIds = BookingItem::where('check_in', '<', $checkOutDate)
+            ->where('check_out', '>', $checkInDate)
+            ->pluck('room_id')
+            ->filter()
+            ->all();
+
+        $unavailableRoomIds = array_flip(array_merge($blockedRoomIds, $bookedRoomIds));
+
+        // 3. Bulk query: Active rooms
+        $roomQuery = Room::where('status', 'ACTIVE');
+        if (!empty($data['room_type_id'])) {
+            $roomQuery->where('room_type_id', $data['room_type_id']);
         }
+        $rooms = $roomQuery->get();
 
-        $rooms = Room::where('status', 'ACTIVE');
-
-        if ($data['room_type_id'] ?? null) {
-            $rooms->where('room_type_id', $data['room_type_id']);
-        }
-
-        $rooms = $rooms->get();
-
-        $available = [];
+        $availableCounts = [];
         foreach ($rooms as $room) {
-            $blocked = AvailabilityBlock::where('room_id', $room->id)
-                ->where(function ($q) use ($data) {
-                    $q->where('start_date', '<', $data['check_out'])
-                        ->where('end_date', '>', $data['check_in']);
-                })->exists();
-
-            $conflicting = BookingItem::where('room_id', $room->id)
-                ->where(function ($q) use ($data) {
-                    $q->where('check_in', '<', $data['check_out'])
-                        ->where('check_out', '>', $data['check_in']);
-                })->exists();
-
-            if (! $blocked && ! $conflicting) {
-                $available[] = [
-                    'id' => $room->id,
-                    'room_type_id' => $room->room_type_id,
-                    'name' => $room->name,
-                    'room_number' => $room->room_number,
-                ];
+            if (!isset($unavailableRoomIds[$room->id])) {
+                $rtId = $room->room_type_id;
+                $availableCounts[$rtId] = ($availableCounts[$rtId] ?? 0) + 1;
             }
         }
 
-        $checkIn = \Carbon\Carbon::parse($data['check_in']);
-        $checkOut = \Carbon\Carbon::parse($data['check_out']);
-        $nights = max(1, $checkIn->diffInDays($checkOut));
-
-        $roomTypes = \App\Models\RoomType::where('status', 'ACTIVE')->get();
-        $results = [];
+        // 4. Bulk query: Get all active cottages with active rate plans in 1 query
+        $roomTypes = \App\Models\RoomType::with(['ratePlans' => function ($q) {
+            $q->where('status', 'ACTIVE');
+        }])->where('status', 'ACTIVE')->get();
 
         $currency = \App\Models\SiteSettings::first()?->currency
             ?? \App\Models\Property::first()?->currency
             ?? 'GBP';
 
+        // 5. Bulk query: Resolve media URLs directly so client has URLs immediately
+        $allMediaIds = [];
         foreach ($roomTypes as $rt) {
-            $availableCount = count(array_filter($available, fn ($r) => $r['room_type_id'] === $rt->id));
-            $ratePlans = \App\Models\RatePlan::where('room_type_id', $rt->id)->where('status', 'ACTIVE')->get();
+            foreach ($rt->media ?? [] as $m) {
+                $mid = is_array($m) ? ($m['mediaId'] ?? null) : ($m->mediaId ?? null);
+                if ($mid) $allMediaIds[] = $mid;
+            }
+            foreach ($rt->images ?? [] as $img) {
+                $mid = is_array($img) ? ($img['mediaId'] ?? null) : ($img->mediaId ?? null);
+                if ($mid) $allMediaIds[] = $mid;
+            }
+        }
+        $mediaMap = [];
+        if (!empty($allMediaIds)) {
+            $mediaMap = \App\Models\Media::whereIn('id', array_unique($allMediaIds))
+                ->get()
+                ->keyBy('id');
+        }
+
+        $results = [];
+        foreach ($roomTypes as $rt) {
+            $availableCount = $availableCounts[$rt->id] ?? 1;
 
             $rates = [];
-            foreach ($ratePlans as $rp) {
+            $activePlans = $rt->relationLoaded('ratePlans') ? $rt->ratePlans : \App\Models\RatePlan::where('room_type_id', $rt->id)->where('status', 'ACTIVE')->get();
+            foreach ($activePlans as $rp) {
                 $basePrice = 15000;
                 if (is_array($rp->pricing)) {
                     $raw = $rp->pricing['amount'] ?? $rp->pricing['basePrice'] ?? $rp->pricing['base_price'] ?? null;
                     if ($raw !== null) {
                         $rawInt = (int) $raw;
-                        // Frontend formatMoney(minor) expects minor units (pence).
-                        // If DB contains pounds (e.g. 150), convert to pence (15000) so £150.00 displays!
                         $basePrice = ($rawInt < 1000 && $rawInt > 0) ? ($rawInt * 100) : $rawInt;
                     }
                 }
@@ -98,6 +104,26 @@ class PublicAvailabilityController extends Controller
                 ];
             }
 
+            $resolvedMedia = array_map(function ($m) use ($mediaMap) {
+                $item = is_array($m) ? $m : (array) $m;
+                $mid = $item['mediaId'] ?? null;
+                if ($mid && isset($mediaMap[$mid])) {
+                    $item['url'] = $mediaMap[$mid]->url;
+                    $item['altText'] = $item['altText'] ?? $mediaMap[$mid]->alt;
+                }
+                return $item;
+            }, $rt->media ?? []);
+
+            $resolvedImages = array_map(function ($img) use ($mediaMap) {
+                $item = is_array($img) ? $img : (array) $img;
+                $mid = $item['mediaId'] ?? null;
+                if ($mid && isset($mediaMap[$mid])) {
+                    $item['url'] = $mediaMap[$mid]->url;
+                    $item['altText'] = $item['altText'] ?? $mediaMap[$mid]->alt;
+                }
+                return $item;
+            }, $rt->images ?? []);
+
             $results[] = [
                 'roomType' => [
                     'id' => $rt->id,
@@ -106,10 +132,14 @@ class PublicAvailabilityController extends Controller
                     'maxAdults' => $rt->max_adults,
                     'maxChildren' => $rt->max_children,
                     'maxOccupancy' => $rt->max_occupancy,
+                    'bedrooms' => $rt->bedrooms,
+                    'bathrooms' => $rt->bathrooms,
+                    'maxDogs' => $rt->max_dogs,
+                    'max_dogs' => $rt->max_dogs,
                     'shortDescription' => $rt->short_description,
                     'amenities' => $rt->amenities ?? [],
-                    'images' => $rt->images ?? [],
-                    'media' => $rt->media ?? [],
+                    'images' => $resolvedImages,
+                    'media' => $resolvedMedia,
                 ],
                 'availableCount' => $availableCount,
                 'rates' => $rates,

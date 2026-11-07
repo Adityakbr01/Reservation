@@ -11,7 +11,13 @@ export function TickIcon({ className }: { className?: string }) {
   );
 }
 
-export function StatTip({ label, children }: { label: string; children: ReactNode }) {
+export function StatTip({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
   return (
     <span className="group relative inline-flex items-center gap-1.5 text-sm text-foreground">
       {children}
@@ -77,16 +83,10 @@ export function CottageStats({
         </StatTip>
       )}
       {dogs != null && dogs > 0 && (
-        <StatTip
-          label={
-            dogs === 1
-              ? "Dog friendly — 1 dog allowed"
-              : `Dog friendly — ${dogs} dogs allowed`
-          }
-        >
+        <StatTip label={dogs === 1 ? "1 dog allowed" : `${dogs} dogs allowed`}>
           <Dog className="size-4 text-muted-foreground" aria-hidden />
           <span aria-hidden>{dogs}</span>
-          <span className="sr-only">Dog friendly</span>
+          <span>{dogs === 1 ? "dog allowed" : "dogs allowed"}</span>
         </StatTip>
       )}
     </p>

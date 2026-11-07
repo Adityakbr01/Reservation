@@ -55,6 +55,43 @@ class PublicCottageController extends Controller
 
     private function cottageData(Cottage $c): array
     {
+        // Resolve media URLs directly so client has URLs immediately on the first response
+        $allMediaIds = [];
+        foreach ($c->media ?? [] as $m) {
+            $mid = is_array($m) ? ($m['mediaId'] ?? null) : ($m->mediaId ?? null);
+            if ($mid) $allMediaIds[] = $mid;
+        }
+        foreach ($c->images ?? [] as $img) {
+            $mid = is_array($img) ? ($img['mediaId'] ?? null) : ($img->mediaId ?? null);
+            if ($mid) $allMediaIds[] = $mid;
+        }
+        $mediaMap = [];
+        if (!empty($allMediaIds)) {
+            $mediaMap = \App\Models\Media::whereIn('id', array_unique($allMediaIds))
+                ->get()
+                ->keyBy('id');
+        }
+
+        $resolvedMedia = array_map(function ($m) use ($mediaMap) {
+            $item = is_array($m) ? $m : (array) $m;
+            $mid = $item['mediaId'] ?? null;
+            if ($mid && isset($mediaMap[$mid])) {
+                $item['url'] = $mediaMap[$mid]->url;
+                $item['altText'] = $item['altText'] ?? $mediaMap[$mid]->alt;
+            }
+            return $item;
+        }, $c->media ?? []);
+
+        $resolvedImages = array_map(function ($img) use ($mediaMap) {
+            $item = is_array($img) ? $img : (array) $img;
+            $mid = $item['mediaId'] ?? null;
+            if ($mid && isset($mediaMap[$mid])) {
+                $item['url'] = $mediaMap[$mid]->url;
+                $item['altText'] = $item['altText'] ?? $mediaMap[$mid]->alt;
+            }
+            return $item;
+        }, $c->images ?? []);
+
         return [
             'id' => (string) $c->id,
             'property_id' => (string) ($c->property_id ?? ''),
@@ -72,8 +109,8 @@ class PublicCottageController extends Controller
             'maxOccupancy' => (int) ($c->max_occupancy ?? 2),
             'beds' => $c->beds ?? [],
             'amenities' => $c->amenities ?? [],
-            'images' => $c->images ?? [],
-            'media' => $c->media ?? [],
+            'images' => $resolvedImages,
+            'media' => $resolvedMedia,
             'property_details_html' => $c->property_details_html,
             'propertyDetailsHtml' => $c->property_details_html,
             'layout_html' => $c->layout_html,

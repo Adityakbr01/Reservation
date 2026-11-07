@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { ArrowRight, ChevronDown, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,87 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
   const [rooms, setRooms] = useState(String(initial.rooms));
   const [rangeError, setRangeError] = useState<string | null>(null);
   const [today] = useState(() => toDayKey(new Date()));
+
+  // Keep form inputs synced whenever initial changes (e.g. from restored state or URL)
+  useEffect(() => {
+    setCheckIn(initial.checkIn);
+    setCheckOut(initial.checkOut);
+    setAdults(String(initial.adults));
+    setChildren(String(initial.children));
+    setRooms(String(initial.rooms));
+  }, [initial.checkIn, initial.checkOut, initial.adults, initial.children, initial.rooms]);
+
+  function emitSearch(
+    nextCheckIn: string,
+    nextCheckOut: string,
+    nextAdults: string,
+    nextChildren: string,
+    nextRooms: string,
+  ) {
+    if (!nextCheckIn || !nextCheckOut) return;
+    if (nextCheckOut <= nextCheckIn) return;
+    if (nextCheckIn < today) return;
+    setRangeError(null);
+    onSearch({
+      checkIn: nextCheckIn,
+      checkOut: nextCheckOut,
+      adults: Math.max(1, Number(nextAdults) || 1),
+      children: Math.max(0, Number(nextChildren) || 0),
+      rooms: Math.max(1, Number(nextRooms) || 1),
+    });
+  }
+
+  function handleCheckInChange(val: string) {
+    setCheckIn(val);
+    setRangeError(null);
+    let nextCheckOut = checkOut;
+    // If checkOut is empty or before/equal to new checkIn, automatically push it forward by 3 nights
+    if (!nextCheckOut || nextCheckOut <= val) {
+      try {
+        const inDate = new Date(`${val}T00:00:00`);
+        if (!isNaN(inDate.getTime())) {
+          nextCheckOut = toDayKey(addDays(inDate, 3));
+          setCheckOut(nextCheckOut);
+        }
+      } catch {}
+    }
+    if (nextCheckOut && nextCheckOut > val && val >= today) {
+      emitSearch(val, nextCheckOut, adults, children, rooms);
+    }
+  }
+
+  function handleCheckOutChange(val: string) {
+    setCheckOut(val);
+    if (val <= checkIn) {
+      setRangeError("Check-out must be after check-in.");
+      return;
+    }
+    setRangeError(null);
+    if (checkIn && val > checkIn && checkIn >= today) {
+      emitSearch(checkIn, val, adults, children, rooms);
+    }
+  }
+
+  function handleAdultsChange(val: string) {
+    setAdults(val);
+    if (checkIn && checkOut && checkOut > checkIn && checkIn >= today) {
+      emitSearch(checkIn, checkOut, val, children, rooms);
+    }
+  }
+
+  function handleChildrenChange(val: string) {
+    setChildren(val);
+    if (checkIn && checkOut && checkOut > checkIn && checkIn >= today) {
+      emitSearch(checkIn, checkOut, adults, val, rooms);
+    }
+  }
+
+  function handleRoomsChange(val: string) {
+    setRooms(val);
+    if (checkIn && checkOut && checkOut > checkIn && checkIn >= today) {
+      emitSearch(checkIn, checkOut, adults, children, val);
+    }
+  }
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -93,7 +174,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
             label="Check-in"
             value={checkIn}
             min={today}
-            onChange={setCheckIn}
+            onChange={handleCheckInChange}
           />
         </div>
         <div className="col-span-1">
@@ -102,7 +183,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
             label="Check-out"
             value={checkOut}
             min={checkIn || today}
-            onChange={setCheckOut}
+            onChange={handleCheckOutChange}
           />
         </div>
 
@@ -115,7 +196,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
             <select
               id="search-adults"
               value={adults}
-              onChange={(e) => setAdults(e.target.value)}
+              onChange={(e) => handleAdultsChange(e.target.value)}
               className={selectClass}
             >
             {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
@@ -136,7 +217,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
             <select
               id="search-children"
               value={children}
-              onChange={(e) => setChildren(e.target.value)}
+              onChange={(e) => handleChildrenChange(e.target.value)}
               className={selectClass}
             >
             {Array.from({ length: 21 }, (_, i) => i).map((n) => (
@@ -157,7 +238,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
             <select
               id="search-cottages"
               value={rooms}
-              onChange={(e) => setRooms(e.target.value)}
+              onChange={(e) => handleRoomsChange(e.target.value)}
               className={selectClass}
             >
             {Array.from({ length: 5 }, (_, i) => i + 1).map((n) => (

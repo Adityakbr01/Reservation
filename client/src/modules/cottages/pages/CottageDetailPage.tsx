@@ -5,6 +5,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import toast from "react-hot-toast";
 import {
+  Building2,
   CalendarDays,
   Check,
   ChevronDown,
@@ -85,8 +86,14 @@ function fmtShort(date: string): string {
 /** Server HTML is sanitized; strips deprecated offers text and makes target=_blank links safe. */
 function enhanceRichLinks(html: string): string {
   const stripped = html
-    .replace(/<p[^>]*>[\s\S]*?seasonal offers[\s\S]*?before you book[\s\S]*?<\/p>/gi, "")
-    .replace(/Read our\s*<a[^>]*>\s*seasonal offers\s*<\/a>\s*before you book\.?/gi, "");
+    .replace(
+      /<p[^>]*>[\s\S]*?seasonal offers[\s\S]*?before you book[\s\S]*?<\/p>/gi,
+      "",
+    )
+    .replace(
+      /Read our\s*<a[^>]*>\s*seasonal offers\s*<\/a>\s*before you book\.?/gi,
+      "",
+    );
   return stripped.replace(/<a\b([^>]*)>/gi, (tag, attrs: string) => {
     const hasTargetBlank = /target\s*=\s*("|')?_blank\1?/i.test(attrs);
     const hasRel = /rel\s*=/i.test(attrs);
@@ -478,7 +485,9 @@ export function CottageDetailPage() {
         )
       : 0);
   const aboutPhoto =
+    ((gallery[1] as { url?: string })?.url ? { id: gallery[1]?.mediaId, url: (gallery[1] as { url?: string }).url!, alt: gallery[1]?.altText } : null) ??
     photoById.get(gallery[1]?.mediaId ?? "") ??
+    ((gallery[0] as { url?: string })?.url ? { id: gallery[0]?.mediaId, url: (gallery[0] as { url?: string }).url!, alt: gallery[0]?.altText } : null) ??
     photoById.get(gallery[0]?.mediaId ?? null);
   const aboutBullets: string[] = [];
   if (roomType.bedrooms != null && roomType.bathrooms != null) {
@@ -550,10 +559,12 @@ export function CottageDetailPage() {
   const currentChildren = search?.children ?? 0;
   const currentInfants = parseInt(params.get("infants") ?? "0", 10) || 0;
   const currentGuests = currentAdults + currentChildren;
-  const physicalRoomCount = (roomType as { totalRooms?: number } | null)?.totalRooms ?? 2;
-  const maxRoomsAvailable = match?.availableCount != null
-    ? Math.max(1, match.availableCount)
-    : physicalRoomCount;
+  const physicalRoomCount =
+    (roomType as { totalRooms?: number } | null)?.totalRooms ?? 2;
+  const maxRoomsAvailable =
+    match?.availableCount != null
+      ? Math.max(1, match.availableCount)
+      : physicalRoomCount;
 
   function setGuestCount(adults: number, children: number) {
     const next = new URLSearchParams(params);
@@ -704,11 +715,12 @@ export function CottageDetailPage() {
                 >
                   {gallery.map((g, i) => {
                     const p = photoById.get(g.mediaId);
+                    const mainUrl = (g as { url?: string }).url || p?.url || null;
                     return (
                       <SwiperSlide key={`${g.mediaId}-${i}`}>
-                        {g.kind === "video" && p?.url ? (
+                        {g.kind === "video" && mainUrl ? (
                           <video
-                            src={p.url}
+                            src={mainUrl}
                             className="h-full w-full bg-black object-contain"
                             controls
                             preload="metadata"
@@ -717,7 +729,7 @@ export function CottageDetailPage() {
                         ) : (
                           <CottageImage
                             name={roomType.name}
-                            imageUrl={p?.url ?? null}
+                            imageUrl={mainUrl}
                             alt={
                               g.altText ??
                               p?.alt ??
@@ -780,6 +792,7 @@ export function CottageDetailPage() {
                 >
                   {gallery.map((g, i) => {
                     const p = photoById.get(g.mediaId);
+                    const thumbUrl = (g as { url?: string }).url || p?.url || null;
                     const isActive = i === galleryIndex;
                     return (
                       <SwiperSlide
@@ -808,17 +821,17 @@ export function CottageDetailPage() {
                             <span className="flex h-full w-full items-center justify-center bg-black text-xs text-white">
                               ▶ Video
                             </span>
-                          ) : p?.url ? (
+                          ) : thumbUrl ? (
                             <img
-                              src={p.url}
+                              src={thumbUrl}
                               alt=""
                               className="h-full w-full object-cover"
                               loading="lazy"
                             />
                           ) : (
-                            <span className="flex h-full w-full items-center justify-center bg-muted text-xs">
-                              {g.mediaId.slice(-6)}
-                            </span>
+                            <div className="flex h-full w-full items-center justify-center bg-muted/60 animate-pulse">
+                              <Building2 className="size-5 text-muted-foreground/30" aria-hidden />
+                            </div>
                           )}
                         </button>
                       </SwiperSlide>
@@ -892,12 +905,6 @@ export function CottageDetailPage() {
               bathrooms={roomType.bathrooms ?? null}
               dogs={roomType.maxDogs ?? null}
             />
-            {roomType.locationText && (
-              <span className="inline-flex min-w-0 items-center gap-1.5">
-                <MapPin className="size-4 shrink-0" aria-hidden />
-                <span className="truncate">{roomType.locationText}</span>
-              </span>
-            )}
           </div>
 
           {roomType.description && (
@@ -1184,7 +1191,10 @@ export function CottageDetailPage() {
             </div>
           </section>
 
-          <EnquireAboutCottage roomTypeId={roomType.id} roomName={roomType.name} />
+          <EnquireAboutCottage
+            roomTypeId={roomType.id}
+            roomName={roomType.name}
+          />
         </div>
 
         {/* Sidebar */}
@@ -1258,9 +1268,16 @@ export function CottageDetailPage() {
                           aria-hidden
                         />
                         <span className="truncate">
-                          {currentAdults} {currentAdults === 1 ? "adult" : "adults"}
-                          {currentChildren > 0 ? ` · ${currentChildren} ${currentChildren === 1 ? "child" : "children"}` : ""}
-                          {currentInfants > 0 ? ` · ${currentInfants} ${currentInfants === 1 ? "infant" : "infants"}` : ""} · {roomCount} {roomCount === 1 ? "cottage" : "cottages"}
+                          {currentAdults}{" "}
+                          {currentAdults === 1 ? "adult" : "adults"}
+                          {currentChildren > 0
+                            ? ` · ${currentChildren} ${currentChildren === 1 ? "child" : "children"}`
+                            : ""}
+                          {currentInfants > 0
+                            ? ` · ${currentInfants} ${currentInfants === 1 ? "infant" : "infants"}`
+                            : ""}{" "}
+                          · {roomCount}{" "}
+                          {roomCount === 1 ? "cottage" : "cottages"}
                         </span>
                       </span>
                     </div>
@@ -1278,13 +1295,26 @@ export function CottageDetailPage() {
                         className="fixed inset-0 z-10 cursor-default bg-transparent"
                       />
                       {(() => {
-                        const maxAdultsAllowed = Math.min(totalMaxAdults, totalMaxOccupancy - currentChildren);
-                        const isAdultsPlusDisabled = currentAdults >= maxAdultsAllowed || currentGuests >= totalMaxOccupancy;
+                        const maxAdultsAllowed = Math.min(
+                          totalMaxAdults,
+                          totalMaxOccupancy - currentChildren,
+                        );
+                        const isAdultsPlusDisabled =
+                          currentAdults >= maxAdultsAllowed ||
+                          currentGuests >= totalMaxOccupancy;
                         const isAdultsMinusDisabled = currentAdults <= 1;
 
-                        const effectiveMaxChildren = totalMaxChildren > 0 ? totalMaxChildren : Math.max(1, totalMaxOccupancy - 1);
-                        const maxChildrenAllowed = Math.min(effectiveMaxChildren, Math.max(0, totalMaxOccupancy - currentAdults));
-                        const isChildrenPlusDisabled = currentChildren >= maxChildrenAllowed || currentGuests >= totalMaxOccupancy;
+                        const effectiveMaxChildren =
+                          totalMaxChildren > 0
+                            ? totalMaxChildren
+                            : Math.max(1, totalMaxOccupancy - 1);
+                        const maxChildrenAllowed = Math.min(
+                          effectiveMaxChildren,
+                          Math.max(0, totalMaxOccupancy - currentAdults),
+                        );
+                        const isChildrenPlusDisabled =
+                          currentChildren >= maxChildrenAllowed ||
+                          currentGuests >= totalMaxOccupancy;
                         const isChildrenMinusDisabled = currentChildren <= 0;
 
                         return (
@@ -1295,7 +1325,9 @@ export function CottageDetailPage() {
                           >
                             <div className="rounded-lg border border-border/80 bg-muted/40 p-2.5 text-xs flex items-center justify-between font-medium text-foreground">
                               <span>Cottage Capacity</span>
-                              <span className="font-semibold text-brand">Up to {totalMaxOccupancy} guests</span>
+                              <span className="font-semibold text-brand">
+                                Up to {totalMaxOccupancy} guests
+                              </span>
                             </div>
 
                             <GuestStepper
@@ -1316,9 +1348,7 @@ export function CottageDetailPage() {
                               max={effectiveMaxChildren}
                               disabledMinus={isChildrenMinusDisabled}
                               disabledPlus={isChildrenPlusDisabled}
-                              onChange={(v) =>
-                                setGuestCount(currentAdults, v)
-                              }
+                              onChange={(v) => setGuestCount(currentAdults, v)}
                             />
                             <GuestStepper
                               label="Infants"
@@ -1329,18 +1359,24 @@ export function CottageDetailPage() {
                               disabledPlus={currentInfants >= 6}
                               onChange={(v) => setInfantsCount(v)}
                             />
-                            
 
                             <div className="min-h-[46px] flex items-center rounded-lg border px-2.5 py-1.5 text-[11px] transition-colors">
                               {currentGuests >= totalMaxOccupancy ? (
                                 <div className="text-amber-800 dark:text-amber-300 font-medium leading-tight">
-                                  <span>Maximum capacity reached</span> ({totalMaxOccupancy} guests).
-                                  {roomCount < maxRoomsAvailable && " Add another cottage above to increase capacity."}
+                                  <span>Maximum capacity reached</span> (
+                                  {totalMaxOccupancy} guests).
+                                  {roomCount < maxRoomsAvailable &&
+                                    " Add another cottage above to increase capacity."}
                                 </div>
                               ) : (
                                 <div className="text-muted-foreground leading-tight">
                                   <span>
-                                    {totalMaxOccupancy - currentGuests} more guest{totalMaxOccupancy - currentGuests === 1 ? "" : "s"} can be accommodated.
+                                    {totalMaxOccupancy - currentGuests} more
+                                    guest
+                                    {totalMaxOccupancy - currentGuests === 1
+                                      ? ""
+                                      : "s"}{" "}
+                                    can be accommodated.
                                   </span>
                                 </div>
                               )}
@@ -1379,7 +1415,9 @@ export function CottageDetailPage() {
                 {leadRate && match && search && match.availableCount > 0 ? (
                   <div className="space-y-3 rounded-xl border border-border p-4 text-sm animate-in fade-in duration-150">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Standard Rate</span>
+                      <span className="text-muted-foreground">
+                        Standard Rate
+                      </span>
                       <span className="font-medium">
                         {formatMoney(leadRate.perNight, leadRate.currency)}
                       </span>
@@ -1390,7 +1428,10 @@ export function CottageDetailPage() {
                         {roomCount > 1 ? ` · ${roomCount} cottages` : ""}
                       </span>
                       <span className="font-medium">
-                        {formatMoney(leadRate.total * roomCount, leadRate.currency)}
+                        {formatMoney(
+                          leadRate.total * roomCount,
+                          leadRate.currency,
+                        )}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -1404,7 +1445,10 @@ export function CottageDetailPage() {
                     <div className="flex justify-between border-t border-border pt-3 text-base font-bold">
                       <span>Total</span>
                       <span>
-                        {formatMoney(leadRate.total * roomCount, leadRate.currency)}
+                        {formatMoney(
+                          leadRate.total * roomCount,
+                          leadRate.currency,
+                        )}
                       </span>
                     </div>
                     <div className="space-y-2 pt-1">
@@ -1418,7 +1462,11 @@ export function CottageDetailPage() {
                               {rate.name}
                             </p>
                             <p className="text-[11px] text-muted-foreground">
-                              {formatMoney(rate.total * roomCount, rate.currency)} total
+                              {formatMoney(
+                                rate.total * roomCount,
+                                rate.currency,
+                              )}{" "}
+                              total
                               {roomCount > 1 ? ` (${roomCount} cottages)` : ""}
                             </p>
                           </div>
@@ -1429,7 +1477,10 @@ export function CottageDetailPage() {
                           >
                             <Link
                               to={`/booking/new?roomTypeId=${match.roomType.id}&ratePlanId=${rate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&infants=${currentInfants}&rooms=${search.rooms ?? 1}&roomName=${encodeURIComponent(match.roomType.name)}&rateName=${encodeURIComponent(rate.name)}&cottageSlug=${slug}`}
-                              state={{ from: `/cottages/${slug}${location.search}`, cottageSlug: slug }}
+                              state={{
+                                from: `/cottages/${slug}${location.search}`,
+                                cottageSlug: slug,
+                              }}
                             >
                               Book now
                             </Link>
@@ -1470,4 +1521,3 @@ export function CottageDetailPage() {
 }
 
 export default CottageDetailPage;
-

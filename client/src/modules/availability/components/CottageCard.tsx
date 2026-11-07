@@ -1,12 +1,13 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { CottageImage } from "@/components/common/CottageImage";
 import { useMediaUrls } from "@/modules/media";
-import { countNights } from "@/lib/date";
+import { countNights, formatDisplayDate } from "@/lib/date";
 import { formatMoney } from "@/lib/money";
 import type { AvailabilitySearchParams, SearchResultItem } from "../types/availability.types";
 import { toSearchRecord } from "../utils/search-params";
 
-export function CottageCard({
+export const CottageCard = memo(function CottageCard({
   item,
   search,
 }: {
@@ -35,105 +36,103 @@ export function CottageCard({
     search.checkIn && search.checkOut
       ? countNights(search.checkIn, search.checkOut)
       : 0;
+  const dateLabel =
+    search.checkIn && search.checkOut
+      ? `${formatDisplayDate(search.checkIn)} – ${formatDisplayDate(search.checkOut)}`
+      : "";
+
+  const rawDogs =
+    (roomType as unknown as { maxDogs?: number; max_dogs?: number }).maxDogs ??
+    (roomType as unknown as { max_dogs?: number }).max_dogs;
   const petFriendly =
-    (roomType.maxDogs != null && roomType.maxDogs > 0) ||
+    (rawDogs != null && Number(rawDogs) > 0) ||
     roomType.amenities?.some((amenity) => /pet|dog/i.test(amenity));
 
   return (
-    <article className="cottage-card group grid min-h-[328px] border border-border bg-card sm:grid-cols-[0.82fr_1.18fr]">
+    <article className="room-card group grid min-h-[328px] border border-border bg-card sm:grid-cols-[0.82fr_1.18fr]">
       <Link
         to={detailTo}
-        className="relative block h-72 overflow-hidden sm:h-full"
-        aria-label={`View ${roomType.name} details`}
+        state={{ search }}
+        aria-label={`View ${roomType.name}`}
+        className="relative block min-h-[220px] overflow-hidden bg-surface-2 sm:min-h-full"
       >
         <CottageImage
           name={roomType.name}
-          imageUrl={coverPhoto?.url}
-          alt={roomType.name}
-          className="transition-transform duration-500 group-hover:scale-105"
+          imageUrl={coverPhoto?.url ?? null}
+          alt={coverPhoto?.alt ?? roomType.name}
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
         />
-        {petFriendly && (
-          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded bg-surface/90 px-2 py-0.5 text-xs font-medium text-foreground backdrop-blur-sm">
-            Dog friendly
-          </span>
-        )}
       </Link>
 
-      <div className="flex flex-col justify-between p-6">
-        <div>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h3 className="font-display text-2xl font-light tracking-tight text-foreground">
-                <Link to={detailTo} className="hover:text-brand transition-colors">
-                  {roomType.name}
-                </Link>
-              </h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Sleeps up to {roomType.maxOccupancy} guests
-                {roomType.bedrooms ? ` · ${roomType.bedrooms} bedrooms` : ""}
-                {roomType.bathrooms ? ` · ${roomType.bathrooms} bathrooms` : ""}
-              </p>
-            </div>
-          </div>
-
-          {roomType.shortDescription && (
-            <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
-              {roomType.shortDescription}
-            </p>
-          )}
-
-          {roomType.amenities && roomType.amenities.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-1.5">
-              {roomType.amenities.slice(0, 4).map((amenity) => (
-                <span
-                  key={amenity}
-                  className="rounded-full bg-surface-2 px-2.5 py-0.5 text-xs text-muted-foreground"
-                >
-                  {amenity}
-                </span>
-              ))}
-              {roomType.amenities.length > 4 && (
-                <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs text-muted-foreground">
-                  +{roomType.amenities.length - 4} more
-                </span>
-              )}
-            </div>
-          )}
+      <div className="flex min-w-0 flex-col p-[23px]">
+        <div className="flex flex-col items-start gap-[9px]">
+          <h3 className="font-display text-[30px] font-normal leading-[1.1] tracking-tight">
+            <Link
+              to={detailTo}
+              state={{ search }}
+              className="transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              {roomType.name}
+            </Link>
+          </h3>
+          {petFriendly ? (
+            <span className="border border-brand-light px-2.5 py-0.5 text-[9px] uppercase tracking-[0.5px] text-[#6b7565]">
+              Pet friendly
+            </span>
+          ) : null}
         </div>
 
-        <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border-t border-border pt-4">
-          <div>
-            {hasRates ? (
-              <div>
-                <div className="text-xs text-muted-foreground">From</div>
-                <div className="font-display text-2xl font-medium text-foreground">
-                  {formatMoney(minPerNight, currency)}
-                  <span className="font-sans text-xs font-normal text-muted-foreground">
-                    {" "}/ night
-                  </span>
-                </div>
-                {nights > 1 && (
-                  <div className="text-xs text-muted-foreground">
-                    {formatMoney(minTotal, currency)} for {nights} nights
-                  </div>
-                )}
-              </div>
-            ) : (
-              <span className="text-sm text-muted-foreground">Prices upon request</span>
-            )}
-          </div>
-
-          <Link
-            to={detailTo}
-            className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            View cottage
-          </Link>
+        <div className="mt-3.5 mb-[22px] flex flex-wrap gap-x-3 gap-y-1 text-[12px] leading-[18px] text-foreground">
+          <span>{roomType.maxOccupancy} total guests</span>
+          {roomType.bedrooms != null ? (
+            <>
+              <span aria-hidden>·</span>
+              <span>
+                {roomType.bedrooms} bedroom{roomType.bedrooms === 1 ? "" : "s"}
+              </span>
+            </>
+          ) : null}
         </div>
+
+        {hasRates ? (
+          <div className="mb-[21px] flex flex-col items-start gap-[5px] leading-6">
+            <span className="text-[10px] uppercase tracking-[0.5px] text-[#6b7565]">
+              Total stay price
+              {nights > 0
+                ? ` · ${nights} night${nights === 1 ? "" : "s"}`
+                : ""}
+            </span>
+            <strong className="font-display text-[33px] font-normal leading-[1.08]">
+              {formatMoney(minTotal, currency)}
+            </strong>
+            <span className="text-[12px] text-[#637359]">
+              {formatMoney(minPerNight, currency)} per night
+              <span className="ml-1.5 whitespace-nowrap text-[9px] text-[#77866c]">
+                Example price
+              </span>
+            </span>
+            {dateLabel ? (
+              <span className="mt-[3px] text-[11px] leading-[16.5px] text-foreground">
+                {dateLabel}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+
+        <Link
+          to={detailTo}
+          state={{ search }}
+          className="btn-arrow mt-auto inline-flex min-h-[39px] items-center justify-between gap-[22px] self-start border border-primary px-[14px] py-[9px] text-[11px] font-medium leading-[1.4] transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        >
+          View cottage
+          <span aria-hidden className="arrow-icon inline-block">
+            →
+          </span>
+        </Link>
       </div>
     </article>
   );
-}
+});
 
 // Alias for backward compatibility
 export const RoomTypeCard = CottageCard;
