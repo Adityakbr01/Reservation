@@ -103,7 +103,7 @@ export function AuthSection({
             className="inline-flex shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             <img
-              src="/navlogo.png"
+              src="/navlogo.webp"
               alt="Hamptworth Stays"
               className={
                 wide
@@ -212,7 +212,7 @@ export function AuthSection({
           }
         >
           <img
-            src="/navlogo.png"
+            src="/navlogo.webp"
             alt="Hamptworth Stays"
             className="h-12 w-auto brightness-0 invert opacity-90"
           />

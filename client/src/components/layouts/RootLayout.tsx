@@ -135,7 +135,7 @@ export function RootLayout() {
               end
               className={({ isActive }) =>
                 cn(
-                  "inline-flex items-center whitespace-nowrap border-b-[0.8px] py-0 text-[9px] leading-[12.6px] transition-colors",
+                  "hidden md:inline-flex items-center whitespace-nowrap border-b-[0.8px] py-0 text-[9px] leading-[12.6px] transition-colors",
                   "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
                   isActive
                     ? "border-[#889878] text-foreground"
@@ -188,7 +188,7 @@ export function RootLayout() {
             className="col-start-2 inline-flex min-w-0 shrink-0 items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             <img
-              src="/navlogo.png"
+              src="/navlogo.webp"
               alt="Hamptworth Stays"
               className="h-[71px] w-[130px] shrink-0 object-contain mix-blend-multiply lg:h-[76px] lg:w-auto"
               loading="eager"
@@ -307,7 +307,7 @@ export function RootLayout() {
         >
           <div className="flex items-center justify-between gap-2 border-b border-border px-5 py-3">
             <img
-              src="/navlogo.png"
+              src="/navlogo.webp"
               alt="Hamptworth Stays"
               className="h-12 w-auto object-contain mix-blend-multiply"
               loading="lazy"
@@ -442,15 +442,12 @@ export function RootLayout() {
                 className="inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 <img
-                  src="/navlogo.png"
+                  src="/navlogo.webp"
                   alt="Hamptworth Stays"
-                  className="h-[78px] w-[150px] max-w-full object-contain object-left mix-blend-multiply lg:h-20 lg:w-auto"
+                  className="h-24 w-auto max-w-full object-contain object-left mix-blend-multiply lg:h-32"
                   loading="lazy"
                 />
               </Link>
-              <p className="mt-4 max-w-[270px] text-sm leading-[23.1px] text-[#4e5c4b]">
-                Five cottages at Home Farm, Hamptworth.
-              </p>
             </div>
 
             <div>
