@@ -55,7 +55,12 @@ class AdminCottageController extends Controller
             $counter++;
         }
 
-        $basePrice = $request->input('base_price') ?? $request->input('basePrice') ?? 150;
+        $basePrice = 150;
+        if ($request->has('base_price') && $request->input('base_price') !== null && $request->input('base_price') !== '') {
+            $basePrice = $request->input('base_price');
+        } elseif ($request->has('basePrice') && $request->input('basePrice') !== null && $request->input('basePrice') !== '') {
+            $basePrice = $request->input('basePrice');
+        }
 
         $maxAdults = (int) ($request->input('max_adults') ?? $request->input('maxAdults') ?? 2);
         $maxChildren = (int) ($request->input('max_children') ?? $request->input('maxChildren') ?? 0);
@@ -220,7 +225,12 @@ class AdminCottageController extends Controller
 
         $cottage->update($payload);
 
-        $basePrice = $request->input('base_price') ?? $request->input('basePrice');
+        $basePrice = null;
+        if ($request->has('base_price') && $request->input('base_price') !== null && $request->input('base_price') !== '') {
+            $basePrice = $request->input('base_price');
+        } elseif ($request->has('basePrice') && $request->input('basePrice') !== null && $request->input('basePrice') !== '') {
+            $basePrice = $request->input('basePrice');
+        }
         $this->syncCottageInventoryAndRates($cottage, $basePrice);
 
         return response()->json([
@@ -283,27 +293,41 @@ class AdminCottageController extends Controller
             ?? 'GBP';
 
         $ratePlan = RatePlan::where('room_type_id', $cottage->id)->first();
-        if ($ratePlan) {
-            if ($basePrice !== null && $basePrice !== '') {
-                $rawPrice = (int) $basePrice;
-                // Normalize input pounds (£150) to minor units / pence (15000)
-                $amountInPence = ($rawPrice < 1000 && $rawPrice > 0) ? ($rawPrice * 100) : $rawPrice;
+        if ($basePrice !== null && $basePrice !== '') {
+            $floatPrice = (float) $basePrice;
+            $amountInPence = (int) round($floatPrice * 100);
 
-                $pricing = is_array($ratePlan->pricing) ? $ratePlan->pricing : [];
-                $pricing['type'] = 'PER_NIGHT';
-                $pricing['amount'] = $amountInPence;
-                $pricing['basePrice'] = $amountInPence;
-                $pricing['base_price'] = $amountInPence;
-                $pricing['currency'] = $activeCurrency;
+            $pricing = ($ratePlan && is_array($ratePlan->pricing)) ? $ratePlan->pricing : [];
+            $pricing['type'] = $pricing['type'] ?? 'PER_NIGHT';
+            $pricing['amount'] = $amountInPence;
+            $pricing['basePrice'] = $floatPrice;
+            $pricing['base_price'] = $floatPrice;
+            $pricing['currency'] = $activeCurrency;
 
+            if ($ratePlan) {
                 $ratePlan->update([
                     'pricing' => $pricing,
                     'status' => $cottage->status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE',
                 ]);
+            } else {
+                $slug = 'standard-' . ($cottage->slug ?? $cottage->id);
+                RatePlan::create([
+                    'id' => bin2hex(random_bytes(12)),
+                    'property_id' => $cottage->property_id,
+                    'room_type_id' => $cottage->id,
+                    'cancellation_policy_id' => $defaultPolicy->id,
+                    'name' => 'Standard Rate',
+                    'slug' => $slug,
+                    'description' => 'Standard flexible rate for ' . $cottage->name,
+                    'pricing' => $pricing,
+                    'restrictions' => [
+                        'minStay' => 1,
+                        'maxStay' => 30,
+                    ],
+                    'status' => 'ACTIVE',
+                ]);
             }
-        } else {
-            $rawPrice = ($basePrice !== null && $basePrice !== '') ? (int) $basePrice : 150;
-            $amountInPence = ($rawPrice < 1000 && $rawPrice > 0) ? ($rawPrice * 100) : $rawPrice;
+        } elseif (! $ratePlan) {
             $slug = 'standard-' . ($cottage->slug ?? $cottage->id);
             RatePlan::create([
                 'id' => bin2hex(random_bytes(12)),
@@ -315,9 +339,9 @@ class AdminCottageController extends Controller
                 'description' => 'Standard flexible rate for ' . $cottage->name,
                 'pricing' => [
                     'type' => 'PER_NIGHT',
-                    'amount' => $amountInPence,
-                    'basePrice' => $amountInPence,
-                    'base_price' => $amountInPence,
+                    'amount' => 15000,
+                    'basePrice' => 150.0,
+                    'base_price' => 150.0,
                     'currency' => $activeCurrency,
                 ],
                 'restrictions' => [
@@ -354,13 +378,14 @@ class AdminCottageController extends Controller
         $updatedAt = $this->isoDate($c->updated_at);
 
         $ratePlan = RatePlan::where('room_type_id', $c->id)->first();
-        $basePrice = 150;
+        $basePrice = 150.0;
         if ($ratePlan && is_array($ratePlan->pricing)) {
-            $raw = $ratePlan->pricing['amount'] ?? $ratePlan->pricing['basePrice'] ?? $ratePlan->pricing['base_price'] ?? null;
-            if ($raw !== null) {
-                $rawInt = (int) $raw;
-                // In admin UI input box (labeled £), display pounds (150), not pence (15000)!
-                $basePrice = ($rawInt >= 1000) ? (int) round($rawInt / 100) : $rawInt;
+            if (isset($ratePlan->pricing['basePrice']) && is_numeric($ratePlan->pricing['basePrice'])) {
+                $basePrice = (float) $ratePlan->pricing['basePrice'];
+            } elseif (isset($ratePlan->pricing['base_price']) && is_numeric($ratePlan->pricing['base_price'])) {
+                $basePrice = (float) $ratePlan->pricing['base_price'];
+            } elseif (isset($ratePlan->pricing['amount']) && is_numeric($ratePlan->pricing['amount'])) {
+                $basePrice = round(((float) $ratePlan->pricing['amount']) / 100, 2);
             }
         }
 

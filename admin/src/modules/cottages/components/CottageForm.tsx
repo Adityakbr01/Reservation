@@ -367,8 +367,8 @@ export function CottageForm({
       welcome_hamper_html: hamperHtml.trim() || null,
       amenityIds,
       amenity_ids: amenityIds,
-      basePrice: basePrice.trim() ? Math.max(0, Number(basePrice) || 0) : 150,
-      base_price: basePrice.trim() ? Math.max(0, Number(basePrice) || 0) : 150,
+      basePrice: basePrice.trim() !== "" && !isNaN(Number(basePrice)) ? Math.max(0, Number(basePrice)) : 150,
+      base_price: basePrice.trim() !== "" && !isNaN(Number(basePrice)) ? Math.max(0, Number(basePrice)) : 150,
       status,
     } as unknown as CreateCottagePayload);
   }

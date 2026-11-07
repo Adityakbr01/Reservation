@@ -88,10 +88,12 @@ class PublicAvailabilityController extends Controller
             foreach ($activePlans as $rp) {
                 $basePrice = 15000;
                 if (is_array($rp->pricing)) {
-                    $raw = $rp->pricing['amount'] ?? $rp->pricing['basePrice'] ?? $rp->pricing['base_price'] ?? null;
-                    if ($raw !== null) {
-                        $rawInt = (int) $raw;
-                        $basePrice = ($rawInt < 1000 && $rawInt > 0) ? ($rawInt * 100) : $rawInt;
+                    if (isset($rp->pricing['amount']) && is_numeric($rp->pricing['amount'])) {
+                        $basePrice = (int) $rp->pricing['amount'];
+                    } elseif (isset($rp->pricing['basePrice']) && is_numeric($rp->pricing['basePrice'])) {
+                        $basePrice = (int) round(((float) $rp->pricing['basePrice']) * 100);
+                    } elseif (isset($rp->pricing['base_price']) && is_numeric($rp->pricing['base_price'])) {
+                        $basePrice = (int) round(((float) $rp->pricing['base_price']) * 100);
                     }
                 }
                 $rates[] = [

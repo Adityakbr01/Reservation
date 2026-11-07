@@ -59,10 +59,12 @@ class PublicBookingController extends Controller
         // Determine nightly amount in pence (minor units)
         $perNightPence = 15000;
         if ($ratePlan && is_array($ratePlan->pricing)) {
-            $raw = $ratePlan->pricing['amount'] ?? $ratePlan->pricing['basePrice'] ?? $ratePlan->pricing['base_price'] ?? null;
-            if ($raw !== null) {
-                $rawInt = (int) $raw;
-                $perNightPence = ($rawInt < 1000 && $rawInt > 0) ? ($rawInt * 100) : $rawInt;
+            if (isset($ratePlan->pricing['amount']) && is_numeric($ratePlan->pricing['amount'])) {
+                $perNightPence = (int) $ratePlan->pricing['amount'];
+            } elseif (isset($ratePlan->pricing['basePrice']) && is_numeric($ratePlan->pricing['basePrice'])) {
+                $perNightPence = (int) round(((float) $ratePlan->pricing['basePrice']) * 100);
+            } elseif (isset($ratePlan->pricing['base_price']) && is_numeric($ratePlan->pricing['base_price'])) {
+                $perNightPence = (int) round(((float) $ratePlan->pricing['base_price']) * 100);
             }
         }
 
@@ -76,7 +78,7 @@ class PublicBookingController extends Controller
                     $discount = (int) round($subtotal * (($coupon->discount_value ?? 0) / 100));
                 } else {
                     $val = (int) ($coupon->discount_value ?? 0);
-                    $discount = ($val < 1000 && $val > 0) ? ($val * 100) : $val;
+                    $discount = $val;
                 }
                 $discount = min($subtotal, $discount);
             }
@@ -212,10 +214,12 @@ class PublicBookingController extends Controller
 
             $perNightPence = 15000;
             if ($ratePlan && is_array($ratePlan->pricing)) {
-                $raw = $ratePlan->pricing['amount'] ?? $ratePlan->pricing['basePrice'] ?? $ratePlan->pricing['base_price'] ?? null;
-                if ($raw !== null) {
-                    $rawInt = (int) $raw;
-                    $perNightPence = ($rawInt < 1000 && $rawInt > 0) ? ($rawInt * 100) : $rawInt;
+                if (isset($ratePlan->pricing['amount']) && is_numeric($ratePlan->pricing['amount'])) {
+                    $perNightPence = (int) $ratePlan->pricing['amount'];
+                } elseif (isset($ratePlan->pricing['basePrice']) && is_numeric($ratePlan->pricing['basePrice'])) {
+                    $perNightPence = (int) round(((float) $ratePlan->pricing['basePrice']) * 100);
+                } elseif (isset($ratePlan->pricing['base_price']) && is_numeric($ratePlan->pricing['base_price'])) {
+                    $perNightPence = (int) round(((float) $ratePlan->pricing['base_price']) * 100);
                 }
             }
 
@@ -261,7 +265,7 @@ class PublicBookingController extends Controller
                     $discount = (int) round($subtotal * (($coupon->discount_value ?? 0) / 100));
                 } else {
                     $val = (int) ($coupon->discount_value ?? 0);
-                    $discount = ($val < 1000 && $val > 0) ? ($val * 100) : $val;
+                    $discount = $val;
                 }
                 $discount = min($subtotal, $discount);
             }

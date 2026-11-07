@@ -26,6 +26,7 @@ class CreateRatePlanRequest extends FormRequest
         }
         if (! $this->has('pricing') || ! is_array($this->input('pricing'))) {
             $merge['pricing'] = [
+                'amount' => (int) ($this->input('price', 15000)),
                 'basePrice' => (int) ($this->input('price', 15000)),
                 'currency' => 'GBP',
                 'multiplier' => (float) ($this->input('multiplier', 1.0)),

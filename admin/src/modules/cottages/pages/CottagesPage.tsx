@@ -140,7 +140,7 @@ export function CottagesPage() {
                     {cottage.maxAdults} adults · {cottage.maxChildren} children (max {cottage.maxOccupancy})
                   </TableCell>
                   <TableCell className="font-medium">
-                    {formatMoney(cottage.basePrice ?? cottage.base_price ?? 150)}
+                    {formatMoney(Number(cottage.basePrice ?? cottage.base_price ?? 150) * 100)}
                   </TableCell>
                   <TableCell>
                     <StatusBadge status={cottage.status} />

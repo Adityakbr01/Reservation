@@ -58,11 +58,7 @@ export function formatMoney(amount: number, currency?: string | null): string {
     return `${sym}0.00`;
   }
 
-  // If amount is a small positive whole number (e.g. 150 or 450), it is unscaled major units.
-  const minor =
-    amount > 0 && amount < 1000 && Number.isInteger(amount)
-      ? amount * 100
-      : amount;
+  const minor = Number(amount) || 0;
 
   try {
     return new Intl.NumberFormat("en", {

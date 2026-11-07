@@ -59,10 +59,8 @@ class PaymentService
             $total = (int) ($pricing['total'] ?? 0);
             $currency = strtolower((string) ($pricing['currency'] ?? 'gbp'));
 
-            // $total is stored in pence (e.g. 30000 for £300)
-            // If total < 1000 (e.g. 300), convert to pence
-            $amountPence = ($total < 1000 && $total > 0) ? (int) round($total * 100) : $total;
-            $amountPence = max(50, $amountPence);
+            // $total is stored in pence (minor units, e.g. 100 for £1, 30000 for £300)
+            $amountPence = max(50, $total);
 
             $intent = PaymentIntent::create([
                 'amount' => $amountPence,
