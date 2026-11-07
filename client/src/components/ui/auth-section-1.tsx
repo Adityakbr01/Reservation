@@ -103,7 +103,7 @@ export function AuthSection({
             className="inline-flex shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             <img
-              src="/navlogo.webp"
+              src="/navlogo.png"
               alt="Hamptworth Stays"
               className={
                 wide
@@ -131,7 +131,9 @@ export function AuthSection({
               : "flex flex-1 items-center justify-center px-5 py-7 sm:px-8 lg:px-12 lg:py-10 xl:px-16"
           }
         >
-          <div className={wide ? "w-full max-w-[680px]" : "w-full max-w-[420px]"}>
+          <div
+            className={wide ? "w-full max-w-[680px]" : "w-full max-w-[420px]"}
+          >
             <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
               {eyebrow}
             </p>
@@ -144,11 +146,19 @@ export function AuthSection({
             >
               {title}
             </h1>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{description}</p>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              {description}
+            </p>
 
             <div className={wide ? "mt-5" : "mt-6"}>{children}</div>
 
-            <div className={wide ? "mt-4 text-sm text-muted-foreground" : "mt-6 text-sm text-muted-foreground"}>
+            <div
+              className={
+                wide
+                  ? "mt-4 text-sm text-muted-foreground"
+                  : "mt-6 text-sm text-muted-foreground"
+              }
+            >
               {footer}
             </div>
           </div>
@@ -194,15 +204,25 @@ export function AuthSection({
           className="absolute inset-0 opacity-[0.18] [background-image:radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.35),transparent_32%),radial-gradient(circle_at_80%_70%,rgba(201,162,75,0.3),transparent_35%)]"
         />
 
-        <div className={wide ? "relative z-10 flex justify-end p-8 xl:p-10" : "relative z-10 flex justify-end p-9 xl:p-12"}>
+        <div
+          className={
+            wide
+              ? "relative z-10 flex justify-end p-8 xl:p-10"
+              : "relative z-10 flex justify-end p-9 xl:p-12"
+          }
+        >
           <img
-            src="/navlogo.webp"
+            src="/navlogo.png"
             alt="Hamptworth Stays"
             className="h-12 w-auto brightness-0 invert opacity-90"
           />
         </div>
 
-        <div className={wide ? "relative z-10 p-8 xl:p-10" : "relative z-10 p-9 xl:p-12"}>
+        <div
+          className={
+            wide ? "relative z-10 p-8 xl:p-10" : "relative z-10 p-9 xl:p-12"
+          }
+        >
           <p className="text-[10px] uppercase tracking-[0.28em] text-[#f7f3e6]/65">
             Home Farm · Hamptworth
           </p>

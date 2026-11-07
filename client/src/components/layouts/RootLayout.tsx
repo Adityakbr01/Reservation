@@ -173,7 +173,7 @@ export function RootLayout() {
             className="col-start-2 inline-flex min-w-0 shrink-0 items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             <img
-              src="/navlogo.webp"
+              src="/navlogo.png"
               alt="Hamptworth Stays"
               className="h-[52px] w-auto shrink-0 object-contain mix-blend-multiply lg:h-[76px]"
               loading="eager"
@@ -292,7 +292,7 @@ export function RootLayout() {
         >
           <div className="flex items-center justify-between gap-2 border-b border-border px-5 py-3">
             <img
-              src="/navlogo.webp"
+              src="/navlogo.png"
               alt="Hamptworth Stays"
               className="h-12 w-auto object-contain mix-blend-multiply"
               loading="lazy"
@@ -427,7 +427,7 @@ export function RootLayout() {
                 className="inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 <img
-                  src="/navlogo.webp"
+                  src="/navlogo.png"
                   alt="Hamptworth Stays"
                   className="h-20 w-auto object-contain mix-blend-multiply"
                   loading="lazy"
