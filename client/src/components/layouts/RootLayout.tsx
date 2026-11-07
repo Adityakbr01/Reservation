@@ -127,7 +127,7 @@ export function RootLayout() {
       className="flex min-h-screen flex-col bg-background font-sans text-foreground"
     >
       <header className="sticky top-0 z-50 border-b border-border bg-background">
-        <div className="mx-auto grid h-[72px] w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:px-6 lg:h-[98px] lg:px-12">
+        <div className="mx-auto grid h-[84px] w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-[5px] px-[22px] sm:px-6 lg:h-[98px] lg:gap-3 lg:px-12">
           {/* Left links */}
           <div className="flex min-w-0 items-center gap-6">
             <NavLink
@@ -135,8 +135,12 @@ export function RootLayout() {
               end
               className={({ isActive }) =>
                 cn(
-                  navLinkClass({ isActive }),
-                  "whitespace-nowrap border-transparent hover:border-transparent",
+                  "inline-flex items-center whitespace-nowrap border-b-[0.8px] py-0 text-[9px] leading-[12.6px] transition-colors",
+                  "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+                  isActive
+                    ? "border-[#889878] text-foreground"
+                    : "border-transparent text-foreground/90",
+                  "md:border-transparent md:py-3 md:text-[13px] md:leading-none md:hover:text-foreground",
                 )
               }
             >
@@ -186,7 +190,7 @@ export function RootLayout() {
             <img
               src="/navlogo.png"
               alt="Hamptworth Stays"
-              className="h-[52px] w-auto shrink-0 object-contain mix-blend-multiply lg:h-[76px]"
+              className="h-[71px] w-[130px] shrink-0 object-contain mix-blend-multiply lg:h-[76px] lg:w-auto"
               loading="eager"
             />
           </Link>
@@ -428,10 +432,10 @@ export function RootLayout() {
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 pb-8 pt-4 sm:px-6 sm:pb-12 sm:pt-6">
         <Outlet />
       </main>
-      <footer className="border-t border-border bg-secondary">
-        <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-12 lg:py-14">
-          <div className="grid grid-cols-2 gap-8 lg:grid-cols-[1.2fr_0.8fr_0.9fr_1fr] lg:gap-10">
-            <div>
+      <footer className="border-t-[0.8px] border-[#d8deca] bg-secondary">
+        <div className="mx-auto w-full max-w-7xl px-[22px] pb-[95px] pt-[39px] sm:px-6 lg:px-12 lg:py-14">
+          <div className="grid grid-cols-2 gap-x-[22px] gap-y-[30px] lg:grid-cols-[1.2fr_0.8fr_0.9fr_1fr] lg:gap-10">
+            <div className="col-span-2 lg:col-span-1">
               <Link
                 to="/"
                 aria-label="Hamptworth Stays booking home"
@@ -440,20 +444,20 @@ export function RootLayout() {
                 <img
                   src="/navlogo.png"
                   alt="Hamptworth Stays"
-                  className="h-20 w-auto max-w-full object-contain mix-blend-multiply"
+                  className="h-[78px] w-[150px] max-w-full object-contain object-left mix-blend-multiply lg:h-20 lg:w-auto"
                   loading="lazy"
                 />
               </Link>
-              <p className="mt-4 max-w-[240px] text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-4 max-w-[270px] text-sm leading-[23.1px] text-[#4e5c4b]">
                 Five cottages at Home Farm, Hamptworth.
               </p>
             </div>
 
             <div>
-              <h3 className="mb-5 text-[11px] font-medium uppercase tracking-[0.12em]">
+              <h3 className="mb-5 text-[10px] font-medium uppercase leading-4 tracking-[1.3px]">
                 Your stay
               </h3>
-              <div className="flex flex-col gap-2.5 text-[13px] leading-relaxed">
+              <div className="flex flex-col gap-2.5 text-[12px] leading-[20.4px]">
                 <Link to="/" className="hover:text-brand">
                   Find a cottage
                 </Link>
@@ -480,10 +484,10 @@ export function RootLayout() {
             </div>
 
             <div>
-              <h3 className="mb-5 text-[11px] font-medium uppercase tracking-[0.12em]">
+              <h3 className="mb-5 text-[10px] font-medium uppercase leading-4 tracking-[1.3px]">
                 A little help
               </h3>
-              <div className="flex flex-col gap-2.5 text-[13px] leading-relaxed">
+              <div className="flex flex-col gap-2.5 text-[12px] leading-[20.4px]">
                 <a
                   href={SITE_LINKS.enquireNow}
                   target="_blank"
@@ -514,14 +518,14 @@ export function RootLayout() {
               </div>
             </div>
 
-            <div>
-              <h3 className="mb-5 text-[11px] font-medium uppercase tracking-[0.12em]">
+            <div className="col-span-2 lg:col-span-1">
+              <h3 className="mb-5 text-[10px] font-medium uppercase leading-4 tracking-[1.3px]">
                 Contact
               </h3>
-              <p className="mb-3 text-[11px] text-muted-foreground">
+              <p className="mb-3 text-[10px] text-[#758466]">
                 Estate &amp; club team
               </p>
-              <div className="flex flex-col gap-2.5 text-[13px] leading-relaxed">
+              <div className="flex flex-col gap-2.5 text-[12px] leading-[20.4px]">
                 <a href="tel:+441794390155" className="hover:text-brand">
                   +44 7943 547557
                 </a>
@@ -536,7 +540,7 @@ export function RootLayout() {
             </div>
           </div>
 
-          <div className="mt-10 flex flex-wrap items-center gap-x-7 gap-y-3 border-t border-border pt-5 text-[10px] text-muted-foreground">
+          <div className="mt-[33px] flex flex-wrap items-center gap-[18px] border-t-[0.8px] border-[#cbd2c0] pt-5 text-[9px] leading-[12.6px] text-[#748165]">
             <span>© 2026 Hamptworth Stays</span>
             <span>Home Farm · Hamptworth</span>
             <a href="#top" className="ml-auto hover:text-foreground">

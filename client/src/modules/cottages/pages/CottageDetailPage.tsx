@@ -879,18 +879,7 @@ export function CottageDetailPage() {
                   </span>
                 </p>
               )}
-              <button
-                type="button"
-                onClick={toggleSaved}
-                aria-pressed={saved}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium shadow-sm transition hover:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <Heart
-                  className={`size-4 ${saved ? "fill-rose-600 text-rose-600" : ""}`}
-                  aria-hidden
-                />
-                Save
-              </button>
+             
             </div>
           </div>
 
@@ -957,7 +946,7 @@ export function CottageDetailPage() {
           )}
 
           {/* Section tabs — proper tabs: clicking switches the panel below */}
-          <div className="sticky top-[72px] z-30 -mx-1 mt-6 overflow-x-auto overflow-y-hidden border-b border-border bg-background/95 px-1 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:top-[98px]">
+          <div className="sticky top-[84px] z-30 -mx-1 mt-6 overflow-x-auto overflow-y-hidden border-b border-border bg-background/95 px-1 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:top-[98px]">
             <div
               className="flex gap-5"
               role="tablist"

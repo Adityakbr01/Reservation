@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Bath, BedDouble, Check, Dog } from "lucide-react";
+import { Bath, BedDouble, Check, Dog, Users } from "lucide-react";
 
 export function TickIcon({ className }: { className?: string }) {
   return (
@@ -58,7 +58,7 @@ export function CottageStats({
       <StatTip
         label={`Guests — sleeps up to ${sleeps} (${adults} adults, ${effectiveChildren} children)`}
       >
-        <BedDouble className="size-4 text-muted-foreground" aria-hidden />
+        <Users className="size-4 text-muted-foreground" aria-hidden />
         <span aria-hidden>{sleeps} guests</span>
         <span className="sr-only">Guests: sleeps up to {sleeps}</span>
       </StatTip>

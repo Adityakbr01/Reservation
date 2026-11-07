@@ -167,8 +167,8 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <div className="grid grid-cols-2 gap-3 sm:gap-[14px] lg:grid-cols-[1.4fr_1.4fr_0.7fr_0.7fr_0.7fr_auto_auto] lg:items-end">
-        <div className="col-span-1">
+      <div className="grid grid-cols-6 gap-3 sm:gap-[14px] lg:grid-cols-[1.4fr_1.4fr_0.7fr_0.7fr_0.7fr_auto_auto] lg:items-end">
+        <div className="col-span-3 lg:col-span-1">
           <DateField
             id="search-checkin"
             label="Check-in"
@@ -177,7 +177,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
             onChange={handleCheckInChange}
           />
         </div>
-        <div className="col-span-1">
+        <div className="col-span-3 lg:col-span-1">
           <DateField
             id="search-checkout"
             label="Check-out"
@@ -187,7 +187,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
           />
         </div>
 
-        <div className="min-w-0 relative">
+        <div className="col-span-2 min-w-0 relative lg:col-span-1">
           <Label htmlFor="search-adults" className={fieldLabelClass}>
             Adults
           </Label>
@@ -208,7 +208,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
           </div>
         </div>
 
-        <div className="min-w-0 relative">
+        <div className="col-span-2 min-w-0 relative lg:col-span-1">
           <Label htmlFor="search-children" className={fieldLabelClass}>
             Children
           </Label>
@@ -229,7 +229,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
           </div>
         </div>
 
-        <div className="min-w-0 relative">
+        <div className="col-span-2 min-w-0 relative lg:col-span-1">
           <Label htmlFor="search-cottages" className={fieldLabelClass}>
             Cottages
           </Label>
@@ -252,7 +252,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
 
         <Button
           type="submit"
-          className="btn-arrow btn-shine col-span-2 h-12 w-full shrink-0 rounded-none bg-primary px-6 text-[12px] font-medium text-primary-foreground hover:bg-brand-dark lg:col-span-1"
+          className="btn-arrow btn-shine col-span-6 h-12 w-full shrink-0 rounded-none bg-primary px-6 text-[12px] font-medium text-primary-foreground hover:bg-brand-dark lg:col-span-1"
           disabled={isPending}
         >
           {isPending ? (
@@ -271,7 +271,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
           type="button"
           onClick={handleReset}
           title="Reset search to show all cottages"
-          className="col-span-2 h-12 shrink-0 px-1 text-[12px] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring lg:col-span-1"
+          className="col-span-6 h-12 shrink-0 px-1 text-[12px] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring lg:col-span-1"
         >
           Reset
         </button>
