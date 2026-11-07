@@ -57,6 +57,11 @@ class AdminCottageController extends Controller
 
         $basePrice = $request->input('base_price') ?? $request->input('basePrice') ?? 150;
 
+        $maxAdults = (int) ($request->input('max_adults') ?? $request->input('maxAdults') ?? 2);
+        $maxChildren = (int) ($request->input('max_children') ?? $request->input('maxChildren') ?? 0);
+        $rawOcc = $request->input('max_occupancy') ?? $request->input('maxOccupancy');
+        $maxOccupancy = ($rawOcc !== null && (int) $rawOcc > 0) ? (int) $rawOcc : max(1, $maxAdults + $maxChildren);
+
         $cottage = Cottage::create([
             'id' => bin2hex(random_bytes(12)),
             'property_id' => $propertyId,
@@ -64,9 +69,9 @@ class AdminCottageController extends Controller
             'slug' => $slug,
             'short_description' => $request->input('short_description') ?? $request->input('shortDescription'),
             'description' => $request->input('description'),
-            'max_adults' => (int) ($request->input('max_adults') ?? $request->input('maxAdults') ?? 2),
-            'max_children' => (int) ($request->input('max_children') ?? $request->input('maxChildren') ?? 0),
-            'max_occupancy' => (int) ($request->input('max_occupancy') ?? $request->input('maxOccupancy') ?? 2),
+            'max_adults' => $maxAdults,
+            'max_children' => $maxChildren,
+            'max_occupancy' => $maxOccupancy,
             'bedrooms' => $request->filled('bedrooms') ? (int) $request->input('bedrooms') : null,
             'bathrooms' => $request->filled('bathrooms') ? (float) $request->input('bathrooms') : null,
             'max_dogs' => $request->filled('maxDogs') ? (int) $request->input('maxDogs') : ($request->filled('max_dogs') ? (int) $request->input('max_dogs') : 0),
@@ -150,7 +155,13 @@ class AdminCottageController extends Controller
             $payload['max_children'] = (int) ($request->input('max_children') ?? $request->input('maxChildren'));
         }
         if ($request->has('max_occupancy') || $request->has('maxOccupancy')) {
-            $payload['max_occupancy'] = (int) ($request->input('max_occupancy') ?? $request->input('maxOccupancy'));
+            $rawOcc = (int) ($request->input('max_occupancy') ?? $request->input('maxOccupancy'));
+            if ($rawOcc <= 0) {
+                $a = (int) ($payload['max_adults'] ?? $cottage->max_adults ?? 2);
+                $c = (int) ($payload['max_children'] ?? $cottage->max_children ?? 0);
+                $rawOcc = max(1, $a + $c);
+            }
+            $payload['max_occupancy'] = $rawOcc;
         }
         if ($request->has('bedrooms')) {
             $payload['bedrooms'] = $request->filled('bedrooms') ? (int) $request->input('bedrooms') : null;

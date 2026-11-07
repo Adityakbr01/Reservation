@@ -63,8 +63,34 @@ export function CottageForm({
     String(initial?.maxChildren ?? 0),
   );
   const [maxOccupancy, setMaxOccupancy] = useState(
-    String(initial?.maxOccupancy ?? 2),
+    String(initial?.maxOccupancy ?? (initial ? (initial.maxAdults + initial.maxChildren) : 2)),
   );
+  const [isOccupancyCustom, setIsOccupancyCustom] = useState(
+    Boolean(initial && initial.maxOccupancy !== initial.maxAdults + initial.maxChildren),
+  );
+
+  function handleAdultsChange(val: string) {
+    setMaxAdults(val);
+    if (!isOccupancyCustom) {
+      const a = parseInt(val, 10) || 0;
+      const c = parseInt(maxChildren, 10) || 0;
+      setMaxOccupancy(String(Math.max(1, a + c)));
+    }
+  }
+
+  function handleChildrenChange(val: string) {
+    setMaxChildren(val);
+    if (!isOccupancyCustom) {
+      const a = parseInt(maxAdults, 10) || 0;
+      const c = parseInt(val, 10) || 0;
+      setMaxOccupancy(String(Math.max(1, a + c)));
+    }
+  }
+
+  function handleOccupancyChange(val: string) {
+    setMaxOccupancy(val);
+    setIsOccupancyCustom(true);
+  }
   const [amenities, setAmenities] = useState(
     (initial?.amenities ?? []).join(", "),
   );
@@ -381,7 +407,7 @@ export function CottageForm({
             required
             min={1}
             value={maxAdults}
-            onChange={(e) => setMaxAdults(e.target.value)}
+            onChange={(e) => handleAdultsChange(e.target.value)}
           />
         </div>
         <div className="space-y-2">
@@ -392,18 +418,39 @@ export function CottageForm({
             required
             min={0}
             value={maxChildren}
-            onChange={(e) => setMaxChildren(e.target.value)}
+            onChange={(e) => handleChildrenChange(e.target.value)}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="rt-occupancy">Max occupancy</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="rt-occupancy">Max occupancy</Label>
+            {isOccupancyCustom ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOccupancyCustom(false);
+                  const a = parseInt(maxAdults, 10) || 0;
+                  const c = parseInt(maxChildren, 10) || 0;
+                  setMaxOccupancy(String(Math.max(1, a + c)));
+                }}
+                className="text-[11px] text-brand hover:underline font-medium"
+                title="Reset to Auto (Adults + Children)"
+              >
+                Auto-calc
+              </button>
+            ) : (
+              <span className="text-[10px] uppercase font-semibold text-muted-foreground tracking-wider">
+                Auto
+              </span>
+            )}
+          </div>
           <Input
             id="rt-occupancy"
             type="number"
             required
             min={1}
             value={maxOccupancy}
-            onChange={(e) => setMaxOccupancy(e.target.value)}
+            onChange={(e) => handleOccupancyChange(e.target.value)}
           />
         </div>
         <div className="space-y-2">
