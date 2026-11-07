@@ -66,12 +66,6 @@ import {
   WhyBookWithUsCard,
 } from "../components";
 
-function osmEmbed(lat: number, lng: number): string {
-  const d = 0.02;
-  const bbox = `${lng - d}%2C${lat - d}%2C${lng + d}%2C${lat + d}`;
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`;
-}
-
 function fmtShort(date: string): string {
   const d = new Date(`${date}T00:00:00Z`);
   if (Number.isNaN(d.getTime())) return date;
@@ -467,11 +461,7 @@ export function CottageDetailPage() {
   const facilities = linkedAmenities.filter(
     (a) => (a.group ?? "HIGHLIGHT") !== "HIGHLIGHT",
   );
-  const mapUrl =
-    roomType.mapEmbedUrl ||
-    (roomType.mapLat != null && roomType.mapLng != null
-      ? osmEmbed(roomType.mapLat, roomType.mapLng)
-      : null);
+  const mapUrl = roomType.mapEmbedUrl || null;
   const reviewStats = (reviewsQuery.data ?? { average: 0, count: 0 }) as {
     average: number;
     count: number;
@@ -967,7 +957,7 @@ export function CottageDetailPage() {
           )}
 
           {/* Section tabs — proper tabs: clicking switches the panel below */}
-          <div className="sticky top-16 z-30 -mx-1 mt-6 overflow-x-auto overflow-y-hidden border-b border-border bg-background/95 px-1 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="sticky top-[72px] z-30 -mx-1 mt-6 overflow-x-auto overflow-y-hidden border-b border-border bg-background/95 px-1 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:top-[98px]">
             <div
               className="flex gap-5"
               role="tablist"
@@ -1143,19 +1133,21 @@ export function CottageDetailPage() {
                 </h2>
                 <Card className="mt-3">
                   <CardContent className="space-y-3 p-3">
-                    {roomType.mapLat != null && roomType.mapLng != null ? (
-                      <LocationMap
-                        lat={roomType.mapLat}
-                        lng={roomType.mapLng}
-                        label={roomType.name}
-                        className="h-60 w-full overflow-hidden rounded-lg border border-border"
-                      />
-                    ) : mapUrl ? (
+                    {mapUrl ? (
                       <iframe
                         title={`Map of ${roomType.name}`}
                         src={mapUrl}
                         className="h-60 w-full rounded-lg border border-border"
                         loading="lazy"
+                        allowFullScreen
+                        referrerPolicy="no-referrer-when-downgrade"
+                      />
+                    ) : roomType.mapLat != null && roomType.mapLng != null ? (
+                      <LocationMap
+                        lat={roomType.mapLat}
+                        lng={roomType.mapLng}
+                        label={roomType.name}
+                        className="h-60 w-full overflow-hidden rounded-lg border border-border"
                       />
                     ) : null}
                     {roomType.locationText && (
@@ -1209,7 +1201,7 @@ export function CottageDetailPage() {
         </div>
 
         {/* Sidebar */}
-        <aside className="min-w-0 space-y-5 lg:sticky lg:top-24">
+        <aside className="min-w-0 space-y-5 lg:sticky lg:top-[122px]">
           <Card className="shadow-card">
             <CardContent className="space-y-4 p-5">
               <div className="min-h-[64px] flex flex-col justify-center">

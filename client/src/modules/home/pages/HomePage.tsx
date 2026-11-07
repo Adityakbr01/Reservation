@@ -292,7 +292,7 @@ export function HomePage() {
               href={SITE_LINKS.enquireNow}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex max-w-[360px] items-center justify-between gap-5 border-b border-brand-light pb-2 text-[12px] leading-relaxed text-foreground transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="group hidden md:flex max-w-[360px] items-center justify-between gap-5 border-b border-brand-light pb-2 text-[12px] leading-relaxed text-foreground transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               Booking several cottages? Enquire about a group stay
               <span

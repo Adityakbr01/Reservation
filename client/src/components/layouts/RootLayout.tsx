@@ -129,41 +129,52 @@ export function RootLayout() {
       <header className="sticky top-0 z-50 border-b border-border bg-background">
         <div className="mx-auto grid h-[72px] w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:px-6 lg:h-[98px] lg:px-12">
           {/* Left links */}
-          <nav
-            aria-label="Booking navigation"
-            className="hidden items-center gap-6 md:flex"
-          >
-            <NavLink to="/" end className={navLinkClass}>
+          <div className="flex min-w-0 items-center gap-6">
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                cn(
+                  navLinkClass({ isActive }),
+                  "whitespace-nowrap border-transparent hover:border-transparent",
+                )
+              }
+            >
               Find a cottage
             </NavLink>
-            <a
-              href={SITE_LINKS.theEstate}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                navLinkClass({ isActive: false }),
-                "hidden gap-1 lg:inline-flex",
-              )}
+            <nav
+              aria-label="Booking navigation"
+              className="hidden items-center gap-6 md:flex"
             >
-              The estate{" "}
-              <span aria-hidden className="text-[10px]">
-                ↗
-              </span>
-            </a>
-            <a
-              href={SITE_LINKS.bespoke}
-              target={SITE_LINKS.bespoke !== "#" ? "_blank" : undefined}
-              rel={
-                SITE_LINKS.bespoke !== "#" ? "noopener noreferrer" : undefined
-              }
-              className={cn(
-                navLinkClass({ isActive: false }),
-                "hidden lg:inline-flex",
-              )}
-            >
-              Bespoke
-            </a>
-          </nav>
+              <a
+                href={SITE_LINKS.theEstate}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  navLinkClass({ isActive: false }),
+                  "hidden gap-1 lg:inline-flex",
+                )}
+              >
+                The estate{" "}
+                <span aria-hidden className="text-[10px]">
+                  ↗
+                </span>
+              </a>
+              <a
+                href={SITE_LINKS.bespoke}
+                target={SITE_LINKS.bespoke !== "#" ? "_blank" : undefined}
+                rel={
+                  SITE_LINKS.bespoke !== "#" ? "noopener noreferrer" : undefined
+                }
+                className={cn(
+                  navLinkClass({ isActive: false }),
+                  "hidden lg:inline-flex",
+                )}
+              >
+                Bespoke
+              </a>
+            </nav>
+          </div>
 
           {/* Centered logo */}
           <Link
@@ -419,7 +430,7 @@ export function RootLayout() {
       </main>
       <footer className="border-t border-border bg-secondary">
         <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-12 lg:py-14">
-          <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr_0.9fr_1fr]">
+          <div className="grid grid-cols-2 gap-8 lg:grid-cols-[1.2fr_0.8fr_0.9fr_1fr] lg:gap-10">
             <div>
               <Link
                 to="/"
@@ -429,7 +440,7 @@ export function RootLayout() {
                 <img
                   src="/navlogo.png"
                   alt="Hamptworth Stays"
-                  className="h-20 w-auto object-contain mix-blend-multiply"
+                  className="h-20 w-auto max-w-full object-contain mix-blend-multiply"
                   loading="lazy"
                 />
               </Link>

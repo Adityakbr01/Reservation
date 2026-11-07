@@ -1,15 +1,3 @@
-import { MapContainer, Marker, Popup, TileLayer, ZoomControl } from "react-leaflet";
-import { Icon } from "leaflet";
-import "leaflet/dist/leaflet.css";
-
-const pin = new Icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
-
 interface LocationMapProps {
   lat: number;
   lng: number;
@@ -19,29 +7,21 @@ interface LocationMapProps {
 }
 
 /**
- * Interactive OpenStreetMap (Leaflet) with zoom controls + marker —
- * the same look as the reference: +/- top-left, pin, OSM attribution.
+ * Google Maps embed with a marker at the given coordinates — no API key needed.
  */
 export function LocationMap({ lat, lng, label, zoom = 13, className }: LocationMapProps) {
+  const src = `https://www.google.com/maps?q=${lat},${lng}&z=${zoom}&output=embed`;
+
   return (
     <div className={className ?? "h-80 w-full overflow-hidden rounded-sm border border-border"}>
-      <MapContainer
-        center={[lat, lng]}
-        zoom={zoom}
-        zoomControl={false}
-        scrollWheelZoom={false}
-        className="h-full w-full"
-        aria-label={`Map of ${label}`}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <ZoomControl position="topleft" />
-        <Marker position={[lat, lng]} icon={pin}>
-          <Popup>{label}</Popup>
-        </Marker>
-      </MapContainer>
+      <iframe
+        title={`Google Map of ${label}`}
+        src={src}
+        className="h-full w-full border-0"
+        loading="lazy"
+        allowFullScreen
+        referrerPolicy="no-referrer-when-downgrade"
+      />
     </div>
   );
 }
