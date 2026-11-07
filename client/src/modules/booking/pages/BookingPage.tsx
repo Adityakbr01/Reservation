@@ -3,7 +3,7 @@ import { Link, Navigate, useLocation, useNavigate, useSearchParams } from "react
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { AlertCircle, CalendarDays, CheckCircle2, ChevronDown } from "lucide-react";
+import { CalendarDays, CheckCircle2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ import {
   validateCouponCode,
 } from "../api/booking.api";
 import { fetchCottageOffers } from "@/modules/cottages/api/cottages.api";
-import { AvailabilityCalendar, useAvailabilitySearch } from "@/modules/availability";
+import { useAvailabilitySearch } from "@/modules/availability";
 import {
   useCreateBooking,
   usePaymentIntent,
@@ -127,45 +127,11 @@ function PayButton({ bookingId, totalLabel }: { bookingId: string; totalLabel: s
 }
 
 export function BookingPage() {
-  const [params, setSearchParams] = useSearchParams();
+  const [params] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
   const selection = useMemo(() => parseSelection(params), [params]);
-  const [dateError, setDateError] = useState<string | null>(null);
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [calendarPicks, setCalendarPicks] = useState<string[]>([]);
-  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
-
-  function handleDateChange(newIn: string, newOut: string) {
-    if (!newIn || !newOut) return;
-    if (newIn < today) {
-      setDateError("Check-in date cannot be in the past.");
-      return;
-    }
-    if (newOut <= newIn) {
-      setDateError("Check-out date must be after check-in.");
-      return;
-    }
-    setDateError(null);
-    const next = new URLSearchParams(params);
-    next.set("checkIn", newIn);
-    next.set("checkOut", newOut);
-    setSearchParams(next, { replace: true });
-  }
-
-  function handleCalendarPick(d: string) {
-    if (calendarPicks.length === 0 || calendarPicks.length === 2) {
-      setCalendarPicks([d]);
-    } else {
-      const first = calendarPicks[0];
-      if (d <= first) {
-        setCalendarPicks([d]);
-      } else {
-        setCalendarPicks([first, d]);
-        handleDateChange(first, d);
-      }
-    }
-  }
+  const [dateError] = useState<string | null>(null);
   const sessionUser = useAuthStore((s) => s.user);
   const setSession = useAuthStore((s) => s.setSession);
   const isAuthed = !!sessionUser;
@@ -179,7 +145,6 @@ export function BookingPage() {
   const [title, setTitle] = useState("Mr");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [phone, setPhone] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState(sessionUser?.email ?? "");
   const [postcode, setPostcode] = useState("");
@@ -197,7 +162,7 @@ export function BookingPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   // Acknowledgements.
-  const [newsletterOptIn, setNewsletterOptIn] = useState(false);
+  const newsletterOptIn = false;
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
 
@@ -464,7 +429,7 @@ export function BookingPage() {
       firstName.trim().length > 0 &&
       lastName.trim().length > 0 &&
       /.+@.+\..+/.test(email) &&
-      phone.trim().length >= 4
+      mobile.trim().length >= 4
     );
   }
 
@@ -503,10 +468,10 @@ export function BookingPage() {
       }
     }
     if (totalMaxAdults > 0 && selection.adults > totalMaxAdults) {
-      return `Selected rooms accommodate up to ${totalMaxAdults} adults. Please add another room or reduce adults.`;
+      return `Selected cottages accommodate up to ${totalMaxAdults} adults. Please add another cottage or reduce adults.`;
     }
     if (totalMaxOccupancy > 0 && selection.adults + selection.children > totalMaxOccupancy) {
-      return `Selected rooms sleep up to ${totalMaxOccupancy} guests total. Please add another room or reduce guests.`;
+      return `Selected cottages sleep up to ${totalMaxOccupancy} guests total. Please add another cottage or reduce guests.`;
     }
     return null;
   }
@@ -574,13 +539,14 @@ export function BookingPage() {
       return;
     }
     setHoldFailed(null);
+    const contactPhone = mobile.trim();
     const contact = {
       ...(title ? { title } : {}),
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       email: email.trim(),
-      phone: phone.trim(),
-      ...(mobile.trim() ? { mobile: mobile.trim() } : {}),
+      phone: contactPhone,
+      mobile: contactPhone,
       ...(postcode.trim() ? { postcode: postcode.trim() } : {}),
       ...(address1.trim() ? { address1: address1.trim() } : {}),
       ...(address2.trim() ? { address2: address2.trim() } : {}),
@@ -632,8 +598,8 @@ export function BookingPage() {
           acceptPrivacy,
           acceptTerms,
         });
-        // Silent sign-in: the guest never sees a login screen.
-        if (result.token) {
+        // Sign-in only if guest explicitly chose to create an account
+        if (createAccount && result.token) {
           setSession(
             {
               id: result.user.id,
@@ -717,7 +683,7 @@ export function BookingPage() {
                 Sign in
               </Link>
             </Button>
-            <span className="ml-3 text-xs text-muted-foreground">Have an account? Signing in is optional — guests check out below.</span>
+            <span className="ml-3 text-xs text-muted-foreground">Have an account? Signing in is optional — guest check out below.</span>
           </CardContent>
         </Card>
       )}
@@ -753,13 +719,9 @@ export function BookingPage() {
                 <Label htmlFor="co-last">Last name *</Label>
                 <Input id="co-last" required maxLength={80} value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last Name" />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="co-phone">Phone *</Label>
-                <Input id="co-phone" required maxLength={40} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="co-mobile">Mobile phone</Label>
-                <Input id="co-mobile" maxLength={40} value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="Mobile phone" />
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="co-mobile">Mobile phone *</Label>
+                <Input id="co-mobile" required maxLength={40} value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="Mobile phone" />
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="co-email">Email address *</Label>
@@ -939,7 +901,7 @@ export function BookingPage() {
                 Cottage{rooms.length === 1 ? "" : "s"} | {rooms.map((r) => `${r.roomName} × ${r.quantity}`).join(", ")}
               </p>
               <p className="text-muted-foreground">
-                {rooms.map((r) => r.rateName).join(" + ")}. {totalLabel && `${totalLabel} due at booking.`} Cancellations and amendments are per the rate conditions.
+                {rooms.map((r) => r.rateName).join(" + ")}. {totalLabel && `${totalLabel} due at booking.`} Cancellations and amendments are subject to the booking and cancellation policy.
               </p>
             </CardContent>
           </Card>
@@ -949,10 +911,6 @@ export function BookingPage() {
               <CardTitle className="text-base tracking-wide">Acknowledgement</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
-              <label className="flex items-start gap-2">
-                <input type="checkbox" checked={newsletterOptIn} onChange={(e) => setNewsletterOptIn(e.target.checked)} className="mt-1 size-4 shrink-0 accent-brand" />
-                Yes, I would like to receive newsletters and special offers by email.
-              </label>
               <label className="flex items-start gap-2">
                 <input type="checkbox" checked={acceptPrivacy} onChange={(e) => setAcceptPrivacy(e.target.checked)} className="mt-1 size-4 shrink-0 accent-brand" />
                 <span>* I agree with the Privacy Terms. <Link to="/policies/PRIVACY" target="_blank" className="underline">Privacy Notice</Link></span>
@@ -985,11 +943,11 @@ export function BookingPage() {
             <CardHeader>
               <CardTitle className="text-base tracking-wide">Price details</CardTitle>
               <CardDescription>
-                {rooms.reduce((s, r) => s + r.quantity, 0)} room{rooms.reduce((s, r) => s + r.quantity, 0) === 1 ? "" : "s"} · {nights} night{nights === 1 ? "" : "s"}
+                {nights} night{nights === 1 ? "" : "s"} · {rooms.reduce((s, r) => s + r.quantity, 0)} cottage{rooms.reduce((s, r) => s + r.quantity, 0) === 1 ? "" : "s"}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {/* Stay dates selection & live availability validation */}
+              {/* Stay dates - locked summary during checkout to prevent accidental date change errors */}
               {selection && (
                 <div className="rounded-lg border border-border bg-muted/40 p-3 space-y-2.5">
                   <div className="flex items-center justify-between">
@@ -999,76 +957,28 @@ export function BookingPage() {
                     </span>
                     <button
                       type="button"
-                      onClick={() => setShowCalendar((s) => !s)}
+                      onClick={() => window.history.back()}
                       className="text-xs font-medium text-brand hover:underline"
                     >
-                      {showCalendar ? "Hide calendar" : "View calendar"}
+                      ← Change dates
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <Label htmlFor="book-checkin" className="text-[11px] font-medium text-muted-foreground">
-                        Check-in
-                      </Label>
-                      <Input
-                        id="book-checkin"
-                        type="date"
-                        min={today}
-                        value={selection.checkIn}
-                        onChange={(e) => handleDateChange(e.target.value, selection.checkOut)}
-                        className="h-8 text-xs bg-background"
-                      />
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="rounded border border-border/60 bg-background/80 p-2">
+                      <span className="text-[10px] uppercase font-semibold text-muted-foreground block">Check-in</span>
+                      <span className="font-medium text-foreground">{prettyDate(selection.checkIn)}</span>
                     </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="book-checkout" className="text-[11px] font-medium text-muted-foreground">
-                        Check-out
-                      </Label>
-                      <Input
-                        id="book-checkout"
-                        type="date"
-                        min={selection.checkIn || today}
-                        value={selection.checkOut}
-                        onChange={(e) => handleDateChange(selection.checkIn, e.target.value)}
-                        className="h-8 text-xs bg-background"
-                      />
+                    <div className="rounded border border-border/60 bg-background/80 p-2">
+                      <span className="text-[10px] uppercase font-semibold text-muted-foreground block">Check-out</span>
+                      <span className="font-medium text-foreground">{prettyDate(selection.checkOut)}</span>
                     </div>
                   </div>
 
-                  {dateError ? (
-                    <p className="text-xs text-destructive">{dateError}</p>
-                  ) : (availabilityQuery.isPending || quoteQuery.isPending) ? (
-                    <p className="text-xs text-muted-foreground animate-pulse">Checking availability…</p>
-                  ) : isDatesAvailable ? (
-                    <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
-                      <CheckCircle2 className="size-3.5 shrink-0" />
-                      <span>Available: {nights} night{nights === 1 ? "" : "s"} ({prettyDate(selection.checkIn)} → check-out morning {prettyDate(selection.checkOut)})</span>
-                    </div>
-                  ) : (
-                    <div className="space-y-1 rounded border border-destructive/20 bg-destructive/10 p-2 text-xs text-destructive">
-                      <div className="flex items-center gap-1.5 font-medium">
-                        <AlertCircle className="size-3.5 shrink-0" />
-                        <span>Not available for these dates</span>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground">
-                        Selected cottage is fully booked or unavailable. Click &ldquo;View calendar&rdquo; to see open dates.
-                      </p>
-                    </div>
-                  )}
-
-                  {showCalendar && (
-                    <div className="mt-2 pt-2 border-t border-border">
-                      <p className="mb-2 text-[11px] text-muted-foreground">
-                        Click check-in then check-out on the calendar to update your stay:
-                      </p>
-                      <AvailabilityCalendar
-                        roomTypeId={selection.roomTypeId}
-                        selectedCheckIn={calendarPicks.length === 1 ? calendarPicks[0] : selection.checkIn}
-                        selectedCheckOut={calendarPicks.length === 1 ? null : selection.checkOut}
-                        onPickDate={handleCalendarPick}
-                      />
-                    </div>
-                  )}
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
+                    <CheckCircle2 className="size-3.5 shrink-0" />
+                    <span>{nights} night{nights === 1 ? "" : "s"} stay confirmed</span>
+                  </div>
                 </div>
               )}
               <div className="space-y-3">
@@ -1176,17 +1086,19 @@ export function BookingPage() {
                         <span>−{formatMoney(quote.pricing.discount, quote.pricing.currency)}</span>
                       </div>
                     )}
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Taxes and fees</span>
-                      <span>{formatMoney(quote.pricing.tax ?? 0, quote.pricing.currency)}</span>
-                    </div>
+                    {(quote.pricing.tax ?? 0) > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Taxes and fees</span>
+                        <span>{formatMoney(quote.pricing.tax ?? 0, quote.pricing.currency)}</span>
+                      </div>
+                    )}
                     <p className="text-xs text-muted-foreground">
                       {prettyDate(selection.checkIn)} - {prettyDate(selection.checkOut)}<br />
                       {selection.adults + selection.children} Adult{selection.adults + selection.children === 1 ? "" : "s"}
                     </p>
                     {quote.nightly && quote.nightly.length > 0 && (
                       <details className="pt-1 text-xs">
-                        <summary className="cursor-pointer text-muted-foreground">Nightly breakdown (first cottage)</summary>
+                        <summary className="cursor-pointer text-muted-foreground">Nightly breakdown</summary>
                         <ul className="mt-1 divide-y divide-border">
                           {quote.nightly.map((n) => (
                             <li key={n.date} className="flex justify-between py-0.5">

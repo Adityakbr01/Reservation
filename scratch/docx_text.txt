@@ -1,0 +1,20 @@
+﻿Remove ✅
+Replace infant with cot/high chair  ❌
+Before property Detail add Availblity tab
+Remove all text in this section and just keep floor plan. (Allready done we handle in admin panel)
+Remove all dimensions and references to Ground Floor from floor plans (Allready done we handle in admin panel)
+Map location takes you to wrong place - fix so it shows and takes you to actual cottages (Allready done we handle in admin panel)
+If we already have availability section we do not need it again in the location section
+It should say guest check out now guests
+Remove newsletters and special offers
+Remove hotel local time. Cancellations and amendments should be as per the cancellation policy (we will need to draft - we can take dorset hideaways as a base)
+If you try and change dates after you book but before you pay it says cottage is fully booked. Instead of saying fully booked we should lock the calendar / not show it so you can’t change unless you go back
+We should not have a field for phone, just mobile phone
+We should not mention rooms at all on the right. They are booking whole cottages, no option to book individual room
+It creates an account even if you don’t tick create an account. If they choose guest check out then it should not show this at all
+Remove specific location field
+Remove all references to newsletter sign up
+Pet Friendly instead of “one dog allowed”
+Infant friendly instead of “baby welcome”
+We need to find out if we need to show taxes and fees
+Instead of 24/7 support we should say “On-site support” and do not mentioned it is available 24/7

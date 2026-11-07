@@ -111,6 +111,7 @@ function scrollToId(id: string) {
 
 const TABS = [
   { id: "overview", label: "Overview" },
+  { id: "availability", label: "Availability" },
   { id: "property-details", label: "Property Details" },
   { id: "layout", label: "Layout" },
   { id: "location", label: "Location" },
@@ -137,6 +138,13 @@ export function CottageDetailPage() {
   const mainSwiperRef = useRef<SwiperType | null>(null);
   const thumbsSwiperRef = useRef<SwiperType | null>(null);
   const [activeTab, setActiveTab] = useState<string>("overview");
+
+  function openAvailabilityTab() {
+    setActiveTab("availability");
+    setTimeout(() => {
+      scrollToId("availability");
+    }, 50);
+  }
   const [guestsOpen, setGuestsOpen] = useState(false);
   const [saved, setSaved] = useState(false);
   const gallery = useMemo(() => {
@@ -730,6 +738,7 @@ export function CottageDetailPage() {
                           <CottageImage
                             name={roomType.name}
                             imageUrl={mainUrl}
+                            priority={i === 0}
                             alt={
                               g.altText ??
                               p?.alt ??
@@ -826,7 +835,7 @@ export function CottageDetailPage() {
                               src={thumbUrl}
                               alt=""
                               className="h-full w-full object-cover"
-                              loading="lazy"
+                              loading={i < 5 ? "eager" : "lazy"}
                             />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center bg-muted/60 animate-pulse">
@@ -1042,6 +1051,30 @@ export function CottageDetailPage() {
               </section>
             )}
 
+            {/* Availability */}
+            {activeTab === "availability" && (
+              <section
+                id="availability"
+                aria-label="Availability"
+                className="scroll-mt-36"
+              >
+                <h2 className="font-display text-2xl font-medium tracking-tight">
+                  Availability
+                </h2>
+                <div className="mt-3 [&_.mx-auto]:mx-0 [&_.max-w-4xl]:max-w-none">
+                  <AvailabilityCalendar
+                    roomTypeId={roomType.id}
+                    selectedCheckIn={picked[0] ?? search?.checkIn ?? null}
+                    selectedCheckOut={
+                      picked[1] ??
+                      (picked.length === 1 ? null : (search?.checkOut ?? null))
+                    }
+                    onPickDate={pickDate}
+                  />
+                </div>
+              </section>
+            )}
+
             {/* Property details */}
             {activeTab === "property-details" && propertyDetailsHtml && (
               <section aria-label="Property Details">
@@ -1169,28 +1202,6 @@ export function CottageDetailPage() {
             )}
           </div>
 
-          {/* Availability — always visible, drives the booking sidebar */}
-          <section
-            id="availability"
-            aria-label="Availability"
-            className="scroll-mt-36"
-          >
-            <h2 className="font-display text-2xl font-medium tracking-tight">
-              Availability
-            </h2>
-            <div className="mt-3 [&_.mx-auto]:mx-0 [&_.max-w-4xl]:max-w-none">
-              <AvailabilityCalendar
-                roomTypeId={roomType.id}
-                selectedCheckIn={picked[0] ?? search?.checkIn ?? null}
-                selectedCheckOut={
-                  picked[1] ??
-                  (picked.length === 1 ? null : (search?.checkOut ?? null))
-                }
-                onPickDate={pickDate}
-              />
-            </div>
-          </section>
-
           <EnquireAboutCottage
             roomTypeId={roomType.id}
             roomName={roomType.name}
@@ -1226,7 +1237,7 @@ export function CottageDetailPage() {
                 <p className="text-sm font-semibold">Your stay</p>
                 <button
                   type="button"
-                  onClick={() => scrollToId("availability")}
+                  onClick={openAvailabilityTab}
                   aria-label="Choose dates from the availability calendar"
                   className="flex min-h-[50px] w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 py-1.5 text-sm transition hover:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
@@ -1399,7 +1410,7 @@ export function CottageDetailPage() {
                 <Button
                   type="button"
                   className="h-12 w-full rounded-lg text-base"
-                  onClick={() => scrollToId("availability")}
+                  onClick={openAvailabilityTab}
                 >
                   Check availability
                 </Button>
@@ -1432,14 +1443,6 @@ export function CottageDetailPage() {
                           leadRate.total * roomCount,
                           leadRate.currency,
                         )}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Taxes &amp; fees
-                      </span>
-                      <span className="font-medium">
-                        {formatMoney(0, leadRate.currency)}
                       </span>
                     </div>
                     <div className="flex justify-between border-t border-border pt-3 text-base font-bold">
@@ -1500,7 +1503,7 @@ export function CottageDetailPage() {
                     </p>
                     <button
                       type="button"
-                      onClick={() => scrollToId("availability")}
+                      onClick={openAvailabilityTab}
                       className="text-xs font-medium text-brand hover:underline"
                     >
                       {search && match && match.availableCount <= 0

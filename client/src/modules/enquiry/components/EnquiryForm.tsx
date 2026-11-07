@@ -6,7 +6,7 @@ import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getApiErrorMessage, publicApiClient } from "@/lib/api-client";
+import { getApiErrorMessage } from "@/lib/api-client";
 import { getCurrencySymbol } from "@/lib/money";
 import { submitEnquiry } from "../api/enquiry.api";
 
@@ -54,7 +54,6 @@ export function EnquiryForm({
   const targetId = cottageId ?? roomTypeId ?? null;
   const targetName = cottageName ?? roomName;
   const [form, setForm] = useState(initialForm);
-  const [subscribed, setSubscribed] = useState(false);
   const isPage = variant === "page";
 
   function set<K extends keyof typeof initialForm>(key: K, value: (typeof initialForm)[K]) {
@@ -242,17 +241,6 @@ export function EnquiryForm({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="eq-loc" className={labelClass}>
-              Specific location
-            </Label>
-            <Input
-              id="eq-loc"
-              value={form.specificLocation}
-              onChange={(e) => set("specificLocation", e.target.value)}
-              className={fieldClass}
-            />
-          </div>
-          <div className="space-y-2">
             <Label htmlFor="eq-dog" className={labelClass}>
               Dog friendly?
             </Label>
@@ -311,35 +299,6 @@ export function EnquiryForm({
           )}
         </Button>
       </form>
-
-      {!isPage ? (
-        <p className="text-xs text-muted-foreground">
-          Prefer to subscribe?{" "}
-          {subscribed ? (
-            <span>Subscribed — thank you.</span>
-          ) : (
-            <button
-              type="button"
-              className="underline underline-offset-4 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              onClick={() => {
-                if (!/.+@.+\..+/.test(form.email)) {
-                  toast.error("Enter your email above first");
-                  return;
-                }
-                void publicApiClient
-                  .post("/public/newsletter/subscribe", { email: form.email, source: "enquiry" })
-                  .then(() => {
-                    setSubscribed(true);
-                    toast.success("Subscribed to newsletter");
-                  })
-                  .catch(() => toast.error("Could not subscribe"));
-              }}
-            >
-              Subscribe to newsletter
-            </button>
-          )}
-        </p>
-      ) : null}
     </div>
   );
 }

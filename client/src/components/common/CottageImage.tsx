@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -6,18 +7,23 @@ interface CottageImageProps {
   imageUrl?: string | null;
   alt?: string | null;
   className?: string;
+  priority?: boolean;
 }
 
 /**
  * Cottage visual: renders the photo the moment a URL exists, otherwise a branded placeholder.
  */
-export function CottageImage({ name, imageUrl, alt, className }: CottageImageProps) {
-  if (imageUrl) {
+export function CottageImage({ name, imageUrl, alt, className, priority }: CottageImageProps) {
+  const [error, setError] = useState(false);
+
+  if (imageUrl && !error) {
     return (
       <img
         src={imageUrl}
         alt={alt || `${name} photo`}
-        loading="lazy"
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : "auto"}
+        onError={() => setError(true)}
         className={cn("h-full w-full object-cover", className)}
       />
     );
