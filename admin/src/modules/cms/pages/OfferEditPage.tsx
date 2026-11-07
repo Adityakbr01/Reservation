@@ -32,7 +32,7 @@ import { useOffer, useOffers, useSaveOffer, useSetOfferStatus } from "../hooks/u
 import { updateOffer } from "../api/cms.api";
 import { useCoupon, useCoupons, useUpdateCoupon } from "@/modules/coupons/hooks/use-coupons";
 import { updateCoupon } from "@/modules/coupons/api/coupons.api";
-import { useRoomTypes } from "@/modules/room-types";
+import { useCottages } from "@/modules/cottages";
 import type { ContentStatus } from "../types/cms.types";
 
 function toDateInput(value: string | null): string {
@@ -139,10 +139,10 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
     couponId !== "" && !coupons.some((c) => c.id === couponId);
   const selectedCoupon = coupons.find((c) => c.id === couponId) ?? null;
 
-  // Room targeting lives on the linked coupon (server: coupon.applicableRoomTypeIds,
-  // empty = all rooms). Managed here so the offer section is the single place.
-  const { data: typesData } = useRoomTypes({ page: 1, limit: 100 });
-  const roomTypes = typesData?.items ?? [];
+  // Cottage targeting lives on the linked coupon (server: coupon.applicableRoomTypeIds,
+  // empty = all cottages). Managed here so the offer section is the single place.
+  const { data: typesData } = useCottages({ page: 1, limit: 100 });
+  const cottages = typesData?.items ?? [];
   const { data: couponDetail } = useCoupon(couponId);
   const detailForCoupon =
     couponDetail && couponDetail.id === couponId ? couponDetail : null;
@@ -151,17 +151,17 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
     selectedCoupon?.applicableRoomTypeIds ??
     [];
   const sourceKey = `${couponId}|${detailForCoupon ? "d" : "l"}`;
-  const [roomIds, setRoomIds] = useState<string[]>([]);
-  const [roomsKey, setRoomsKey] = useState<string | null>(null);
-  if (roomsKey !== sourceKey && (couponId === "" || detailForCoupon || selectedCoupon)) {
-    setRoomsKey(sourceKey);
-    setRoomIds([...sourceRooms]);
+  const [cottageIds, setCottageIds] = useState<string[]>([]);
+  const [cottagesKey, setCottagesKey] = useState<string | null>(null);
+  if (cottagesKey !== sourceKey && (couponId === "" || detailForCoupon || selectedCoupon)) {
+    setCottagesKey(sourceKey);
+    setCottageIds([...sourceRooms]);
   }
   const roomsChanged =
-    JSON.stringify([...roomIds].sort()) !== JSON.stringify([...sourceRooms].sort());
+    JSON.stringify([...cottageIds].sort()) !== JSON.stringify([...sourceRooms].sort());
 
-  function toggleRoom(id: string) {
-    setRoomIds((prev) => (prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]));
+  function toggleCottage(id: string) {
+    setCottageIds((prev) => (prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]));
   }
 
   // One room type → one offer. Rooms already claimed by another coupon's
@@ -170,17 +170,17 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
   const [overridePlan, setOverridePlan] = useState<OverridePlan | null>(null);
   const [surgeryPending, setSurgeryPending] = useState(false);
 
-  function findConflicts(targetCouponId: string, claimedRoomIds: string[]): RoomConflict[] {
-    const allRoomIds = roomTypes.map((r) => r.id);
-    const selected = claimedRoomIds.length > 0 ? claimedRoomIds : allRoomIds;
+  function findConflicts(targetCouponId: string, claimedCottageIds: string[]): RoomConflict[] {
+    const allCottageIds = cottages.map((c) => c.id);
+    const selected = claimedCottageIds.length > 0 ? claimedCottageIds : allCottageIds;
     if (selected.length === 0) return [];
-    const roomName = new Map(roomTypes.map((r) => [r.id, r.name]));
+    const cottageName = new Map(cottages.map((c) => [c.id, c.name]));
     const offers = offersData?.items ?? [];
     return coupons
       .filter((c) => c.id !== targetCouponId)
       .flatMap((c) => {
-        const scope = c.applicableRoomTypeIds.length > 0 ? c.applicableRoomTypeIds : allRoomIds;
-        const overlap = scope.filter((rid) => selected.includes(rid));
+        const scope = c.applicableRoomTypeIds.length > 0 ? c.applicableRoomTypeIds : allCottageIds;
+        const overlap = scope.filter((cid) => selected.includes(cid));
         if (overlap.length === 0) return [];
         const linked = offers.filter(
           (o) =>
@@ -189,10 +189,10 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
             (mode === "create" || o.id !== id),
         );
         if (linked.length === 0) return [];
-        return overlap.flatMap((rid) =>
+        return overlap.flatMap((cid) =>
           linked.map((o) => ({
-            roomId: rid,
-            roomName: roomName.get(rid) ?? `…${rid.slice(-6)}`,
+            roomId: cid,
+            roomName: cottageName.get(cid) ?? `…${cid.slice(-6)}`,
             oldCouponId: c.id,
             oldCouponCode: c.code,
             offerId: o.id,
@@ -206,23 +206,23 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const target = couponId.trim();
-    // No coupon → offer never appears on room pages, so nothing to clash.
+    // No coupon → offer never appears on cottage pages, so nothing to clash.
     if (!target) {
       persistSave(null);
       return;
     }
-    if (!offersData || roomTypes.length === 0) {
+    if (!offersData || cottages.length === 0) {
       toast.error("Lists still loading — wait a moment and retry");
       return;
     }
-    const conflicts = findConflicts(target, roomIds);
+    const conflicts = findConflicts(target, cottageIds);
     if (conflicts.length === 0) {
       persistSave(null);
       return;
     }
     setOverridePlan({
       targetCoupon: target,
-      effectiveRooms: roomIds.length > 0 ? [...roomIds] : roomTypes.map((r) => r.id),
+      effectiveRooms: cottageIds.length > 0 ? [...cottageIds] : cottages.map((c) => c.id),
       conflicts,
       oldCouponIds: [...new Set(conflicts.map((c) => c.oldCouponId))],
     });
@@ -240,13 +240,13 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
           const base =
             old.applicableRoomTypeIds.length > 0
               ? old.applicableRoomTypeIds
-              : roomTypes.map((r) => r.id);
+              : cottages.map((r) => r.id);
           const kept = base.filter((rid) => !plan.effectiveRooms.includes(rid));
           if (kept.length > 0) {
             await updateCoupon(oldId, { applicableRoomTypeIds: kept });
           } else {
-            // Old coupon was scoped only to overridden rooms — empty means
-            // ALL rooms, so unlink its offers instead of flipping it global.
+            // Old coupon was scoped only to overridden cottages — empty means
+            // ALL cottages, so unlink its offers instead of flipping it global.
             const linkedIds = [
               ...new Set(
                 plan.conflicts.filter((c) => c.oldCouponId === oldId).map((c) => c.offerId),
@@ -261,7 +261,7 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
         }
         await queryClient.invalidateQueries({ queryKey: couponKeys.all });
         await queryClient.invalidateQueries({ queryKey: cmsKeys.all });
-        toast.success("Old offer removed from overridden rooms");
+        toast.success("Old offer removed from overridden cottages");
       }
       mutate(
         {
@@ -283,7 +283,7 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
           onSuccess: () => {
             if (couponId.trim() && roomsChanged) {
               roomsMutation.mutate(
-                { id: couponId.trim(), payload: { applicableRoomTypeIds: roomIds } },
+                { id: couponId.trim(), payload: { applicableRoomTypeIds: cottageIds } },
                 { onSuccess: () => navigate("/cms/offers") },
               );
             } else {
@@ -391,40 +391,40 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
                 </Select>
               </div>
               <div className="space-y-2 sm:col-span-2">
-                <Label>Applies to room types</Label>
+                <Label>Applies to cottages</Label>
                 {couponId === "" ? (
                   <p className="text-sm text-muted-foreground">
-                    Link a coupon above to choose rooms — an offer without a
-                    coupon never appears on room pages.
+                    Link a coupon above to choose cottages — an offer without a
+                    coupon never appears on cottage pages.
                   </p>
-                ) : roomTypes.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Loading room types…</p>
+                ) : cottages.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Loading cottages…</p>
                 ) : (
                   <>
                     <div className="flex flex-wrap gap-2">
-                      {roomTypes.map((rt) => {
-                        const on = roomIds.includes(rt.id);
+                      {cottages.map((c) => {
+                        const on = cottageIds.includes(c.id);
                         return (
                           <button
-                            key={rt.id}
+                            key={c.id}
                             type="button"
                             aria-pressed={on}
-                            onClick={() => toggleRoom(rt.id)}
+                            onClick={() => toggleCottage(c.id)}
                             className={`rounded-full border px-3 py-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                               on
                                 ? "border-brand bg-brand/10 font-medium"
                                 : "border-input text-muted-foreground hover:border-brand"
                             }`}
                           >
-                            {rt.name}
+                            {c.name}
                           </button>
                         );
                       })}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {roomIds.length === 0
-                        ? `All rooms — the ${selectedCoupon?.code ?? "coupon"} badge shows on every cottage page.`
-                        : `Only on ${roomIds.length} selected room type${roomIds.length === 1 ? "" : "s"}. Deselect all for every cottage.`}{" "}
+                      {cottageIds.length === 0
+                        ? `All cottages — the ${selectedCoupon?.code ?? "coupon"} badge shows on every cottage page.`
+                        : `Only on ${cottageIds.length} selected cottage${cottageIds.length === 1 ? "" : "s"}. Deselect all for every cottage.`}{" "}
                       Saved on coupon {selectedCoupon?.code ?? "…"}.
                     </p>
                   </>
@@ -446,9 +446,9 @@ function OfferForm({ mode, id, initial }: { mode: "create" | "edit"; id: string;
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Room already has an offer — override?</AlertDialogTitle>
+            <AlertDialogTitle>Cottage already has an offer — override?</AlertDialogTitle>
             <AlertDialogDescription>
-              These rooms already show another offer. Overriding removes the old
+              These cottages already show another offer. Overriding removes the old
               offer from them and applies this one instead.
             </AlertDialogDescription>
           </AlertDialogHeader>

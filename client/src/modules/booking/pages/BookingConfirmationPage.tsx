@@ -269,7 +269,6 @@ function ReceiptBody({ receipt }: { receipt: BookingReceipt }) {
           <div key={i} className="space-y-1 rounded-xl bg-muted/50 p-3">
             <p className="font-medium">
               {item.roomName}
-              {item.roomNumber ? ` · Room ${item.roomNumber}` : ""}
             </p>
             <p className="text-xs text-muted-foreground">
               {item.ratePlanName} · {formatDate(item.checkIn)} → {formatDate(item.checkOut)}

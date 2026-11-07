@@ -8,7 +8,7 @@ import { RequireAuth, RequireGuest } from "./guards";
 // Route-level code splitting: each page becomes its own chunk so the
 // initial load only downloads what the current route needs.
 // (Direct file imports avoid pulling barrel files into the main chunk.)
-const RoomDetailPage = lazy(() => import("@/modules/rooms/pages/RoomDetailPage"));
+const CottageDetailPage = lazy(() => import("@/modules/cottages/pages/CottageDetailPage"));
 const BookingPage = lazy(() => import("@/modules/booking/pages/BookingPage"));
 const BookingConfirmationPage = lazy(
   () => import("@/modules/booking/pages/BookingConfirmationPage"),
@@ -58,7 +58,7 @@ export function AppRoutes() {
       <Routes>
         <Route element={<RootLayout />}>
           <Route index element={<HomePage />} />
-          <Route path="rooms/:slug" element={<RoomDetailPage />} />
+          <Route path="cottages/:slug" element={<CottageDetailPage />} />
           <Route path="p/:slug" element={<CmsPageView />} />
           <Route path="blogs" element={<BlogsPage />} />
           <Route path="blogs/:slug" element={<BlogPostPage />} />

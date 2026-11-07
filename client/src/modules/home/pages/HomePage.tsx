@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDisplayDate, toDayKey } from "@/lib/date";
 import {
-  RoomTypeCard,
+  CottageCard,
   SearchForm,
   defaultSearchDates,
   useAvailabilitySearch,
@@ -351,7 +351,7 @@ export function HomePage() {
             <>
               <div className="grid items-stretch gap-5 md:grid-cols-[repeat(auto-fit,minmax(420px,1fr))]">
                 {results.map((item) => (
-                  <RoomTypeCard
+                  <CottageCard
                     key={item.roomType.id}
                     item={item}
                     search={search}

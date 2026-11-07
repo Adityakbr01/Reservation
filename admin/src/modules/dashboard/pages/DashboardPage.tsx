@@ -1,22 +1,20 @@
 import { Link } from "react-router-dom";
-import { BedDouble, Building2, CalendarDays, CircleAlert, Plus, Tags } from "lucide-react";
+import { Building2, CalendarDays, CircleAlert, Plus, Tags } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { useBlocks } from "@/modules/availability";
 import { useRatePlans } from "@/modules/rate-plans";
-import { useRoomTypes } from "@/modules/room-types";
-import { useRooms } from "@/modules/rooms";
+import { useCottages } from "@/modules/cottages";
 import { formatMoney } from "@/lib/money";
 import { useDashboardSummary } from "../hooks/use-dashboard-summary";
 import { useSales } from "../hooks/use-sales";
 import { SalesChart, bucketTrend, money, TrendChip } from "../components/SalesChart";
 
 const QUICK_ACTIONS = [
-  { to: "/room-types/new", label: "New room type" },
-  { to: "/rooms/new", label: "New room" },
-  { to: "/rate-plans/new", label: "New rate plan" },
+  { to: "/cottages/new", label: "New cottage" },
+  { to: "/rate-plans", label: "Pricing & rates" },
   { to: "/availability", label: "Block dates" },
 ];
 
@@ -28,8 +26,7 @@ function formatDate(value: string): string {
 }
 
 export function DashboardPage() {
-  const types = useRoomTypes({ page: 1, limit: 1 });
-  const rooms = useRooms({ page: 1, limit: 1 });
+  const cottages = useCottages({ page: 1, limit: 1 });
   const plans = useRatePlans({ page: 1, limit: 1 });
   const blocks = useBlocks({ page: 1, limit: 5 });
   const summary = useDashboardSummary();
@@ -37,12 +34,11 @@ export function DashboardPage() {
   const weekTrend = bucketTrend(salesWeek.data?.buckets ?? []);
 
   const stats = [
-    { label: "Room types", to: "/room-types", Icon: Building2, value: types.data?.total },
-    { label: "Physical rooms", to: "/rooms", Icon: BedDouble, value: rooms.data?.total },
-    { label: "Rate plans", to: "/rate-plans", Icon: Tags, value: plans.data?.total },
+    { label: "Cottages", to: "/cottages", Icon: Building2, value: cottages.data?.total },
+    { label: "Pricing & rates", to: "/rate-plans", Icon: Tags, value: plans.data?.total },
     { label: "Active blocks", to: "/availability", Icon: CalendarDays, value: blocks.data?.total },
   ];
-  const loading = types.isPending || rooms.isPending || plans.isPending;
+  const loading = cottages.isPending || plans.isPending;
 
   return (
     <div className="space-y-6">

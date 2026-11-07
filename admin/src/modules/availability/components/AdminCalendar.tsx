@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { apiClient, unwrapResponse } from "@/lib/api-client";
 import type { ApiEnvelope } from "@/lib/api-client";
-import { useRoomTypes } from "@/modules/room-types";
+import { useCottages } from "@/modules/cottages";
 
 interface CalendarDay {
   date: string;
@@ -45,18 +45,18 @@ function monthLabel(year: number, month: number): string {
 export function AdminCalendar() {
   const [now] = useState(() => new Date());
   const [offset, setOffset] = useState(0);
-  const [roomTypeId, setRoomTypeId] = useState("all");
-  const { data: typesData } = useRoomTypes({ page: 1, limit: 100 });
+  const [cottageId, setCottageId] = useState("all");
+  const { data: typesData } = useCottages({ page: 1, limit: 100 });
   const types = useMemo(() => typesData?.items ?? [], [typesData]);
 
   const base = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + offset, 1));
   const { from, to } = monthBounds(base.getUTCFullYear(), base.getUTCMonth());
   const { data, isPending } = useQuery({
-    queryKey: ["admin", "calendar", roomTypeId, from, to],
+    queryKey: ["admin", "calendar", cottageId, from, to],
     queryFn: async () => {
       const response = await apiClient.get<ApiEnvelope<CalendarResponse>>(
         "/public/availability/calendar",
-        { params: { from, to, ...(roomTypeId !== "all" ? { roomTypeId } : {}) } },
+        { params: { from, to, ...(cottageId !== "all" ? { roomTypeId: cottageId } : {}) } },
       );
       return unwrapResponse(response);
     },
@@ -68,15 +68,15 @@ export function AdminCalendar() {
         <CardTitle className="text-xl">Month grid</CardTitle>
         <div className="flex items-center gap-2">
           <Label htmlFor="cal-type" className="sr-only">
-            Room type
+            Cottage
           </Label>
-          <Select value={roomTypeId} onValueChange={setRoomTypeId}>
-            <SelectTrigger id="cal-type" className="w-44" aria-label="Room type">
-              <SelectValue placeholder="All types" />
+          <Select value={cottageId} onValueChange={setCottageId}>
+            <SelectTrigger id="cal-type" className="w-44" aria-label="Cottage">
+              <SelectValue placeholder="All cottages" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All types</SelectItem>
-              {types.map((type) => (
+              <SelectItem value="all">All cottages</SelectItem>
+              {types.map((type: { id: string; name: string }) => (
                 <SelectItem key={type.id} value={type.id}>
                   {type.name}
                 </SelectItem>

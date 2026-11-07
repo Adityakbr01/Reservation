@@ -1,7 +1,9 @@
 export interface AvailabilityBlock {
   id: string;
   propertyId: string;
-  roomId: string;
+  roomId?: string;
+  roomTypeId?: string;
+  cottageId?: string;
   startDate: string;
   /** Exclusive end date: blocks nights [startDate, endDate). */
   endDate: string;
@@ -16,6 +18,7 @@ export interface BlockFilters {
   limit: number;
   roomId?: string;
   roomTypeId?: string;
+  cottageId?: string;
   from?: string;
   to?: string;
 }
@@ -23,6 +26,7 @@ export interface BlockFilters {
 export interface CreateBlockPayload {
   roomId?: string;
   roomTypeId?: string;
+  cottageId?: string;
   startDate: string;
   endDate: string;
   reason?: string | null;

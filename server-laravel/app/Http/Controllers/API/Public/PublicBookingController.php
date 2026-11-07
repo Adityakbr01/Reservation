@@ -37,15 +37,28 @@ class PublicBookingController extends Controller
         ]));
 
         foreach ($data['rooms'] as $roomData) {
+            $rt = \App\Models\RoomType::find($roomData['room_type_id']);
+            $rp = \App\Models\RatePlan::find($roomData['rate_plan_id']);
+            $room = \App\Models\Room::firstOrCreate(
+                ['room_type_id' => $roomData['room_type_id']],
+                [
+                    'id' => bin2hex(random_bytes(12)),
+                    'property_id' => $booking->property_id,
+                    'room_number' => $rt?->slug ?: '1',
+                    'name' => $rt?->name ?: 'Cottage',
+                    'status' => 'ACTIVE',
+                ]
+            );
+
             BookingItem::create([
                 'id' => bin2hex(random_bytes(12)),
                 'booking_id' => $booking->id,
                 'room_type_id' => $roomData['room_type_id'],
-                'room_id' => null,
+                'room_id' => $room->id,
                 'rate_plan_id' => $roomData['rate_plan_id'],
-                'room_name_snapshot' => '',
-                'room_number_snapshot' => null,
-                'rate_plan_name_snapshot' => '',
+                'room_name_snapshot' => $rt?->name ?: '',
+                'room_number_snapshot' => $room->room_number,
+                'rate_plan_name_snapshot' => $rp?->name ?: 'Standard Rate',
                 'check_in' => $data['check_in'],
                 'check_out' => $data['check_out'],
                 'guests' => $data['guests'],

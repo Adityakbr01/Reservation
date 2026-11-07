@@ -6,8 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiClient, unwrapResponse } from "@/lib/api-client";
 import type { ApiEnvelope } from "@/lib/api-client";
-import { useRoomTypes } from "@/modules/room-types";
-import { useRooms } from "@/modules/rooms";
+import { useCottages } from "@/modules/cottages";
 
 import { addDays } from "date-fns";
 import { toDayKey } from "@/lib/date";
@@ -48,15 +47,12 @@ const PILL: Record<RowStatus, string> = {
 };
 
 /**
- * Live sell-out board: every cottage with free/total rooms for the chosen
- * dates, so staff can see at a glance what is full — including room types
- * the guest site hides when they have zero availability.
+ * Live sell-out board: every cottage for the chosen dates.
  */
 export function InventoryStatus() {
   const [draft, setDraft] = useState(defaultRange);
   const [range, setRange] = useState(defaultRange);
-  const { data: typesData } = useRoomTypes({ page: 1, limit: 100 });
-  const { data: roomsData } = useRooms({ page: 1, limit: 200 });
+  const { data: cottagesData } = useCottages({ page: 1, limit: 100 });
   const valid = range.checkOut > range.checkIn;
   const search = useQuery({
     queryKey: ["inventory-status", range.checkIn, range.checkOut],
@@ -67,19 +63,17 @@ export function InventoryStatus() {
   });
 
   const rows = useMemo(() => {
-    const types = typesData?.items ?? [];
-    const rooms = roomsData?.items ?? [];
+    const cottages = cottagesData?.items ?? [];
     const hits = new Map((search.data ?? []).map((h) => [h.roomType.id, h.availableCount]));
-    return types.map((t) => {
-      const total = rooms.filter((r) => r.roomTypeId === t.id && r.status === "ACTIVE").length;
+    return cottages.map((t) => {
+      const total = 1;
       if (t.status !== "ACTIVE") return { id: t.id, name: t.name, total, free: 0, status: "Hidden" as RowStatus };
       const free = hits.get(t.id);
       if (free === undefined || free <= 0)
         return { id: t.id, name: t.name, total, free: 0, status: "Full" as RowStatus };
-      if (free < total) return { id: t.id, name: t.name, total, free, status: "Few left" as RowStatus };
-      return { id: t.id, name: t.name, total, free, status: "Available" as RowStatus };
+      return { id: t.id, name: t.name, total, free: 1, status: "Available" as RowStatus };
     });
-  }, [typesData, roomsData, search.data]);
+  }, [cottagesData, search.data]);
 
   const fullCount = rows.filter((r) => r.status === "Full").length;
   const activeRows = rows.filter((r) => r.status !== "Hidden");

@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useRoomTypes } from "@/modules/room-types";
+import { useCottages } from "@/modules/cottages";
 import type {
   CreateRatePlanPayload,
   PricingType,
@@ -60,7 +60,7 @@ export function RatePlanForm({ initial, submitLabel, isPending, onSubmit }: Rate
   const [validUntil, setValidUntil] = useState(initial?.restrictions?.validUntil ? String(initial.restrictions.validUntil).slice(0, 10) : "");
   const [daysOfWeek, setDaysOfWeek] = useState<number[]>(initial?.restrictions?.daysOfWeek ?? []);
   const [status, setStatus] = useState<RatePlanStatus>(initial?.status ?? "DRAFT");
-  const { data: typesData } = useRoomTypes({ page: 1, limit: 100 });
+  const { data: typesData } = useCottages({ page: 1, limit: 100 });
   const roomTypes = typesData?.items ?? [];
 
   const invalid = name.trim().length < 2 || !roomTypeId || amount.trim().length === 0;

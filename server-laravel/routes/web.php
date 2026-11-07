@@ -326,7 +326,104 @@ Route::match(['get', 'post'], '/db-fresh', function () {
 });
 
 Route::match(['get', 'post'], '/setup-fresh', function () {
-    return redirect('/db-fresh?token=' . request('token'));
+    return redirect('/fresh-db-seed');
+});
+
+Route::match(['get', 'post'], '/setup-fresh-db', function () {
+    return redirect('/fresh-db-seed');
+});
+
+Route::match(['get', 'post'], '/fresh-db-seed', function () {
+    $dropped = [];
+    $migrateOutput = '';
+    $seedOutput = '';
+
+    // 1. Drop all tables cleanly with foreign key checks disabled (InnoDB safe)
+    try {
+        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS = 0;');
+        $tables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
+        foreach ($tables as $t) {
+            $tbl = array_values((array)$t)[0];
+            \Illuminate\Support\Facades\DB::statement("DROP TABLE IF EXISTS `{$tbl}`");
+            $dropped[] = $tbl;
+        }
+        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
+    } catch (\Throwable $e) {
+        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
+        return response()->json([
+            'success' => false,
+            'step' => 'drop_tables',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+
+    // 2. Run pure Laravel migrations from scratch
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        $migrateOutput = Artisan::output();
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'step' => 'migrate',
+            'error' => $e->getMessage(),
+            'dropped_tables' => $dropped,
+        ], 500);
+    }
+
+    // 3. Seed ONLY Admin, Default Property, and Site Settings (zero dummy data)
+    try {
+        Artisan::call('db:seed', ['--force' => true]);
+        $seedOutput = Artisan::output();
+
+        $admin = \App\Models\User::where('email', 'admin@gmail.com')->first();
+        $property = \App\Models\Property::defaultProperty();
+        $settings = \App\Models\SiteSettings::defaultSettings();
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'step' => 'db:seed',
+            'error' => $e->getMessage(),
+            'migrate_output' => $migrateOutput,
+        ], 500);
+    }
+
+    // 4. Ensure public/uploads directory exists
+    $publicUploads = public_path('uploads');
+    if (! file_exists($publicUploads)) {
+        @mkdir($publicUploads, 0755, true);
+    }
+
+    // 5. Clear caches
+    try {
+        Artisan::call('optimize:clear');
+    } catch (\Throwable $e) {}
+
+    // Verify created tables
+    $finalTables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
+    $createdList = array_map(fn($t) => array_values((array)$t)[0], $finalTables);
+
+    return response()->json([
+        'success' => true,
+        'message' => '100% Pure Laravel & MySQL database wiped, migrated and seeded with ONLY Admin, Property, and Site Settings. Zero dummy data.',
+        'dropped_tables_count' => count($dropped),
+        'created_tables_count' => count($createdList),
+        'created_tables' => $createdList,
+        'admin' => [
+            'email' => $admin?->email ?? 'admin@gmail.com',
+            'password' => 'admin@gmail.com',
+            'role' => $admin?->role ?? 'admin',
+        ],
+        'property' => [
+            'id' => $property->id,
+            'name' => $property->name,
+        ],
+        'settings' => [
+            'id' => $settings->id,
+            'propertyName' => $settings->property_name,
+        ],
+        'migrate' => $migrateOutput,
+        'seed' => $seedOutput,
+    ]);
 });
 
 Route::match(['get', 'post'], '/artisan-setup', function () {

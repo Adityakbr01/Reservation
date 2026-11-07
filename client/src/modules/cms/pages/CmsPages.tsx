@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useBlogPost, useBlogPosts, useCmsPage, useFaqs, useOffers, usePolicyDoc } from "../hooks/use-cms";
 import { CmsSections } from "../components/CmsSections";
-import { RoomTypeImage } from "@/components/common/RoomTypeImage";
+import { CottageImage } from "@/components/common/CottageImage";
 import { useMediaUrls } from "@/modules/media";
 
 function NotFound({ back, label }: { back: string; label: string }) {
@@ -86,7 +86,7 @@ function BlogCard({ post, imageUrl }: { post: { id: string; slug: string; title:
       {imageUrl && (
         <div className="p-2.5 pb-0">
           <div className="aspect-[16/9] w-full overflow-hidden rounded-xl">
-            <RoomTypeImage name={post.title} imageUrl={imageUrl} alt={`${post.title} cover`} />
+            <CottageImage name={post.title} imageUrl={imageUrl} alt={`${post.title} cover`} />
           </div>
         </div>
       )}
@@ -130,7 +130,7 @@ export function BlogPostPage() {
       {photos?.[0]?.url && (
         <div className="overflow-hidden rounded-xl border border-border">
           <div className="aspect-[21/9] w-full">
-            <RoomTypeImage name={data.title} imageUrl={photos[0].url} alt={photos[0].alt} />
+            <CottageImage name={data.title} imageUrl={photos[0].url} alt={photos[0].alt} />
           </div>
         </div>
       )}

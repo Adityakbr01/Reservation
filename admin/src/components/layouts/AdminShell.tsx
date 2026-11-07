@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import {
-  BedDouble,
   Bell,
   Building2,
   CalendarCheck,
@@ -57,10 +56,9 @@ const OVERVIEW_LINKS = [
 const MANAGE_LINKS = [
   { to: "/reservations", label: "Reservations", Icon: CalendarCheck },
   { to: "/customers", label: "Customers", Icon: Users },
-  { to: "/room-types", label: "Cottage types", Icon: Building2 },
-  { to: "/rooms", label: "Rooms", Icon: BedDouble },
-  { to: "/rate-plans", label: "Rate plans", Icon: Tags },
+  { to: "/cottages", label: "Cottages", Icon: Building2 },
   { to: "/availability", label: "Availability", Icon: CalendarDays },
+  { to: "/rate-plans", label: "Pricing & Rates", Icon: Tags },
   { to: "/amenities", label: "Features", Icon: Tags },
   { to: "/enquiries", label: "Enquiries", Icon: Users },
   { to: "/newsletter", label: "Newsletter", Icon: Bell },

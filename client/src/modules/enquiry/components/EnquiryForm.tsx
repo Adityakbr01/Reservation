@@ -12,6 +12,8 @@ import { submitEnquiry } from "../api/enquiry.api";
 interface EnquiryFormProps {
   roomTypeId?: string | null;
   roomName?: string;
+  cottageId?: string | null;
+  cottageName?: string;
   /** Called after a successful send (dialogs use it to close). */
   onSuccess?: () => void;
   submitLabel?: string;
@@ -42,10 +44,14 @@ const fieldClass =
 export function EnquiryForm({
   roomTypeId,
   roomName,
+  cottageId,
+  cottageName,
   onSuccess,
   submitLabel,
   variant = "dialog",
 }: EnquiryFormProps) {
+  const targetId = cottageId ?? roomTypeId ?? null;
+  const targetName = cottageName ?? roomName;
   const [form, setForm] = useState(initialForm);
   const [subscribed, setSubscribed] = useState(false);
   const isPage = variant === "page";
@@ -70,12 +76,12 @@ export function EnquiryForm({
         specificLocation: form.specificLocation || null,
         dogFriendly: form.dogFriendly === "" ? null : form.dogFriendly === "yes",
         details: form.details || null,
-        roomTypeId: roomTypeId ?? null,
+        roomTypeId: targetId,
       }),
     onSuccess: () => {
       toast.success(
-        roomName
-          ? `Enquiry sent for ${roomName} — we will reply shortly`
+        targetName
+          ? `Enquiry sent for ${targetName} — we will reply shortly`
           : "Enquiry sent — we will reply shortly",
       );
       setForm(initialForm);

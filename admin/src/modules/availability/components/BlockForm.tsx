@@ -11,10 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useRooms } from "@/modules/rooms";
-import type { Room } from "@/modules/rooms";
-import { useRoomTypes } from "@/modules/room-types";
-import type { RoomType } from "@/modules/room-types";
+import { useCottages } from "@/modules/cottages";
+import type { Cottage } from "@/modules/cottages";
 import {
   toUtcIsoString,
   formatBlockSummary,
@@ -25,45 +23,26 @@ import { addDays } from "date-fns";
 import { useCreateBlock } from "../hooks/use-availability";
 
 export interface BlockFormProps {
-  cottages?: RoomType[];
-  rooms?: Room[];
+  cottages?: Cottage[];
 }
 
-export function BlockForm({
-  cottages: propCottages,
-  rooms: propRooms,
-}: BlockFormProps = {}) {
+export function BlockForm({ cottages: propCottages }: BlockFormProps = {}) {
   const [cottageId, setCottageId] = useState("");
-  const [blockScope, setBlockScope] = useState<"all" | "specific">("all");
-  const [roomId, setRoomId] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [reason, setReason] = useState("");
   const [rangeError, setRangeError] = useState<string | null>(null);
 
   const { mutate, isPending } = useCreateBlock();
-  const { data: cottagesData } = useRoomTypes({ page: 1, limit: 100 });
+  const { data: cottagesData } = useCottages({ page: 1, limit: 100 });
   const cottages = propCottages ?? cottagesData?.items ?? [];
-
-  const { data: roomsData } = useRooms({ page: 1, limit: 100 });
-  const rooms = propRooms ?? roomsData?.items ?? [];
-
-  const cottageRooms = useMemo(() => {
-    if (!cottageId) return [];
-    return rooms.filter((r) => String(r.roomTypeId) === String(cottageId));
-  }, [cottageId, rooms]);
 
   const selectedCottage = useMemo(
     () => cottages.find((c) => String(c.id) === String(cottageId)),
     [cottageId, cottages],
   );
 
-  const invalid =
-    !cottageId ||
-    cottageRooms.length === 0 ||
-    (blockScope === "specific" && !roomId) ||
-    !startDate ||
-    !endDate;
+  const invalid = !cottageId || !startDate || !endDate;
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -74,29 +53,22 @@ export function BlockForm({
     }
     setRangeError(null);
 
-    const payload =
-      blockScope === "all"
-        ? {
-            roomTypeId: cottageId,
-            startDate: toUtcIsoString(startDate),
-            endDate: toUtcIsoString(endDate),
-            reason: reason.trim() || null,
-          }
-        : {
-            roomId,
-            startDate: toUtcIsoString(startDate),
-            endDate: toUtcIsoString(endDate),
-            reason: reason.trim() || null,
-          };
-
-    mutate(payload, {
-      onSuccess: () => {
-        setStartDate("");
-        setEndDate("");
-        setReason("");
-        setRoomId("");
+    mutate(
+      {
+        roomTypeId: cottageId,
+        cottageId,
+        startDate: toUtcIsoString(startDate),
+        endDate: toUtcIsoString(endDate),
+        reason: reason.trim() || null,
       },
-    });
+      {
+        onSuccess: () => {
+          setStartDate("");
+          setEndDate("");
+          setReason("");
+        },
+      },
+    );
   }
 
   return (
@@ -104,14 +76,7 @@ export function BlockForm({
       {/* Cottage selection */}
       <div className="space-y-2">
         <Label>Cottage</Label>
-        <Select
-          value={cottageId}
-          onValueChange={(val) => {
-            setCottageId(val);
-            setRoomId("");
-            setBlockScope("all");
-          }}
-        >
+        <Select value={cottageId} onValueChange={setCottageId}>
           <SelectTrigger>
             <SelectValue placeholder="Select a cottage" />
           </SelectTrigger>
@@ -125,72 +90,11 @@ export function BlockForm({
         </Select>
       </div>
 
-      {/* Info on how many rooms this cottage has + scope options */}
       {selectedCottage && (
-        <div className="space-y-3 rounded-lg border border-border bg-muted/40 p-3">
-          <div className="text-xs text-muted-foreground">
-            <span className="font-semibold text-foreground">
-              {selectedCottage.name}
-            </span>{" "}
-            has{" "}
-            <span className="font-semibold text-foreground">
-              {cottageRooms.length} room{cottageRooms.length === 1 ? "" : "s"}
-            </span>
-            {cottageRooms.length > 0 && (
-              <span className="mt-0.5 block text-[11px] text-muted-foreground">
-                ({cottageRooms.map((r) => `${r.roomNumber} · ${r.name}`).join(", ")})
-              </span>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs font-medium">Rooms to block</Label>
-            <div className="flex flex-col gap-2">
-              <label className="flex cursor-pointer items-center gap-2 text-xs">
-                <input
-                  type="radio"
-                  name="blockScope"
-                  value="all"
-                  checked={blockScope === "all"}
-                  onChange={() => setBlockScope("all")}
-                  className="accent-brand"
-                />
-                <span className="font-medium">
-                  Block all rooms in this cottage ({cottageRooms.length} room
-                  {cottageRooms.length === 1 ? "" : "s"})
-                </span>
-              </label>
-              <label className="flex cursor-pointer items-center gap-2 text-xs">
-                <input
-                  type="radio"
-                  name="blockScope"
-                  value="specific"
-                  checked={blockScope === "specific"}
-                  onChange={() => setBlockScope("specific")}
-                  className="accent-brand"
-                />
-                <span>Block a specific room in this cottage</span>
-              </label>
-            </div>
-          </div>
-
-          {blockScope === "specific" && (
-            <div className="space-y-1.5 pt-1">
-              <Label className="text-xs">Specific room</Label>
-              <Select value={roomId} onValueChange={setRoomId}>
-                <SelectTrigger className="h-9 text-xs">
-                  <SelectValue placeholder="Choose a room" />
-                </SelectTrigger>
-                <SelectContent>
-                  {cottageRooms.map((room) => (
-                    <SelectItem key={room.id} value={room.id}>
-                      {room.roomNumber} · {room.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+        <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
+          Blocking calendar availability for{" "}
+          <span className="font-semibold text-foreground">{selectedCottage.name}</span>
+          {selectedCottage.bedrooms ? ` (${selectedCottage.bedrooms} bedroom cottage)` : ""}.
         </div>
       )}
 
@@ -236,7 +140,7 @@ export function BlockForm({
           id="block-reason"
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="Deep cleaning"
+          placeholder="Maintenance / private booking"
         />
       </div>
 

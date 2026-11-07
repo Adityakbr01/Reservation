@@ -12,6 +12,7 @@ use App\Http\Controllers\API\Admin\AdminCmsPolicyController;
 use App\Http\Controllers\API\Admin\AdminCouponController;
 use App\Http\Controllers\API\Admin\AdminDashboardController;
 use App\Http\Controllers\API\Admin\AdminEmailTemplateController;
+use App\Http\Controllers\API\Admin\AdminCottageController;
 use App\Http\Controllers\API\Admin\AdminEnquiriesController;
 use App\Http\Controllers\API\Admin\AdminMediaController;
 use App\Http\Controllers\API\Admin\AdminNewsletterController;
@@ -22,8 +23,6 @@ use App\Http\Controllers\API\Admin\AdminPropertyController;
 use App\Http\Controllers\API\Admin\AdminRatePlanController;
 use App\Http\Controllers\API\Admin\AdminRefundController;
 use App\Http\Controllers\API\Admin\AdminReviewController;
-use App\Http\Controllers\API\Admin\AdminRoomController;
-use App\Http\Controllers\API\Admin\AdminRoomTypeController;
 use App\Http\Controllers\API\Admin\AdminSettingsController;
 use App\Http\Controllers\API\Admin\AdminUserController;
 use App\Http\Controllers\API\Auth\AuthController;
@@ -31,13 +30,13 @@ use App\Http\Controllers\API\Public\PublicAmenitiesController;
 use App\Http\Controllers\API\Public\PublicAvailabilityController;
 use App\Http\Controllers\API\Public\PublicBookingController;
 use App\Http\Controllers\API\Public\PublicCmsController;
+use App\Http\Controllers\API\Public\PublicCottageController;
 use App\Http\Controllers\API\Public\PublicCouponController;
 use App\Http\Controllers\API\Public\PublicEnquiriesController;
 use App\Http\Controllers\API\Public\PublicMediaController;
 use App\Http\Controllers\API\Public\PublicNewsletterController;
 use App\Http\Controllers\API\Public\PublicPropertyController;
 use App\Http\Controllers\API\Public\PublicReviewController;
-use App\Http\Controllers\API\Public\PublicRoomTypeController;
 use App\Http\Controllers\API\Public\PublicSettingsController;
 use App\Http\Controllers\Webhook\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -125,31 +124,26 @@ Route::prefix('/v1/admin/property')->middleware('jwt.auth', 'role:admin')->group
     Route::patch('/', [AdminPropertyController::class, 'update']);
 });
 
-// Public room types (available at both /api/public/* and /api/v1/public/*)
-foreach (['/public/room-types', '/v1/public/room-types'] as $prefix) {
+// Public cottages (available at both /api/public/* and /api/v1/public/*)
+foreach (['/public/cottages', '/v1/public/cottages'] as $prefix) {
     Route::prefix($prefix)->group(function () {
-        Route::get('/', [PublicRoomTypeController::class, 'index']);
-        Route::get('/{slug}', [PublicRoomTypeController::class, 'showBySlug']);
-        Route::get('/{id}/offers', [PublicRoomTypeController::class, 'offers']);
+        Route::get('/', [PublicCottageController::class, 'index']);
+        Route::get('/{slug}', [PublicCottageController::class, 'showBySlug']);
+        Route::get('/{id}/offers', [PublicCottageController::class, 'offers']);
     });
 }
 
-// Admin room types
-Route::prefix('/v1/admin/room-types')->middleware('jwt.auth', 'role:admin')->group(function () {
-    Route::get('/', [AdminRoomTypeController::class, 'index']);
-    Route::post('/', [AdminRoomTypeController::class, 'store']);
-    Route::get('/{id}', [AdminRoomTypeController::class, 'show']);
-    Route::patch('/{id}', [AdminRoomTypeController::class, 'update']);
-});
-
-// Admin rooms
-Route::prefix('/v1/admin/rooms')->middleware('jwt.auth', 'role:admin')->group(function () {
-    Route::get('/', [AdminRoomController::class, 'index']);
-    Route::get('/occupancy', [AdminRoomController::class, 'occupancy']);
-    Route::post('/', [AdminRoomController::class, 'store']);
-    Route::get('/{id}', [AdminRoomController::class, 'show']);
-    Route::patch('/{id}', [AdminRoomController::class, 'update']);
-});
+// Admin cottages (supported with and without /v1)
+foreach (['/admin/cottages', '/v1/admin/cottages'] as $prefix) {
+    Route::prefix($prefix)->middleware('jwt.auth', 'role:admin')->group(function () {
+        Route::get('/', [AdminCottageController::class, 'index']);
+        Route::post('/', [AdminCottageController::class, 'store']);
+        Route::get('/{id}', [AdminCottageController::class, 'show']);
+        Route::patch('/{id}', [AdminCottageController::class, 'update']);
+        Route::put('/{id}', [AdminCottageController::class, 'update']);
+        Route::delete('/{id}', [AdminCottageController::class, 'destroy']);
+    });
+}
 
 // Admin rate plans
 Route::prefix('/v1/admin/rate-plans')->middleware('jwt.auth', 'role:admin')->group(function () {
@@ -322,11 +316,13 @@ foreach (['/public/media', '/v1/public/media'] as $prefix) {
     });
 }
 
-// Admin settings
-Route::prefix('/v1/admin/settings')->middleware('jwt.auth', 'role:admin')->group(function () {
-    Route::get('/', [AdminSettingsController::class, 'show']);
-    Route::match(['patch', 'put', 'post'], '/', [AdminSettingsController::class, 'update']);
-});
+// Admin settings (supported with and without /v1)
+foreach (['/admin/settings', '/v1/admin/settings'] as $prefix) {
+    Route::prefix($prefix)->middleware('jwt.auth', 'role:admin')->group(function () {
+        Route::get('/', [AdminSettingsController::class, 'show']);
+        Route::match(['patch', 'put', 'post'], '/', [AdminSettingsController::class, 'update']);
+    });
+}
 
 // Public settings (available at both /api/public/* and /api/v1/public/*)
 foreach (['/public/cms/site-settings', '/v1/public/cms/site-settings'] as $prefix) {

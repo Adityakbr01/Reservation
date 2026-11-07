@@ -12,7 +12,7 @@ export function HomeHero({ title, subtitle }: HomeHeroProps) {
     <section className="py-10 sm:py-16 lg:py-20">
       <div className="max-w-2xl space-y-4 sm:space-y-6">
         <p className="text-sm font-medium tracking-wide text-brand">
-          Single property · Multiple room types
+          Luxury Holiday Cottages · Hamptworth, Wiltshire
         </p>
         <h1 className="text-balance font-display text-4xl font-light leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
           {title}

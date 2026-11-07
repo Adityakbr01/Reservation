@@ -18,14 +18,11 @@ const ResetPasswordPage = lazy(
 );
 const DashboardPage = lazy(() => import("@/modules/dashboard/pages/DashboardPage"));
 const SalesPage = lazy(() => import("@/modules/dashboard/pages/SalesPage"));
-const RoomTypesPage = lazy(() => import("@/modules/room-types/pages/RoomTypesPage"));
-const RoomTypeCreatePage = lazy(
-  () => import("@/modules/room-types/pages/RoomTypeCreatePage"),
+const CottagesPage = lazy(() => import("@/modules/cottages/pages/CottagesPage"));
+const CottageCreatePage = lazy(
+  () => import("@/modules/cottages/pages/CottageCreatePage"),
 );
-const RoomTypeEditPage = lazy(() => import("@/modules/room-types/pages/RoomTypeEditPage"));
-const RoomsPage = lazy(() => import("@/modules/rooms/pages/RoomsPage"));
-const RoomCreatePage = lazy(() => import("@/modules/rooms/pages/RoomCreatePage"));
-const RoomEditPage = lazy(() => import("@/modules/rooms/pages/RoomEditPage"));
+const CottageEditPage = lazy(() => import("@/modules/cottages/pages/CottageEditPage"));
 const RatePlansPage = lazy(() => import("@/modules/rate-plans/pages/RatePlansPage"));
 const RatePlanCreatePage = lazy(
   () => import("@/modules/rate-plans/pages/RatePlanCreatePage"),
@@ -149,50 +146,26 @@ export function AppRoutes() {
               }
             />
             <Route
-              path="room-types"
+              path="cottages"
               element={
                 <RequireAdmin>
-                  <RoomTypesPage />
+                  <CottagesPage />
                 </RequireAdmin>
               }
             />
             <Route
-              path="room-types/new"
+              path="cottages/new"
               element={
                 <RequireAdmin>
-                  <RoomTypeCreatePage />
+                  <CottageCreatePage />
                 </RequireAdmin>
               }
             />
             <Route
-              path="room-types/:id/edit"
+              path="cottages/:id/edit"
               element={
                 <RequireAdmin>
-                  <RoomTypeEditPage />
-                </RequireAdmin>
-              }
-            />
-            <Route
-              path="rooms"
-              element={
-                <RequireAdmin>
-                  <RoomsPage />
-                </RequireAdmin>
-              }
-            />
-            <Route
-              path="rooms/new"
-              element={
-                <RequireAdmin>
-                  <RoomCreatePage />
-                </RequireAdmin>
-              }
-            />
-            <Route
-              path="rooms/:id/edit"
-              element={
-                <RequireAdmin>
-                  <RoomEditPage />
+                  <CottageEditPage />
                 </RequireAdmin>
               }
             />

@@ -19,7 +19,7 @@ import {
   fetchQuote,
   validateCouponCode,
 } from "../api/booking.api";
-import { fetchRoomOffers } from "@/modules/rooms/api/rooms.api";
+import { fetchCottageOffers } from "@/modules/cottages/api/cottages.api";
 import { AvailabilityCalendar, useAvailabilitySearch } from "@/modules/availability";
 import {
   useCreateBooking,
@@ -277,7 +277,7 @@ export function BookingPage() {
     queryKey: [quoteKey],
     queryFn: async () => {
       if (!selection) throw new Error("Missing selection");
-      if (rooms.length === 0) throw new Error("Add at least one room");
+      if (rooms.length === 0) throw new Error("Add at least one cottage");
       const parts = await Promise.all(
         rooms.map((r) =>
           fetchQuote({
@@ -319,7 +319,7 @@ export function BookingPage() {
   });
   const { data: roomOffers } = useQuery({
     queryKey: ["room-offers", selection?.roomTypeId],
-    queryFn: () => fetchRoomOffers(selection?.roomTypeId as string),
+    queryFn: () => fetchCottageOffers(selection?.roomTypeId as string),
     enabled: !!selection,
     staleTime: 300_000,
   });
@@ -340,7 +340,7 @@ export function BookingPage() {
     setRoomError(null);
     setRooms((prev) => {
       if (prev.length <= 1) {
-        setRoomError("At least one room is required.");
+        setRoomError("At least one cottage is required.");
         return prev;
       }
       return prev.filter((r) => r.key !== key);
@@ -353,14 +353,14 @@ export function BookingPage() {
     const info = availabilityByRoom.get(roomTypeId);
     const cap = Math.min(10, info?.availableCount ?? 1);
     if (rooms.length >= 5) {
-      setRoomError("Maximum 5 room lines per booking. Increase quantity instead.");
+      setRoomError("Maximum 5 cottage lines per booking. Increase quantity instead.");
       return;
     }
     const existingQty = rooms.find((r) => r.key === key)?.quantity ?? 0;
-    // Per-room-type inventory cap across all lines.
+    // Per-cottage inventory cap across all lines.
     const typeTotal = rooms.filter((r) => r.roomTypeId === roomTypeId).reduce((s, r) => s + r.quantity, 0);
     if (typeTotal >= cap) {
-      setRoomError(`Only ${cap} ${info?.name ?? "room"} left for these dates.`);
+      setRoomError(`Only ${cap} ${info?.name ?? "cottage"} left for these dates.`);
       return;
     }
     setRooms((prev) => {
@@ -376,7 +376,7 @@ export function BookingPage() {
   const missingSelection = !selection;
   useEffect(() => {
     if (missingSelection) {
-      toast.error("Choose a room and dates first");
+      toast.error("Choose a cottage and dates first");
     }
   }, [missingSelection]);
 
@@ -387,7 +387,7 @@ export function BookingPage() {
     }
   }, [bookingId]);
 
-  // Auto-apply the room's offer (e.g. AUTUMN20) so guests never type codes.
+  // Auto-apply the cottage's offer (e.g. AUTUMN20) so guests never type codes.
   // Runs once: validates against this stay, then applies silently.
   useEffect(() => {
     if (!selection || !roomOffers || roomOffers.length === 0) return;
@@ -476,11 +476,11 @@ export function BookingPage() {
   // Guests can proceed freely even if their email is already registered
   const emailBlocked = false;
 
-  /** Multi-room validation: positive ints, combined capacity, dates, inventory, no stale lines. */
+  /** Multi-cottage validation: positive ints, combined capacity, dates, inventory, no stale lines. */
   function roomsValid(): string | null {
-    if (rooms.length === 0) return "Add at least one room.";
-    if (rooms.length > 5) return "Maximum 5 room lines per booking.";
-    if (!selection) return "Choose a room and dates first.";
+    if (rooms.length === 0) return "Add at least one cottage.";
+    if (rooms.length > 5) return "Maximum 5 cottage lines per booking.";
+    if (!selection) return "Choose a cottage and dates first.";
     if (selection.checkOut <= selection.checkIn) return "Check-out must be after check-in.";
     if (!Number.isInteger(selection.adults) || selection.adults < 1) return "Adults must be at least 1.";
     if (!Number.isInteger(selection.children) || selection.children < 0) return "Children cannot be negative.";
@@ -488,7 +488,7 @@ export function BookingPage() {
     let totalMaxOccupancy = 0;
     for (const r of rooms) {
       if (!Number.isInteger(r.quantity) || r.quantity < 1) return `Quantity for ${r.roomName} must be a positive integer.`;
-      if (r.quantity > 10) return `Maximum 10 per room line (${r.roomName}).`;
+      if (r.quantity > 10) return `Maximum 10 per cottage line (${r.roomName}).`;
       const info = availabilityByRoom.get(r.roomTypeId);
       if (info) {
         totalMaxAdults += (info.maxAdults || 2) * r.quantity;
@@ -651,8 +651,8 @@ export function BookingPage() {
         } else {
           setHoldFailed(
             result.paymentError === "PAYMENT_INTENT_FAILED"
-              ? "Your room is held but payment setup failed. Retry below — your hold is safe."
-              : "Your room is held but payment setup failed. Retry below — your hold is safe.",
+              ? "Your cottage is held but payment setup failed. Retry below — your hold is safe."
+              : "Your cottage is held but payment setup failed. Retry below — your hold is safe.",
           );
         }
       }
@@ -678,11 +678,11 @@ export function BookingPage() {
 
   const roomSlug = params.get("roomSlug") || (location.state as { roomSlug?: string } | null)?.roomSlug;
   const stateFrom = (location.state as { from?: string } | null)?.from;
-  const backTarget = stateFrom || (roomSlug ? `/rooms/${roomSlug}` : "/");
+  const backTarget = stateFrom || (roomSlug ? `/cottages/${roomSlug}` : "/");
   const backLabel = selection?.roomName && selection.roomName !== "Selected room"
     ? `← Back to ${selection.roomName}`
     : roomSlug
-      ? "← Back to room details"
+      ? "← Back to cottage details"
       : "← Back to search";
 
   function handleBack(e: React.MouseEvent) {
@@ -936,10 +936,10 @@ export function BookingPage() {
                 <p><span className="font-semibold">Check-out</span><br />before 11:00 am</p>
               </div>
               <p className="font-semibold uppercase">
-                Room{rooms.length === 1 ? "" : "s"} | {rooms.map((r) => `${r.roomName} × ${r.quantity}`).join(", ")}
+                Cottage{rooms.length === 1 ? "" : "s"} | {rooms.map((r) => `${r.roomName} × ${r.quantity}`).join(", ")}
               </p>
               <p className="text-muted-foreground">
-                {rooms.map((r) => r.rateName).join(" + ")}. {totalLabel && `${totalLabel} due at booking (hotel local time).`} Cancellations and amendments are per the rate conditions.
+                {rooms.map((r) => r.rateName).join(" + ")}. {totalLabel && `${totalLabel} due at booking.`} Cancellations and amendments are per the rate conditions.
               </p>
             </CardContent>
           </Card>
@@ -969,7 +969,7 @@ export function BookingPage() {
                     disabled={!canContinue}
                     onClick={() => void handleContinueToPayment()}
                   >
-                    {busy ? "Holding your rooms…" : "Confirm booking"}
+                    {busy ? "Holding your cottage…" : "Confirm booking"}
                   </Button>
                   {!canContinue && continueHint() && (
                     <p className="text-center text-xs text-muted-foreground">{continueHint()}</p>
@@ -1105,9 +1105,9 @@ export function BookingPage() {
                       ) : (
                         <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/60">
                           <div>
-                            <span className="text-xs font-medium text-foreground">Rooms to book</span>
+                            <span className="text-xs font-medium text-foreground">Cottages to book</span>
                             <span className="block text-[11px] text-muted-foreground">
-                              {cap} {cap === 1 ? "room" : "rooms"} available for your dates
+                              {cap} {cap === 1 ? "cottage" : "cottages"} available for your dates
                             </span>
                           </div>
                           <div className="flex items-center gap-1.5" role="group" aria-label={`Quantity for ${r.roomName}`}>
@@ -1186,7 +1186,7 @@ export function BookingPage() {
                     </p>
                     {quote.nightly && quote.nightly.length > 0 && (
                       <details className="pt-1 text-xs">
-                        <summary className="cursor-pointer text-muted-foreground">Nightly breakdown (first room)</summary>
+                        <summary className="cursor-pointer text-muted-foreground">Nightly breakdown (first cottage)</summary>
                         <ul className="mt-1 divide-y divide-border">
                           {quote.nightly.map((n) => (
                             <li key={n.date} className="flex justify-between py-0.5">
@@ -1253,7 +1253,7 @@ export function BookingPage() {
                 </Button>
               </div>
               {autoCoupon && appliedCoupon === autoCoupon && (
-                <p className="text-xs text-success">{autoCoupon} auto-applied from this room&apos;s offer.</p>
+                <p className="text-xs text-success">{autoCoupon} auto-applied from this cottage&apos;s offer.</p>
               )}
               <Button
                 type="button"
@@ -1298,7 +1298,7 @@ export function BookingPage() {
                             <div className="min-w-0">
                               <span className="block truncate font-medium text-foreground">{item.roomType.name}</span>
                               <span className="block truncate text-muted-foreground">
-                                {rate.name} · {item.availableCount > 0 ? `${item.availableCount} ${item.availableCount === 1 ? "room" : "rooms"} left` : "Sold out"}
+                                {rate.name} · {item.availableCount > 0 ? `${item.availableCount} ${item.availableCount === 1 ? "cottage" : "cottages"} left` : "Sold out"}
                               </span>
                             </div>
                             <Button

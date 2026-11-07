@@ -1,3 +1,3 @@
 export * from "./SearchForm";
-export * from "./RoomTypeCard";
+export * from "./CottageCard";
 export * from "./AvailabilityCalendar";

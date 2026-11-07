@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RoomTypeImage } from "@/components/common/RoomTypeImage";
+import { CottageImage } from "@/components/common/CottageImage";
 import { useMediaUrls } from "@/modules/media";
 import { publicApiClient, unwrapResponse } from "@/lib/api-client";
 import type { ApiEnvelope } from "@/lib/api-client";
@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { CmsSection } from "../api/cms.api";
 import { useFaqs, useOffers } from "../hooks/use-cms";
 
-interface PublicRoomType {
+interface PublicCottage {
   id: string;
   name: string;
   slug: string;
@@ -17,12 +17,12 @@ interface PublicRoomType {
   images?: Array<{ mediaId: string; altText: string | null; sortOrder: number }>;
 }
 
-function usePublicRoomTypes(ids: string[]) {
+function usePublicCottages(ids: string[]) {
   return useQuery({
-    queryKey: ["cms", "room-types", [...ids].sort().join(",")],
+    queryKey: ["cms", "cottages", [...ids].sort().join(",")],
     queryFn: async () => {
-      const response = await publicApiClient.get<ApiEnvelope<PublicRoomType[]>>(
-        "/public/room-types",
+      const response = await publicApiClient.get<ApiEnvelope<PublicCottage[]>>(
+        "/public/cottages",
         { params: { limit: 100 } },
       );
       const all = unwrapResponse(response);
@@ -74,35 +74,35 @@ function GallerySection({ section }: { section: CmsSection }) {
 }
 
 function ShowcaseSection({ section }: { section: CmsSection }) {
-  const { data } = usePublicRoomTypes(section.roomTypeIds ?? []);
+  const { data } = usePublicCottages(section.roomTypeIds ?? []);
   if (!data || data.length === 0) return null;
   return (
-    <section className="space-y-3" aria-label={section.heading ?? "Rooms"}>
+    <section className="space-y-3" aria-label={section.heading ?? "Cottages"}>
       {section.heading && <h2 className="font-display text-2xl font-light">{section.heading}</h2>}
       <div className="grid gap-4 sm:grid-cols-2">
-        {data.map((room) => (
-          <ShowcaseCard key={room.id} room={room} />
+        {data.map((cottage) => (
+          <ShowcaseCard key={cottage.id} cottage={cottage} />
         ))}
       </div>
     </section>
   );
 }
 
-function ShowcaseCard({ room }: { room: PublicRoomType }) {
-  const cover = [...(room.images ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)[0];
+function ShowcaseCard({ cottage }: { cottage: PublicCottage }) {
+  const cover = [...(cottage.images ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)[0];
   const { data } = useMediaUrls(cover ? [cover.mediaId] : []);
   return (
     <Link
-      to={`/rooms/${room.slug}`}
+      to={`/cottages/${cottage.slug}`}
       className="group overflow-hidden rounded-xl border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div className="aspect-[16/9] w-full bg-surface-2">
-        <RoomTypeImage name={room.name} imageUrl={data?.[0]?.url ?? null} alt={data?.[0]?.alt} />
+        <CottageImage name={cottage.name} imageUrl={data?.[0]?.url ?? null} alt={data?.[0]?.alt} />
       </div>
       <div className="p-4">
-        <p className="font-medium group-hover:text-brand">{room.name}</p>
-        {room.shortDescription && (
-          <p className="mt-1 text-sm text-muted-foreground">{room.shortDescription}</p>
+        <p className="font-medium group-hover:text-brand">{cottage.name}</p>
+        {cottage.shortDescription && (
+          <p className="mt-1 text-sm text-muted-foreground">{cottage.shortDescription}</p>
         )}
       </div>
     </Link>

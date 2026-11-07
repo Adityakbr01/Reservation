@@ -21,16 +21,10 @@ export const userKeys = {
   all: ["me"] as const,
 };
 
-export const roomTypeKeys = {
-  all: ["room-types"] as const,
-  list: (filters: unknown) => [...roomTypeKeys.all, "list", filters] as const,
-  detail: (id: string) => [...roomTypeKeys.all, "detail", id] as const,
-};
-
-export const roomKeys = {
-  all: ["rooms"] as const,
-  list: (filters: unknown) => [...roomKeys.all, "list", filters] as const,
-  detail: (id: string) => [...roomKeys.all, "detail", id] as const,
+export const cottageKeys = {
+  all: ["cottages"] as const,
+  list: (filters: unknown) => [...cottageKeys.all, "list", filters] as const,
+  detail: (id: string) => [...cottageKeys.all, "detail", id] as const,
 };
 
 export const ratePlanKeys = {

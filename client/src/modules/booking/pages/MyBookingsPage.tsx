@@ -50,7 +50,7 @@ export function MyBookingsPage() {
           <CardContent className="space-y-3 py-8 text-center">
             <p className="text-muted-foreground">No bookings yet.</p>
             <Button asChild className="rounded-full">
-              <Link to="/">Search rooms</Link>
+              <Link to="/">Search cottages</Link>
             </Button>
           </CardContent>
         </Card>

@@ -20,7 +20,7 @@ import {
 import { PaginationControls } from "@/components/common/PaginationControls";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { useRoomTypes } from "@/modules/room-types";
+import { useCottages } from "@/modules/cottages";
 import { useRatePlans } from "../hooks/use-rate-plans";
 import type { RatePlanStatus } from "../types/rate-plan.types";
 
@@ -36,7 +36,7 @@ export function RatePlansPage() {
   const [roomTypeId, setRoomTypeId] = useState("all");
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebouncedValue(search);
-  const { data: typesData } = useRoomTypes({ page: 1, limit: 100 });
+  const { data: typesData } = useCottages({ page: 1, limit: 100 });
   const roomTypes = useMemo(() => typesData?.items ?? [], [typesData]);
   const typeName = useMemo(() => {
     const map = new Map(roomTypes.map((type) => [type.id, type.name] as const));

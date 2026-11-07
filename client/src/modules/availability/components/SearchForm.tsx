@@ -149,13 +149,13 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
         </div>
 
         <div className="min-w-0 relative">
-          <Label htmlFor="search-rooms" className={fieldLabelClass}>
+          <Label htmlFor="search-cottages" className={fieldLabelClass}>
             Cottages
           </Label>
           <div className="relative">
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
             <select
-              id="search-rooms"
+              id="search-cottages"
               value={rooms}
               onChange={(e) => setRooms(e.target.value)}
               className={selectClass}

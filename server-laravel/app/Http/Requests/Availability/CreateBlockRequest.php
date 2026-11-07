@@ -14,7 +14,9 @@ class CreateBlockRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'room_id' => ['required', 'string', 'size:24'],
+            'room_id' => ['nullable', 'string'],
+            'cottage_id' => ['nullable', 'string'],
+            'room_type_id' => ['nullable', 'string'],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after:start_date'],
             'reason' => ['nullable', 'string', 'max:300'],

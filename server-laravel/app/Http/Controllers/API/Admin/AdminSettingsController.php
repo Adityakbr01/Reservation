@@ -78,9 +78,11 @@ class AdminSettingsController extends Controller
             Property::query()->update(['name' => $data['property_name']]);
         }
 
+        $fresh = $settings->fresh() ?? $settings;
+
         return response()->json([
             'success' => true,
-            'data' => $this->settingsData($settings->fresh()),
+            'data' => $this->settingsData($fresh),
         ]);
     }
 

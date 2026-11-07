@@ -24,13 +24,13 @@ export const userKeys = {
 export const availabilityKeys = {
   all: ["availability"] as const,
   search: (params: unknown) => [...availabilityKeys.all, "search", params] as const,
-  calendar: (roomTypeId: string, from: string, to: string) =>
-    [...availabilityKeys.all, "calendar", roomTypeId, from, to] as const,
+  calendar: (cottageId: string, from: string, to: string) =>
+    [...availabilityKeys.all, "calendar", cottageId, from, to] as const,
 };
 
-export const roomTypeKeys = {
-  all: ["room-type"] as const,
-  detail: (slug: string) => [...roomTypeKeys.all, slug] as const,
+export const cottageKeys = {
+  all: ["cottage"] as const,
+  detail: (slug: string) => [...cottageKeys.all, slug] as const,
 };
 
 export const bookingKeys = {

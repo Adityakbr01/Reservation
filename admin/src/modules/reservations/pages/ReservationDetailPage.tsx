@@ -30,7 +30,7 @@ import {
   useReassignReservation,
   useReservation,
 } from "../hooks/use-reservations";
-import { useRooms } from "../../rooms/hooks/use-rooms";
+import { useCottages } from "@/modules/cottages";
 import { useRefundBooking } from "../../payments/hooks/use-payments";
 
 const CANCELLABLE = ["HELD", "PAYMENT_PENDING", "CONFIRMED"];
@@ -55,13 +55,8 @@ export function ReservationDetailPage() {
   const checkOutMutation = useCheckOutReservation(id);
   const reassignMutation = useReassignReservation(id);
   const [showReassign, setShowReassign] = useState(false);
-  const [targetRoom, setTargetRoom] = useState("");
-  // Unconditional (args vary by readiness) — always above the early returns.
-  const { data: roomsData, isPending: roomsPending, isError: roomsError } = useRooms(
-    data && (data.booking.status === "CONFIRMED" || data.booking.status === "CHECKED_IN") && data.items.length === 1 && data.items[0]
-      ? { page: 1, limit: 100, roomTypeId: data.items[0].roomTypeId }
-      : { page: 1, limit: 1 },
-  );
+  const [targetCottageId, setTargetCottageId] = useState("");
+  const { data: cottagesData, isPending: cottagesPending, isError: cottagesError } = useCottages({ page: 1, limit: 100 });
 
   if (isPending) {
     return (
@@ -151,11 +146,11 @@ export function ReservationDetailPage() {
               variant="outline"
               className="rounded-full"
               onClick={() => {
-                setTargetRoom("");
+                setTargetCottageId("");
                 setShowReassign(true);
               }}
             >
-              Move room
+              Move cottage
             </Button>
           )}
           {canCancel && (
@@ -310,45 +305,38 @@ export function ReservationDetailPage() {
             <CardHeader>
               <CardTitle className="text-xl">Move {booking.bookingNumber}?</CardTitle>
               <CardDescription>
-                Same room type · target must be free for the whole stay.
+                Select target cottage · must be free for the whole stay.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Target room</Label>
-                <Select value={targetRoom} onValueChange={setTargetRoom} disabled={roomsPending}>
-                  <SelectTrigger aria-label="Target room">
+                <Label>Target cottage</Label>
+                <Select value={targetCottageId} onValueChange={setTargetCottageId} disabled={cottagesPending}>
+                  <SelectTrigger aria-label="Target cottage">
                     <SelectValue
                       placeholder={
-                        roomsPending
-                          ? "Loading rooms…"
-                          : roomsError
-                            ? "Could not load rooms"
-                            : "Choose a room"
+                        cottagesPending
+                          ? "Loading cottages…"
+                          : cottagesError
+                            ? "Could not load cottages"
+                            : "Choose a cottage"
                       }
                     />
                   </SelectTrigger>
                   <SelectContent>
-                    {(roomsData?.items ?? [])
-                      .filter((room) => room.id !== firstItem?.roomId)
-                      .map((room) => (
-                        <SelectItem key={room.id} value={room.id}>
-                          {room.roomNumber} ({room.status.toLowerCase()})
+                    {(cottagesData?.items ?? [])
+                      .filter((c) => c.id !== firstItem?.roomTypeId)
+                      .map((c) => (
+                        <SelectItem key={c.id} value={c.roomId || c.id}>
+                          {c.name}
                         </SelectItem>
                       ))}
                   </SelectContent>
                 </Select>
-                {roomsError ? (
+                {cottagesError && (
                   <p className="text-xs text-destructive">
-                    Room list failed to load — close and reopen to retry.
+                    Cottage list failed to load — close and reopen to retry.
                   </p>
-                ) : (
-                  !roomsPending &&
-                  (roomsData?.items ?? []).filter((room) => room.id !== firstItem?.roomId).length === 0 && (
-                    <p className="text-xs text-muted-foreground">
-                      No other rooms of this type exist — add one under Rooms first.
-                    </p>
-                  )
                 )}
               </div>
               <div className="flex gap-2">
@@ -357,13 +345,13 @@ export function ReservationDetailPage() {
                   className="flex-1 rounded-full"
                   onClick={() => setShowReassign(false)}
                 >
-                  Keep room
+                  Keep cottage
                 </Button>
                 <Button
                   className="flex-1 rounded-full"
-                  disabled={!targetRoom || reassignMutation.isPending}
+                  disabled={!targetCottageId || reassignMutation.isPending}
                   onClick={() =>
-                    reassignMutation.mutate(targetRoom, {
+                    reassignMutation.mutate(targetCottageId, {
                       onSuccess: () => setShowReassign(false),
                     })
                   }

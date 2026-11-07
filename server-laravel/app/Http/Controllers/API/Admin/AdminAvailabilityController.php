@@ -28,15 +28,38 @@ class AdminAvailabilityController extends Controller
 
     public function createBlock(CreateBlockRequest $request)
     {
-        $room = \App\Models\Room::find($request->validated('room_id'));
+        $cottageId = $request->input('cottage_id') ?? $request->input('room_type_id') ?? $request->input('cottageId') ?? $request->input('roomTypeId');
+        $roomId = $request->input('room_id') ?? $request->input('roomId');
+
+        if (! $roomId && $cottageId) {
+            $cottage = \App\Models\RoomType::find($cottageId);
+            $room = \App\Models\Room::firstOrCreate(
+                ['room_type_id' => $cottageId],
+                [
+                    'id' => bin2hex(random_bytes(12)),
+                    'property_id' => $cottage?->property_id ?? '6ac0cc41a287cfd3dfbbf8a9',
+                    'room_number' => $cottage?->slug ?: '1',
+                    'name' => $cottage?->name ?: 'Cottage',
+                    'status' => 'ACTIVE',
+                ]
+            );
+            $roomId = $room->id;
+        } else {
+            $room = \App\Models\Room::find($roomId);
+        }
+
         $defaultProp = \App\Models\Property::defaultProperty();
         $propertyId = $room?->property_id ?? $defaultProp->id;
 
-        $block = AvailabilityBlock::create(array_merge($request->validated(), [
+        $block = AvailabilityBlock::create([
             'id' => bin2hex(random_bytes(12)),
             'property_id' => $propertyId,
+            'room_id' => $roomId ?? ($room?->id),
+            'start_date' => $request->validated('start_date'),
+            'end_date' => $request->validated('end_date'),
+            'reason' => $request->validated('reason'),
             'created_by' => auth()->id() ?? '6ac0cc40a287cfd3dfbbf8a8',
-        ]));
+        ]);
 
         return response()->json([
             'success' => true,
@@ -44,6 +67,7 @@ class AdminAvailabilityController extends Controller
                 'id' => $block->id,
                 'property_id' => $block->property_id,
                 'room_id' => $block->room_id,
+                'cottage_id' => $room?->room_type_id ?? $cottageId,
                 'start_date' => $block->start_date,
                 'end_date' => $block->end_date,
                 'reason' => $block->reason,

@@ -13,13 +13,11 @@ import {
   ratePlanKeys,
   refundKeys,
   reservationKeys,
-  roomKeys,
-  roomTypeKeys,
+  cottageKeys,
 } from "./query-keys";
 import { listBlogs, listFaqs, listOffers, listPages, listPolicies } from "@/modules/cms/api/cms.api";
 import { listCoupons } from "@/modules/coupons/api/coupons.api";
-import { listRooms } from "@/modules/rooms/api/rooms.api";
-import { listRoomTypes } from "@/modules/room-types/api/room-types.api";
+import { listCottages } from "@/modules/cottages/api/cottages.api";
 import { listRatePlans } from "@/modules/rate-plans/api/rate-plans.api";
 import { listReservations } from "@/modules/reservations/api/reservations.api";
 import { listAdminPayments, listAdminRefunds } from "@/modules/payments/api/payments.api";
@@ -67,24 +65,18 @@ const PREFETCHERS: Record<string, Array<() => void>> = {
   "/customers": [
     () => prefetch(customerKeys.list(FIRST_PAGE), () => listCustomers({ ...FIRST_PAGE })),
   ],
-  "/room-types": [
-    () => prefetch(roomTypeKeys.list(FIRST_PAGE), () => listRoomTypes({ ...FIRST_PAGE })),
-  ],
-  "/rooms": [
-    () => prefetch(roomKeys.list(FIRST_PAGE), () => listRooms({ ...FIRST_PAGE })),
-    () => prefetch(roomTypeKeys.list({ page: 1, limit: 100 }), () =>
-      listRoomTypes({ page: 1, limit: 100 }),
-    ),
+  "/cottages": [
+    () => prefetch(cottageKeys.list(FIRST_PAGE), () => listCottages({ ...FIRST_PAGE })),
   ],
   "/rate-plans": [
     () => prefetch(ratePlanKeys.list(FIRST_PAGE), () => listRatePlans({ ...FIRST_PAGE })),
-    () => prefetch(roomTypeKeys.list({ page: 1, limit: 100 }), () =>
-      listRoomTypes({ page: 1, limit: 100 }),
+    () => prefetch(cottageKeys.list({ page: 1, limit: 100 }), () =>
+      listCottages({ page: 1, limit: 100 }),
     ),
   ],
   "/availability": [
     () => prefetch(availabilityKeys.blocks(FIRST_PAGE), () => listBlocks({ ...FIRST_PAGE })),
-    () => prefetch(roomKeys.list({ page: 1, limit: 100 }), () => listRooms({ page: 1, limit: 100 })),
+    () => prefetch(cottageKeys.list({ page: 1, limit: 100 }), () => listCottages({ page: 1, limit: 100 })),
   ],
   "/payments": [
     () => prefetch(adminPaymentKeys.list(FIRST_PAGE), () => listAdminPayments({ ...FIRST_PAGE })),

@@ -14,6 +14,21 @@ class PublicAvailabilityController extends Controller
     {
         $data = $request->validated();
 
+        // Ensure all active cottages have at least 1 room unit provisioned
+        $allCottages = \App\Models\RoomType::where('status', 'ACTIVE')->get();
+        foreach ($allCottages as $c) {
+            Room::firstOrCreate(
+                ['room_type_id' => $c->id],
+                [
+                    'id' => bin2hex(random_bytes(12)),
+                    'property_id' => $c->property_id,
+                    'room_number' => $c->slug ?: '1',
+                    'name' => $c->name,
+                    'status' => 'ACTIVE',
+                ]
+            );
+        }
+
         $rooms = Room::where('status', 'ACTIVE');
 
         if ($data['room_type_id'] ?? null) {
@@ -139,7 +154,20 @@ class PublicAvailabilityController extends Controller
         $typesData = [];
         foreach ($roomTypes as $rt) {
             $rooms = Room::where('room_type_id', $rt->id)->where('status', 'ACTIVE')->get();
-            $totalRooms = $rooms->count();
+            if ($rooms->isEmpty()) {
+                $room = Room::firstOrCreate(
+                    ['room_type_id' => $rt->id],
+                    [
+                        'id' => bin2hex(random_bytes(12)),
+                        'property_id' => $rt->property_id,
+                        'room_number' => $rt->slug ?: '1',
+                        'name' => $rt->name,
+                        'status' => 'ACTIVE',
+                    ]
+                );
+                $rooms = collect([$room]);
+            }
+            $totalRooms = max(1, $rooms->count());
             $roomIds = $rooms->pluck('id')->all();
 
             $days = [];
