@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { formatMoney } from "@/lib/money";
+import { formatMoney, getCurrencySymbol } from "@/lib/money";
+import { formatDateTime } from "@/lib/date";
 import { cn } from "@/lib/utils";
 
 export interface SalesBucket {
@@ -12,16 +13,16 @@ export interface SalesBucket {
 }
 
 export function money(minor: number, currency: string | null): string {
-  if (currency) return formatMoney(minor, currency);
-  return `₹${(minor / 100).toFixed(2)}`;
+  return formatMoney(minor, currency);
 }
 
-/** Compact axis money: ₹800, ₹12k, ₹1.2M (minor units in). */
-function axisMoney(minor: number): string {
-  const rupees = minor / 100;
-  if (rupees >= 1_000_000) return `₹${(rupees / 1_000_000).toFixed(1)}M`;
-  if (rupees >= 1000) return `₹${(rupees / 1000).toFixed(rupees >= 100_000 ? 0 : 1)}k`;
-  return `₹${Math.round(rupees)}`;
+/** Compact axis money: £800, £12k, £1.2M (minor units in). */
+function axisMoney(minor: number, currency?: string | null): string {
+  const sym = getCurrencySymbol(currency);
+  const major = minor / 100;
+  if (major >= 1_000_000) return `${sym}${(major / 1_000_000).toFixed(1)}M`;
+  if (major >= 1000) return `${sym}${(major / 1000).toFixed(major >= 100_000 ? 0 : 1)}k`;
+  return `${sym}${Math.round(major)}`;
 }
 
 function niceMax(value: number): number {
@@ -34,9 +35,8 @@ function niceMax(value: number): number {
 }
 
 function dayLabel(start: string, fallback: string): string {
-  const date = new Date(start);
-  if (Number.isNaN(date.getTime())) return fallback;
-  return date.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+  const formatted = formatDateTime(start, { day: "numeric", month: "short" });
+  return formatted || fallback;
 }
 
 /**
@@ -155,7 +155,7 @@ export function SalesChart({ buckets = [], currency }: { buckets?: SalesBucket[]
                 <g key={frac}>
                   <line x1={0} x2={width} y1={y} y2={y} className="stroke-border" strokeDasharray="3 4" />
                   <text x={2} y={y - 4} fontSize={10} className="fill-muted-foreground">
-                    {axisMoney(max * frac)}
+                    {axisMoney(max * frac, currency)}
                   </text>
                 </g>
               );

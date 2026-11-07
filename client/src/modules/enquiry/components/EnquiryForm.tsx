@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getApiErrorMessage, publicApiClient } from "@/lib/api-client";
+import { getCurrencySymbol } from "@/lib/money";
 import { submitEnquiry } from "../api/enquiry.api";
 
 interface EnquiryFormProps {
@@ -186,7 +187,7 @@ export function EnquiryForm({
               id="eq-budget"
               value={form.holidayBudget}
               onChange={(e) => set("holidayBudget", e.target.value)}
-              placeholder="£1500"
+              placeholder={`${getCurrencySymbol()}1500`}
               className={fieldClass}
             />
           </div>

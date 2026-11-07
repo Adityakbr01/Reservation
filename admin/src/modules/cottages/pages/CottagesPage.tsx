@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/table";
 import { PaginationControls } from "@/components/common/PaginationControls";
 import { StatusBadge } from "@/components/common/StatusBadge";
+import { formatMoney } from "@/lib/money";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useCottages } from "../hooks/use-cottages";
 import type { CottageStatus } from "../types/cottage.types";
@@ -139,7 +140,7 @@ export function CottagesPage() {
                     {cottage.maxAdults} adults · {cottage.maxChildren} children (max {cottage.maxOccupancy})
                   </TableCell>
                   <TableCell className="font-medium">
-                    £{cottage.basePrice ?? cottage.base_price ?? 150}
+                    {formatMoney(cottage.basePrice ?? cottage.base_price ?? 150)}
                   </TableCell>
                   <TableCell>
                     <StatusBadge status={cottage.status} />

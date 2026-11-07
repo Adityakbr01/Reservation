@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { ApiError, getApiErrorMessage } from "@/lib/api-client";
+import { formatDateTimeWithTime } from "@/lib/date";
 import { previewEmailTemplate } from "../api/email-templates.api";
 import {
   useEmailTemplate,
@@ -381,7 +382,7 @@ export function EmailTemplateEditPage() {
             </div>
             {detail.updatedAt && (
               <p className="text-xs text-muted-foreground">
-                Last updated {new Date(detail.updatedAt).toLocaleString("en-GB")}
+                Last updated {formatDateTimeWithTime(detail.updatedAt)}
                 {detail.updatedBy ? ` · edited by ${detail.updatedBy}` : ""}
               </p>
             )}

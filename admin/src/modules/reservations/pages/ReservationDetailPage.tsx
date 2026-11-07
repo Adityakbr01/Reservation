@@ -22,6 +22,7 @@ import {
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { ConfirmButton } from "@/components/common/ConfirmButton";
 import { formatMoney } from "@/lib/money";
+import { formatDateTime } from "@/lib/date";
 import {
   useCancelPreview,
   useCancelReservation,
@@ -37,10 +38,7 @@ const CANCELLABLE = ["HELD", "PAYMENT_PENDING", "CONFIRMED"];
 
 function formatDate(value: string | null): string {
   if (!value) return "—";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  return formatDateTime(value);
 }
 
 export function ReservationDetailPage() {

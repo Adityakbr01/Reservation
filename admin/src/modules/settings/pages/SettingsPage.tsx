@@ -6,6 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ImageField } from "@/components/common/ImageField";
 import { CkEditorField } from "@/components/common/CkEditorField";
 import {
@@ -15,6 +22,34 @@ import {
 } from "@/lib/api-client";
 import type { ApiEnvelope } from "@/lib/api-client";
 import { settingsKeys } from "@/lib/query-keys";
+import { setDefaultCurrency, getCurrencySymbol } from "@/lib/money";
+import { setDefaultTimeZone, formatDateTimeWithTime } from "@/lib/date";
+
+const PRESET_CURRENCIES = [
+  { code: "GBP", symbol: "£", name: "British Pound (£)", country: "United Kingdom" },
+  { code: "EUR", symbol: "€", name: "Euro (€)", country: "European Union" },
+  { code: "USD", symbol: "$", name: "US Dollar ($)", country: "United States" },
+  { code: "INR", symbol: "₹", name: "Indian Rupee (₹)", country: "India" },
+  { code: "AUD", symbol: "A$", name: "Australian Dollar (A$)", country: "Australia" },
+  { code: "CAD", symbol: "CA$", name: "Canadian Dollar (CA$)", country: "Canada" },
+  { code: "AED", symbol: "AED", name: "UAE Dirham (AED)", country: "United Arab Emirates" },
+  { code: "SAR", symbol: "SAR", name: "Saudi Riyal (SAR)", country: "Saudi Arabia" },
+  { code: "CHF", symbol: "CHF", name: "Swiss Franc (CHF)", country: "Switzerland" },
+  { code: "JPY", symbol: "¥", name: "Japanese Yen (¥)", country: "Japan" },
+] as const;
+
+const PRESET_TIMEZONES = [
+  { value: "Europe/London", label: "Europe/London (GMT/BST) — United Kingdom" },
+  { value: "Europe/Paris", label: "Europe/Paris (CET/CEST) — Central Europe" },
+  { value: "America/New_York", label: "America/New_York (EST/EDT) — US Eastern" },
+  { value: "America/Chicago", label: "America/Chicago (CST/CDT) — US Central" },
+  { value: "America/Los_Angeles", label: "America/Los_Angeles (PST/PDT) — US Pacific" },
+  { value: "Asia/Kolkata", label: "Asia/Kolkata (IST +05:30) — India" },
+  { value: "Asia/Dubai", label: "Asia/Dubai (GST +04:00) — UAE / Gulf" },
+  { value: "Asia/Singapore", label: "Asia/Singapore (SGT +08:00) — Singapore" },
+  { value: "Australia/Sydney", label: "Australia/Sydney (AEST/AEDT) — Sydney" },
+  { value: "UTC", label: "UTC (Universal Coordinated Time)" },
+] as const;
 
 interface Settings {
   propertyName: string;
@@ -76,7 +111,9 @@ function SettingsForm({ initial }: { initial: Settings }) {
     },
     onSuccess: (saved) => {
       setForm(saved);
-      void queryClient.invalidateQueries({ queryKey: settingsKeys.all });
+      if (saved.currency) setDefaultCurrency(saved.currency);
+      if (saved.timezone) setDefaultTimeZone(saved.timezone);
+      void queryClient.invalidateQueries();
       toast.success("Settings saved");
     },
     onError: (error) => toast.error(getApiErrorMessage(error)),
@@ -155,21 +192,86 @@ function SettingsForm({ initial }: { initial: Settings }) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="set-tz">Timezone</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="set-tz">Timezone</Label>
+                <span className="text-xs text-muted-foreground">
+                  {formatDateTimeWithTime(new Date(), form.timezone)}
+                </span>
+              </div>
+              <Select
+                value={
+                  PRESET_TIMEZONES.some((t) => t.value === form.timezone)
+                    ? form.timezone
+                    : "CUSTOM"
+                }
+                onValueChange={(val) => {
+                  if (val !== "CUSTOM") set("timezone", val);
+                }}
+              >
+                <SelectTrigger id="select-timezone">
+                  <SelectValue placeholder="Select timezone" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PRESET_TIMEZONES.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>
+                      {t.label}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="CUSTOM">Custom / Other Timezone...</SelectItem>
+                </SelectContent>
+              </Select>
               <Input
                 id="set-tz"
                 value={form.timezone}
-                onChange={(e) => set("timezone", e.target.value)}
+                onChange={(e) => set("timezone", e.target.value.trim())}
+                placeholder="Or type custom timezone (e.g. Europe/London)"
+                className="font-mono text-xs mt-1"
               />
+              <p className="text-[11px] text-muted-foreground">
+                Choose from 10 presets or type any valid IANA timezone.
+              </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="set-cur">Currency</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="set-cur">Currency</Label>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                  Active: {getCurrencySymbol(form.currency)} ({form.currency})
+                </span>
+              </div>
+              <Select
+                value={
+                  PRESET_CURRENCIES.some((c) => c.code === form.currency)
+                    ? form.currency
+                    : "CUSTOM"
+                }
+                onValueChange={(val) => {
+                  if (val !== "CUSTOM") set("currency", val);
+                }}
+              >
+                <SelectTrigger id="select-currency">
+                  <SelectValue placeholder="Select currency" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PRESET_CURRENCIES.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>
+                      <span className="font-semibold text-primary mr-1.5">{c.symbol}</span>
+                      {c.code} — {c.name}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="CUSTOM">Custom / Other Currency...</SelectItem>
+                </SelectContent>
+              </Select>
               <Input
                 id="set-cur"
-                maxLength={3}
+                maxLength={4}
                 value={form.currency}
-                onChange={(e) => set("currency", e.target.value.toUpperCase())}
+                onChange={(e) => set("currency", e.target.value.toUpperCase().trim())}
+                placeholder="Or type custom currency code (e.g. GBP, EUR, USD)"
+                className="font-mono uppercase tracking-wider text-xs mt-1"
               />
+              <p className="text-[11px] text-muted-foreground">
+                Choose from 10 presets or type any ISO code. Symbol updates automatically.
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="set-in">Check-in time</Label>

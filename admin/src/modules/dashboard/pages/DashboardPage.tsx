@@ -8,6 +8,7 @@ import { useBlocks } from "@/modules/availability";
 import { useRatePlans } from "@/modules/rate-plans";
 import { useCottages } from "@/modules/cottages";
 import { formatMoney } from "@/lib/money";
+import { formatDateTime } from "@/lib/date";
 import { useDashboardSummary } from "../hooks/use-dashboard-summary";
 import { useSales } from "../hooks/use-sales";
 import { SalesChart, bucketTrend, money, TrendChip } from "../components/SalesChart";
@@ -19,10 +20,7 @@ const QUICK_ACTIONS = [
 ];
 
 function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-  });
+  return formatDateTime(value, { day: "numeric", month: "short" });
 }
 
 export function DashboardPage() {

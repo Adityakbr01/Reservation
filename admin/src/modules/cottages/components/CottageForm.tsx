@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { MediaPicker } from "@/components/common/MediaPicker";
 import { CkEditorField } from "@/components/common/CkEditorField";
 import { StatusBadge } from "@/components/common/StatusBadge";
+import { getCurrencySymbol } from "@/lib/money";
 import { apiClient } from "@/lib/api-client";
 import type { ApiEnvelope } from "@/lib/api-client";
 import type {
@@ -439,7 +440,7 @@ export function CottageForm({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="rt-price">Base nightly rate (£)</Label>
+          <Label htmlFor="rt-price">Base nightly rate ({getCurrencySymbol()})</Label>
           <Input
             id="rt-price"
             type="number"

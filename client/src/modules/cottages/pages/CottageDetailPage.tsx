@@ -49,6 +49,7 @@ import {
   fetchReviewEligibility,
 } from "@/modules/reviews/api/reviews.api";
 import { useAuthStore } from "@/stores/auth-store";
+import { formatMoney } from "@/lib/money";
 import { fetchCottageOffers } from "../api/cottages.api";
 import type { CottageOffer } from "../api/cottages.api";
 import { useCottageBySlug } from "../hooks/use-cottage";
@@ -63,18 +64,6 @@ import {
   ReviewsBlock,
   WhyBookWithUsCard,
 } from "../components";
-
-function formatMoney(minor: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 2,
-    }).format(minor / 100);
-  } catch {
-    return `${(minor / 100).toFixed(2)} ${currency}`;
-  }
-}
 
 function osmEmbed(lat: number, lng: number): string {
   const d = 0.02;

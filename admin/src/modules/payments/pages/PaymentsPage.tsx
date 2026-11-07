@@ -19,16 +19,14 @@ import {
 import { PaginationControls } from "@/components/common/PaginationControls";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { formatMoney } from "@/lib/money";
+import { formatDateTime } from "@/lib/date";
 import { useAdminPayments, useAdminRefunds } from "../hooks/use-payments";
 import { PAYMENT_STATUSES, REFUND_STATUSES } from "../types/payment.types";
 import type { PaymentStatus, RefundStatus } from "../types/payment.types";
 
 function formatDate(value: string | null): string {
   if (!value) return "—";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  return formatDateTime(value);
 }
 
 export function PaymentsPage() {

@@ -18,16 +18,14 @@ import {
 import { PaginationControls } from "@/components/common/PaginationControls";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { useNotifications, useRetryNotification } from "../hooks/use-notifications";
+import { formatDateTimeWithTime } from "@/lib/date";
 import type { NotificationStatus } from "../types/notification.types";
 
 const STATUS_FILTERS = ["all", "QUEUED", "PROCESSING", "SENT", "FAILED"] as const;
 
 function formatDateTime(value: string | null): string {
   if (!value) return "—";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : date.toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  return formatDateTimeWithTime(value);
 }
 
 export function NotificationsPage() {

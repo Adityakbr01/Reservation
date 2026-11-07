@@ -13,14 +13,12 @@ import {
 import { PaginationControls } from "@/components/common/PaginationControls";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { formatDateTime } from "@/lib/date";
 import { useCustomers } from "../hooks/use-customers";
 
 function formatDate(value?: string | null): string {
   if (!value) return "—";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  return formatDateTime(value);
 }
 
 export function CustomersPage() {

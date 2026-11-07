@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PaginationControls } from "@/components/common/PaginationControls";
+import { formatDateTimeWithTime } from "@/lib/date";
 import { apiClient } from "@/lib/api-client";
 import type { ApiEnvelope } from "@/lib/api-client";
 import type { Paged } from "@/types/api";
@@ -51,15 +52,7 @@ const ACTIONS = [
 ] as const;
 
 function formatDateTime(value: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : date.toLocaleString("en-IN", {
-        day: "numeric",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+  return formatDateTimeWithTime(value);
 }
 
 export function AuditLogsPage() {

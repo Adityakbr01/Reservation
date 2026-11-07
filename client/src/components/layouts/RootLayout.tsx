@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuthInit } from "@/app/use-auth-init";
 import { useAuthStore } from "@/stores/auth-store";
+import { userKeys } from "@/lib/query-keys";
 import { SITE_LINKS } from "@/config/links";
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
@@ -93,6 +94,7 @@ export function RootLayout() {
 
   function handleLogout() {
     useAuthStore.getState().clearSession();
+    queryClient.removeQueries({ queryKey: userKeys.all });
     void queryClient.clear();
     toast.success("Signed out");
     setMenuOpen(false);

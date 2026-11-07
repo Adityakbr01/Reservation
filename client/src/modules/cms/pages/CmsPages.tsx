@@ -6,6 +6,7 @@ import { useBlogPost, useBlogPosts, useCmsPage, useFaqs, useOffers, usePolicyDoc
 import { CmsSections } from "../components/CmsSections";
 import { CottageImage } from "@/components/common/CottageImage";
 import { useMediaUrls } from "@/modules/media";
+import { formatDateTime } from "@/lib/date";
 
 function NotFound({ back, label }: { back: string; label: string }) {
   return (
@@ -20,10 +21,7 @@ function NotFound({ back, label }: { back: string; label: string }) {
 
 function formatDate(value: string | null): string {
   if (!value) return "";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  return formatDateTime(value);
 }
 
 export function CmsPageView() {

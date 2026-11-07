@@ -19,14 +19,16 @@ export function useAuthInit() {
   const clearSession = useAuthStore((s) => s.clearSession);
   const { data, error, isSuccess } = useMe(getAccessToken() !== null);
 
+  const token = getAccessToken();
+
   useEffect(() => {
     if (isSuccess && data) setUser(data);
   }, [isSuccess, data, setUser]);
 
   useEffect(() => {
-    if (error && SESSION_END_CODES.has(normalizeApiError(error).code)) {
+    if (token && error && SESSION_END_CODES.has(normalizeApiError(error).code)) {
       clearSession();
       navigate("/login", { replace: true });
     }
-  }, [error, clearSession, navigate]);
+  }, [error, token, clearSession, navigate]);
 }

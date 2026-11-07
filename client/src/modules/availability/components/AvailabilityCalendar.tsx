@@ -7,7 +7,9 @@ import {
   findFirstBlockedNight,
   isDayInRange,
   formatDisplayDate,
+  getDefaultTimeZone,
 } from "@/lib/date";
+import { formatMoney } from "@/lib/money";
 import { useAvailabilityCalendar } from "../hooks/use-availability-search";
 import type { CalendarDay } from "../api/availability.api";
 
@@ -18,10 +20,11 @@ function monthBounds(year: number, month: number): { from: string; to: string } 
 }
 
 function monthLabel(year: number, month: number): string {
-  return new Date(Date.UTC(year, month, 1)).toLocaleDateString("en-IN", {
+  return new Intl.DateTimeFormat("en", {
     month: "long",
     year: "numeric",
-  });
+    timeZone: getDefaultTimeZone(),
+  }).format(new Date(Date.UTC(year, month, 1)));
 }
 
 function prettyDay(date: string): string {
@@ -30,15 +33,7 @@ function prettyDay(date: string): string {
 
 function formatPrice(minor: number | null | undefined, currency?: string): string | null {
   if (minor == null) return null;
-  try {
-    return new Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency: currency ?? "GBP",
-      maximumFractionDigits: minor % 100 === 0 ? 0 : 2,
-    }).format(minor / 100);
-  } catch {
-    return `£${(minor / 100).toFixed(0)}`;
-  }
+  return formatMoney(minor, currency);
 }
 
 interface AvailabilityCalendarProps {

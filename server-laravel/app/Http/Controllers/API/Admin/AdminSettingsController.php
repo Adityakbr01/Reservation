@@ -44,10 +44,10 @@ class AdminSettingsController extends Controller
             $data['address'] = $input['address'];
         }
         if (array_key_exists('timezone', $input)) {
-            $data['timezone'] = $input['timezone'] ?? 'Europe/London';
+            $data['timezone'] = trim($input['timezone'] ?? '') ?: 'Europe/London';
         }
         if (array_key_exists('currency', $input)) {
-            $data['currency'] = $input['currency'] ?? 'GBP';
+            $data['currency'] = strtoupper(trim($input['currency'] ?? '')) ?: 'GBP';
         }
         if (array_key_exists('checkInTime', $input) || array_key_exists('check_in_time', $input)) {
             $data['check_in_time'] = $input['checkInTime'] ?? $input['check_in_time'] ?? null;
@@ -73,9 +73,31 @@ class AdminSettingsController extends Controller
             $settings->update($data);
         }
 
-        // Also keep Property table name in sync if propertyName changed
+        // Keep Property table in sync with site settings
+        $propertyUpdates = [];
         if (! empty($data['property_name'])) {
-            Property::query()->update(['name' => $data['property_name']]);
+            $propertyUpdates['name'] = $data['property_name'];
+        }
+        if (! empty($data['currency'])) {
+            $propertyUpdates['currency'] = $data['currency'];
+        }
+        if (! empty($data['timezone'])) {
+            $propertyUpdates['timezone'] = $data['timezone'];
+        }
+        if (! empty($propertyUpdates)) {
+            Property::query()->update($propertyUpdates);
+        }
+
+        // Keep existing RatePlan pricing currency in sync if currency changed
+        if (! empty($data['currency'])) {
+            $newCurrency = $data['currency'];
+            foreach (\App\Models\RatePlan::all() as $rp) {
+                if (is_array($rp->pricing)) {
+                    $p = $rp->pricing;
+                    $p['currency'] = $newCurrency;
+                    $rp->update(['pricing' => $p]);
+                }
+            }
         }
 
         $fresh = $settings->fresh() ?? $settings;

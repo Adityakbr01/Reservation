@@ -11,14 +11,12 @@ import {
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { formatMoney } from "@/lib/money";
+import { formatDateTime } from "@/lib/date";
 import { useCustomer, useSetCustomerStatus } from "../hooks/use-customers";
 
 function formatDate(value: string | null): string {
   if (!value) return "—";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  return formatDateTime(value);
 }
 
 export function CustomerDetailPage() {

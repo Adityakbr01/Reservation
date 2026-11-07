@@ -23,15 +23,13 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { formatMoney } from "@/lib/money";
 import { useReservations } from "../hooks/use-reservations";
 import { RESERVATION_STATUSES } from "../types/reservation.types";
+import { formatDateTime } from "@/lib/date";
 import type { BookingStatus } from "../types/reservation.types";
 
 const STATUS_FILTERS = ["all", ...RESERVATION_STATUSES] as const;
 
 function formatDate(value: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  return formatDateTime(value);
 }
 
 export function ReservationsPage() {

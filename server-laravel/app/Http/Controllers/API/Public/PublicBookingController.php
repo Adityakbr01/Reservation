@@ -84,7 +84,10 @@ class PublicBookingController extends Controller
 
         $tax = 0;
         $total = max(0, $subtotal - $discount + $tax);
-        $currency = $ratePlan?->pricing['currency'] ?? 'GBP';
+        $currency = $ratePlan?->pricing['currency']
+            ?? \App\Models\SiteSettings::first()?->currency
+            ?? \App\Models\Property::first()?->currency
+            ?? 'GBP';
 
         $nightly = [];
         $current = strtotime($checkIn);
@@ -267,13 +270,17 @@ class PublicBookingController extends Controller
         $total = max(0, $subtotal - $discount);
         $bookingNumber = 'BK' . strtoupper(bin2hex(random_bytes(4)));
 
+        $activeCurrency = \App\Models\SiteSettings::first()?->currency
+            ?? \App\Models\Property::first()?->currency
+            ?? 'GBP';
+
         $pricingPayload = [
             'subtotal' => $subtotal,
             'discount' => $discount,
             'taxes' => 0,
             'fees' => 0,
             'total' => $total,
-            'currency' => 'GBP',
+            'currency' => $activeCurrency,
         ];
 
         $booking = Booking::create([

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { apiClient, unwrapResponse } from "@/lib/api-client";
 import type { ApiEnvelope } from "@/lib/api-client";
+import { getDefaultTimeZone } from "@/lib/date";
 import { useCottages } from "@/modules/cottages";
 
 interface CalendarDay {
@@ -35,10 +36,11 @@ function monthBounds(year: number, month: number): { from: string; to: string } 
 }
 
 function monthLabel(year: number, month: number): string {
-  return new Date(Date.UTC(year, month, 1)).toLocaleDateString("en-IN", {
+  return new Intl.DateTimeFormat("en", {
     month: "long",
     year: "numeric",
-  });
+    timeZone: getDefaultTimeZone(),
+  }).format(new Date(Date.UTC(year, month, 1)));
 }
 
 /** Ops month grid: booked vs blocked vs free per room type (docs 07 §36). */

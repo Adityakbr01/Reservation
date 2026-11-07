@@ -2,20 +2,9 @@ import { Link } from "react-router-dom";
 import { CottageImage } from "@/components/common/CottageImage";
 import { useMediaUrls } from "@/modules/media";
 import { countNights } from "@/lib/date";
+import { formatMoney } from "@/lib/money";
 import type { AvailabilitySearchParams, SearchResultItem } from "../types/availability.types";
 import { toSearchRecord } from "../utils/search-params";
-
-function formatMoney(minor: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 2,
-    }).format(minor / 100);
-  } catch {
-    return `${(minor / 100).toFixed(2)} ${currency}`;
-  }
-}
 
 export function CottageCard({
   item,

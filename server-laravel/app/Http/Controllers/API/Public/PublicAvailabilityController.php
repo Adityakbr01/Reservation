@@ -68,7 +68,9 @@ class PublicAvailabilityController extends Controller
         $roomTypes = \App\Models\RoomType::where('status', 'ACTIVE')->get();
         $results = [];
 
-        $currency = \App\Models\Property::first()?->currency ?? 'GBP';
+        $currency = \App\Models\SiteSettings::first()?->currency
+            ?? \App\Models\Property::first()?->currency
+            ?? 'GBP';
 
         foreach ($roomTypes as $rt) {
             $availableCount = count(array_filter($available, fn ($r) => $r['room_type_id'] === $rt->id));

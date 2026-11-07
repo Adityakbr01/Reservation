@@ -13,7 +13,10 @@ export function useRedirectIfAuthenticated(fallback = "/") {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
-  const from = (location.state as { from?: string } | null)?.from ?? fallback;
+  const rawFrom = (location.state as { from?: string } | null)?.from;
+  const from = (rawFrom && rawFrom !== "/login" && rawFrom !== "/register")
+    ? rawFrom
+    : fallback;
 
   useEffect(() => {
     if (user) navigate(from, { replace: true });

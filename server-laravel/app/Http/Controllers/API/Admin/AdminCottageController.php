@@ -267,6 +267,10 @@ class AdminCottageController extends Controller
             ]
         );
 
+        $activeCurrency = \App\Models\SiteSettings::first()?->currency
+            ?? \App\Models\Property::first()?->currency
+            ?? 'GBP';
+
         $ratePlan = RatePlan::where('room_type_id', $cottage->id)->first();
         if ($ratePlan) {
             if ($basePrice !== null && $basePrice !== '') {
@@ -279,7 +283,7 @@ class AdminCottageController extends Controller
                 $pricing['amount'] = $amountInPence;
                 $pricing['basePrice'] = $amountInPence;
                 $pricing['base_price'] = $amountInPence;
-                $pricing['currency'] = $pricing['currency'] ?? 'GBP';
+                $pricing['currency'] = $activeCurrency;
 
                 $ratePlan->update([
                     'pricing' => $pricing,
@@ -303,7 +307,7 @@ class AdminCottageController extends Controller
                     'amount' => $amountInPence,
                     'basePrice' => $amountInPence,
                     'base_price' => $amountInPence,
-                    'currency' => 'GBP',
+                    'currency' => $activeCurrency,
                 ],
                 'restrictions' => [
                     'minStay' => 1,

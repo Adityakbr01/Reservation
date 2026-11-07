@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCottages } from "@/modules/cottages";
+import { getDefaultCurrency } from "@/lib/money";
 import type {
   CreateRatePlanPayload,
   PricingType,
@@ -51,7 +52,7 @@ export function RatePlanForm({ initial, submitLabel, isPending, onSubmit }: Rate
   const [amount, setAmount] = useState(
     initial ? toMajorUnits(initial.pricing.amount) : "",
   );
-  const [currency, setCurrency] = useState(initial?.pricing.currency ?? "INR");
+  const [currency, setCurrency] = useState(initial?.pricing.currency ?? getDefaultCurrency());
   const [minNights, setMinNights] = useState(initial?.restrictions?.minNights != null ? String(initial.restrictions.minNights) : "");
   const [maxNights, setMaxNights] = useState(initial?.restrictions?.maxNights != null ? String(initial.restrictions.maxNights) : "");
   const [minAdvanceDays, setMinAdvanceDays] = useState(initial?.restrictions?.minAdvanceDays != null ? String(initial.restrictions.minAdvanceDays) : "");
@@ -73,7 +74,7 @@ export function RatePlanForm({ initial, submitLabel, isPending, onSubmit }: Rate
       name: name.trim(),
       ...(slug.trim() ? { slug: slug.trim().toLowerCase() } : {}),
       description: description.trim() || null,
-      pricing: { type: pricingType, amount: toMinorUnits(amount), currency: currency.trim() || "INR" },
+      pricing: { type: pricingType, amount: toMinorUnits(amount), currency: currency.trim() || getDefaultCurrency() },
       restrictions: {
         minNights: minNights.trim() ? Math.max(1, Number(minNights) || 1) : null,
         maxNights: maxNights.trim() ? Math.max(1, Number(maxNights) || 1) : null,

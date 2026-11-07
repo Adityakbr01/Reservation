@@ -22,12 +22,13 @@ import { StatusBadge } from "@/components/common/StatusBadge";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useCottages } from "@/modules/cottages";
 import { useRatePlans } from "../hooks/use-rate-plans";
+import { formatMoney } from "@/lib/money";
 import type { RatePlanStatus } from "../types/rate-plan.types";
 
 const STATUS_FILTERS = ["all", "DRAFT", "ACTIVE", "INACTIVE"] as const;
 
 function formatAmount(minor: number, currency: string): string {
-  return `${(minor / 100).toLocaleString("en-IN")} ${currency}`;
+  return formatMoney(minor, currency);
 }
 
 export function RatePlansPage() {
