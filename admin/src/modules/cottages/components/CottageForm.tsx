@@ -33,6 +33,26 @@ export function CottageForm({
 }: CottageFormProps) {
   const [name, setName] = useState(initial?.name ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(
+    Boolean(initial?.slug),
+  );
+
+  function handleNameChange(newName: string) {
+    setName(newName);
+    if (!slugManuallyEdited) {
+      const auto = newName
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      setSlug(auto);
+    }
+  }
+
+  function handleSlugChange(newSlug: string) {
+    setSlug(newSlug);
+    setSlugManuallyEdited(newSlug.trim().length > 0);
+  }
   const [shortDescription, setShortDescription] = useState(
     initial?.shortDescription ?? "",
   );
@@ -247,20 +267,35 @@ export function CottageForm({
       altText: img.altText?.trim() || null,
       sortOrder: index,
     }));
+    const autoSlug =
+      slug.trim().toLowerCase() ||
+      name
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
     onSubmit({
       name: name.trim(),
-      ...(slug.trim() ? { slug: slug.trim().toLowerCase() } : {}),
+      slug: autoSlug,
       shortDescription: shortDescription.trim() || null,
+      short_description: shortDescription.trim() || null,
       description: description.trim() || null,
-      maxAdults: Math.max(1, Number(maxAdults) || 1),
+      maxAdults: Math.max(1, Number(maxAdults) || 2),
+      max_adults: Math.max(1, Number(maxAdults) || 2),
       maxChildren: Math.max(0, Number(maxChildren) || 0),
-      maxOccupancy: Math.max(1, Number(maxOccupancy) || 1),
+      max_children: Math.max(0, Number(maxChildren) || 0),
+      maxOccupancy: Math.max(1, Number(maxOccupancy) || 2),
+      max_occupancy: Math.max(1, Number(maxOccupancy) || 2),
       ...(bedrooms.trim()
         ? { bedrooms: Math.max(0, Number(bedrooms) || 0) }
         : { bedrooms: null }),
       ...(maxDogs.trim()
-        ? { maxDogs: Math.max(0, Number(maxDogs) || 0) }
-        : { maxDogs: null }),
+        ? {
+            maxDogs: Math.max(0, Number(maxDogs) || 0),
+            max_dogs: Math.max(0, Number(maxDogs) || 0),
+          }
+        : { maxDogs: null, max_dogs: null }),
       ...(bathrooms.trim()
         ? { bathrooms: Math.max(0, Number(bathrooms) || 0) }
         : { bathrooms: null }),
@@ -278,45 +313,59 @@ export function CottageForm({
         })),
       media: gallery,
       propertyDetailsHtml: propertyDetailsHtml.trim() || null,
+      property_details_html: propertyDetailsHtml.trim() || null,
       layoutHtml: layoutHtml.trim() || null,
+      layout_html: layoutHtml.trim() || null,
       floorplanMediaIds: floorplanIds
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean),
+      floorplan_media_ids: floorplanIds
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
       locationText: locationText.trim() || null,
+      location_text: locationText.trim() || null,
       surroundingsHtml: surroundingsHtml.trim() || null,
+      surroundings_html: surroundingsHtml.trim() || null,
       mapLat: mapLat.trim() ? Number(mapLat) : null,
+      map_lat: mapLat.trim() ? Number(mapLat) : null,
       mapLng: mapLng.trim() ? Number(mapLng) : null,
+      map_lng: mapLng.trim() ? Number(mapLng) : null,
       mapEmbedUrl: mapEmbedUrl.trim() || null,
+      map_embed_url: mapEmbedUrl.trim() || null,
       welcomeHamperIncluded: hamperOn,
+      welcome_hamper_included: hamperOn,
       welcomeHamperHtml: hamperHtml.trim() || null,
+      welcome_hamper_html: hamperHtml.trim() || null,
       amenityIds,
+      amenity_ids: amenityIds,
       basePrice: basePrice.trim() ? Math.max(0, Number(basePrice) || 0) : 150,
       base_price: basePrice.trim() ? Math.max(0, Number(basePrice) || 0) : 150,
       status,
-    } as CreateCottagePayload);
+    } as unknown as CreateCottagePayload);
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="rt-name">Name</Label>
+          <Label htmlFor="rt-name">Cottage Name</Label>
           <Input
             id="rt-name"
             required
             minLength={2}
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Deluxe Room"
+            onChange={(e) => handleNameChange(e.target.value)}
+            placeholder="e.g. Oakwood Cottage"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="rt-slug">Slug</Label>
+          <Label htmlFor="rt-slug">Slug (Auto-generated)</Label>
           <Input
             id="rt-slug"
             value={slug}
-            onChange={(e) => setSlug(e.target.value)}
+            onChange={(e) => handleSlugChange(e.target.value)}
             placeholder="Auto-generated from name"
           />
         </div>

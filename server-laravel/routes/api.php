@@ -186,38 +186,52 @@ Route::prefix('/v1/admin/coupons')->middleware('jwt.auth', 'role:admin')->group(
     Route::patch('/{id}', [AdminCouponController::class, 'update']);
 });
 
-// Bookings
-Route::prefix('/v1/bookings')->middleware('jwt.auth')->group(function () {
-    Route::post('/quote', [PublicBookingController::class, 'quote']);
-    Route::post('/', [PublicBookingController::class, 'store']);
-    Route::get('/{id}/receipt', [PublicBookingController::class, 'receipt']);
-    Route::get('/{id}', [PublicBookingController::class, 'show']);
-    Route::post('/{id}/cancel', [PublicBookingController::class, 'cancel']);
-});
+// Public & guest bookings (available with and without /v1)
+foreach (['/bookings', '/v1/bookings'] as $prefix) {
+    Route::prefix($prefix)->group(function () {
+        Route::post('/quote', [PublicBookingController::class, 'quote']);
+        Route::post('/', [PublicBookingController::class, 'store']);
+        Route::get('/{id}/receipt', [PublicBookingController::class, 'receipt']);
+        Route::get('/{id}', [PublicBookingController::class, 'show']);
+        Route::post('/{id}/cancel', [PublicBookingController::class, 'cancel']);
+    });
+}
 
-// My bookings
+// Frictionless guest checkout routes (available at /public/bookings and /v1/public/bookings)
+foreach (['/public/bookings', '/v1/public/bookings'] as $prefix) {
+    Route::prefix($prefix)->group(function () {
+        Route::post('/guest', [PublicBookingController::class, 'guestStore']);
+        Route::post('/check-email', [PublicBookingController::class, 'checkEmail']);
+    });
+}
+
+// Payments (available with and without /v1, public for guest booking flow)
+foreach (['/payments', '/v1/payments'] as $prefix) {
+    Route::prefix($prefix)->group(function () {
+        Route::post('/create-intent', [PublicBookingController::class, 'createIntent']);
+        Route::get('/{id}', [PublicBookingController::class, 'paymentShow']);
+    });
+}
+
+// My bookings (customer authenticated)
 Route::prefix('/me/bookings')->middleware('jwt.auth')->group(function () {
     Route::get('/', [PublicBookingController::class, 'myIndex']);
     Route::get('/{id}', [PublicBookingController::class, 'myShow']);
 });
 
-// Admin bookings
-Route::prefix('/v1/admin/reservations')->middleware('jwt.auth', 'role:admin')->group(function () {
-    Route::get('/', [AdminBookingController::class, 'index']);
-    Route::get('/{id}', [AdminBookingController::class, 'show']);
-    Route::get('/{id}/cancel-preview', [AdminBookingController::class, 'cancelPreview']);
-    Route::post('/{id}/cancel', [AdminBookingController::class, 'cancel']);
-    Route::post('/{id}/refund', [AdminBookingController::class, 'refund']);
-    Route::post('/{id}/check-in', [AdminBookingController::class, 'checkIn']);
-    Route::post('/{id}/check-out', [AdminBookingController::class, 'checkOut']);
-    Route::post('/{id}/reassign', [AdminBookingController::class, 'reassign']);
-});
-
-// Payments
-Route::prefix('/v1/payments')->middleware('jwt.auth')->group(function () {
-    Route::post('/create-intent', [PublicBookingController::class, 'createIntent']);
-    Route::get('/{id}', [PublicBookingController::class, 'paymentShow']);
-});
+// Admin bookings (reservations)
+foreach (['/admin/reservations', '/v1/admin/reservations'] as $prefix) {
+    Route::prefix($prefix)->middleware('jwt.auth', 'role:admin')->group(function () {
+        Route::get('/', [AdminBookingController::class, 'index']);
+        Route::get('/{id}', [AdminBookingController::class, 'show']);
+        Route::get('/{id}/cancel-preview', [AdminBookingController::class, 'cancelPreview']);
+        Route::post('/{id}/cancel', [AdminBookingController::class, 'cancel']);
+        Route::post('/{id}/refund', [AdminBookingController::class, 'refund']);
+        Route::post('/{id}/check-in', [AdminBookingController::class, 'checkIn']);
+        Route::post('/{id}/check-out', [AdminBookingController::class, 'checkOut']);
+        Route::post('/{id}/reassign', [AdminBookingController::class, 'reassign']);
+    });
+}
 
 // Admin payments
 Route::prefix('/v1/admin/payments')->middleware('jwt.auth', 'role:admin')->group(function () {
@@ -299,15 +313,17 @@ foreach (['/public/cms', '/v1/public/cms'] as $prefix) {
     });
 }
 
-// Admin media
-Route::prefix('/v1/admin/media')->middleware('jwt.auth', 'role:admin')->group(function () {
-    Route::post('/', [AdminMediaController::class, 'store']);
-    Route::get('/', [AdminMediaController::class, 'index']);
-    Route::get('/folders', [AdminMediaController::class, 'folders']);
-    Route::get('/resolve', [AdminMediaController::class, 'resolve']);
-    Route::patch('/{id}', [AdminMediaController::class, 'update']);
-    Route::delete('/{id}', [AdminMediaController::class, 'destroy']);
-});
+// Admin media (available at both /admin/media and /v1/admin/media)
+foreach (['/admin/media', '/v1/admin/media'] as $prefix) {
+    Route::prefix($prefix)->middleware('jwt.auth', 'role:admin')->group(function () {
+        Route::post('/', [AdminMediaController::class, 'store']);
+        Route::get('/', [AdminMediaController::class, 'index']);
+        Route::get('/folders', [AdminMediaController::class, 'folders']);
+        Route::get('/resolve', [AdminMediaController::class, 'resolve']);
+        Route::patch('/{id}', [AdminMediaController::class, 'update']);
+        Route::delete('/{id}', [AdminMediaController::class, 'destroy']);
+    });
+}
 
 // Public media (available at both /api/public/* and /api/v1/public/*)
 foreach (['/public/media', '/v1/public/media'] as $prefix) {
@@ -331,23 +347,35 @@ foreach (['/public/cms/site-settings', '/v1/public/cms/site-settings'] as $prefi
     });
 }
 
-// Admin audit logs
-Route::prefix('/v1/admin/audit-logs')->middleware('jwt.auth', 'role:admin')->group(function () {
-    Route::get('/', [AdminAuditLogsController::class, 'index']);
-});
+// Admin audit logs (available at both /admin/audit-logs and /v1/admin/audit-logs)
+foreach (['/admin/audit-logs', '/v1/admin/audit-logs'] as $prefix) {
+    Route::prefix($prefix)->middleware('jwt.auth', 'role:admin')->group(function () {
+        Route::get('/', [AdminAuditLogsController::class, 'index']);
+    });
+}
 
-// Admin policies
-Route::prefix('/v1/admin/policies')->middleware('jwt.auth', 'role:admin')->group(function () {
-    Route::get('/', [AdminPolicyController::class, 'index']);
-    Route::post('/', [AdminPolicyController::class, 'store']);
-    Route::get('/{id}', [AdminPolicyController::class, 'show']);
-    Route::patch('/{id}', [AdminPolicyController::class, 'update']);
-});
+// Admin policies (available at both /admin/policies and /v1/admin/policies)
+foreach (['/admin/policies', '/v1/admin/policies'] as $prefix) {
+    Route::prefix($prefix)->middleware('jwt.auth', 'role:admin')->group(function () {
+        Route::get('/', [AdminPolicyController::class, 'index']);
+        Route::post('/', [AdminPolicyController::class, 'store']);
+        Route::get('/{id}', [AdminPolicyController::class, 'show']);
+        Route::match(['put', 'patch'], '/{id}', [AdminPolicyController::class, 'update']);
+        Route::delete('/{id}', [AdminPolicyController::class, 'destroy']);
+    });
+}
 
-// Admin amenities
-Route::prefix('/v1/admin/amenities')->middleware('jwt.auth', 'role:admin')->group(function () {
-    Route::get('/', [AdminAmenitiesController::class, 'index']);
-});
+// Admin amenities (available at both /api/admin/amenities and /api/v1/admin/amenities)
+foreach (['/admin/amenities', '/v1/admin/amenities'] as $prefix) {
+    Route::prefix($prefix)->middleware('jwt.auth', 'role:admin')->group(function () {
+        Route::get('/', [AdminAmenitiesController::class, 'index']);
+        Route::post('/', [AdminAmenitiesController::class, 'store']);
+        Route::post('/reorder', [AdminAmenitiesController::class, 'reorder']);
+        Route::get('/{id}', [AdminAmenitiesController::class, 'show']);
+        Route::match(['put', 'patch'], '/{id}', [AdminAmenitiesController::class, 'update']);
+        Route::delete('/{id}', [AdminAmenitiesController::class, 'destroy']);
+    });
+}
 
 // Public amenities (available at both /api/public/* and /api/v1/public/*)
 foreach (['/public/amenities', '/v1/public/amenities'] as $prefix) {
@@ -356,10 +384,15 @@ foreach (['/public/amenities', '/v1/public/amenities'] as $prefix) {
     });
 }
 
-// Admin enquiries
-Route::prefix('/v1/admin/enquiries')->middleware('jwt.auth', 'role:admin')->group(function () {
-    Route::get('/', [AdminEnquiriesController::class, 'index']);
-});
+// Admin enquiries (available at both /api/admin/enquiries and /api/v1/admin/enquiries)
+foreach (['/admin/enquiries', '/v1/admin/enquiries'] as $prefix) {
+    Route::prefix($prefix)->middleware('jwt.auth', 'role:admin')->group(function () {
+        Route::get('/', [AdminEnquiriesController::class, 'index']);
+        Route::get('/{id}', [AdminEnquiriesController::class, 'show']);
+        Route::match(['put', 'patch'], '/{id}', [AdminEnquiriesController::class, 'update']);
+        Route::delete('/{id}', [AdminEnquiriesController::class, 'destroy']);
+    });
+}
 
 // Public enquiries (available at both /api/public/* and /api/v1/public/*)
 foreach (['/public/enquiries', '/v1/public/enquiries'] as $prefix) {

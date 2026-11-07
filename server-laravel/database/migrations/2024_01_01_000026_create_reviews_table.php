@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('status', 20)->default('PENDING');
             $table->timestamps(3);
 
-            $table->foreign('room_type_id')->references('id')->on('room_types')->onDelete('set null');
+            $table->foreign('room_type_id')->references('id')->on('cottages')->onDelete('set null');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('booking_id')->references('id')->on('bookings')->onDelete('set null');
             $table->index(['room_type_id', 'status', 'created_at']);

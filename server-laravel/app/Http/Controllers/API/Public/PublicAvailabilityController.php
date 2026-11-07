@@ -76,13 +76,15 @@ class PublicAvailabilityController extends Controller
 
             $rates = [];
             foreach ($ratePlans as $rp) {
-                $basePrice = 100;
-                if (is_array($rp->pricing) && isset($rp->pricing['basePrice'])) {
-                    $basePrice = (int) $rp->pricing['basePrice'];
-                } elseif (is_array($rp->pricing) && isset($rp->pricing['base_price'])) {
-                    $basePrice = (int) $rp->pricing['base_price'];
-                } elseif (is_array($rp->pricing) && isset($rp->pricing['amount'])) {
-                    $basePrice = (int) round($rp->pricing['amount'] / 100);
+                $basePrice = 15000;
+                if (is_array($rp->pricing)) {
+                    $raw = $rp->pricing['amount'] ?? $rp->pricing['basePrice'] ?? $rp->pricing['base_price'] ?? null;
+                    if ($raw !== null) {
+                        $rawInt = (int) $raw;
+                        // Frontend formatMoney(minor) expects minor units (pence).
+                        // If DB contains pounds (e.g. 150), convert to pence (15000) so £150.00 displays!
+                        $basePrice = ($rawInt < 1000 && $rawInt > 0) ? ($rawInt * 100) : $rawInt;
+                    }
                 }
                 $rates[] = [
                     'ratePlanId' => $rp->id,

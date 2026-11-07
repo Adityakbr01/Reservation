@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps(3);
 
             $table->foreign('property_id')->references('id')->on('properties')->onDelete('cascade');
-            $table->foreign('room_type_id')->references('id')->on('room_types')->onDelete('cascade');
+            $table->foreign('room_type_id')->references('id')->on('cottages')->onDelete('cascade');
             $table->foreign('cancellation_policy_id')->references('id')->on('cancellation_policies')->onDelete('set null');
             $table->unique(['property_id', 'slug']);
             $table->index(['property_id', 'room_type_id', 'status']);

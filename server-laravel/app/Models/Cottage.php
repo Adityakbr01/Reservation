@@ -2,11 +2,56 @@
 
 namespace App\Models;
 
-/**
- * Cottage domain model (mapped to room_types table for single-unit cottage reservations).
- */
-class Cottage extends RoomType
-{
-    protected $table = 'room_types';
-}
+use App\Models\Concerns\HasHexId;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
+class Cottage extends Model
+{
+    use HasHexId;
+
+    protected $table = 'cottages';
+    protected $keyType = 'string';
+    public $incrementing = false;
+
+    protected $fillable = [
+        'id', 'property_id', 'name', 'slug', 'short_description', 'description',
+        'max_adults', 'max_children', 'max_occupancy', 'beds', 'amenities',
+        'images', 'media', 'property_details_html', 'layout_html',
+        'floorplan_media_ids', 'location_text', 'surroundings_html',
+        'map_lat', 'map_lng', 'map_embed_url', 'welcome_hamper_included',
+        'welcome_hamper_description', 'welcome_hamper_image_media_id',
+        'welcome_hamper_html', 'amenity_ids', 'nearby_attractions',
+        'bedrooms', 'bathrooms', 'max_dogs', 'status', 'seo',
+    ];
+
+    protected $casts = [
+        'beds' => 'array',
+        'amenities' => 'array',
+        'images' => 'array',
+        'media' => 'array',
+        'floorplan_media_ids' => 'array',
+        'map_lat' => 'float',
+        'map_lng' => 'float',
+        'welcome_hamper_included' => 'boolean',
+        'amenity_ids' => 'array',
+        'nearby_attractions' => 'array',
+        'seo' => 'array',
+    ];
+
+    public function property(): BelongsTo
+    {
+        return $this->belongsTo(Property::class, 'property_id');
+    }
+
+    public function rooms(): HasMany
+    {
+        return $this->hasMany(Room::class, 'room_type_id');
+    }
+
+    public function ratePlans(): HasMany
+    {
+        return $this->hasMany(RatePlan::class, 'room_type_id');
+    }
+}

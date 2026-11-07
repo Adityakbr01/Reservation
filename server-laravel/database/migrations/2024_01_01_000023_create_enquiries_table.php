@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('status', 20)->default('NEW');
             $table->timestamps(3);
 
-            $table->foreign('room_type_id')->references('id')->on('room_types')->onDelete('set null');
+            $table->foreign('room_type_id')->references('id')->on('cottages')->onDelete('set null');
             $table->index(['status', 'created_at']);
             $table->index(['email', 'created_at']);
         });

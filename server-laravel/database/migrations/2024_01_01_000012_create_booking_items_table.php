@@ -24,7 +24,7 @@ return new class extends Migration
             $table->timestamps(3);
 
             $table->foreign('booking_id')->references('id')->on('bookings')->onDelete('cascade');
-            $table->foreign('room_type_id')->references('id')->on('room_types')->onDelete('set null');
+            $table->foreign('room_type_id')->references('id')->on('cottages')->onDelete('set null');
             $table->foreign('room_id')->references('id')->on('rooms')->onDelete('set null');
             $table->foreign('rate_plan_id')->references('id')->on('rate_plans')->onDelete('set null');
             $table->index(['booking_id']);

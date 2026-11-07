@@ -13,6 +13,7 @@ use App\Models\Room;
 use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class AdminCottageController extends Controller
 {
@@ -33,19 +34,62 @@ class AdminCottageController extends Controller
     public function store(CreateCottageRequest $request)
     {
         $defaultProp = Property::defaultProperty();
-        $propertyId = $request->input('property_id');
+        $propertyId = $request->input('property_id') ?? $request->input('propertyId');
         if (! $propertyId || ! Property::where('id', $propertyId)->exists()) {
             $propertyId = $defaultProp->id;
         }
 
-        $validated = $request->validated();
-        $basePrice = $request->input('base_price') ?? $request->input('basePrice');
-        unset($validated['base_price'], $validated['basePrice']);
+        $name = trim((string) $request->input('name', ''));
+        $slug = trim((string) $request->input('slug', ''));
+        if (empty($slug)) {
+            $slug = Str::slug($name) ?: ('cottage-' . bin2hex(random_bytes(3)));
+        } else {
+            $slug = Str::slug($slug);
+        }
 
-        $cottage = Cottage::create(array_merge($validated, [
+        // Ensure unique slug
+        $baseSlug = $slug;
+        $counter = 1;
+        while (Cottage::where('slug', $slug)->exists()) {
+            $slug = "{$baseSlug}-{$counter}";
+            $counter++;
+        }
+
+        $basePrice = $request->input('base_price') ?? $request->input('basePrice') ?? 150;
+
+        $cottage = Cottage::create([
             'id' => bin2hex(random_bytes(12)),
             'property_id' => $propertyId,
-        ]));
+            'name' => $name,
+            'slug' => $slug,
+            'short_description' => $request->input('short_description') ?? $request->input('shortDescription'),
+            'description' => $request->input('description'),
+            'max_adults' => (int) ($request->input('max_adults') ?? $request->input('maxAdults') ?? 2),
+            'max_children' => (int) ($request->input('max_children') ?? $request->input('maxChildren') ?? 0),
+            'max_occupancy' => (int) ($request->input('max_occupancy') ?? $request->input('maxOccupancy') ?? 2),
+            'bedrooms' => $request->filled('bedrooms') ? (int) $request->input('bedrooms') : null,
+            'bathrooms' => $request->filled('bathrooms') ? (float) $request->input('bathrooms') : null,
+            'max_dogs' => $request->filled('maxDogs') ? (int) $request->input('maxDogs') : ($request->filled('max_dogs') ? (int) $request->input('max_dogs') : 0),
+            'beds' => $request->input('beds') ?? [],
+            'amenities' => $request->input('amenities') ?? [],
+            'amenity_ids' => $request->input('amenity_ids') ?? $request->input('amenityIds') ?? [],
+            'images' => $request->input('images') ?? [],
+            'media' => $request->input('media') ?? [],
+            'property_details_html' => $request->input('property_details_html') ?? $request->input('propertyDetailsHtml'),
+            'layout_html' => $request->input('layout_html') ?? $request->input('layoutHtml'),
+            'floorplan_media_ids' => $request->input('floorplan_media_ids') ?? $request->input('floorplanMediaIds') ?? [],
+            'location_text' => $request->input('location_text') ?? $request->input('locationText'),
+            'surroundings_html' => $request->input('surroundings_html') ?? $request->input('surroundingsHtml'),
+            'map_lat' => $request->filled('map_lat') ? (float) $request->input('map_lat') : ($request->filled('mapLat') ? (float) $request->input('mapLat') : null),
+            'map_lng' => $request->filled('map_lng') ? (float) $request->input('map_lng') : ($request->filled('mapLng') ? (float) $request->input('mapLng') : null),
+            'map_embed_url' => $request->input('map_embed_url') ?? $request->input('mapEmbedUrl'),
+            'welcome_hamper_included' => filter_var($request->input('welcome_hamper_included') ?? $request->input('welcomeHamperIncluded'), FILTER_VALIDATE_BOOLEAN),
+            'welcome_hamper_description' => $request->input('welcome_hamper_description') ?? $request->input('welcomeHamperDescription'),
+            'welcome_hamper_image_media_id' => $request->input('welcome_hamper_image_media_id') ?? $request->input('welcomeHamperImageMediaId'),
+            'welcome_hamper_html' => $request->input('welcome_hamper_html') ?? $request->input('welcomeHamperHtml'),
+            'status' => $request->input('status', 'ACTIVE') ?: 'ACTIVE',
+            'seo' => $request->input('seo'),
+        ]);
 
         $this->syncCottageInventoryAndRates($cottage, $basePrice);
 
@@ -85,12 +129,87 @@ class AdminCottageController extends Controller
             ], 404);
         }
 
-        $validated = $request->validated();
+        $payload = [];
+        if ($request->has('name')) {
+            $payload['name'] = trim((string) $request->input('name'));
+        }
+        if ($request->has('slug')) {
+            $slug = trim((string) $request->input('slug'));
+            $payload['slug'] = $slug !== '' ? Str::slug($slug) : Str::slug($payload['name'] ?? $cottage->name);
+        }
+        if ($request->has('short_description') || $request->has('shortDescription')) {
+            $payload['short_description'] = $request->input('short_description') ?? $request->input('shortDescription');
+        }
+        if ($request->has('description')) {
+            $payload['description'] = $request->input('description');
+        }
+        if ($request->has('max_adults') || $request->has('maxAdults')) {
+            $payload['max_adults'] = (int) ($request->input('max_adults') ?? $request->input('maxAdults'));
+        }
+        if ($request->has('max_children') || $request->has('maxChildren')) {
+            $payload['max_children'] = (int) ($request->input('max_children') ?? $request->input('maxChildren'));
+        }
+        if ($request->has('max_occupancy') || $request->has('maxOccupancy')) {
+            $payload['max_occupancy'] = (int) ($request->input('max_occupancy') ?? $request->input('maxOccupancy'));
+        }
+        if ($request->has('bedrooms')) {
+            $payload['bedrooms'] = $request->filled('bedrooms') ? (int) $request->input('bedrooms') : null;
+        }
+        if ($request->has('bathrooms')) {
+            $payload['bathrooms'] = $request->filled('bathrooms') ? (float) $request->input('bathrooms') : null;
+        }
+        if ($request->has('max_dogs') || $request->has('maxDogs')) {
+            $payload['max_dogs'] = $request->filled('maxDogs') ? (int) $request->input('maxDogs') : ($request->filled('max_dogs') ? (int) $request->input('max_dogs') : 0);
+        }
+        if ($request->has('beds')) $payload['beds'] = $request->input('beds');
+        if ($request->has('amenities')) $payload['amenities'] = $request->input('amenities');
+        if ($request->has('amenity_ids') || $request->has('amenityIds')) {
+            $payload['amenity_ids'] = $request->input('amenity_ids') ?? $request->input('amenityIds');
+        }
+        if ($request->has('images')) $payload['images'] = $request->input('images');
+        if ($request->has('media')) $payload['media'] = $request->input('media');
+        if ($request->has('property_details_html') || $request->has('propertyDetailsHtml')) {
+            $payload['property_details_html'] = $request->input('property_details_html') ?? $request->input('propertyDetailsHtml');
+        }
+        if ($request->has('layout_html') || $request->has('layoutHtml')) {
+            $payload['layout_html'] = $request->input('layout_html') ?? $request->input('layoutHtml');
+        }
+        if ($request->has('floorplan_media_ids') || $request->has('floorplanMediaIds')) {
+            $payload['floorplan_media_ids'] = $request->input('floorplan_media_ids') ?? $request->input('floorplanMediaIds');
+        }
+        if ($request->has('location_text') || $request->has('locationText')) {
+            $payload['location_text'] = $request->input('location_text') ?? $request->input('locationText');
+        }
+        if ($request->has('surroundings_html') || $request->has('surroundingsHtml')) {
+            $payload['surroundings_html'] = $request->input('surroundings_html') ?? $request->input('surroundingsHtml');
+        }
+        if ($request->has('map_lat') || $request->has('mapLat')) {
+            $payload['map_lat'] = $request->filled('map_lat') ? (float) $request->input('map_lat') : ($request->filled('mapLat') ? (float) $request->input('mapLat') : null);
+        }
+        if ($request->has('map_lng') || $request->has('mapLng')) {
+            $payload['map_lng'] = $request->filled('map_lng') ? (float) $request->input('map_lng') : ($request->filled('mapLng') ? (float) $request->input('mapLng') : null);
+        }
+        if ($request->has('map_embed_url') || $request->has('mapEmbedUrl')) {
+            $payload['map_embed_url'] = $request->input('map_embed_url') ?? $request->input('mapEmbedUrl');
+        }
+        if ($request->has('welcome_hamper_included') || $request->has('welcomeHamperIncluded')) {
+            $payload['welcome_hamper_included'] = filter_var($request->input('welcome_hamper_included') ?? $request->input('welcomeHamperIncluded'), FILTER_VALIDATE_BOOLEAN);
+        }
+        if ($request->has('welcome_hamper_description') || $request->has('welcomeHamperDescription')) {
+            $payload['welcome_hamper_description'] = $request->input('welcome_hamper_description') ?? $request->input('welcomeHamperDescription');
+        }
+        if ($request->has('welcome_hamper_image_media_id') || $request->has('welcomeHamperImageMediaId')) {
+            $payload['welcome_hamper_image_media_id'] = $request->input('welcome_hamper_image_media_id') ?? $request->input('welcomeHamperImageMediaId');
+        }
+        if ($request->has('welcome_hamper_html') || $request->has('welcomeHamperHtml')) {
+            $payload['welcome_hamper_html'] = $request->input('welcome_hamper_html') ?? $request->input('welcomeHamperHtml');
+        }
+        if ($request->has('status')) $payload['status'] = $request->input('status');
+        if ($request->has('seo')) $payload['seo'] = $request->input('seo');
+
+        $cottage->update($payload);
+
         $basePrice = $request->input('base_price') ?? $request->input('basePrice');
-        unset($validated['base_price'], $validated['basePrice']);
-
-        $cottage->update($validated);
-
         $this->syncCottageInventoryAndRates($cottage, $basePrice);
 
         return response()->json([
@@ -151,16 +270,25 @@ class AdminCottageController extends Controller
         $ratePlan = RatePlan::where('room_type_id', $cottage->id)->first();
         if ($ratePlan) {
             if ($basePrice !== null && $basePrice !== '') {
+                $rawPrice = (int) $basePrice;
+                // Normalize input pounds (£150) to minor units / pence (15000)
+                $amountInPence = ($rawPrice < 1000 && $rawPrice > 0) ? ($rawPrice * 100) : $rawPrice;
+
                 $pricing = is_array($ratePlan->pricing) ? $ratePlan->pricing : [];
-                $pricing['basePrice'] = (int) $basePrice;
-                $pricing['base_price'] = (int) $basePrice;
+                $pricing['type'] = 'PER_NIGHT';
+                $pricing['amount'] = $amountInPence;
+                $pricing['basePrice'] = $amountInPence;
+                $pricing['base_price'] = $amountInPence;
+                $pricing['currency'] = $pricing['currency'] ?? 'GBP';
+
                 $ratePlan->update([
                     'pricing' => $pricing,
                     'status' => $cottage->status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE',
                 ]);
             }
         } else {
-            $price = ($basePrice !== null && $basePrice !== '') ? (int) $basePrice : 150;
+            $rawPrice = ($basePrice !== null && $basePrice !== '') ? (int) $basePrice : 150;
+            $amountInPence = ($rawPrice < 1000 && $rawPrice > 0) ? ($rawPrice * 100) : $rawPrice;
             $slug = 'standard-' . ($cottage->slug ?? $cottage->id);
             RatePlan::create([
                 'id' => bin2hex(random_bytes(12)),
@@ -171,8 +299,10 @@ class AdminCottageController extends Controller
                 'slug' => $slug,
                 'description' => 'Standard flexible rate for ' . $cottage->name,
                 'pricing' => [
-                    'basePrice' => $price,
-                    'base_price' => $price,
+                    'type' => 'PER_NIGHT',
+                    'amount' => $amountInPence,
+                    'basePrice' => $amountInPence,
+                    'base_price' => $amountInPence,
                     'currency' => 'GBP',
                 ],
                 'restrictions' => [
@@ -211,7 +341,12 @@ class AdminCottageController extends Controller
         $ratePlan = RatePlan::where('room_type_id', $c->id)->first();
         $basePrice = 150;
         if ($ratePlan && is_array($ratePlan->pricing)) {
-            $basePrice = (int) ($ratePlan->pricing['basePrice'] ?? $ratePlan->pricing['base_price'] ?? ($ratePlan->pricing['amount'] ? round($ratePlan->pricing['amount'] / 100) : 150));
+            $raw = $ratePlan->pricing['amount'] ?? $ratePlan->pricing['basePrice'] ?? $ratePlan->pricing['base_price'] ?? null;
+            if ($raw !== null) {
+                $rawInt = (int) $raw;
+                // In admin UI input box (labeled £), display pounds (150), not pence (15000)!
+                $basePrice = ($rawInt >= 1000) ? (int) round($rawInt / 100) : $rawInt;
+            }
         }
 
         $room = Room::where('room_type_id', $c->id)->first();

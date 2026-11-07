@@ -80,6 +80,25 @@ class AdminPolicyController extends Controller
         ]);
     }
 
+    public function destroy(string $id)
+    {
+        $policy = CancellationPolicy::find($id);
+
+        if (! $policy) {
+            return response()->json([
+                'success' => false,
+                'error' => ['code' => 'POLICY_NOT_FOUND', 'message' => 'Policy not found'],
+            ], 404);
+        }
+
+        $policy->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Policy deleted successfully',
+        ]);
+    }
+
     private function policyData(CancellationPolicy $policy): array
     {
         return [

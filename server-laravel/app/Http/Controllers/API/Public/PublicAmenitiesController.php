@@ -9,7 +9,10 @@ class PublicAmenitiesController extends Controller
 {
     public function index()
     {
-        $amenities = Amenity::where('status', 'ACTIVE')->get();
+        $amenities = Amenity::where('status', 'ACTIVE')
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('name', 'asc')
+            ->get();
 
         return response()->json([
             'success' => true,
@@ -17,7 +20,13 @@ class PublicAmenitiesController extends Controller
                 'id' => $a->id,
                 'name' => $a->name,
                 'slug' => $a->slug,
+                'group' => $a->group ?? 'HIGHLIGHT',
+                'description' => $a->description,
+                'imageMediaId' => $a->image_media_id,
+                'image_media_id' => $a->image_media_id,
+                'iconUrl' => $a->icon_url,
                 'icon_url' => $a->icon_url,
+                'sortOrder' => (int) ($a->sort_order ?? 0),
             ]),
         ]);
     }

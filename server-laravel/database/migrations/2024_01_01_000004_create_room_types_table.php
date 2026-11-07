@@ -2,22 +2,23 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('room_types', function (Blueprint $table) {
+        Schema::create('cottages', function (Blueprint $table) {
             $table->char('id', 24)->primary();
             $table->char('property_id', 24);
             $table->string('name', 120);
             $table->string('slug', 140);
             $table->text('short_description')->nullable();
             $table->mediumText('description')->nullable();
-            $table->integer('max_adults');
+            $table->integer('max_adults')->default(2);
             $table->integer('max_children')->default(0);
-            $table->integer('max_occupancy');
+            $table->integer('max_occupancy')->default(2);
             $table->json('beds')->nullable();
             $table->json('amenities')->nullable();
             $table->json('images')->nullable();
@@ -38,8 +39,8 @@ return new class extends Migration
             $table->json('nearby_attractions')->nullable();
             $table->integer('bedrooms')->nullable();
             $table->integer('bathrooms')->nullable();
-            $table->integer('max_dogs')->nullable();
-            $table->string('status', 20)->default('DRAFT');
+            $table->integer('max_dogs')->nullable()->default(0);
+            $table->string('status', 20)->default('ACTIVE');
             $table->json('seo')->nullable();
             $table->timestamps(3);
 
@@ -47,10 +48,21 @@ return new class extends Migration
             $table->unique(['property_id', 'slug']);
             $table->index(['property_id', 'status']);
         });
+
+        // Compatibility view for any queries referencing room_types
+        try {
+            DB::statement('CREATE OR REPLACE VIEW room_types AS SELECT * FROM cottages');
+        } catch (\Throwable) {
+            // View creation optional if restricted
+        }
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('room_types');
+        try {
+            DB::statement('DROP VIEW IF EXISTS room_types');
+        } catch (\Throwable) {
+        }
+        Schema::dropIfExists('cottages');
     }
 };

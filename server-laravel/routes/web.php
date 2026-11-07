@@ -334,19 +334,59 @@ Route::match(['get', 'post'], '/setup-fresh-db', function () {
 });
 
 Route::match(['get', 'post'], '/fresh-db-seed', function () {
+    @set_time_limit(300);
+    @ini_set('max_execution_time', '300');
+
     $dropped = [];
     $migrateOutput = '';
     $seedOutput = '';
 
-    // 1. Drop all tables cleanly with foreign key checks disabled (InnoDB safe)
+    // 1. Drop all views and tables cleanly with foreign key checks disabled (InnoDB safe)
     try {
         \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS = 0;');
-        $tables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
+
+        // In MySQL, SHOW FULL TABLES returns each item with Table_type ('BASE TABLE' or 'VIEW')
+        // In MySQL, dropping a VIEW with DROP TABLE causes ERROR 1347: not BASE TABLE!
+        // Therefore, we drop all views first with DROP VIEW, then drop base tables.
+        $tables = \Illuminate\Support\Facades\DB::select('SHOW FULL TABLES');
+
+        // Pass 1: Drop all views
         foreach ($tables as $t) {
-            $tbl = array_values((array)$t)[0];
-            \Illuminate\Support\Facades\DB::statement("DROP TABLE IF EXISTS `{$tbl}`");
-            $dropped[] = $tbl;
+            $arr = array_values((array)$t);
+            $name = $arr[0];
+            $type = strtoupper($arr[1] ?? 'BASE TABLE');
+            if ($type === 'VIEW') {
+                try {
+                    \Illuminate\Support\Facades\DB::statement("DROP VIEW IF EXISTS `{$name}`");
+                    $dropped[] = "VIEW: {$name}";
+                } catch (\Throwable) {}
+            }
         }
+
+        // Explicitly ensure legacy/compat view room_types is dropped if present
+        try {
+            \Illuminate\Support\Facades\DB::statement('DROP VIEW IF EXISTS `room_types`');
+        } catch (\Throwable) {}
+
+        // Pass 2: Drop all tables
+        foreach ($tables as $t) {
+            $arr = array_values((array)$t);
+            $name = $arr[0];
+            $type = strtoupper($arr[1] ?? 'BASE TABLE');
+            if ($type !== 'VIEW') {
+                try {
+                    \Illuminate\Support\Facades\DB::statement("DROP TABLE IF EXISTS `{$name}`");
+                    $dropped[] = "TABLE: {$name}";
+                } catch (\Throwable) {
+                    // Fallback in case MySQL reported type differently
+                    try {
+                        \Illuminate\Support\Facades\DB::statement("DROP VIEW IF EXISTS `{$name}`");
+                        $dropped[] = "VIEW: {$name}";
+                    } catch (\Throwable) {}
+                }
+            }
+        }
+
         \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
     } catch (\Throwable $e) {
         \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
@@ -366,18 +406,26 @@ Route::match(['get', 'post'], '/fresh-db-seed', function () {
             'success' => false,
             'step' => 'migrate',
             'error' => $e->getMessage(),
-            'dropped_tables' => $dropped,
+            'dropped_objects' => $dropped,
         ], 500);
     }
 
-    // 3. Seed ONLY Admin, Default Property, and Site Settings (zero dummy data)
+    // 3. Seed Admin, Default Property, and Site Settings
     try {
         Artisan::call('db:seed', ['--force' => true]);
         $seedOutput = Artisan::output();
 
+        // Optional: If user passed ?with_cottages=1 or ?seed_cottages=1, seed the 5 original cottages
+        $cottagesSeeded = false;
+        if (request()->boolean('with_cottages') || request()->boolean('seed_cottages')) {
+            (new \Database\Seeders\CottageCatalogueSeeder())->run();
+            $cottagesSeeded = true;
+        }
+
         $admin = \App\Models\User::where('email', 'admin@gmail.com')->first();
         $property = \App\Models\Property::defaultProperty();
         $settings = \App\Models\SiteSettings::defaultSettings();
+        $cottageCount = \App\Models\Cottage::count();
     } catch (\Throwable $e) {
         return response()->json([
             'success' => false,
@@ -396,7 +444,7 @@ Route::match(['get', 'post'], '/fresh-db-seed', function () {
     // 5. Clear caches
     try {
         Artisan::call('optimize:clear');
-    } catch (\Throwable $e) {}
+    } catch (\Throwable) {}
 
     // Verify created tables
     $finalTables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
@@ -404,10 +452,11 @@ Route::match(['get', 'post'], '/fresh-db-seed', function () {
 
     return response()->json([
         'success' => true,
-        'message' => '100% Pure Laravel & MySQL database wiped, migrated and seeded with ONLY Admin, Property, and Site Settings. Zero dummy data.',
-        'dropped_tables_count' => count($dropped),
+        'message' => '100% Pure Laravel & MySQL database wiped, migrated and seeded.' . ($cottagesSeeded ? ' All 5 original cottages seeded!' : ' Database is clean with Admin & Property.'),
+        'dropped_objects_count' => count($dropped),
         'created_tables_count' => count($createdList),
         'created_tables' => $createdList,
+        'cottages_count' => $cottageCount,
         'admin' => [
             'email' => $admin?->email ?? 'admin@gmail.com',
             'password' => 'admin@gmail.com',
@@ -423,7 +472,28 @@ Route::match(['get', 'post'], '/fresh-db-seed', function () {
         ],
         'migrate' => $migrateOutput,
         'seed' => $seedOutput,
-    ]);
+    ], 200, [], JSON_PRETTY_PRINT);
+});
+
+Route::match(['get', 'post'], '/seed-original-cottages', function () {
+    @set_time_limit(300);
+    @ini_set('max_execution_time', '300');
+
+    try {
+        (new \Database\Seeders\CottageCatalogueSeeder())->run();
+        $cottages = \App\Models\Cottage::all(['id', 'name', 'slug', 'bedrooms', 'bathrooms', 'max_occupancy', 'status']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Original 5 cottages, amenities, rate plans, and media catalog successfully seeded!',
+            'count' => $cottages->count(),
+            'cottages' => $cottages,
+        ], 200, [], JSON_PRETTY_PRINT);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+        ], 500);
+    }
 });
 
 Route::match(['get', 'post'], '/artisan-setup', function () {
