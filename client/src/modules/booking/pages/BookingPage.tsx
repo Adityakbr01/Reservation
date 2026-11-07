@@ -20,6 +20,7 @@ import {
   validateCouponCode,
 } from "../api/booking.api";
 import { fetchCottageOffers } from "@/modules/cottages/api/cottages.api";
+import { fetchSiteSettings } from "@/modules/cms/api/cms.api";
 import { useAvailabilitySearch } from "@/modules/availability";
 import {
   useCreateBooking,
@@ -49,6 +50,14 @@ function newIdempotencyKey(): string {
   } catch {
     return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   }
+}
+
+function formatTimeLabel(value: string | null | undefined, fallback: string): string {
+  const match = /^(\d{1,2}):(\d{2})/.exec(value ?? "");
+  if (!match) return fallback;
+  const hours = Number(match[1]);
+  const suffix = hours >= 12 ? "pm" : "am";
+  return `${hours % 12 || 12}:${match[2]} ${suffix}`;
 }
 
 function parseSelection(params: URLSearchParams): BookingSelection | null {
@@ -297,6 +306,11 @@ export function BookingPage() {
     queryKey: ["room-offers", selection?.roomTypeId],
     queryFn: () => fetchCottageOffers(selection?.roomTypeId as string),
     enabled: !!selection,
+    staleTime: 300_000,
+  });
+  const { data: siteSettings } = useQuery({
+    queryKey: ["site-settings-public"],
+    queryFn: fetchSiteSettings,
     staleTime: 300_000,
   });
 
@@ -910,8 +924,8 @@ export function BookingPage() {
             </CardHeader>
             <CardContent className="space-y-2 rounded-md bg-muted/50 p-4 text-sm">
               <div className="flex gap-8">
-                <p><span className="font-semibold">Check-in</span><br />after 4:00 pm</p>
-                <p><span className="font-semibold">Check-out</span><br />before 11:00 am</p>
+                <p><span className="font-semibold">Check-in</span><br />after {formatTimeLabel(siteSettings?.checkInTime, "4:00 pm")}</p>
+                <p><span className="font-semibold">Check-out</span><br />before {formatTimeLabel(siteSettings?.checkOutTime, "11:00 am")}</p>
               </div>
             </CardContent>
           </Card>

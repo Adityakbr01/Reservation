@@ -65,7 +65,24 @@ export interface CmsPolicy {
   updatedAt: string;
 }
 
+export interface SiteSettings {
+  propertyName: string | null;
+  currency: string | null;
+  timezone: string | null;
+  checkInTime: string | null;
+  checkOutTime: string | null;
+  address: string | null;
+  phone: string | null;
+  supportEmail: string | null;
+  whyBookWithUs?: Array<{ title: string; text?: string | null }>;
+}
+
 const BASE = "/public/cms";
+
+export async function fetchSiteSettings(): Promise<SiteSettings> {
+  const response = await publicApiClient.get<ApiEnvelope<SiteSettings>>(`${BASE}/site-settings`);
+  return unwrapResponse(response);
+}
 
 export async function fetchCmsPage(slug: string): Promise<CmsPage> {
   const response = await publicApiClient.get<ApiEnvelope<CmsPage>>(`${BASE}/pages/${slug}`);
