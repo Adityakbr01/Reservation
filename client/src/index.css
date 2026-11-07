@@ -43,6 +43,13 @@
     U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
     U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+@font-face {
+  font-family: "Georgia";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/Georgia.woff2") format("woff2");
+}
 
 /* Server-sanitized rich HTML (why-book bodies, CMS snippets). */
 .rich-body > *:first-child {
@@ -200,9 +207,10 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* --- brand typography (Instrument Serif headlines, DM Sans body) --- */
-  --font-sans: "DM Sans", system-ui, sans-serif;
-  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  /* --- brand typography (Georgia site-wide) --- */
+  --font-sans: "Georgia", "Times New Roman", serif;
+  --font-display: "Georgia", "Times New Roman", serif;
+  --font-georgia: "Georgia", "Times New Roman", serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* --- brand colors (evergreen + sage) --- */
@@ -249,7 +257,12 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background font-sans antialiased;
+    font-size: 14px;
+    line-height: 24px;
+    letter-spacing: 0.56px;
+    font-weight: 600;
+    color: rgb(28, 42, 27);
     overflow-x: clip;
   }
   /* Brand interaction: pointer cursor on all actionable buttons. */

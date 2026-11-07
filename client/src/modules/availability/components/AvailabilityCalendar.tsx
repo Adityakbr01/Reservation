@@ -258,9 +258,7 @@ export function AvailabilityCalendar({
             <span className="size-2 rounded-sm bg-brand" /> Selected
           </span>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Dates represent nights stayed. Check-out is the morning of your departure date. Final availability is always rechecked at booking.
-        </p>
+      
       </CardContent>
     </Card>
   );

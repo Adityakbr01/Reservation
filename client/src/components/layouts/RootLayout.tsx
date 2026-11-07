@@ -130,22 +130,18 @@ export function RootLayout() {
         <div className="mx-auto grid h-[84px] w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-[5px] px-[22px] sm:px-6 lg:h-[98px] lg:gap-3 lg:px-12">
           {/* Left links */}
           <div className="flex min-w-0 items-center gap-6">
-            <NavLink
-              to="/"
-              end
-              className={({ isActive }) =>
-                cn(
-                  "hidden md:inline-flex items-center whitespace-nowrap border-b-[0.8px] py-0 text-[9px] leading-[12.6px] transition-colors",
-                  "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-                  isActive
-                    ? "border-[#889878] text-foreground"
-                    : "border-transparent text-foreground/90",
-                  "md:border-transparent md:py-3 md:text-[13px] md:leading-none md:hover:text-foreground",
-                )
-              }
+            <a
+              href={SITE_LINKS.localArea}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                "inline-flex items-center whitespace-nowrap border-b-[0.8px] border-[#889878] py-0 text-[9px] leading-[12.6px] text-foreground transition-colors",
+                "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+                "md:border-transparent md:py-3 md:text-[13px] md:leading-none md:hover:border-brand-light md:hover:text-foreground",
+              )}
             >
-              Find a cottage
-            </NavLink>
+              The Local Area
+            </a>
             <nav
               aria-label="Booking navigation"
               className="hidden items-center gap-6 md:flex"
@@ -349,13 +345,6 @@ export function RootLayout() {
             >
               Bespoke
             </a>
-            <NavLink
-              to="/offers"
-              className={mobileLinkClass}
-              onClick={closeMenu}
-            >
-              Offers
-            </NavLink>
             <a
               href={SITE_LINKS.enquireNow}
               target="_blank"
@@ -432,7 +421,7 @@ export function RootLayout() {
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 pb-8 pt-4 sm:px-6 sm:pb-12 sm:pt-6">
         <Outlet />
       </main>
-      <footer className="border-t-[0.8px] border-[#d8deca] bg-secondary">
+      <footer className="font-georgia border-t-[0.8px] border-[#d8deca] bg-secondary text-[14px] font-semibold leading-6 tracking-[0.56px] text-[#1c2a1b]">
         <div className="mx-auto w-full max-w-7xl px-[22px] pb-[95px] pt-[39px] sm:px-6 lg:px-12 lg:py-14">
           <div className="grid grid-cols-2 gap-x-[22px] gap-y-[30px] lg:grid-cols-[1.2fr_0.8fr_0.9fr_1fr] lg:gap-10">
             <div className="col-span-2 lg:col-span-1">
@@ -454,7 +443,7 @@ export function RootLayout() {
               <h3 className="mb-5 text-[10px] font-medium uppercase leading-4 tracking-[1.3px]">
                 Your stay
               </h3>
-              <div className="flex flex-col gap-2.5 text-[12px] leading-[20.4px]">
+              <div className="flex flex-col gap-2.5">
                 <Link to="/" className="hover:text-brand">
                   Find a cottage
                 </Link>
@@ -466,11 +455,8 @@ export function RootLayout() {
                 >
                   Group stays
                 </a>
-                <Link to="/offers" className="hover:text-brand">
-                  Offers
-                </Link>
                 <a
-                  href="https://hamptworthstays.com/local-area-and-map/"
+                  href={SITE_LINKS.localArea}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-brand"
@@ -484,7 +470,7 @@ export function RootLayout() {
               <h3 className="mb-5 text-[10px] font-medium uppercase leading-4 tracking-[1.3px]">
                 A little help
               </h3>
-              <div className="flex flex-col gap-2.5 text-[12px] leading-[20.4px]">
+              <div className="flex flex-col gap-2.5">
                 <a
                   href={SITE_LINKS.enquireNow}
                   target="_blank"
@@ -522,7 +508,7 @@ export function RootLayout() {
               <p className="mb-3 text-[10px] text-[#758466]">
                 Estate &amp; club team
               </p>
-              <div className="flex flex-col gap-2.5 text-[12px] leading-[20.4px]">
+              <div className="flex flex-col gap-2.5">
                 <a href="tel:+441794390155" className="hover:text-brand">
                   +44 7943 547557
                 </a>

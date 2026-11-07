@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useBlogPost, useBlogPosts, useCmsPage, useFaqs, useOffers, usePolicyDoc } from "../hooks/use-cms";
+import { useBlogPost, useBlogPosts, useCmsPage, useFaqs, usePolicyDoc } from "../hooks/use-cms";
 import { CmsSections } from "../components/CmsSections";
 import { CottageImage } from "@/components/common/CottageImage";
 import { useMediaUrls } from "@/modules/media";
@@ -178,57 +178,6 @@ export function FaqsPage() {
         ))
       )}
     </div>
-  );
-}
-
-export function OffersPage() {
-  const { data, isPending } = useOffers();
-  const items = data ?? [];
-  return (
-    <div className="w-full space-y-6 pb-8">
-      <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">Offers</h1>
-      {isPending ? (
-        <div className="h-40 animate-pulse rounded-xl bg-muted" aria-label="Loading offers" />
-      ) : items.length === 0 ? (
-        <p className="text-muted-foreground">No current offers — check back soon.</p>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((offer) => (
-            <OfferCard key={offer.id} offer={offer} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function OfferCard({ offer }: { offer: { title: string; description: string; imageMediaId: string | null; validUntil: string | null; ctaLabel: string | null; ctaUrl: string | null; hasCoupon: boolean } }) {
-  const { data } = useMediaUrls(offer.imageMediaId ? [offer.imageMediaId] : []);
-  return (
-    <Card className="overflow-hidden shadow-card">
-      {data?.[0]?.url && (
-        <img src={data[0].url} alt="" className="aspect-[16/9] w-full object-cover" loading="lazy" />
-      )}
-      <CardHeader>
-        <CardTitle className="text-xl">{offer.title}</CardTitle>
-        {offer.validUntil && (
-          <p className="text-xs text-muted-foreground">Valid until {formatDate(offer.validUntil)}</p>
-        )}
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <p className="text-sm text-muted-foreground">{offer.description}</p>
-        {offer.hasCoupon && (
-          <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300">
-            Includes a discount code at booking
-          </p>
-        )}
-        {offer.ctaLabel && offer.ctaUrl && (
-          <Button asChild variant="outline" className="rounded-full">
-            <Link to={offer.ctaUrl}>{offer.ctaLabel}</Link>
-          </Button>
-        )}
-      </CardContent>
-    </Card>
   );
 }
 

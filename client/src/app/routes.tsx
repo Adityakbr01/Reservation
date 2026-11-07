@@ -37,9 +37,6 @@ const BlogPostPage = lazy(() =>
 const FaqsPage = lazy(() =>
   import("@/modules/cms/pages/CmsPages").then((m) => ({ default: m.FaqsPage })),
 );
-const OffersPage = lazy(() =>
-  import("@/modules/cms/pages/CmsPages").then((m) => ({ default: m.OffersPage })),
-);
 const PolicyPage = lazy(() =>
   import("@/modules/cms/pages/CmsPages").then((m) => ({ default: m.PolicyPage })),
 );
@@ -70,7 +67,6 @@ export function AppRoutes() {
           <Route path="blogs" element={<BlogsPage />} />
           <Route path="blogs/:slug" element={<BlogPostPage />} />
           <Route path="faqs" element={<FaqsPage />} />
-          <Route path="offers" element={<OffersPage />} />
           <Route path="policies/:key" element={<PolicyPage />} />
           <Route path="booking/new" element={<BookingPage />} />
           <Route

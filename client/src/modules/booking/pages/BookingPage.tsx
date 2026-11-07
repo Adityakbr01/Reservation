@@ -913,12 +913,6 @@ export function BookingPage() {
                 <p><span className="font-semibold">Check-in</span><br />after 4:00 pm</p>
                 <p><span className="font-semibold">Check-out</span><br />before 11:00 am</p>
               </div>
-              <p className="font-semibold uppercase">
-                Cottage{rooms.length === 1 ? "" : "s"} | {rooms.map((r) => `${r.roomName} × ${r.quantity}`).join(", ")}
-              </p>
-              <p className="text-muted-foreground">
-                {rooms.map((r) => r.rateName).join(" + ")}. {totalLabel && `${totalLabel} due at booking.`} Cancellations and amendments are subject to the booking and cancellation policy.
-              </p>
             </CardContent>
           </Card>
 
