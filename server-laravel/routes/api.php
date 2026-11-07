@@ -81,6 +81,8 @@ Route::get('/ready', function () {
 // Stripe webhook - raw body for signature verification
 Route::post('/v1/webhooks/stripe', [StripeWebhookController::class, 'handle'])
     ->middleware('throttle:60,1');
+Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])
+    ->middleware('throttle:60,1');
 
 // Test POST route
 Route::post('/test-post', function () {

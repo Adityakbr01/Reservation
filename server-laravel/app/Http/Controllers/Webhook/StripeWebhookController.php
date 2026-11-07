@@ -40,6 +40,52 @@ class StripeWebhookController extends Controller
 
         Log::info('Stripe webhook received', ['event_id' => $event->id, 'type' => $event->type]);
 
+        try {
+            switch ($event->type) {
+                case 'payment_intent.succeeded':
+                    $intent = $event->data->object;
+                    $bookingId = $intent->metadata->booking_id ?? $intent->metadata->bookingId ?? null;
+                    if ($bookingId) {
+                        $booking = \App\Models\Booking::find($bookingId);
+                        if ($booking) {
+                            $booking->status = 'CONFIRMED';
+                            $booking->payment_status = 'PAID';
+                            $booking->save();
+                            Log::info("Booking {$bookingId} confirmed via Stripe webhook");
+                        }
+                    }
+                    break;
+                case 'payment_intent.payment_failed':
+                    $intent = $event->data->object;
+                    $bookingId = $intent->metadata->booking_id ?? $intent->metadata->bookingId ?? null;
+                    if ($bookingId) {
+                        $booking = \App\Models\Booking::find($bookingId);
+                        if ($booking) {
+                            $booking->payment_status = 'FAILED';
+                            $booking->save();
+                            Log::warning("Booking {$bookingId} payment failed via Stripe webhook");
+                        }
+                    }
+                    break;
+                case 'charge.refunded':
+                    $charge = $event->data->object;
+                    $paymentIntentId = $charge->payment_intent ?? null;
+                    if ($paymentIntentId) {
+                        $payment = \App\Models\Payment::where('payment_intent_id', $paymentIntentId)->first();
+                        if ($payment && $payment->booking_id) {
+                            $booking = \App\Models\Booking::find($payment->booking_id);
+                            if ($booking) {
+                                $booking->payment_status = 'REFUNDED';
+                                $booking->save();
+                            }
+                        }
+                    }
+                    break;
+            }
+        } catch (\Throwable $e) {
+            Log::error('Error processing Stripe webhook event: ' . $e->getMessage());
+        }
+
         return response()->json([
             'success' => true,
             'data' => ['received' => true],

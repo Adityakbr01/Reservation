@@ -1,0 +1,212 @@
+{
+  "success": true,
+  "data": {
+    "id": "47d6437eaba0d5bf0e1e2dc7",
+    "property_id": "6ac0cc41a287cfd3dfbbf8a9",
+    "propertyId": "6ac0cc41a287cfd3dfbbf8a9",
+    "name": "Foxglove Cottage",
+    "slug": "foxglove-cottage",
+    "short_description": "Cottage in Hamptworth, Hampshire \u2014 sleeps 6",
+    "shortDescription": "Cottage in Hamptworth, Hampshire \u2014 sleeps 6",
+    "description": "Tucked away in the tranquil surroundings of Home Farm in Hamptworth, Foxglove Cottage offers a charming countryside escape on the edge of the enchanting New Forest. One of five beautifully converted barn cottages, it effortlessly blends rustic character with modern comforts, creating a peaceful haven where guests can slow down, relax and reconnect.",
+    "max_adults": 2,
+    "maxAdults": 2,
+    "max_children": 0,
+    "maxChildren": 0,
+    "max_occupancy": 2,
+    "maxOccupancy": 2,
+    "beds": [],
+    "amenities": ["WiFi", "AC", "TV"],
+    "images": [
+      {
+        "mediaId": "5d86001d9618d5856be466a1",
+        "altText": null,
+        "sortOrder": 0,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/94f0afdc-62e9be18-1515063-33.jpg"
+      },
+      {
+        "mediaId": "a16854d10f4796f0f3faa8ee",
+        "altText": null,
+        "sortOrder": 1,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/55540830-7b0cc442-1515063-41.jpg"
+      },
+      {
+        "mediaId": "c6a20577d921351e2ce25f38",
+        "altText": null,
+        "sortOrder": 2,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/c9b68630-91b48f9b-1515063-46.jpg"
+      },
+      {
+        "mediaId": "cf23bd2c8e3db091d5f5aa60",
+        "altText": null,
+        "sortOrder": 3,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/11cefc9a-eb61efc9-1515063-37.jpg"
+      },
+      {
+        "mediaId": "a564e9ecc89db489f267361c",
+        "altText": null,
+        "sortOrder": 4,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/107c2644-4c1de4f2-1515063-38.jpg"
+      },
+      {
+        "mediaId": "5656b710dd3d8ed6df47f768",
+        "altText": null,
+        "sortOrder": 5,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/1f2fe5a3-fcc8ec33-1515063-28.jpg"
+      },
+      {
+        "mediaId": "0e064af29ad1a9e92b5126ee",
+        "altText": null,
+        "sortOrder": 6,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/17bbf110-71aba5de-1515063-29.jpg"
+      },
+      {
+        "mediaId": "e85a1895288b9c5ec6452b85",
+        "altText": null,
+        "sortOrder": 7,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/f18b2dc9-a84e3ae9-1515063-22.jpg"
+      },
+      {
+        "mediaId": "9ceab1cb4afc8dd034e78a4b",
+        "altText": null,
+        "sortOrder": 8,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/0ec68fae-f4155fac-1515063-16.jpg"
+      }
+    ],
+    "media": [
+      {
+        "mediaId": "5d86001d9618d5856be466a1",
+        "kind": "image",
+        "altText": null,
+        "sortOrder": 0,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/94f0afdc-62e9be18-1515063-33.jpg"
+      },
+      {
+        "mediaId": "a16854d10f4796f0f3faa8ee",
+        "kind": "image",
+        "altText": null,
+        "sortOrder": 1,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/55540830-7b0cc442-1515063-41.jpg"
+      },
+      {
+        "mediaId": "c6a20577d921351e2ce25f38",
+        "kind": "image",
+        "altText": null,
+        "sortOrder": 2,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/c9b68630-91b48f9b-1515063-46.jpg"
+      },
+      {
+        "mediaId": "cf23bd2c8e3db091d5f5aa60",
+        "kind": "image",
+        "altText": null,
+        "sortOrder": 3,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/11cefc9a-eb61efc9-1515063-37.jpg"
+      },
+      {
+        "mediaId": "a564e9ecc89db489f267361c",
+        "kind": "image",
+        "altText": null,
+        "sortOrder": 4,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/107c2644-4c1de4f2-1515063-38.jpg"
+      },
+      {
+        "mediaId": "5656b710dd3d8ed6df47f768",
+        "kind": "image",
+        "altText": null,
+        "sortOrder": 5,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/1f2fe5a3-fcc8ec33-1515063-28.jpg"
+      },
+      {
+        "mediaId": "0e064af29ad1a9e92b5126ee",
+        "kind": "image",
+        "altText": null,
+        "sortOrder": 6,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/17bbf110-71aba5de-1515063-29.jpg"
+      },
+      {
+        "mediaId": "e85a1895288b9c5ec6452b85",
+        "kind": "image",
+        "altText": null,
+        "sortOrder": 7,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/f18b2dc9-a84e3ae9-1515063-22.jpg"
+      },
+      {
+        "mediaId": "9ceab1cb4afc8dd034e78a4b",
+        "kind": "image",
+        "altText": null,
+        "sortOrder": 8,
+        "url": "https:\/\/laravel.hamptworthstays.com\/uploads\/0ec68fae-f4155fac-1515063-16.jpg"
+      }
+    ],
+    "property_details_html": "<p>Welcome to Foxglove Cottage, a beautifully restored single-storey barn conversion set within the peaceful private grounds of Home Farm in Hamptworth, right on the doorstep of the New Forest National Park.<br>&nbsp;<\/p><p>The cottage combines rustic charm with modern luxury, featuring beautiful vaulted ceilings and original exposed wooden beams. Inside, you\u2019ll find a bright open-plan living and dining area with comfortable seating, soft ambient lighting, and a large smart TV for relaxing evenings.<br>&nbsp;<\/p><p>The adjoining Shaker-style kitchen is finished in a soft sage green and is fully equipped with premium appliances, including an induction hob, electric oven, dishwasher, washing machine\/dryer, microwave, and Nespresso coffee machine. There is also a solid wood dining table with seating for up to four guests.<\/p><p>Both bedrooms are located on the ground floor and offer step-free accessibility.<br>&nbsp;<\/p><p>Principal Bedroom: A luxurious 6ft super-king bed, which can be separated into two 3ft single beds upon request. The room also features Egyptian cotton bedding, fitted wardrobe storage, and beautiful exposed oak beams.<br>&nbsp;<\/p><p>Second Bedroom: Two comfortable 3ft single beds, which can also be configured as a king-size bed. This room is ideal for children or friends.<\/p><p>Family Bathroom: A stylish modern bathroom with a full-size bathtub, overhead power shower, glass shower screen, illuminated vanity mirror, and heated chrome towel rail.<\/p><p>French doors open onto the shared landscaped central courtyard, where guests have dedicated outdoor seating. It\u2019s a lovely spot to enjoy a morning coffee or an evening drink while listening to the birdsong.<\/p>",
+    "propertyDetailsHtml": "<p>Welcome to Foxglove Cottage, a beautifully restored single-storey barn conversion set within the peaceful private grounds of Home Farm in Hamptworth, right on the doorstep of the New Forest National Park.<br>&nbsp;<\/p><p>The cottage combines rustic charm with modern luxury, featuring beautiful vaulted ceilings and original exposed wooden beams. Inside, you\u2019ll find a bright open-plan living and dining area with comfortable seating, soft ambient lighting, and a large smart TV for relaxing evenings.<br>&nbsp;<\/p><p>The adjoining Shaker-style kitchen is finished in a soft sage green and is fully equipped with premium appliances, including an induction hob, electric oven, dishwasher, washing machine\/dryer, microwave, and Nespresso coffee machine. There is also a solid wood dining table with seating for up to four guests.<\/p><p>Both bedrooms are located on the ground floor and offer step-free accessibility.<br>&nbsp;<\/p><p>Principal Bedroom: A luxurious 6ft super-king bed, which can be separated into two 3ft single beds upon request. The room also features Egyptian cotton bedding, fitted wardrobe storage, and beautiful exposed oak beams.<br>&nbsp;<\/p><p>Second Bedroom: Two comfortable 3ft single beds, which can also be configured as a king-size bed. This room is ideal for children or friends.<\/p><p>Family Bathroom: A stylish modern bathroom with a full-size bathtub, overhead power shower, glass shower screen, illuminated vanity mirror, and heated chrome towel rail.<\/p><p>French doors open onto the shared landscaped central courtyard, where guests have dedicated outdoor seating. It\u2019s a lovely spot to enjoy a morning coffee or an evening drink while listening to the birdsong.<\/p>",
+    "layout_html": null,
+    "layoutHtml": null,
+    "floorplan_media_ids": ["528b9ef06a3aafcbb45601b8"],
+    "floorplanMediaIds": ["528b9ef06a3aafcbb45601b8"],
+    "location_text": "Home Farm, Hamptworth, Salisbury SP5 2DS, UK",
+    "locationText": "Home Farm, Hamptworth, Salisbury SP5 2DS, UK",
+    "surroundings_html": "<p>Information correct at the time of writing:-<\/p><p>The cottages at Home Farm are conveniently located on the border with Wiltshire and Hampshire, so there are lots of opportunities for things to do and days out.<\/p><p>Enjoy the facilities at <strong>Hamptworth Golf &amp; Country Club<\/strong>, including: Championship golf course, Padel courts, Pickleball courts, Croquet, Clubhouse, restaurant and bar.<\/p><p>Explore the <strong>New Forest National Park<\/strong> - walk or cycle through ancient woodland, heathland and open moorland - spot the famous free-roaming ponies, cattle and deer. Visit charming villages, traditional pubs and farm shops. Enjoy picnics, nature trails and scenic viewpoints.<\/p><p>Discover <strong>Salisbury<\/strong> &amp; its history - visit <strong>Salisbury Cathedral<\/strong>, home to the tallest church spire in Britain, and one of the best-preserved original copies of the Magna Carta - Visit <strong>Mompesson House<\/strong>, wander Salisbury's independent shops, cafes and restaurants or explore <strong>Old Sarum<\/strong>, one of southern England's most important historic sites, with its impressive ancient earthworks and panoramic views.<\/p><p>Discover Wiltshire's World Heritage Sites - visit the iconic <strong>Stonehenge<\/strong>, and explore <strong>Avebury<\/strong>, home to the world's largest prehistoric stone circle, and discover the rich ancient history that makes this UNESCO World Heritage landscape so special.<\/p><p>Take a trip to <strong>Shaftesbury<\/strong> and see the famous <strong>Gold Hill<\/strong>, featured in the classic Hovis advert.<\/p><p>For gardens, heritage &amp; historic houses visit the magnificent gardens at <strong>Stourhead<\/strong>, explore the picturesque village and historic buildings of <strong>Lacock Abbey<\/strong>, and wander the beautiful rose gardens and grounds at <strong>Mottisfont<\/strong>.<\/p>",
+    "surroundingsHtml": "<p>Information correct at the time of writing:-<\/p><p>The cottages at Home Farm are conveniently located on the border with Wiltshire and Hampshire, so there are lots of opportunities for things to do and days out.<\/p><p>Enjoy the facilities at <strong>Hamptworth Golf &amp; Country Club<\/strong>, including: Championship golf course, Padel courts, Pickleball courts, Croquet, Clubhouse, restaurant and bar.<\/p><p>Explore the <strong>New Forest National Park<\/strong> - walk or cycle through ancient woodland, heathland and open moorland - spot the famous free-roaming ponies, cattle and deer. Visit charming villages, traditional pubs and farm shops. Enjoy picnics, nature trails and scenic viewpoints.<\/p><p>Discover <strong>Salisbury<\/strong> &amp; its history - visit <strong>Salisbury Cathedral<\/strong>, home to the tallest church spire in Britain, and one of the best-preserved original copies of the Magna Carta - Visit <strong>Mompesson House<\/strong>, wander Salisbury's independent shops, cafes and restaurants or explore <strong>Old Sarum<\/strong>, one of southern England's most important historic sites, with its impressive ancient earthworks and panoramic views.<\/p><p>Discover Wiltshire's World Heritage Sites - visit the iconic <strong>Stonehenge<\/strong>, and explore <strong>Avebury<\/strong>, home to the world's largest prehistoric stone circle, and discover the rich ancient history that makes this UNESCO World Heritage landscape so special.<\/p><p>Take a trip to <strong>Shaftesbury<\/strong> and see the famous <strong>Gold Hill<\/strong>, featured in the classic Hovis advert.<\/p><p>For gardens, heritage &amp; historic houses visit the magnificent gardens at <strong>Stourhead<\/strong>, explore the picturesque village and historic buildings of <strong>Lacock Abbey<\/strong>, and wander the beautiful rose gardens and grounds at <strong>Mottisfont<\/strong>.<\/p>",
+    "map_lat": 50.971983,
+    "mapLat": 50.971983,
+    "map_lng": -1.662565,
+    "mapLng": -1.662565,
+    "map_embed_url": null,
+    "mapEmbedUrl": null,
+    "welcome_hamper_included": true,
+    "welcomeHamperIncluded": true,
+    "welcome_hamper_description": null,
+    "welcomeHamperDescription": null,
+    "welcome_hamper_image_media_id": null,
+    "welcomeHamperImageMediaId": null,
+    "welcome_hamper_html": "<p>Each cottage includes a complimentary welcome hamper with a selection of teas, coffee, fresh milk and biscuits for guests to enjoy during their stay.<\/p>",
+    "welcomeHamperHtml": "<p>Each cottage includes a complimentary welcome hamper with a selection of teas, coffee, fresh milk and biscuits for guests to enjoy during their stay.<\/p>",
+    "amenity_ids": [
+      "5463ffbcfe020796ee73b6f9",
+      "da4d6fb236477110efda499c",
+      "22124899c179572fbb53d293",
+      "6eb37415f49ccca12387af2e",
+      "5e3843e290039d0c7938d5c0",
+      "3a83a3d7a1fef982f5c45e3e",
+      "564a66f6b59d093957977997",
+      "603011b119e64d01732b380b",
+      "b9b84adfac7a5c84a483ef21",
+      "d29653af2f3b82b66848464e",
+      "62b27cc8c0db8cce4e42270a",
+      "e272e68134a00678c9d652c0",
+      "928a375df4d38eac6c9febb1",
+      "24cad5cd81292eb384f167a9",
+      "49689bdbaab04bd830739c0f",
+      "99163ea4ac5bd3bc708833c7",
+      "dd6234beb760fa7dea63f30e"
+    ],
+    "amenityIds": [
+      "5463ffbcfe020796ee73b6f9",
+      "da4d6fb236477110efda499c",
+      "22124899c179572fbb53d293",
+      "6eb37415f49ccca12387af2e",
+      "5e3843e290039d0c7938d5c0",
+      "3a83a3d7a1fef982f5c45e3e",
+      "564a66f6b59d093957977997",
+      "603011b119e64d01732b380b",
+      "b9b84adfac7a5c84a483ef21",
+      "d29653af2f3b82b66848464e",
+      "62b27cc8c0db8cce4e42270a",
+      "e272e68134a00678c9d652c0",
+      "928a375df4d38eac6c9febb1",
+      "24cad5cd81292eb384f167a9",
+      "49689bdbaab04bd830739c0f",
+      "99163ea4ac5bd3bc708833c7",
+      "dd6234beb760fa7dea63f30e"
+    ],
+    "nearby_attractions": [],
+    "nearbyAttractions": [],
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "max_dogs": 1,
+    "maxDogs": 1,
+    "status": "ACTIVE",
+    "seo": []
+  }
+}
