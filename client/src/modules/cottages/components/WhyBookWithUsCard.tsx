@@ -40,7 +40,10 @@ const ICON_MAP: Record<string, LucideIcon> = {
   wifi: Wifi,
 };
 
-export function resolveWhyIcon(icon?: string | null, title?: string): LucideIcon {
+export function resolveWhyIcon(
+  icon?: string | null,
+  title?: string,
+): LucideIcon {
   if (icon) {
     const key = icon.toLowerCase().trim();
     if (ICON_MAP[key]) return ICON_MAP[key];
@@ -71,12 +74,7 @@ export function WhyBookWithUsCard({ heading, items }: WhyBookWithUsCardProps) {
         className="pointer-events-none absolute -bottom-4 -right-2 w-16 select-none opacity-85"
         aria-hidden
       >
-        <img
-          src="/sunflower.gif"
-          alt=""
-          className="w-full"
-          loading="lazy"
-        />
+        <img src="/sunflower.gif" alt="" className="w-full" loading="lazy" />
       </div>
       <CardContent className="relative z-10 space-y-4 p-5">
         <h2 className="font-display text-xl font-medium tracking-tight">
@@ -85,7 +83,9 @@ export function WhyBookWithUsCard({ heading, items }: WhyBookWithUsCardProps) {
         <ul className="space-y-4">
           {items.map((w, i) => {
             const Icon = resolveWhyIcon(w.icon, w.title);
-            const customBg = w.badgeColor ? { backgroundColor: w.badgeColor } : undefined;
+            const customBg = w.badgeColor
+              ? { backgroundColor: w.badgeColor }
+              : undefined;
             return (
               <li key={i} className="flex gap-3">
                 <span
@@ -98,7 +98,7 @@ export function WhyBookWithUsCard({ heading, items }: WhyBookWithUsCardProps) {
                     <img
                       src={w.imageUrl}
                       alt=""
-                      className="size-5 object-contain"
+                      className="object-contain"
                       loading="lazy"
                     />
                   ) : (
@@ -106,9 +106,7 @@ export function WhyBookWithUsCard({ heading, items }: WhyBookWithUsCardProps) {
                   )}
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-sm font-semibold">
-                    {w.title}
-                  </span>
+                  <span className="block text-sm font-semibold">{w.title}</span>
                   {w.text ? (
                     <span
                       className="rich-body mt-0.5 block text-xs leading-relaxed text-muted-foreground"

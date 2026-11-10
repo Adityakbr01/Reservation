@@ -139,12 +139,12 @@ export function CottageDetailPage() {
   const calendarNow = useMemo(() => new Date(), []);
   const initialCalendarBounds = useMemo(
     () => monthBounds(calendarNow.getUTCFullYear(), calendarNow.getUTCMonth()),
-    [calendarNow]
+    [calendarNow],
   );
   useAvailabilityCalendar(
     roomType?.id ?? null,
     initialCalendarBounds.from,
-    initialCalendarBounds.to
+    initialCalendarBounds.to,
   );
 
   function openAvailabilityTab() {
@@ -497,9 +497,21 @@ export function CottageDetailPage() {
         )
       : 0);
   const aboutPhoto =
-    ((gallery[1] as { url?: string })?.url ? { id: gallery[1]?.mediaId, url: (gallery[1] as { url?: string }).url!, alt: gallery[1]?.altText } : null) ??
+    ((gallery[1] as { url?: string })?.url
+      ? {
+          id: gallery[1]?.mediaId,
+          url: (gallery[1] as { url?: string }).url!,
+          alt: gallery[1]?.altText,
+        }
+      : null) ??
     photoById.get(gallery[1]?.mediaId ?? "") ??
-    ((gallery[0] as { url?: string })?.url ? { id: gallery[0]?.mediaId, url: (gallery[0] as { url?: string }).url!, alt: gallery[0]?.altText } : null) ??
+    ((gallery[0] as { url?: string })?.url
+      ? {
+          id: gallery[0]?.mediaId,
+          url: (gallery[0] as { url?: string }).url!,
+          alt: gallery[0]?.altText,
+        }
+      : null) ??
     photoById.get(gallery[0]?.mediaId ?? null);
   const aboutBullets: string[] = [];
   if (roomType.bedrooms != null && roomType.bathrooms != null) {
@@ -727,7 +739,8 @@ export function CottageDetailPage() {
                 >
                   {gallery.map((g, i) => {
                     const p = photoById.get(g.mediaId);
-                    const mainUrl = (g as { url?: string }).url || p?.url || null;
+                    const mainUrl =
+                      (g as { url?: string }).url || p?.url || null;
                     return (
                       <SwiperSlide key={`${g.mediaId}-${i}`}>
                         {g.kind === "video" && mainUrl ? (
@@ -805,7 +818,8 @@ export function CottageDetailPage() {
                 >
                   {gallery.map((g, i) => {
                     const p = photoById.get(g.mediaId);
-                    const thumbUrl = (g as { url?: string }).url || p?.url || null;
+                    const thumbUrl =
+                      (g as { url?: string }).url || p?.url || null;
                     const isActive = i === galleryIndex;
                     return (
                       <SwiperSlide
@@ -843,7 +857,10 @@ export function CottageDetailPage() {
                             />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center bg-muted/60 animate-pulse">
-                              <Building2 className="size-5 text-muted-foreground/30" aria-hidden />
+                              <Building2
+                                className="size-5 text-muted-foreground/30"
+                                aria-hidden
+                              />
                             </div>
                           )}
                         </button>
@@ -893,7 +910,6 @@ export function CottageDetailPage() {
                   </span>
                 </p>
               )}
-             
             </div>
           </div>
 
@@ -1003,7 +1019,6 @@ export function CottageDetailPage() {
                     </h2>
                     <p className="mt-3 text-sm leading-relaxed text-foreground">
                       {roomType.description ??
-                        roomType.shortDescription ??
                         `${roomType.name} sleeps up to ${roomType.maxOccupancy} guests in comfort.`}
                     </p>
                     <ul className="mt-3 space-y-1.5">

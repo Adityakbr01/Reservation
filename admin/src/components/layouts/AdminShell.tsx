@@ -61,8 +61,8 @@ const MANAGE_LINKS = [
   { to: "/rate-plans", label: "Pricing & Rates", Icon: Tags },
   { to: "/amenities", label: "Features", Icon: Tags },
   { to: "/enquiries", label: "Enquiries", Icon: Users },
-  { to: "/newsletter", label: "Newsletter", Icon: Bell },
-  { to: "/reviews", label: "Reviews", Icon: CircleHelp },
+  // { to: "/newsletter", label: "Newsletter", Icon: Bell },
+  // { to: "/reviews", label: "Reviews", Icon: CircleHelp },
   { to: "/payments", label: "Payments", Icon: Receipt },
   { to: "/coupons", label: "Coupons", Icon: Ticket },
   { to: "/notifications", label: "Notifications", Icon: Bell },
@@ -70,14 +70,14 @@ const MANAGE_LINKS = [
 ];
 
 const CONTENT_LINKS = [
-  { to: "/cms/pages", label: "Pages", Icon: FileText },
-  { to: "/cms/blogs", label: "Blog", Icon: Newspaper },
-  { to: "/cms/faqs", label: "FAQs", Icon: CircleHelp },
-  { to: "/cms/offers", label: "Offers", Icon: Tags },
+  // { to: "/cms/pages", label: "Pages", Icon: FileText },
+  // { to: "/cms/blogs", label: "Blog", Icon: Newspaper },
+  // { to: "/cms/faqs", label: "FAQs", Icon: CircleHelp },
+  // { to: "/cms/offers", label: "Offers", Icon: Tags },
   { to: "/cms/policies", label: "Policies", Icon: FileText },
   { to: "/media", label: "Media", Icon: Image },
   { to: "/settings", label: "Settings", Icon: Settings },
-  { to: "/audit-logs", label: "Audit logs", Icon: ScrollText },
+  // { to: "/audit-logs", label: "Audit logs", Icon: ScrollText },
 ];
 
 function sideLinkClass({ isActive }: { isActive: boolean }) {
