@@ -97,9 +97,9 @@ export function CottageForm({
     setMaxOccupancy(val);
     setIsOccupancyCustom(true);
   }
-  const [amenities, setAmenities] = useState(
-    (initial?.amenities ?? []).join(", "),
-  );
+  // const [amenities, setAmenities] = useState(
+  //   (initial?.amenities ?? []).join(", "),
+  // );
   const [status, setStatus] = useState<CottageStatus>(
     initial?.status ?? "DRAFT",
   );
@@ -333,17 +333,17 @@ export function CottageForm({
         ? { bathrooms: Math.max(0, Number(bathrooms) || 0) }
         : { bathrooms: null }),
       beds: beds.filter((bed) => bed.type.trim().length > 0),
-      amenities: amenities
-        .split(",")
-        .map((item) => item.trim())
-        .filter((item) => item.length > 0),
-      images: gallery
-        .filter((g) => g.kind === "image")
-        .map((g, i) => ({
-          mediaId: g.mediaId,
-          altText: g.altText,
-          sortOrder: i,
-        })),
+      // amenities: amenities
+      //   .split(",")
+      //   .map((item) => item.trim())
+      //   .filter((item) => item.length > 0),
+      // images: gallery
+      //   .filter((g) => g.kind === "image")
+      //   .map((g, i) => ({
+      //     mediaId: g.mediaId,
+      //     altText: g.altText,
+      //     sortOrder: i,
+      //   })),
       media: gallery,
       propertyDetailsHtml: propertyDetailsHtml.trim() || null,
       property_details_html: propertyDetailsHtml.trim() || null,

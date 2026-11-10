@@ -27,7 +27,7 @@ export function EnquireAboutCottage({
             Enquire about {name}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Tell us your dates, party and budget — we reply shortly.
+            Tell us your dates, party and budget — we will be in touch.
           </p>
         </div>
         {SITE_LINKS.enquireNow && SITE_LINKS.enquireNow !== "#" ? (
@@ -74,4 +74,3 @@ export function EnquireAboutCottage({
 }
 
 export default EnquireAboutCottage;
-
