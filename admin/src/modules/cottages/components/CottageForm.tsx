@@ -63,10 +63,16 @@ export function CottageForm({
     String(initial?.maxChildren ?? 0),
   );
   const [maxOccupancy, setMaxOccupancy] = useState(
-    String(initial?.maxOccupancy ?? (initial ? (initial.maxAdults + initial.maxChildren) : 2)),
+    String(
+      initial?.maxOccupancy ??
+        (initial ? initial.maxAdults + initial.maxChildren : 2),
+    ),
   );
   const [isOccupancyCustom, setIsOccupancyCustom] = useState(
-    Boolean(initial && initial.maxOccupancy !== initial.maxAdults + initial.maxChildren),
+    Boolean(
+      initial &&
+      initial.maxOccupancy !== initial.maxAdults + initial.maxChildren,
+    ),
   );
 
   function handleAdultsChange(val: string) {
@@ -367,8 +373,14 @@ export function CottageForm({
       welcome_hamper_html: hamperHtml.trim() || null,
       amenityIds,
       amenity_ids: amenityIds,
-      basePrice: basePrice.trim() !== "" && !isNaN(Number(basePrice)) ? Math.max(0, Number(basePrice)) : 150,
-      base_price: basePrice.trim() !== "" && !isNaN(Number(basePrice)) ? Math.max(0, Number(basePrice)) : 150,
+      basePrice:
+        basePrice.trim() !== "" && !isNaN(Number(basePrice))
+          ? Math.max(0, Number(basePrice))
+          : 150,
+      base_price:
+        basePrice.trim() !== "" && !isNaN(Number(basePrice))
+          ? Math.max(0, Number(basePrice))
+          : 150,
       status,
     } as unknown as CreateCottagePayload);
   }
@@ -487,7 +499,9 @@ export function CottageForm({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="rt-price">Base nightly rate ({getCurrencySymbol()})</Label>
+          <Label htmlFor="rt-price">
+            Base nightly rate ({getCurrencySymbol()})
+          </Label>
           <Input
             id="rt-price"
             type="number"
@@ -568,16 +582,6 @@ export function CottageForm({
         >
           Add bed
         </Button>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="rt-amenities">Amenities (comma separated)</Label>
-        <Input
-          id="rt-amenities"
-          value={amenities}
-          onChange={(e) => setAmenities(e.target.value)}
-          placeholder="WiFi, AC, Sea view"
-        />
       </div>
 
       {amenityOpts.length > 0 && (
@@ -1049,5 +1053,3 @@ export function CottageForm({
 }
 
 export const RoomTypeForm = CottageForm;
-
-
