@@ -395,7 +395,7 @@ class PublicBookingController extends Controller
 
     public function receipt(string $id)
     {
-        $booking = Booking::where('id', $id)->first();
+        $booking = Booking::with(['items.room.roomType', 'items.ratePlan', 'payments', 'user'])->where('id', $id)->first();
         if (! $booking) {
             return response()->json([
                 'success' => false,
@@ -423,33 +423,109 @@ class PublicBookingController extends Controller
             }
         }
 
+        if ($booking->status === 'CONFIRMED' && $booking->payment_status === 'PAID') {
+            try {
+                app(\App\Services\NotificationService::class)->sendBookingConfirmation($booking);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Could not dispatch confirmation email: ' . $e->getMessage());
+            }
+        }
+
         $contact = is_array($booking->contact) ? $booking->contact : [];
         $guestName = trim(($contact['firstName'] ?? '') . ' ' . ($contact['lastName'] ?? '')) ?: ($booking->user?->name ?? 'Guest Customer');
+
+        $formatDateIso = function ($val) {
+            if (empty($val)) {
+                return null;
+            }
+            if ($val instanceof \DateTimeInterface) {
+                return $val->format('c');
+            }
+            $ts = strtotime((string) $val);
+            return $ts ? date('c', $ts) : (string) $val;
+        };
+
+        $items = $booking->items->map(function ($it) {
+            $pricing = is_array($it->pricing) ? $it->pricing : [];
+            $unitTotal = (int) ($pricing['amount'] ?? $pricing['total'] ?? 0);
+            $checkIn = $it->check_in ? date('Y-m-d', strtotime($it->check_in)) : null;
+            $checkOut = $it->check_out ? date('Y-m-d', strtotime($it->check_out)) : null;
+            return [
+                'id' => $it->id,
+                'roomName' => $it->room_name_snapshot ?? $it->room?->name ?? 'Cottage',
+                'roomNumber' => $it->room_number_snapshot ?? $it->room?->room_number,
+                'ratePlanName' => $it->rate_plan_name_snapshot ?? $it->ratePlan?->name ?? 'Standard Rate',
+                'checkIn' => $checkIn,
+                'checkOut' => $checkOut,
+                'guests' => $it->guests ?? ['adults' => 2, 'children' => 0],
+                'nightlyRates' => $it->nightly_rates ?? [],
+                'subtotal' => $unitTotal,
+                'discount' => 0,
+                'taxes' => 0,
+                'fees' => 0,
+                'total' => $unitTotal,
+                'currency' => $pricing['currency'] ?? 'GBP',
+            ];
+        })->values();
+
+        $payments = $booking->payments->map(function ($p) use ($formatDateIso) {
+            return [
+                'id' => $p->id,
+                'provider' => $p->provider ?? 'STRIPE',
+                'amount' => (int) round(((float) $p->amount) * 100),
+                'currency' => $p->currency ?? 'GBP',
+                'status' => $p->status ?? 'PAID',
+                'paidAt' => $formatDateIso($p->paid_at ?? $p->created_at),
+            ];
+        })->values();
+
+        $pricing = is_array($booking->pricing) ? $booking->pricing : [];
+        $pricingFormatted = [
+            'currency' => $pricing['currency'] ?? 'GBP',
+            'subtotal' => (int) ($pricing['subtotal'] ?? 0),
+            'discount' => (int) ($pricing['discount'] ?? 0),
+            'taxes' => (int) ($pricing['taxes'] ?? 0),
+            'fees' => (int) ($pricing['fees'] ?? 0),
+            'total' => (int) ($pricing['total'] ?? 0),
+            'couponCode' => $pricing['couponCode'] ?? null,
+        ];
+
+        $siteSettings = \App\Models\SiteSettings::first();
+        $property = $booking->property ?? \App\Models\Property::first();
+        $propertyName = $siteSettings?->property_name ?? $property?->name ?? 'Hamptworth Stays';
+        $propertyAddress = $siteSettings?->address ?? $property?->address ?? 'Home Farm, Hamptworth, Salisbury SP5 2DU';
+
+        $propertyPayload = [
+            'name' => $propertyName,
+            'currency' => $pricingFormatted['currency'] ?? $siteSettings?->currency ?? $property?->currency ?? 'GBP',
+            'checkInTime' => $siteSettings?->check_in_time ?? $property?->check_in_time ?? '16:00',
+            'checkOutTime' => $siteSettings?->check_out_time ?? $property?->check_out_time ?? '10:00',
+        ];
 
         return response()->json([
             'success' => true,
             'data' => [
+                'id' => $booking->id,
                 'bookingNumber' => $booking->booking_number,
                 'booking_number' => $booking->booking_number,
                 'status' => $booking->status,
                 'paymentStatus' => $booking->payment_status,
                 'payment_status' => $booking->payment_status,
-                'checkIn' => $booking->check_in,
-                'check_in' => $booking->check_in,
-                'checkOut' => $booking->check_out,
-                'check_out' => $booking->check_out,
-                'guests' => $booking->guests,
+                'checkIn' => $booking->check_in ? date('Y-m-d', strtotime($booking->check_in)) : null,
+                'check_in' => $booking->check_in ? date('Y-m-d', strtotime($booking->check_in)) : null,
+                'checkOut' => $booking->check_out ? date('Y-m-d', strtotime($booking->check_out)) : null,
+                'check_out' => $booking->check_out ? date('Y-m-d', strtotime($booking->check_out)) : null,
+                'guests' => $booking->guests ?? ['adults' => 2, 'children' => 0],
                 'guestName' => $guestName,
                 'guestEmail' => $contact['email'] ?? $booking->user?->email ?? '',
-                'guestPhone' => $contact['phone'] ?? $contact['telephone'] ?? '',
-                'pricing' => $booking->pricing ?? [
-                    'currency' => 'GBP',
-                    'subtotal' => 0,
-                    'discount' => 0,
-                    'taxes' => 0,
-                    'fees' => 0,
-                    'total' => 0,
-                ],
+                'guestPhone' => $contact['phone'] ?? $contact['mobile'] ?? '',
+                'propertyName' => $propertyName,
+                'propertyAddress' => $propertyAddress,
+                'property' => $propertyPayload,
+                'pricing' => $pricingFormatted,
+                'items' => $items,
+                'payments' => $payments,
+                'bookedAt' => $formatDateIso($booking->created_at),
             ],
         ]);
     }

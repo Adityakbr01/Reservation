@@ -24,6 +24,7 @@ class Payment extends Model
     protected $casts = [
         'amount' => 'decimal:2',
         'metadata' => 'array',
+        'paid_at' => 'datetime',
     ];
 
     public function booking(): BelongsTo

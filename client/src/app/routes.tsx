@@ -71,11 +71,7 @@ export function AppRoutes() {
           <Route path="booking/new" element={<BookingPage />} />
           <Route
             path="booking/confirmation/:id"
-            element={
-              <RequireAuth>
-                <BookingConfirmationPage />
-              </RequireAuth>
-            }
+            element={<BookingConfirmationPage />}
           />
           <Route
             path="bookings"

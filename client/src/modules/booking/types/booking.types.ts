@@ -144,5 +144,7 @@ export interface BookingReceipt {
     paidAt: string | null;
   }>;
   property: { name: string; currency: string; checkInTime: string; checkOutTime: string };
+  propertyName?: string;
+  propertyAddress?: string;
   bookedAt: string;
 }

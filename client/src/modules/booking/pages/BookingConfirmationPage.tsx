@@ -1,14 +1,59 @@
-import { useEffect, useState } from "react";
+import { Component, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { Link, useParams } from "react-router-dom";
-import { BadgeCheck, Loader, Printer } from "lucide-react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import { BadgeCheck, Download, Loader, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { formatMoney } from "@/lib/money";
 import { formatDateTime as fmtDate, formatDateTimeWithTime as fmtDateTime } from "@/lib/date";
 import { useBookingReceipt, useBookingStatus, useCancelBooking } from "../hooks/use-booking";
+import { useSiteSettings } from "@/modules/cms/hooks/use-cms";
 import type { BookingReceipt } from "../types/booking.types";
+
+class ConfirmationErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error("Booking confirmation render error:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="mx-auto w-full max-w-md space-y-4 py-12 text-center">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl">Receipt Display Error</CardTitle>
+              <CardDescription>
+                Your booking and payment are confirmed, but the receipt preview encountered an issue.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button
+                type="button"
+                className="w-full rounded-full"
+                onClick={() => window.location.reload()}
+              >
+                Reload confirmation
+              </Button>
+              <Button asChild variant="outline" className="w-full rounded-full">
+                <Link to="/">Back to home</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 function formatDate(value: string): string {
   return fmtDate(value);
@@ -25,6 +70,14 @@ function providerLabel(provider: string): string {
 }
 
 export function BookingConfirmationPage() {
+  return (
+    <ConfirmationErrorBoundary>
+      <BookingConfirmationContent />
+    </ConfirmationErrorBoundary>
+  );
+}
+
+function BookingConfirmationContent() {
   const { id = "" } = useParams();
   const { data: booking, isPending, isError, refetch } = useBookingStatus(id === "" ? null : id);
 
@@ -93,7 +146,7 @@ export function BookingConfirmationPage() {
   }
 
   if (booking.status === "CONFIRMED") {
-    return <ConfirmedTicket bookingId={booking.id} bookingNumber={booking.bookingNumber} />;
+    return <ConfirmedTicket booking={booking} />;
   }
 
   return (
@@ -116,13 +169,116 @@ export function BookingConfirmationPage() {
   );
 }
 
-function ConfirmedTicket({ bookingId, bookingNumber }: { bookingId: string; bookingNumber: string }) {
+function ConfirmedTicket({ booking }: { booking: any }) {
+  const bookingId = booking.id;
+  const bookingNumber = booking.bookingNumber ?? booking.booking_number ?? "";
   const [confirmingCancel, setConfirmingCancel] = useState(false);
   const cancelMutation = useCancelBooking();
-  const { data: receipt, isPending: isReceiptPending } = useBookingReceipt(bookingId, true);
+  const { data: receipt } = useBookingReceipt(bookingId, true);
+  const { data: siteSettings } = useSiteSettings();
+  const [searchParams] = useSearchParams();
+
+  const propertyName =
+    receipt?.propertyName ||
+    receipt?.property?.name ||
+    siteSettings?.propertyName ||
+    booking.property?.name ||
+    "Hamptworth Stays";
+  const propertyAddress =
+    receipt?.propertyAddress ||
+    siteSettings?.address ||
+    booking.property?.address ||
+    "";
+  const checkInTime =
+    receipt?.property?.checkInTime ||
+    siteSettings?.checkInTime ||
+    booking.property?.checkInTime ||
+    "16:00";
+  const checkOutTime =
+    receipt?.property?.checkOutTime ||
+    siteSettings?.checkOutTime ||
+    booking.property?.checkOutTime ||
+    "10:00";
+  const currency =
+    receipt?.pricing?.currency ||
+    siteSettings?.currency ||
+    booking.pricing?.currency ||
+    "GBP";
+
+  const effectiveReceipt: BookingReceipt = receipt ?? {
+    bookingNumber,
+    status: booking.status,
+    paymentStatus: booking.paymentStatus ?? booking.payment_status ?? "PAID",
+    checkIn: booking.checkIn ?? booking.check_in,
+    checkOut: booking.checkOut ?? booking.check_out,
+    guests: booking.guests ?? { adults: 2, children: 0 },
+    guestName: `${booking.contact?.firstName ?? ''} ${booking.contact?.lastName ?? ''}`.trim() || (booking.user?.name ?? 'Guest'),
+    guestEmail: booking.contact?.email ?? booking.user?.email ?? '',
+    guestPhone: booking.contact?.phone ?? booking.contact?.mobile ?? '',
+    pricing: booking.pricing ?? { currency, subtotal: 0, discount: 0, taxes: 0, fees: 0, total: 0, couponCode: null },
+    items: booking.items?.map((it: any) => ({
+      id: it.id,
+      roomName: it.roomNameSnapshot || it.roomName || it.room?.name || "Cottage",
+      roomNumber: it.roomNumberSnapshot || it.room?.room_number || null,
+      ratePlanName: it.ratePlanNameSnapshot || it.ratePlan?.name || "Standard Rate",
+      checkIn: it.checkIn ?? it.check_in ?? booking.checkIn ?? booking.check_in,
+      checkOut: it.checkOut ?? it.check_out ?? booking.checkOut ?? booking.check_out,
+      guests: it.guests ?? booking.guests ?? { adults: 2, children: 0 },
+      nightlyRates: it.nightlyRates ?? [],
+      subtotal: it.subtotal ?? 0,
+      discount: 0,
+      taxes: 0,
+      fees: 0,
+      total: it.total ?? 0,
+      currency: it.currency ?? currency,
+    })) ?? [],
+    payments: booking.payments?.map((p: any) => ({
+      provider: p.provider ?? "STRIPE",
+      amount: p.amount ?? 0,
+      currency: p.currency ?? currency,
+      status: p.status ?? "PAID",
+      paidAt: p.paidAt ?? p.paid_at ?? p.createdAt ?? p.created_at,
+    })) ?? [],
+    property: {
+      name: propertyName,
+      currency,
+      checkInTime,
+      checkOutTime,
+    },
+    propertyName,
+    propertyAddress,
+    bookedAt: booking.createdAt ?? booking.created_at ?? new Date().toISOString(),
+  };
+
+  useEffect(() => {
+    if ((receipt || booking) && (searchParams.get("download") === "true" || searchParams.get("print") === "true")) {
+      const timer = setTimeout(() => {
+        window.print();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [receipt, booking, searchParams]);
 
   return (
     <div className="mx-auto w-full max-w-md space-y-4 py-8">
+      <style>{`
+        @media print {
+          body {
+            background: white !important;
+            color: black !important;
+          }
+          nav, header, footer, .no-print, [role="navigation"] {
+            display: none !important;
+          }
+          .ticket-print {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+            margin: 0 auto !important;
+            max-width: 100% !important;
+          }
+        }
+      `}</style>
+
       <div className="ticket-print relative overflow-hidden rounded-2xl rounded-b-none border border-b-0 border-border bg-card shadow-card">
         {/* Header */}
         <div className="space-y-2 p-6 pb-5 text-center">
@@ -147,13 +303,9 @@ function ConfirmedTicket({ bookingId, bookingNumber }: { bookingId: string; book
           <span className="absolute -right-4 top-1/2 size-8 -translate-y-1/2 rounded-full border border-border bg-background" />
         </div>
 
-        {/* Receipt body */}
+        {/* Receipt body - always renders instantly with effectiveReceipt */}
         <div className="p-6">
-          {isReceiptPending || !receipt ? (
-            <ReceiptSkeleton />
-          ) : (
-            <ReceiptBody receipt={receipt} />
-          )}
+          <ReceiptBody receipt={effectiveReceipt} />
         </div>
 
         {/* Scalloped bottom edge */}
@@ -165,37 +317,48 @@ function ConfirmedTicket({ bookingId, bookingNumber }: { bookingId: string; book
         <Button asChild className="h-11 w-full rounded-full">
           <Link to="/">Book another stay</Link>
         </Button>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button
+            type="button"
+            className="h-10 flex-1 rounded-full gap-2 bg-brand text-white hover:bg-brand/90"
+            onClick={() => window.print()}
+          >
+            <Download className="size-4" aria-hidden />
+            Download receipt (PDF)
+          </Button>
+          <Button
+            type="button"
             variant="outline"
-            className="h-10 flex-1 rounded-full"
+            className="h-10 flex-1 rounded-full gap-2"
             onClick={() => window.print()}
           >
             <Printer className="size-4" aria-hidden />
             Print receipt
           </Button>
+        </div>
+        <div className="pt-1">
           {confirmingCancel ? (
-            <>
+            <div className="flex gap-2">
               <Button
                 variant="outline"
-                className="h-10 flex-1 rounded-full"
+                className="h-9 flex-1 rounded-full text-xs"
                 onClick={() => setConfirmingCancel(false)}
               >
                 Keep it
               </Button>
               <Button
                 variant="destructive"
-                className="h-10 flex-1 rounded-full"
+                className="h-9 flex-1 rounded-full text-xs"
                 disabled={cancelMutation.isPending}
                 onClick={() => cancelMutation.mutate(bookingId)}
               >
                 {cancelMutation.isPending ? "Cancelling…" : "Yes, cancel"}
               </Button>
-            </>
+            </div>
           ) : (
             <Button
               variant="ghost"
-              className="h-10 flex-1 rounded-full text-destructive hover:text-destructive"
+              className="h-8 w-full rounded-full text-xs text-destructive hover:text-destructive"
               onClick={() => setConfirmingCancel(true)}
             >
               Cancel booking
@@ -203,18 +366,6 @@ function ConfirmedTicket({ bookingId, bookingNumber }: { bookingId: string; book
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function ReceiptSkeleton() {
-  return (
-    <div className="space-y-3" aria-busy="true" aria-label="Loading receipt">
-      <Skeleton className="h-4 w-32" />
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-3/4" />
-      <Skeleton className="h-8 w-full" />
     </div>
   );
 }
@@ -230,78 +381,101 @@ function ReceiptRow({ label, value }: { label: string; value: ReactNode }) {
 
 function ReceiptBody({ receipt }: { receipt: BookingReceipt }) {
   const money = (minor: number, currency?: string) =>
-    formatMoney(minor, currency ?? receipt.pricing.currency);
+    formatMoney(minor, currency ?? receipt.pricing?.currency ?? receipt.property?.currency ?? "GBP");
   return (
     <div className="space-y-5 text-sm">
       <section className="space-y-2">
+        <h2 className="text-sm font-semibold">Property details</h2>
+        <dl className="space-y-2">
+          <ReceiptRow label="Property" value={receipt.propertyName || receipt.property?.name || "Hamptworth Stays"} />
+          {receipt.propertyAddress && (
+            <ReceiptRow label="Address" value={<span className="text-right text-xs sm:text-sm">{receipt.propertyAddress}</span>} />
+          )}
+          <ReceiptRow
+            label="Check-in / Check-out"
+            value={`${receipt.property?.checkInTime ?? "16:00"} / ${receipt.property?.checkOutTime ?? "10:00"}`}
+          />
+        </dl>
+      </section>
+
+      <section className="space-y-2">
         <h2 className="text-sm font-semibold">Guest details</h2>
         <dl className="space-y-2">
-          <ReceiptRow label="Name" value={receipt.guestName} />
+          <ReceiptRow label="Name" value={receipt.guestName || "Guest"} />
           <ReceiptRow
             label="Email"
-            value={<span className="break-all">{receipt.guestEmail}</span>}
+            value={<span className="break-all">{receipt.guestEmail || "—"}</span>}
           />
-          <ReceiptRow label="Phone" value={receipt.guestPhone} />
+          <ReceiptRow label="Phone" value={receipt.guestPhone || "—"} />
           <ReceiptRow
             label="Guests"
-            value={`${receipt.guests.adults} adult${receipt.guests.adults === 1 ? "" : "s"}${receipt.guests.children > 0 ? ` · ${receipt.guests.children} child${receipt.guests.children === 1 ? "" : "ren"}` : ""}`}
+            value={`${receipt.guests?.adults ?? 2} adult${(receipt.guests?.adults ?? 2) === 1 ? "" : "s"}${(receipt.guests?.children ?? 0) > 0 ? ` · ${receipt.guests?.children} child${(receipt.guests?.children ?? 0) === 1 ? "" : "ren"}` : ""}`}
           />
         </dl>
       </section>
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold">Stay details</h2>
-        {receipt.items.map((item, i) => (
-          <div key={i} className="space-y-1 rounded-xl bg-muted/50 p-3">
-            <p className="font-medium">
-              {item.roomName}
-            </p>
+        {receipt.items && receipt.items.length > 0 ? (
+          receipt.items.map((item, i) => (
+            <div key={i} className="space-y-1 rounded-xl bg-muted/50 p-3">
+              <p className="font-medium">
+                {item.roomName}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {item.ratePlanName} · {formatDate(item.checkIn)} → {formatDate(item.checkOut)}
+              </p>
+              {item.nightlyRates && item.nightlyRates.length > 0 && (
+                <details className="pt-1 text-xs">
+                  <summary className="cursor-pointer text-muted-foreground">
+                    Nightly breakup ({item.nightlyRates.length} night{item.nightlyRates.length === 1 ? "" : "s"})
+                  </summary>
+                  <dl className="mt-1 space-y-0.5">
+                    {item.nightlyRates.map((night) => (
+                      <div key={night.date} className="flex justify-between gap-4">
+                        <dt className="text-muted-foreground">{formatDate(night.date)}</dt>
+                        <dd>{money(night.amount, item.currency)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </details>
+              )}
+            </div>
+          ))
+        ) : (
+          <div className="space-y-1 rounded-xl bg-muted/50 p-3">
+            <p className="font-medium">Reserved Stay</p>
             <p className="text-xs text-muted-foreground">
-              {item.ratePlanName} · {formatDate(item.checkIn)} → {formatDate(item.checkOut)}
+              {formatDate(receipt.checkIn)} → {formatDate(receipt.checkOut)}
             </p>
-            {item.nightlyRates.length > 0 && (
-              <details className="pt-1 text-xs">
-                <summary className="cursor-pointer text-muted-foreground">
-                  Nightly breakup ({item.nightlyRates.length} night{item.nightlyRates.length === 1 ? "" : "s"})
-                </summary>
-                <dl className="mt-1 space-y-0.5">
-                  {item.nightlyRates.map((night) => (
-                    <div key={night.date} className="flex justify-between gap-4">
-                      <dt className="text-muted-foreground">{formatDate(night.date)}</dt>
-                      <dd>{money(night.amount, item.currency)}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </details>
-            )}
           </div>
-        ))}
+        )}
       </section>
 
       <section className="space-y-2">
         <h2 className="text-sm font-semibold">Price details</h2>
         <dl className="space-y-2">
-          <ReceiptRow label="Subtotal" value={money(receipt.pricing.subtotal)} />
-          {receipt.pricing.discount > 0 && (
+          <ReceiptRow label="Subtotal" value={money(receipt.pricing?.subtotal ?? 0)} />
+          {(receipt.pricing?.discount ?? 0) > 0 && (
             <ReceiptRow
-              label={`Discount${receipt.pricing.couponCode ? ` (${receipt.pricing.couponCode})` : ""}`}
+              label={`Discount${receipt.pricing?.couponCode ? ` (${receipt.pricing.couponCode})` : ""}`}
               value={
                 <span className="text-success">
-                  −{money(receipt.pricing.discount)}
+                  −{money(receipt.pricing?.discount ?? 0)}
                 </span>
               }
             />
           )}
-          {receipt.pricing.taxes > 0 && (
-            <ReceiptRow label="Taxes" value={money(receipt.pricing.taxes)} />
+          {(receipt.pricing?.taxes ?? 0) > 0 && (
+            <ReceiptRow label="Taxes" value={money(receipt.pricing?.taxes ?? 0)} />
           )}
-          {receipt.pricing.fees > 0 && (
-            <ReceiptRow label="Fees" value={money(receipt.pricing.fees)} />
+          {(receipt.pricing?.fees ?? 0) > 0 && (
+            <ReceiptRow label="Fees" value={money(receipt.pricing?.fees ?? 0)} />
           )}
           <div className="flex items-center justify-between gap-4 border-t border-border pt-3">
             <dt className="font-semibold">Total paid</dt>
             <dd className="font-display text-2xl font-light">
-              {money(receipt.pricing.total)}
+              {money(receipt.pricing?.total ?? 0)}
             </dd>
           </div>
         </dl>
@@ -310,7 +484,7 @@ function ReceiptBody({ receipt }: { receipt: BookingReceipt }) {
       <section className="space-y-2">
         <h2 className="text-sm font-semibold">Payment details</h2>
         <dl className="space-y-2">
-          {receipt.payments.length === 0 ? (
+          {(!receipt.payments || receipt.payments.length === 0) ? (
             <ReceiptRow label="Status" value={receipt.paymentStatus} />
           ) : (
             receipt.payments.map((payment, i) => (
@@ -334,7 +508,7 @@ function ReceiptBody({ receipt }: { receipt: BookingReceipt }) {
       </section>
 
       <p className="text-center text-xs text-muted-foreground">
-        Booked on {formatDateTime(receipt.bookedAt)} · {receipt.bookingNumber}
+        Booked on {formatDateTime(receipt.bookedAt ?? null)} · {receipt.bookingNumber}
       </p>
     </div>
   );

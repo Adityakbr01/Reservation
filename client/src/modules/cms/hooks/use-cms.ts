@@ -6,10 +6,12 @@ import {
   fetchFaqs,
   fetchOffers,
   fetchPolicyDoc,
+  fetchSiteSettings,
 } from "../api/cms.api";
 
 const KEYS = {
   all: ["cms"] as const,
+  siteSettings: () => [...KEYS.all, "site-settings"] as const,
   page: (slug: string) => [...KEYS.all, "page", slug] as const,
   blogs: () => [...KEYS.all, "blogs"] as const,
   blog: (slug: string) => [...KEYS.all, "blog", slug] as const,
@@ -45,3 +47,13 @@ export function usePolicyDoc(key: string) {
     retry: false,
   });
 }
+
+export function useSiteSettings() {
+  return useQuery({
+    queryKey: KEYS.siteSettings(),
+    queryFn: fetchSiteSettings,
+    staleTime: 300_000,
+    retry: false,
+  });
+}
+

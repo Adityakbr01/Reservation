@@ -164,6 +164,30 @@ class NotificationService
         };
     }
 
+    public function sendBookingConfirmation(Booking $booking): void
+    {
+        $contact = is_array($booking->contact) ? $booking->contact : [];
+        $recipient = $contact['email'] ?? $booking->user?->email;
+        if ($recipient) {
+            $this->enqueue([
+                'type' => 'BOOKING_CONFIRMED',
+                'recipient' => $recipient,
+                'booking_id' => $booking->id,
+                'idempotency_key' => 'confirm_' . $booking->id,
+            ]);
+        }
+
+        $adminEmail = env('ADMIN_NOTIFICATION_EMAIL', 'stay@hamptworthstays.com');
+        if ($adminEmail) {
+            $this->enqueue([
+                'type' => 'ADMIN_NEW_BOOKING',
+                'recipient' => $adminEmail,
+                'booking_id' => $booking->id,
+                'idempotency_key' => 'admin_notif_' . $booking->id,
+            ]);
+        }
+    }
+
     private function buildBookingContext(?Booking $booking): array
     {
         $dummy = EmailRegistry::dummyBookingContext();
@@ -171,14 +195,37 @@ class NotificationService
             return $dummy;
         }
 
-        $guestName = $booking->guest_name ?? $booking->user?->name ?? 'Guest';
-        $roomNames = $booking->items->map(fn ($it) => $it->room?->name ?? $it->room?->roomType?->name)->filter()->implode(', ');
+        $settings = \App\Models\SiteSettings::first();
+        $property = $booking->property ?? \App\Models\Property::first();
+
+        $propertyName = $settings?->property_name ?? $property?->name ?? 'Hamptworth Stays';
+        $propertyAddress = $settings?->address ?? $property?->address ?? '';
+        $supportEmail = $settings?->support_email ?? env('ADMIN_NOTIFICATION_EMAIL', 'stay@hamptworthstays.com');
+        $checkInTime = $settings?->check_in_time ?? $property?->check_in_time ?? '16:00';
+        $checkOutTime = $settings?->check_out_time ?? $property?->check_out_time ?? '10:00';
+        $currency = $pricing['currency'] ?? $settings?->currency ?? $property?->currency ?? 'GBP';
+        $brandName = $propertyName;
+
+        $contact = is_array($booking->contact) ? $booking->contact : [];
+        $guestName = trim(($contact['firstName'] ?? '') . ' ' . ($contact['lastName'] ?? '')) ?: ($booking->user?->name ?? 'Guest');
+        $roomNames = $booking->items->map(fn ($it) => $it->room_name_snapshot ?? $it->room?->name ?? $it->room?->roomType?->name)->filter()->implode(', ');
         if (! $roomNames) {
             $roomNames = 'Hamptworth Stay';
         }
 
         $checkInFormatted = $booking->check_in ? date('j M Y', strtotime($booking->check_in)) : $dummy['checkIn'];
         $checkOutFormatted = $booking->check_out ? date('j M Y', strtotime($booking->check_out)) : $dummy['checkOut'];
+
+        $pricing = is_array($booking->pricing) ? $booking->pricing : [];
+        $currency = $pricing['currency'] ?? $settings?->currency ?? $booking->currency ?? 'GBP';
+        $subtotal = (int) ($pricing['subtotal'] ?? 0);
+        $discount = (int) ($pricing['discount'] ?? 0);
+        $taxes = (int) ($pricing['taxes'] ?? 0);
+        $total = (int) ($pricing['total'] ?? 0);
+
+        $clientBase = rtrim(env('CLIENT_URL', 'https://book.hamptworthstays.com'), '/');
+        $receiptUrl = "{$clientBase}/booking/confirmation/{$booking->id}";
+        $downloadReceiptUrl = "{$receiptUrl}?download=true";
 
         return array_merge($dummy, [
             'guestName' => $guestName,
@@ -187,13 +234,22 @@ class NotificationService
             'checkIn' => $checkInFormatted,
             'checkOut' => $checkOutFormatted,
             'nights' => (int) ($booking->nights ?? 1),
-            'currency' => $booking->currency ?? 'GBP',
-            'subtotal' => (int) ($booking->subtotal ?? 0),
-            'discount' => (int) ($booking->discount_amount ?? 0),
-            'taxes' => (int) ($booking->tax_amount ?? 0),
-            'total' => (int) ($booking->total_amount ?? 0),
-            'totalPaid' => (int) ($booking->total_paid ?? $booking->total_amount ?? 0),
-            'paymentStatus' => $booking->payment_status ?? 'paid',
+            'currency' => $currency,
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'taxes' => $taxes,
+            'total' => $total,
+            'totalPaid' => $total,
+            'paymentStatus' => $booking->payment_status ?? 'PAID',
+            'manageUrl' => $receiptUrl,
+            'receiptUrl' => $receiptUrl,
+            'downloadReceiptUrl' => $downloadReceiptUrl,
+            'propertyName' => $propertyName,
+            'brandName' => $brandName,
+            'propertyAddress' => $propertyAddress,
+            'supportEmail' => $supportEmail,
+            'checkInTime' => $checkInTime,
+            'checkOutTime' => $checkOutTime,
         ]);
     }
 

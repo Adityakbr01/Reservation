@@ -52,6 +52,11 @@ class StripeWebhookController extends Controller
                             $booking->payment_status = 'PAID';
                             $booking->save();
                             Log::info("Booking {$bookingId} confirmed via Stripe webhook");
+                            try {
+                                app(\App\Services\NotificationService::class)->sendBookingConfirmation($booking);
+                            } catch (\Throwable $e) {
+                                Log::warning("Could not dispatch confirmation email from webhook: " . $e->getMessage());
+                            }
                         }
                     }
                     $payment = \App\Models\Payment::where('provider_payment_intent_id', $intent->id)->first();
