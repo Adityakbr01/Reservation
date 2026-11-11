@@ -258,6 +258,7 @@ Route::prefix('/v1/admin/email-templates')->middleware('jwt.auth', 'role:admin')
     Route::get('/', [AdminEmailTemplateController::class, 'index']);
     Route::get('/{key}', [AdminEmailTemplateController::class, 'show']);
     Route::put('/{key}', [AdminEmailTemplateController::class, 'update']);
+    Route::delete('/{key}', [AdminEmailTemplateController::class, 'destroy']);
     Route::post('/{key}/preview', [AdminEmailTemplateController::class, 'preview']);
     Route::post('/{key}/draft-preview', [AdminEmailTemplateController::class, 'draftPreview']);
     Route::post('/{key}/test', [AdminEmailTemplateController::class, 'test']);

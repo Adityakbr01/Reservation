@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Services\NotificationService;
 
 class AdminBookingController extends Controller
 {
@@ -128,6 +129,30 @@ class AdminBookingController extends Controller
         $booking->cancellation = $cancellation;
         $booking->save();
 
+        try {
+            $contact = is_array($booking->contact) ? $booking->contact : [];
+            $recipient = $contact['email'] ?? $booking->user?->email;
+            if ($recipient) {
+                app(NotificationService::class)->enqueue([
+                    'type' => 'BOOKING_CANCELLED',
+                    'recipient' => $recipient,
+                    'booking_id' => $booking->id,
+                    'idempotency_key' => 'cancel_' . $booking->id . '_' . time(),
+                ]);
+            }
+            $adminEmail = env('ADMIN_NOTIFICATION_EMAIL', 'stay@hamptworthstays.com');
+            if ($adminEmail) {
+                app(NotificationService::class)->enqueue([
+                    'type' => 'ADMIN_CANCELLATION',
+                    'recipient' => $adminEmail,
+                    'booking_id' => $booking->id,
+                    'idempotency_key' => 'admin_cancel_' . $booking->id . '_' . time(),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Cancellation notification dispatch error: ' . $e->getMessage());
+        }
+
         return response()->json([
             'success' => true,
             'data' => $this->bookingData($booking),
@@ -220,6 +245,21 @@ class AdminBookingController extends Controller
         $booking->stay = $stay;
         $booking->save();
 
+        try {
+            $contact = is_array($booking->contact) ? $booking->contact : [];
+            $recipient = $contact['email'] ?? $booking->user?->email;
+            if ($recipient) {
+                app(NotificationService::class)->enqueue([
+                    'type' => 'CHECKED_IN',
+                    'recipient' => $recipient,
+                    'booking_id' => $booking->id,
+                    'idempotency_key' => 'checked_in_' . $booking->id,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Check-in notification dispatch error: ' . $e->getMessage());
+        }
+
         return response()->json([
             'success' => true,
             'data' => $this->bookingData($booking),
@@ -242,6 +282,21 @@ class AdminBookingController extends Controller
         $stay['checkedOutAt'] = now()->toIso8601String();
         $booking->stay = $stay;
         $booking->save();
+
+        try {
+            $contact = is_array($booking->contact) ? $booking->contact : [];
+            $recipient = $contact['email'] ?? $booking->user?->email;
+            if ($recipient) {
+                app(NotificationService::class)->enqueue([
+                    'type' => 'CHECKED_OUT',
+                    'recipient' => $recipient,
+                    'booking_id' => $booking->id,
+                    'idempotency_key' => 'checked_out_' . $booking->id,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Check-out notification dispatch error: ' . $e->getMessage());
+        }
 
         return response()->json([
             'success' => true,

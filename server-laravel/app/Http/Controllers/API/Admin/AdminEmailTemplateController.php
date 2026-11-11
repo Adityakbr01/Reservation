@@ -245,5 +245,19 @@ class AdminEmailTemplateController extends Controller
             ],
         ]);
     }
+
+    public function destroy(string $key)
+    {
+        if (! EmailRegistry::isKey($key)) {
+            return response()->json([
+                'success' => false,
+                'error' => ['code' => 'EMAIL_TEMPLATE_NOT_FOUND', 'message' => 'Email template not found'],
+            ], 404);
+        }
+
+        EmailTemplate::where('key', $key)->delete();
+
+        return $this->show($key);
+    }
 }
 

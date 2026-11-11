@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Mustache from "mustache";
+import CodeMirror, { type ReactCodeMirrorRef } from "@uiw/react-codemirror";
+import { html } from "@codemirror/lang-html";
+import beautify from "js-beautify";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,11 +14,28 @@ import { ApiError, getApiErrorMessage } from "@/lib/api-client";
 import { formatDateTimeWithTime } from "@/lib/date";
 import { previewEmailTemplate } from "../api/email-templates.api";
 import {
+  useDeleteEmailTemplate,
   useEmailTemplate,
   useSendTestEmailTemplate,
   useUpdateEmailTemplate,
 } from "../hooks/use-email-templates";
 import type { EmailTemplateDetail, EmailTemplatePreview } from "../types/email-template.types";
+
+function prettifyHtml(source: string): string {
+  if (!source || !source.trim()) return source;
+  try {
+    return beautify.html(source, {
+      indent_size: 2,
+      wrap_line_length: 100,
+      preserve_newlines: true,
+      max_preserve_newlines: 2,
+      indent_inner_html: true,
+      extra_liners: ["head", "body", "/html", "table", "/table", "tr", "/tr", "p", "/p", "div", "/div"],
+    });
+  } catch {
+    return source;
+  }
+}
 
 // Mustache escapes "/" as &#x2F; by default; the server escapes only & < > " '.
 // Align the two so the local live preview is byte-identical to server output.
@@ -32,7 +52,18 @@ function insertAtCursor(
   setter: (value: string) => void,
   current: string,
   snippet: string,
+  cmRef?: React.RefObject<ReactCodeMirrorRef | null>,
 ): void {
+  if (cmRef?.current?.view) {
+    const view = cmRef.current.view;
+    const { from, to } = view.state.selection.main;
+    view.dispatch({
+      changes: { from, to, insert: snippet },
+      selection: { anchor: from + snippet.length },
+    });
+    view.focus();
+    return;
+  }
   const element = ref.current;
   if (!element) {
     setter(`${current}${snippet}`);
@@ -52,6 +83,7 @@ export function EmailTemplateEditPage() {
   const { key = "" } = useParams();
   const { data: detail, isPending, isError, refetch } = useEmailTemplate(key);
   const updateMutation = useUpdateEmailTemplate(key);
+  const deleteMutation = useDeleteEmailTemplate(key);
   const testMutation = useSendTestEmailTemplate();
 
   const [subject, setSubject] = useState("");
@@ -66,6 +98,7 @@ export function EmailTemplateEditPage() {
 
   const subjectRef = useRef<HTMLInputElement>(null);
   const htmlRef = useRef<HTMLTextAreaElement>(null);
+  const cmRef = useRef<ReactCodeMirrorRef>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const lastField = useRef<"subject" | "html" | "text">("html");
   const loadedRef = useRef<string | null>(null);
@@ -91,12 +124,17 @@ export function EmailTemplateEditPage() {
 
   function fillFromDetail(source: EmailTemplateDetail): void {
     const filled = filledSnapshot(source);
+    const prettyHtml = prettifyHtml(filled.htmlBody);
     setSubject(filled.subject);
-    setHtmlBody(filled.htmlBody);
+    setHtmlBody(prettyHtml);
     setTextBody(filled.textBody);
     setIsEnabled(source.isEnabled);
     setSaveError(null);
-    pristineRef.current = JSON.stringify(filled);
+    pristineRef.current = JSON.stringify({
+      subject: filled.subject,
+      htmlBody: prettyHtml,
+      textBody: filled.textBody,
+    });
   }
 
   // Snapshot of what the editor was filled with — the draft detector
@@ -208,8 +246,12 @@ export function EmailTemplateEditPage() {
     } else if (lastField.current === "text") {
       insertAtCursor(textRef, setTextBody, textBody, snippet);
     } else {
-      insertAtCursor(htmlRef, setHtmlBody, htmlBody, snippet);
+      insertAtCursor(htmlRef, setHtmlBody, htmlBody, snippet, cmRef);
     }
+  }
+
+  function handleFormatHtml(): void {
+    setHtmlBody((prev) => prettifyHtml(prev));
   }
 
   function handleSave() {
@@ -226,7 +268,7 @@ export function EmailTemplateEditPage() {
     if (!detail) return;
     lastField.current = "html";
     setSubject(detail.starter.subject);
-    setHtmlBody(detail.starter.htmlBody);
+    setHtmlBody(prettifyHtml(detail.starter.htmlBody));
     setTextBody(detail.starter.textBody);
   }
 
@@ -235,6 +277,17 @@ export function EmailTemplateEditPage() {
     void refetch().then((result) => {
       if (result.data) fillFromDetail(result.data);
     });
+  }
+
+  function handleResetToDefault() {
+    if (window.confirm("Are you sure you want to discard all custom changes and reset this template to the default design?")) {
+      deleteMutation.mutate(undefined, {
+        onSuccess: (updatedDetail) => {
+          loadedRef.current = null;
+          fillFromDetail(updatedDetail);
+        },
+      });
+    }
   }
 
   return (
@@ -264,15 +317,29 @@ export function EmailTemplateEditPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="font-display text-xl font-light">Content</CardTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="rounded-full"
-                onClick={handleReloadSaved}
-                title="Discard unsaved edits and reload what is saved on the server"
-              >
-                Reload saved
-              </Button>
+              <div className="flex items-center gap-1.5">
+                {detail.isCustomized && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-full text-destructive hover:text-destructive"
+                    onClick={handleResetToDefault}
+                    disabled={deleteMutation.isPending}
+                    title="Discard custom edits and restore default template"
+                  >
+                    {deleteMutation.isPending ? "Resetting…" : "Reset to default"}
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-full"
+                  onClick={handleReloadSaved}
+                  title="Discard unsaved edits and reload what is saved on the server"
+                >
+                  Reload saved
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -298,24 +365,44 @@ export function EmailTemplateEditPage() {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="tpl-html">HTML content</Label>
-                <Button variant="ghost" size="sm" className="rounded-full" onClick={handleLoadStarter}>
-                  Start from brand skeleton
-                </Button>
+                <Label htmlFor="tpl-html">HTML content (syntax highlighted)</Label>
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 rounded-full px-3 text-xs"
+                    onClick={handleFormatHtml}
+                    type="button"
+                    title="Auto-indent and format HTML code"
+                  >
+                    Format HTML
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 rounded-full text-xs"
+                    onClick={handleLoadStarter}
+                    type="button"
+                  >
+                    Start from brand skeleton
+                  </Button>
+                </div>
               </div>
-              <textarea
-                id="tpl-html"
-                ref={htmlRef}
-                value={htmlBody}
-                onChange={(event) => setHtmlBody(event.target.value)}
-                onFocus={() => {
-                  lastField.current = "html";
-                }}
-                rows={14}
-                spellCheck={false}
-                placeholder="HTML body with {{variables}} — scripts and unsafe markup are removed on save."
-                className="w-full rounded-xl border border-input bg-background px-4 py-3 font-mono text-xs leading-relaxed outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              />
+              <div className="overflow-hidden rounded-xl border border-input bg-background focus-within:ring-1 focus-within:ring-ring">
+                <CodeMirror
+                  ref={cmRef}
+                  value={htmlBody}
+                  height="380px"
+                  minHeight="260px"
+                  maxHeight="600px"
+                  extensions={[html()]}
+                  onChange={(val) => setHtmlBody(val)}
+                  onFocus={() => {
+                    lastField.current = "html";
+                  }}
+                  className="font-mono text-xs leading-relaxed"
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="tpl-text">Plain-text content</Label>

@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { getApiErrorMessage } from "@/lib/api-client";
 import { emailTemplateKeys } from "@/lib/query-keys";
 import {
+  deleteEmailTemplate,
   getEmailTemplate,
   listEmailTemplates,
   previewEmailTemplate,
@@ -42,6 +43,22 @@ export function useUpdateEmailTemplate(key: string) {
       void queryClient.invalidateQueries({ queryKey: emailTemplateKeys.detail(key) });
       void queryClient.invalidateQueries({ queryKey: emailTemplateKeys.all });
       toast.success("Template saved");
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error));
+    },
+  });
+}
+
+export function useDeleteEmailTemplate(key: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => deleteEmailTemplate(key),
+    onSuccess: (detail) => {
+      queryClient.setQueryData(emailTemplateKeys.detail(key), detail);
+      void queryClient.invalidateQueries({ queryKey: emailTemplateKeys.detail(key) });
+      void queryClient.invalidateQueries({ queryKey: emailTemplateKeys.all });
+      toast.success("Template reset to default");
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error));

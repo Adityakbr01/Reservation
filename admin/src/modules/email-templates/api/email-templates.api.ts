@@ -34,6 +34,11 @@ export async function updateEmailTemplate(
   return unwrapResponse(response);
 }
 
+export async function deleteEmailTemplate(key: string): Promise<EmailTemplateDetail> {
+  const response = await apiClient.delete<ApiEnvelope<EmailTemplateDetail>>(`${BASE}/${key}`);
+  return unwrapResponse(response);
+}
+
 export async function previewEmailTemplate(key: string): Promise<EmailTemplatePreview> {
   const response = await apiClient.post<ApiEnvelope<EmailTemplatePreview>>(`${BASE}/${key}/preview`);
   return unwrapResponse(response);

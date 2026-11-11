@@ -3,9 +3,12 @@
 namespace App\Services;
 
 use App\Models\Booking;
+use App\Models\EmailTemplate;
 use App\Models\Notification;
 use App\Models\Payment;
+use App\Services\EmailTemplateService;
 use App\Support\Email\EmailRegistry;
+use App\Support\Email\EmailShared;
 use App\Support\Email\Templates\AdminTemplates;
 use App\Support\Email\Templates\BookingTemplates;
 use App\Support\Email\Templates\PaymentTemplates;
@@ -109,8 +112,9 @@ class NotificationService
         }
 
         $ctx = $this->buildBookingContext($booking);
+        $type = $notification->type;
 
-        return match ($notification->type) {
+        $codeDefault = match ($type) {
             'BOOKING_RECEIVED' => BookingTemplates::bookingReceived($ctx),
             'BOOKING_CONFIRMED' => BookingTemplates::bookingConfirmed($ctx),
             'BOOKING_CANCELLED' => BookingTemplates::bookingCancelled($ctx),
@@ -162,6 +166,112 @@ class NotificationService
                 'text' => 'You have a new update from Hamptworth Stays.',
             ],
         };
+
+        if (EmailRegistry::isKey($type)) {
+            $override = EmailTemplate::where('key', $type)->first();
+            if ($override) {
+                try {
+                    $vars = $this->buildTemplateVars($type, $ctx, $booking, $notification);
+                    $templateService = app(EmailTemplateService::class);
+                    $res = $templateService->renderWithOverride(
+                        $type,
+                        $vars,
+                        $codeDefault,
+                        $override->toArray()
+                    );
+                    return $res['rendered'];
+                } catch (\Throwable $e) {
+                    Log::error("Failed to render custom email template {$type}: " . $e->getMessage(), [
+                        'exception' => $e,
+                    ]);
+                }
+            }
+        }
+
+        return $codeDefault;
+    }
+
+    /**
+     * @param  array<string, mixed>  $ctx
+     * @return array<string, string>
+     */
+    public function buildTemplateVars(string $type, array $ctx, ?Booking $booking = null, ?Notification $notification = null): array
+    {
+        $adminBase = rtrim(env('ADMIN_URL', 'https://admin.hamptworthstays.com'), '/');
+        $clientBase = rtrim(env('CLIENT_URL', 'https://book.hamptworthstays.com'), '/');
+        $currency = (string) ($ctx['currency'] ?? 'GBP');
+
+        $totalFormatted = is_numeric($ctx['total'] ?? null)
+            ? EmailShared::money((int) $ctx['total'], $currency)
+            : (string) ($ctx['total'] ?? '');
+
+        $totalPaidFormatted = is_numeric($ctx['totalPaid'] ?? null)
+            ? EmailShared::money((int) $ctx['totalPaid'], $currency)
+            : $totalFormatted;
+
+        $refundAmountFormatted = isset($ctx['refundAmount'])
+            ? (is_numeric($ctx['refundAmount']) ? EmailShared::money((int) $ctx['refundAmount'], $currency) : (string) $ctx['refundAmount'])
+            : $totalFormatted;
+
+        $cottageName = (string) ($ctx['cottageName'] ?? $ctx['roomSummary'] ?? 'Hamptworth Stay');
+        $guestName = (string) ($ctx['guestName'] ?? 'Guest');
+        $bookingRef = (string) ($ctx['bookingReference'] ?? ($booking?->booking_number ?? $booking?->id ?? ''));
+
+        $checkInFormatted = (string) ($ctx['checkIn'] ?? '');
+        $checkOutFormatted = (string) ($ctx['checkOut'] ?? '');
+
+        $headline = match ($type) {
+            'ADMIN_PAYMENT_FAILURE' => 'Payment failure',
+            'ADMIN_CANCELLATION' => 'Booking cancelled',
+            'ADMIN_SOLD_OUT' => 'Fully booked',
+            default => 'New booking',
+        };
+
+        $detail = match ($type) {
+            'ADMIN_PAYMENT_FAILURE' => "Payment failed for {$guestName}.",
+            'ADMIN_CANCELLATION' => "Booking cancelled for {$guestName}.",
+            'ADMIN_SOLD_OUT' => "All rooms are now booked for dates: {$checkInFormatted} → {$checkOutFormatted}",
+            default => "{$guestName}, {$cottageName}, {$checkInFormatted} → {$checkOutFormatted}.",
+        };
+
+        $adminUrl = "{$adminBase}/reservations/" . ($booking?->id ?? '');
+
+        return [
+            'guestName' => $guestName,
+            'cottageName' => $cottageName,
+            'propertyName' => (string) ($ctx['propertyName'] ?? EmailShared::DEFAULT_BRAND_NAME),
+            'brandName' => (string) ($ctx['brandName'] ?? EmailShared::DEFAULT_BRAND_NAME),
+            'bookingReference' => $bookingRef,
+            'checkIn' => $checkInFormatted,
+            'checkOut' => $checkOutFormatted,
+            'nights' => (string) ($ctx['nights'] ?? 1),
+            'guests' => (string) ($ctx['guests'] ?? '1 guest'),
+            'currency' => $currency,
+            'total' => $totalFormatted,
+            'totalPaid' => $totalPaidFormatted,
+            'paymentStatus' => (string) ($ctx['paymentStatus'] ?? 'PAID'),
+            'cancellationPolicy' => (string) ($ctx['cancellationPolicy'] ?? 'Free cancellation until 48h before check-in.'),
+            'supportEmail' => (string) ($ctx['supportEmail'] ?? env('ADMIN_NOTIFICATION_EMAIL', 'stay@hamptworthstays.com')),
+            'manageUrl' => (string) ($ctx['manageUrl'] ?? "{$clientBase}/bookings"),
+            'receiptUrl' => (string) ($ctx['receiptUrl'] ?? ($ctx['manageUrl'] ?? '')),
+            'downloadReceiptUrl' => (string) ($ctx['downloadReceiptUrl'] ?? ''),
+            'checkInTime' => EmailShared::checkInLabel($ctx['checkInTime'] ?? null),
+            'checkOutTime' => EmailShared::checkOutLabel($ctx['checkOutTime'] ?? null),
+            'propertyAddress' => (string) ($ctx['propertyAddress'] ?? ''),
+            'mapsUrl' => ($ctx['mapsUrl'] ?? null) ?: EmailShared::mapsDirectionsUrl($ctx['propertyAddress'] ?? ''),
+            'brandSiteUrl' => (string) ($ctx['brandSiteUrl'] ?? EmailShared::DEFAULT_BRAND_SITE_URL),
+            'bookingSiteUrl' => (string) ($ctx['bookingSiteUrl'] ?? EmailShared::DEFAULT_BOOKING_SITE_URL),
+            'holdExpiresAt' => now()->addMinutes(30)->format('j M Y, g:i a'),
+            'cancelledAt' => date('j M Y'),
+            'refundAmount' => $refundAmountFormatted,
+            'refundStatus' => (string) ($ctx['refundStatus'] ?? 'succeeded'),
+            'headline' => $headline,
+            'detail' => $detail,
+            'adminUrl' => $adminUrl,
+            'resetUrl' => "{$clientBase}/reset-password",
+            'loginUrl' => "{$clientBase}/login",
+            'expiryNote' => 'For your security, the reset link expires after 1 hour.',
+        ];
     }
 
     public function sendBookingConfirmation(Booking $booking): void
@@ -197,13 +307,14 @@ class NotificationService
 
         $settings = \App\Models\SiteSettings::first();
         $property = $booking->property ?? \App\Models\Property::first();
+        $pricing = is_array($booking->pricing) ? $booking->pricing : [];
 
         $propertyName = $settings?->property_name ?? $property?->name ?? 'Hamptworth Stays';
         $propertyAddress = $settings?->address ?? $property?->address ?? '';
         $supportEmail = $settings?->support_email ?? env('ADMIN_NOTIFICATION_EMAIL', 'stay@hamptworthstays.com');
         $checkInTime = $settings?->check_in_time ?? $property?->check_in_time ?? '16:00';
         $checkOutTime = $settings?->check_out_time ?? $property?->check_out_time ?? '10:00';
-        $currency = $pricing['currency'] ?? $settings?->currency ?? $property?->currency ?? 'GBP';
+        $currency = $pricing['currency'] ?? $settings?->currency ?? $property?->currency ?? $booking->currency ?? 'GBP';
         $brandName = $propertyName;
 
         $contact = is_array($booking->contact) ? $booking->contact : [];
@@ -216,8 +327,6 @@ class NotificationService
         $checkInFormatted = $booking->check_in ? date('j M Y', strtotime($booking->check_in)) : $dummy['checkIn'];
         $checkOutFormatted = $booking->check_out ? date('j M Y', strtotime($booking->check_out)) : $dummy['checkOut'];
 
-        $pricing = is_array($booking->pricing) ? $booking->pricing : [];
-        $currency = $pricing['currency'] ?? $settings?->currency ?? $booking->currency ?? 'GBP';
         $subtotal = (int) ($pricing['subtotal'] ?? 0);
         $discount = (int) ($pricing['discount'] ?? 0);
         $taxes = (int) ($pricing['taxes'] ?? 0);
@@ -231,6 +340,7 @@ class NotificationService
             'guestName' => $guestName,
             'bookingReference' => $booking->booking_number ?? $booking->id,
             'roomSummary' => $roomNames,
+            'cottageName' => $roomNames,
             'checkIn' => $checkInFormatted,
             'checkOut' => $checkOutFormatted,
             'nights' => (int) ($booking->nights ?? 1),

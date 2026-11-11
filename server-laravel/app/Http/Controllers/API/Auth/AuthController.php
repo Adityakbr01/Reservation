@@ -10,7 +10,11 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Auth\SetPasswordRequest;
 use App\Http\Requests\Auth\UpdateMeRequest;
+use App\Models\EmailTemplate;
 use App\Models\User;
+use App\Services\EmailTemplateService;
+use App\Services\NotificationService;
+use App\Support\Email\EmailShared;
 use Firebase\JWT\JWT;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -61,7 +65,25 @@ class AuthController extends Controller
         try {
             $name = $user->name ?: 'Guest';
             $welcome = \App\Support\Email\Templates\WelcomeTemplates::welcome($name);
-            app(\App\Services\NotificationService::class)->sendViaResend(
+            $override = EmailTemplate::where('key', 'WELCOME')->first();
+            if ($override) {
+                $clientBase = rtrim(env('CLIENT_URL', 'https://hamptworthstays.com'), '/');
+                $vars = [
+                    'guestName' => $name,
+                    'brandName' => EmailShared::DEFAULT_BRAND_NAME,
+                    'brandSiteUrl' => EmailShared::DEFAULT_BRAND_SITE_URL,
+                    'bookingSiteUrl' => EmailShared::DEFAULT_BOOKING_SITE_URL,
+                    'loginUrl' => "{$clientBase}/login",
+                ];
+                $res = app(EmailTemplateService::class)->renderWithOverride(
+                    'WELCOME',
+                    $vars,
+                    $welcome,
+                    $override->toArray()
+                );
+                $welcome = $res['rendered'];
+            }
+            app(NotificationService::class)->sendViaResend(
                 $user->email,
                 $welcome['subject'],
                 $welcome['html'],
@@ -142,7 +164,25 @@ class AuthController extends Controller
             try {
                 $name = $user->name ?: 'Guest';
                 $resetMail = \App\Support\Email\Templates\AuthTemplates::passwordReset($name, $resetUrl);
-                app(\App\Services\NotificationService::class)->sendViaResend(
+                $override = EmailTemplate::where('key', 'PASSWORD_RESET')->first();
+                if ($override) {
+                    $vars = [
+                        'guestName' => $name,
+                        'brandName' => EmailShared::DEFAULT_BRAND_NAME,
+                        'resetUrl' => $resetUrl,
+                        'brandSiteUrl' => EmailShared::DEFAULT_BRAND_SITE_URL,
+                        'bookingSiteUrl' => EmailShared::DEFAULT_BOOKING_SITE_URL,
+                        'expiryNote' => 'For your security, the reset link expires after 1 hour.',
+                    ];
+                    $res = app(EmailTemplateService::class)->renderWithOverride(
+                        'PASSWORD_RESET',
+                        $vars,
+                        $resetMail,
+                        $override->toArray()
+                    );
+                    $resetMail = $res['rendered'];
+                }
+                app(NotificationService::class)->sendViaResend(
                     $user->email,
                     $resetMail['subject'],
                     $resetMail['html'],
@@ -185,7 +225,26 @@ class AuthController extends Controller
         try {
             $name = $user->name ?: 'Guest';
             $changedMail = \App\Support\Email\Templates\AuthTemplates::passwordChanged($name);
-            app(\App\Services\NotificationService::class)->sendViaResend(
+            $override = EmailTemplate::where('key', 'PASSWORD_CHANGED')->first();
+            if ($override) {
+                $clientBase = rtrim(env('CLIENT_URL', 'https://hamptworthstays.com'), '/');
+                $vars = [
+                    'guestName' => $name,
+                    'brandName' => EmailShared::DEFAULT_BRAND_NAME,
+                    'loginUrl' => "{$clientBase}/login",
+                    'brandSiteUrl' => EmailShared::DEFAULT_BRAND_SITE_URL,
+                    'bookingSiteUrl' => EmailShared::DEFAULT_BOOKING_SITE_URL,
+                    'supportEmail' => env('ADMIN_NOTIFICATION_EMAIL', 'stay@hamptworthstays.com'),
+                ];
+                $res = app(EmailTemplateService::class)->renderWithOverride(
+                    'PASSWORD_CHANGED',
+                    $vars,
+                    $changedMail,
+                    $override->toArray()
+                );
+                $changedMail = $res['rendered'];
+            }
+            app(NotificationService::class)->sendViaResend(
                 $user->email,
                 $changedMail['subject'],
                 $changedMail['html'],
