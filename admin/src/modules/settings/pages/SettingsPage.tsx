@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { ImageField } from "@/components/common/ImageField";
 import { CkEditorField } from "@/components/common/CkEditorField";
+import { RichTextEditor } from "@/modules/cms/components/RichTextEditor";
 import {
   apiClient,
   getApiErrorMessage,
@@ -166,6 +167,15 @@ export interface BookFasterSettings {
   expandedByDefault?: boolean;
 }
 
+const DEFAULT_BOOK_FASTER: Required<BookFasterSettings> = {
+  isEnabled: true,
+  title: "Book Faster (Optional)",
+  checkboxText: "I would like to create an account.",
+  passwordHint:
+    "At least 8 characters long, case sensitive, can contain !$#%, no spaces, not the same as previous password or login",
+  expandedByDefault: false,
+};
+
 export interface BookingAcknowledgement {
   sections?: CheckoutSection[];
   bookFaster?: BookFasterSettings;
@@ -206,6 +216,64 @@ interface Settings {
   bookingAcknowledgement?: BookingAcknowledgement;
 }
 
+function migrateLegacyAckLinks(
+  ack?: BookingAcknowledgement,
+): BookingAcknowledgement | undefined {
+  if (!ack) return ack;
+  const migrateItem = (item: AcknowledgementItem): AcknowledgementItem => {
+    if (item.linkLabel && item.linkUrl && !/<a\s/i.test(item.text)) {
+      const href = item.linkUrl.replace(/"/g, "&quot;");
+      return {
+        ...item,
+        text: `${item.text} <a href="${href}" target="_blank" rel="noopener noreferrer">${item.linkLabel}</a>`,
+      };
+    }
+    return item;
+  };
+  return {
+    ...ack,
+    ...(ack.items ? { items: ack.items.map(migrateItem) } : {}),
+    ...(ack.sections
+      ? {
+          sections: ack.sections.map((sec) => ({
+            ...sec,
+            items: (sec.items ?? []).map(migrateItem),
+          })),
+        }
+      : {}),
+  };
+}
+
+function defaultAckSections(ack?: BookingAcknowledgement): CheckoutSection[] {
+  const privacyText = ack?.privacyCheckboxText ?? "* I agree with the Privacy Terms.";
+  const termsText = ack?.termsCheckboxText ?? "I agree with the Booking Conditions.";
+  return [
+    {
+      id: "sec-acknowledgement",
+      title: ack?.title ?? "Acknowledgement",
+      introText: ack?.introText ?? "",
+      isEnabled: true,
+      items:
+        ack?.items && ack.items.length > 0
+          ? ack.items
+          : [
+              {
+                id: "ack-privacy",
+                text: `${privacyText} <a href="${ack?.privacyLinkUrl ?? "/policies/PRIVACY"}" target="_blank" rel="noopener noreferrer">${ack?.privacyLinkLabel ?? "Privacy Notice"}</a>`,
+                isRequired: true,
+                isEnabled: true,
+              },
+              {
+                id: "ack-terms",
+                text: `${termsText} <a href="${ack?.termsLinkUrl ?? "/policies/TERMS"}" target="_blank" rel="noopener noreferrer">${ack?.termsLinkLabel ?? "Booking Conditions"}</a>`,
+                isRequired: true,
+                isEnabled: true,
+              },
+            ],
+    },
+  ];
+}
+
 export function SettingsPage() {
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: settingsKeys.detail(),
@@ -240,7 +308,16 @@ export function SettingsPage() {
 
 function SettingsForm({ initial }: { initial: Settings }) {
   const queryClient = useQueryClient();
-  const [form, setForm] = useState<Settings>(initial);
+  const [form, setForm] = useState<Settings>(() => {
+    const ack = migrateLegacyAckLinks(initial.bookingAcknowledgement);
+    return {
+      ...initial,
+      bookingAcknowledgement: {
+        ...(ack ?? {}),
+        bookFaster: { ...DEFAULT_BOOK_FASTER, ...(ack?.bookFaster ?? {}) },
+      },
+    };
+  });
   const mutation = useMutation({
     mutationFn: async (payload: Partial<Settings>) => {
       const r = await apiClient.patch<ApiEnvelope<Settings>>(
@@ -1543,7 +1620,7 @@ function SettingsForm({ initial }: { initial: Settings }) {
           <CardContent className="space-y-6">
             {/* Book Faster (Optional) Section Control */}
             {(() => {
-              const bf = form.bookingAcknowledgement?.bookFaster ?? {};
+              const bf = form.bookingAcknowledgement?.bookFaster ?? DEFAULT_BOOK_FASTER;
               const updateBf = (patch: Partial<BookFasterSettings>) => {
                 set("bookingAcknowledgement", {
                   ...(form.bookingAcknowledgement ?? {}),
@@ -1648,36 +1725,7 @@ function SettingsForm({ initial }: { initial: Settings }) {
                     const currentSections: CheckoutSection[] =
                       form.bookingAcknowledgement?.sections && form.bookingAcknowledgement.sections.length > 0
                         ? form.bookingAcknowledgement.sections
-                        : [
-                            {
-                              id: "sec-acknowledgement",
-                              title: form.bookingAcknowledgement?.title ?? "Acknowledgement",
-                              introText: form.bookingAcknowledgement?.introText ?? "",
-                              isEnabled: true,
-                              items: (form.bookingAcknowledgement?.items && form.bookingAcknowledgement.items.length > 0)
-                                ? form.bookingAcknowledgement.items
-                                : [
-                                    {
-                                      id: "ack-privacy",
-                                      text: form.bookingAcknowledgement?.privacyCheckboxText ?? "* I agree with the Privacy Terms.",
-                                      linkLabel: form.bookingAcknowledgement?.privacyLinkLabel ?? "Privacy Notice",
-                                      linkUrl: form.bookingAcknowledgement?.privacyLinkUrl ?? "/policies/PRIVACY",
-                                      openInNewTab: true,
-                                      isRequired: true,
-                                      isEnabled: true,
-                                    },
-                                    {
-                                      id: "ack-terms",
-                                      text: form.bookingAcknowledgement?.termsCheckboxText ?? "I agree with the Booking Conditions.",
-                                      linkLabel: form.bookingAcknowledgement?.termsLinkLabel ?? "Booking Conditions",
-                                      linkUrl: form.bookingAcknowledgement?.termsLinkUrl ?? "/policies/TERMS",
-                                      openInNewTab: true,
-                                      isRequired: true,
-                                      isEnabled: true,
-                                    },
-                                  ],
-                            },
-                          ];
+                        : defaultAckSections(form.bookingAcknowledgement);
 
                     const newSection: CheckoutSection = {
                       id: `sec-${Date.now()}`,
@@ -1687,10 +1735,7 @@ function SettingsForm({ initial }: { initial: Settings }) {
                       items: [
                         {
                           id: `ack-${Date.now()}`,
-                          text: "I agree to observe the quiet hours and farm guidelines.",
-                          linkLabel: "House Rules",
-                          linkUrl: "/policies/HOUSE_RULES",
-                          openInNewTab: true,
+                          text: 'I agree to observe the quiet hours and farm guidelines. <a href="/policies/HOUSE_RULES" target="_blank" rel="noopener noreferrer">House Rules</a>',
                           isRequired: true,
                           isEnabled: true,
                         },
@@ -1712,36 +1757,7 @@ function SettingsForm({ initial }: { initial: Settings }) {
                 const currentSections: CheckoutSection[] =
                   form.bookingAcknowledgement?.sections && form.bookingAcknowledgement.sections.length > 0
                     ? form.bookingAcknowledgement.sections
-                    : [
-                        {
-                          id: "sec-acknowledgement",
-                          title: form.bookingAcknowledgement?.title ?? "Acknowledgement",
-                          introText: form.bookingAcknowledgement?.introText ?? "",
-                          isEnabled: true,
-                          items: (form.bookingAcknowledgement?.items && form.bookingAcknowledgement.items.length > 0)
-                            ? form.bookingAcknowledgement.items
-                            : [
-                                {
-                                  id: "ack-privacy",
-                                  text: form.bookingAcknowledgement?.privacyCheckboxText ?? "* I agree with the Privacy Terms.",
-                                  linkLabel: form.bookingAcknowledgement?.privacyLinkLabel ?? "Privacy Notice",
-                                  linkUrl: form.bookingAcknowledgement?.privacyLinkUrl ?? "/policies/PRIVACY",
-                                  openInNewTab: true,
-                                  isRequired: true,
-                                  isEnabled: true,
-                                },
-                                {
-                                  id: "ack-terms",
-                                  text: form.bookingAcknowledgement?.termsCheckboxText ?? "I agree with the Booking Conditions.",
-                                  linkLabel: form.bookingAcknowledgement?.termsLinkLabel ?? "Booking Conditions",
-                                  linkUrl: form.bookingAcknowledgement?.termsLinkUrl ?? "/policies/TERMS",
-                                  openInNewTab: true,
-                                  isRequired: true,
-                                  isEnabled: true,
-                                },
-                              ],
-                        },
-                      ];
+                    : defaultAckSections(form.bookingAcknowledgement);
 
                 return (
                   <div className="space-y-6">
@@ -1856,14 +1872,15 @@ function SettingsForm({ initial }: { initial: Settings }) {
                             />
                           </div>
 
-                          <div className="space-y-1">
-                            <Label className="text-xs font-semibold">Introductory Note (Optional)</Label>
-                            <Input
+                          <div className="space-y-1 sm:col-span-2">
+                            <RichTextEditor
+                              compact
+                              minHeightClass="min-h-16"
+                              label="Introductory Note (Optional)"
                               value={sec.introText ?? ""}
-                              placeholder="e.g. Please confirm you agree to our terms before booking."
-                              onChange={(e) => {
+                              onChange={(html) => {
                                 const updated = secArr.map((s, i) =>
-                                  i === secIdx ? { ...s, introText: e.target.value } : s
+                                  i === secIdx ? { ...s, introText: html } : s
                                 );
                                 set("bookingAcknowledgement", {
                                   ...(form.bookingAcknowledgement ?? {}),
@@ -1890,10 +1907,7 @@ function SettingsForm({ initial }: { initial: Settings }) {
                               onClick={() => {
                                 const newItem: AcknowledgementItem = {
                                   id: `ack-${Date.now()}`,
-                                  text: "I agree to ",
-                                  linkLabel: "Booking Terms",
-                                  linkUrl: "/policies/TERMS",
-                                  openInNewTab: true,
+                                  text: 'I agree to the <a href="/policies/TERMS" target="_blank" rel="noopener noreferrer">Booking Terms</a>.',
                                   isRequired: true,
                                   isEnabled: true,
                                 };
@@ -2033,14 +2047,14 @@ function SettingsForm({ initial }: { initial: Settings }) {
 
                               <div className="grid gap-2 sm:grid-cols-2">
                                 <div className="space-y-1 sm:col-span-2">
-                                  <Label className="text-[11px] font-semibold">Checkbox Text</Label>
-                                  <Input
-                                    className="h-8 text-xs"
+                                  <RichTextEditor
+                                    compact
+                                    minHeightClass="min-h-16"
+                                    label="Checkbox Text"
                                     value={item.text}
-                                    placeholder="e.g. * I agree with the Privacy Terms."
-                                    onChange={(e) => {
+                                    onChange={(html) => {
                                       const newItems = itArr.map((it: AcknowledgementItem, i: number) =>
-                                        i === itIdx ? { ...it, text: e.target.value } : it
+                                        i === itIdx ? { ...it, text: html } : it
                                       );
                                       const updated = secArr.map((s, i) =>
                                         i === secIdx ? { ...s, items: newItems } : s
@@ -2051,67 +2065,9 @@ function SettingsForm({ initial }: { initial: Settings }) {
                                       });
                                     }}
                                   />
-                                </div>
-
-                                <div className="space-y-1">
-                                  <Label className="text-[11px]">Link Label (Optional)</Label>
-                                  <Input
-                                    className="h-8 text-xs"
-                                    value={item.linkLabel ?? ""}
-                                    placeholder="e.g. Privacy Notice"
-                                    onChange={(e) => {
-                                      const newItems = itArr.map((it: AcknowledgementItem, i: number) =>
-                                        i === itIdx ? { ...it, linkLabel: e.target.value } : it
-                                      );
-                                      const updated = secArr.map((s, i) =>
-                                        i === secIdx ? { ...s, items: newItems } : s
-                                      );
-                                      set("bookingAcknowledgement", {
-                                        ...(form.bookingAcknowledgement ?? {}),
-                                        sections: updated,
-                                      });
-                                    }}
-                                  />
-                                </div>
-
-                                <div className="space-y-1">
-                                  <Label className="text-[11px]">Link Destination URL (Optional)</Label>
-                                  <Input
-                                    className="h-8 text-xs"
-                                    value={item.linkUrl ?? ""}
-                                    placeholder="e.g. /policies/PRIVACY"
-                                    onChange={(e) => {
-                                      const newItems = itArr.map((it: AcknowledgementItem, i: number) =>
-                                        i === itIdx ? { ...it, linkUrl: e.target.value } : it
-                                      );
-                                      const updated = secArr.map((s, i) =>
-                                        i === secIdx ? { ...s, items: newItems } : s
-                                      );
-                                      set("bookingAcknowledgement", {
-                                        ...(form.bookingAcknowledgement ?? {}),
-                                        sections: updated,
-                                      });
-                                    }}
-                                  />
-                                </div>
-
-                                <div className="flex items-center gap-2 pt-1 sm:col-span-2">
-                                  <Switch
-                                    checked={item.openInNewTab !== false}
-                                    onCheckedChange={(val) => {
-                                      const newItems = itArr.map((it: AcknowledgementItem, i: number) =>
-                                        i === itIdx ? { ...it, openInNewTab: val } : it
-                                      );
-                                      const updated = secArr.map((s, i) =>
-                                        i === secIdx ? { ...s, items: newItems } : s
-                                      );
-                                      set("bookingAcknowledgement", {
-                                        ...(form.bookingAcknowledgement ?? {}),
-                                        sections: updated,
-                                      });
-                                    }}
-                                  />
-                                  <span className="text-[11px] text-muted-foreground">Open link in new tab</span>
+                                  <p className="text-[11px] text-muted-foreground">
+                                    Use the link tool above to embed a link anywhere in the text.
+                                  </p>
                                 </div>
                               </div>
                             </div>

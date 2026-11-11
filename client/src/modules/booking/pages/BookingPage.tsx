@@ -43,6 +43,15 @@ function roomKey(roomTypeId: string, ratePlanId: string): string {
   return `${roomTypeId}__${ratePlanId}`;
 }
 
+/** Minimal hardening for admin-authored checkout HTML. */
+function sanitizeCheckoutHtml(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+    .replace(/(href|src)\s*=\s*(?:"|')?\s*javascript:[^"'>\s]*/gi, '$1="#"');
+}
+
 const TITLES = ["Mr", "Mrs", "Ms", "Miss", "Dr", "Other"];
 
 function newIdempotencyKey(): string {
@@ -1119,9 +1128,11 @@ export function BookingPage() {
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 {sec.introText && (
-                  <p className="text-xs text-muted-foreground pb-1">
-                    {sec.introText}
-                  </p>
+                  <div
+                    className="pb-1 text-xs text-muted-foreground [&_a]:font-medium [&_a]:underline [&_a]:hover:text-brand [&_p]:m-0"
+                    onClick={(e) => e.stopPropagation()}
+                    dangerouslySetInnerHTML={{ __html: sanitizeCheckoutHtml(sec.introText) }}
+                  />
                 )}
                 {(sec.items ?? [])
                   .filter((item) => item.isEnabled !== false)
@@ -1134,8 +1145,11 @@ export function BookingPage() {
                         className="mt-1 size-4 shrink-0 accent-brand cursor-pointer"
                       />
                       <span className="text-sm select-none">
-                        {item.text}{" "}
-                        {item.linkUrl && item.linkLabel && (
+                        <span
+                          className="[&_a]:font-medium [&_a]:underline [&_a]:hover:text-brand [&_p]:m-0 [&_p]:inline"
+                          dangerouslySetInnerHTML={{ __html: sanitizeCheckoutHtml(item.text) }}
+                        />{" "}
+                        {!/<a\s/i.test(item.text) && item.linkUrl && item.linkLabel && (
                           <Link
                             to={item.linkUrl}
                             target={item.openInNewTab !== false ? "_blank" : undefined}

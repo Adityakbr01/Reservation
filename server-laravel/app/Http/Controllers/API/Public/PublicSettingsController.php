@@ -194,8 +194,8 @@ class PublicSettingsController extends Controller
                             'introText' => '',
                             'isEnabled' => true,
                             'items' => [
-                                ['id' => 'ack-privacy', 'text' => '* I agree with the Privacy Terms.', 'linkLabel' => 'Privacy Notice', 'linkUrl' => '/policies/PRIVACY', 'openInNewTab' => true, 'isRequired' => true, 'isEnabled' => true],
-                                ['id' => 'ack-terms', 'text' => 'I agree with the Booking Conditions.', 'linkLabel' => 'Booking Conditions', 'linkUrl' => '/policies/TERMS', 'openInNewTab' => true, 'isRequired' => true, 'isEnabled' => true],
+                                ['id' => 'ack-privacy', 'text' => '* I agree with the Privacy Terms. <a href="/policies/PRIVACY" target="_blank" rel="noopener noreferrer">Privacy Notice</a>', 'isRequired' => true, 'isEnabled' => true],
+                                ['id' => 'ack-terms', 'text' => 'I agree with the Booking Conditions. <a href="/policies/TERMS" target="_blank" rel="noopener noreferrer">Booking Conditions</a>', 'isRequired' => true, 'isEnabled' => true],
                             ],
                         ],
                     ],
@@ -227,8 +227,8 @@ class PublicSettingsController extends Controller
                             'introText' => '',
                             'isEnabled' => true,
                             'items' => [
-                                ['id' => 'ack-privacy', 'text' => '* I agree with the Privacy Terms.', 'linkLabel' => 'Privacy Notice', 'linkUrl' => '/policies/PRIVACY', 'openInNewTab' => true, 'isRequired' => true, 'isEnabled' => true],
-                                ['id' => 'ack-terms', 'text' => 'I agree with the Booking Conditions.', 'linkLabel' => 'Booking Conditions', 'linkUrl' => '/policies/TERMS', 'openInNewTab' => true, 'isRequired' => true, 'isEnabled' => true],
+                                ['id' => 'ack-privacy', 'text' => '* I agree with the Privacy Terms. <a href="/policies/PRIVACY" target="_blank" rel="noopener noreferrer">Privacy Notice</a>', 'isRequired' => true, 'isEnabled' => true],
+                                ['id' => 'ack-terms', 'text' => 'I agree with the Booking Conditions. <a href="/policies/TERMS" target="_blank" rel="noopener noreferrer">Booking Conditions</a>', 'isRequired' => true, 'isEnabled' => true],
                             ],
                         ],
                     ],

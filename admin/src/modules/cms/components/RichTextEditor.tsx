@@ -30,6 +30,8 @@ interface RichTextEditorProps {
   onChange: (html: string) => void;
   label?: string;
   minHeightClass?: string;
+  /** Minimal toolbar (bold, italic, underline, link) for inline labels. */
+  compact?: boolean;
 }
 
 function ToolButton({
@@ -66,7 +68,7 @@ function ToolButton({
  * WYSIWYG editor for CMS HTML fields (blog content, page sections).
  * Emits sanitized-on-server HTML — the API scrubs scripts/handlers on save.
  */
-export function RichTextEditor({ value, onChange, label, minHeightClass }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, label, minHeightClass, compact = false }: RichTextEditorProps) {
   const [urlMode, setUrlMode] = useState<"link" | "image" | null>(null);
   const [urlValue, setUrlValue] = useState("");
 
@@ -74,13 +76,17 @@ export function RichTextEditor({ value, onChange, label, minHeightClass }: RichT
     extensions: [
       StarterKit.configure({ heading: { levels: [2, 3] } }),
       Underline,
-      Link.configure({ openOnClick: false, autolink: true }),
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        HTMLAttributes: { target: "_blank", rel: "noopener noreferrer" },
+      }),
       Image.configure({ inline: false }),
     ],
     content: value || "<p></p>",
     editorProps: {
       attributes: {
-        class: `tiptap min-h-[200px] w-full px-3 py-2 text-sm leading-relaxed focus:outline-none ${minHeightClass ?? ""}`,
+        class: `tiptap w-full px-3 py-2 text-sm leading-relaxed focus:outline-none ${minHeightClass ?? "min-h-[200px]"} ${compact ? "[&_p]:my-0" : ""}`,
       },
     },
     onUpdate: ({ editor: updated }) => onChange(updated.getHTML()),
@@ -125,20 +131,24 @@ export function RichTextEditor({ value, onChange, label, minHeightClass }: RichT
           role="toolbar"
           aria-label="Formatting"
         >
-          <ToolButton
-            title="Heading 2"
-            active={editor.isActive("heading", { level: 2 })}
-            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          >
-            <Heading2 aria-hidden />
-          </ToolButton>
-          <ToolButton
-            title="Heading 3"
-            active={editor.isActive("heading", { level: 3 })}
-            onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          >
-            <Heading3 aria-hidden />
-          </ToolButton>
+          {!compact && (
+            <>
+              <ToolButton
+                title="Heading 2"
+                active={editor.isActive("heading", { level: 2 })}
+                onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+              >
+                <Heading2 aria-hidden />
+              </ToolButton>
+              <ToolButton
+                title="Heading 3"
+                active={editor.isActive("heading", { level: 3 })}
+                onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+              >
+                <Heading3 aria-hidden />
+              </ToolButton>
+            </>
+          )}
           <ToolButton
             title="Bold"
             active={editor.isActive("bold")}
@@ -160,27 +170,31 @@ export function RichTextEditor({ value, onChange, label, minHeightClass }: RichT
           >
             <UnderlineIcon aria-hidden />
           </ToolButton>
-          <ToolButton
-            title="Bullet list"
-            active={editor.isActive("bulletList")}
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-          >
-            <List aria-hidden />
-          </ToolButton>
-          <ToolButton
-            title="Numbered list"
-            active={editor.isActive("orderedList")}
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          >
-            <ListOrdered aria-hidden />
-          </ToolButton>
-          <ToolButton
-            title="Quote"
-            active={editor.isActive("blockquote")}
-            onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          >
-            <Quote aria-hidden />
-          </ToolButton>
+          {!compact && (
+            <>
+              <ToolButton
+                title="Bullet list"
+                active={editor.isActive("bulletList")}
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+              >
+                <List aria-hidden />
+              </ToolButton>
+              <ToolButton
+                title="Numbered list"
+                active={editor.isActive("orderedList")}
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+              >
+                <ListOrdered aria-hidden />
+              </ToolButton>
+              <ToolButton
+                title="Quote"
+                active={editor.isActive("blockquote")}
+                onClick={() => editor.chain().focus().toggleBlockquote().run()}
+              >
+                <Quote aria-hidden />
+              </ToolButton>
+            </>
+          )}
           <ToolButton
             title="Add link"
             active={editor.isActive("link") || urlMode === "link"}
@@ -191,16 +205,18 @@ export function RichTextEditor({ value, onChange, label, minHeightClass }: RichT
           >
             <Link2 aria-hidden />
           </ToolButton>
-          <ToolButton
-            title="Insert image by URL"
-            active={urlMode === "image"}
-            onClick={() => {
-              setUrlMode(urlMode === "image" ? null : "image");
-              setUrlValue("");
-            }}
-          >
-            <ImagePlus aria-hidden />
-          </ToolButton>
+          {!compact && (
+            <ToolButton
+              title="Insert image by URL"
+              active={urlMode === "image"}
+              onClick={() => {
+                setUrlMode(urlMode === "image" ? null : "image");
+                setUrlValue("");
+              }}
+            >
+              <ImagePlus aria-hidden />
+            </ToolButton>
+          )}
           <ToolButton
             title="Clear formatting"
             onClick={() => editor.chain().focus().clearNodes().unsetAllMarks().run()}
