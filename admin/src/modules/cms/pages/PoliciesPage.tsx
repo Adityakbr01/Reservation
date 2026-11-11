@@ -15,7 +15,13 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -83,7 +89,10 @@ const STARTER_TEMPLATES: StarterTemplate[] = [
 function getPublicPolicyUrl(key: string): string {
   const clean = key.toLowerCase();
   if (typeof window !== "undefined") {
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    if (
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+    ) {
       return `http://localhost:5173/policies/${clean}`;
     }
   }
@@ -98,7 +107,9 @@ export function PoliciesPage() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "PUBLISHED" | "DRAFT">("ALL");
+  const [statusFilter, setStatusFilter] = useState<
+    "ALL" | "PUBLISHED" | "DRAFT"
+  >("ALL");
 
   // Create Policy Modal state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -118,7 +129,9 @@ export function PoliciesPage() {
   // Keep selectedKey synchronized with actual items
   useEffect(() => {
     if (items.length > 0) {
-      const exists = items.some((p) => p.key.toUpperCase() === selectedKey.toUpperCase());
+      const exists = items.some(
+        (p) => p.key.toUpperCase() === selectedKey.toUpperCase(),
+      );
       if (!exists) {
         setSelectedKey(items[0].key);
       }
@@ -127,7 +140,10 @@ export function PoliciesPage() {
 
   // Current active policy document
   const currentDoc = useMemo(
-    () => items.find((doc) => doc.key.toUpperCase() === selectedKey.toUpperCase()) ?? null,
+    () =>
+      items.find(
+        (doc) => doc.key.toUpperCase() === selectedKey.toUpperCase(),
+      ) ?? null,
     [items, selectedKey],
   );
 
@@ -193,7 +209,9 @@ export function PoliciesPage() {
       .replace(/[^A-Z0-9_]/g, "_");
 
     if (!formattedKey || formattedKey.length < 2) {
-      setNewKeyError("Policy key must contain at least 2 alphanumeric characters.");
+      setNewKeyError(
+        "Policy key must contain at least 2 alphanumeric characters.",
+      );
       return;
     }
 
@@ -205,7 +223,9 @@ export function PoliciesPage() {
     setNewKeyError(null);
     const finalTitle = newTitle.trim() || formattedKey.replace(/_/g, " ");
 
-    const chosenTemplate = STARTER_TEMPLATES.find((t) => t.id === selectedTemplateId);
+    const chosenTemplate = STARTER_TEMPLATES.find(
+      (t) => t.id === selectedTemplateId,
+    );
     const starterBody = chosenTemplate
       ? chosenTemplate.body
       : `<p>Please review our ${finalTitle} guidelines.</p>`;
@@ -234,7 +254,9 @@ export function PoliciesPage() {
     deleteMutation.mutate(selectedKey, {
       onSuccess: () => {
         setIsDeleteOpen(false);
-        const remaining = items.filter((p) => p.key.toUpperCase() !== selectedKey.toUpperCase());
+        const remaining = items.filter(
+          (p) => p.key.toUpperCase() !== selectedKey.toUpperCase(),
+        );
         if (remaining.length > 0) {
           setSelectedKey(remaining[0].key);
         }
@@ -260,7 +282,8 @@ export function PoliciesPage() {
             Policies & Legal Guidelines
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage live guest stay policies, booking conditions, checkout agreements, and house rules.
+            Manage live guest stay policies, booking conditions, checkout
+            agreements, and house rules.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -294,8 +317,7 @@ export function PoliciesPage() {
             size="sm"
             className="rounded-full gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            <Plus className="size-4" />
-            + New Policy
+            <Plus className="size-4" />+ New Policy
           </Button>
         </div>
       </div>
@@ -357,7 +379,12 @@ export function PoliciesPage() {
                           : "bg-muted/70 text-muted-foreground hover:bg-muted hover:text-foreground"
                       }`}
                     >
-                      {tab === "ALL" ? "All" : tab === "PUBLISHED" ? "Published" : "Draft"} ({count})
+                      {tab === "ALL"
+                        ? "All"
+                        : tab === "PUBLISHED"
+                          ? "Published"
+                          : "Draft"}{" "}
+                      ({count})
                     </button>
                   );
                 })}
@@ -384,7 +411,8 @@ export function PoliciesPage() {
                 </div>
               ) : (
                 filteredPolicies.map((doc) => {
-                  const isSelected = selectedKey.toUpperCase() === doc.key.toUpperCase();
+                  const isSelected =
+                    selectedKey.toUpperCase() === doc.key.toUpperCase();
                   const isPublished = doc.status === "PUBLISHED";
                   const isDraft = doc.status === "DRAFT";
 
@@ -408,10 +436,10 @@ export function PoliciesPage() {
                             isSelected
                               ? "bg-white/20 text-white"
                               : isPublished
-                              ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-                              : isDraft
-                              ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
-                              : "bg-muted text-muted-foreground"
+                                ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                                : isDraft
+                                  ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+                                  : "bg-muted text-muted-foreground"
                           }`}
                         >
                           {doc.status}
@@ -421,14 +449,18 @@ export function PoliciesPage() {
                       <div className="flex items-center justify-between text-[11px] gap-2">
                         <span
                           className={`font-mono text-[11px] truncate ${
-                            isSelected ? "text-white/80" : "text-muted-foreground"
+                            isSelected
+                              ? "text-white/80"
+                              : "text-muted-foreground"
                           }`}
                         >
                           /{doc.key.toLowerCase()}
                         </span>
                         <span
                           className={`text-[10px] ${
-                            isSelected ? "text-white/70" : "text-muted-foreground/80"
+                            isSelected
+                              ? "text-white/70"
+                              : "text-muted-foreground/80"
                           }`}
                         >
                           v{doc.version ?? 1}
@@ -484,7 +516,9 @@ export function PoliciesPage() {
                       }
                       className="w-full border-amber-400 text-amber-900 hover:bg-amber-50 dark:text-amber-200 dark:hover:bg-amber-950/50 font-medium"
                     >
-                      {statusMutation.isPending ? "Updating..." : "Unpublish (Make Draft)"}
+                      {statusMutation.isPending
+                        ? "Updating..."
+                        : "Unpublish (Make Draft)"}
                     </Button>
                   ) : (
                     <Button
@@ -499,7 +533,9 @@ export function PoliciesPage() {
                       }
                       className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-xs"
                     >
-                      {statusMutation.isPending ? "Updating..." : "Publish (Make Live)"}
+                      {statusMutation.isPending
+                        ? "Updating..."
+                        : "Publish (Make Live)"}
                     </Button>
                   )}
                 </div>
@@ -507,15 +543,19 @@ export function PoliciesPage() {
                 <div className="pt-2 border-t space-y-1.5 text-xs text-muted-foreground">
                   <div className="flex items-center justify-between">
                     <span>Version</span>
-                    <span className="font-mono font-medium text-foreground">v{currentDoc.version}</span>
+                    <span className="font-mono font-medium text-foreground">
+                      v{currentDoc.version}
+                    </span>
                   </div>
-                  {(currentDoc.updatedAt || (currentDoc as { updated_at?: string }).updated_at) && (
+                  {(currentDoc.updatedAt ||
+                    (currentDoc as { updated_at?: string }).updated_at) && (
                     <div className="flex items-center justify-between">
                       <span>Last Updated</span>
                       <span>
                         {new Date(
                           currentDoc.updatedAt ||
-                            (currentDoc as { updated_at?: string }).updated_at ||
+                            (currentDoc as { updated_at?: string })
+                              .updated_at ||
                             "",
                         ).toLocaleDateString()}
                       </span>
@@ -602,24 +642,12 @@ export function PoliciesPage() {
                       onClick={handleCopyPublicUrl}
                       className="gap-1.5"
                     >
-                      {copied ? <Check className="size-3.5 text-emerald-600" /> : <Copy className="size-3.5" />}
+                      {copied ? (
+                        <Check className="size-3.5 text-emerald-600" />
+                      ) : (
+                        <Copy className="size-3.5" />
+                      )}
                       {copied ? "Copied" : "Copy URL"}
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      asChild
-                    >
-                      <a
-                        href={getPublicPolicyUrl(selectedKey)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5"
-                      >
-                        <ExternalLink className="size-3.5" />
-                        View Live ↗
-                      </a>
                     </Button>
 
                     {items.length > 1 && (
@@ -641,7 +669,9 @@ export function PoliciesPage() {
               <CardContent className="pt-6">
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="space-y-1.5">
-                    <Label htmlFor="pol-title">Policy Title / Public Heading</Label>
+                    <Label htmlFor="pol-title">
+                      Policy Title / Public Heading
+                    </Label>
                     <Input
                       id="pol-title"
                       value={title}
@@ -654,7 +684,8 @@ export function PoliciesPage() {
                   <div className="space-y-1.5">
                     <Label>Policy Document Content</Label>
                     <p className="text-xs text-muted-foreground mb-2">
-                      Formatted HTML content shown on the public policies portal and checkout modal.
+                      Formatted HTML content shown on the public policies portal
+                      and checkout modal.
                     </p>
                     <CkEditorField
                       key={`ck-${selectedKey}`}
@@ -690,10 +721,14 @@ export function PoliciesPage() {
               <div>
                 <h3 className="font-semibold text-lg">No Policy Selected</h3>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Create a new policy or choose one from the directory to start editing.
+                  Create a new policy or choose one from the directory to start
+                  editing.
                 </p>
               </div>
-              <Button onClick={() => setIsCreateOpen(true)} className="rounded-full gap-1.5">
+              <Button
+                onClick={() => setIsCreateOpen(true)}
+                className="rounded-full gap-1.5"
+              >
                 <Plus className="size-4" />
                 Create New Policy
               </Button>
@@ -710,7 +745,8 @@ export function PoliciesPage() {
               <div>
                 <h3 className="font-semibold text-lg">Create New Policy</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Add a dynamic stay policy, legal notice, or guest guidelines document.
+                  Add a dynamic stay policy, legal notice, or guest guidelines
+                  document.
                 </p>
               </div>
               <button
@@ -742,13 +778,18 @@ export function PoliciesPage() {
                   ))}
                 </select>
                 <p className="text-[11px] text-muted-foreground">
-                  Select a template to pre-fill standard clauses, or start with a blank document.
+                  Select a template to pre-fill standard clauses, or start with
+                  a blank document.
                 </p>
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="new-pol-title" className="text-xs font-semibold">
-                  Policy Title / Heading <span className="text-destructive">*</span>
+                <Label
+                  htmlFor="new-pol-title"
+                  className="text-xs font-semibold"
+                >
+                  Policy Title / Heading{" "}
+                  <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="new-pol-title"
@@ -773,7 +814,8 @@ export function PoliciesPage() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="new-pol-key" className="text-xs font-semibold">
-                  Policy Key (URL Slug) <span className="text-destructive">*</span>
+                  Policy Key (URL Slug){" "}
+                  <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="new-pol-key"
@@ -797,7 +839,9 @@ export function PoliciesPage() {
                   </code>
                 </p>
                 {newKeyError && (
-                  <p className="text-xs text-destructive font-medium">{newKeyError}</p>
+                  <p className="text-xs text-destructive font-medium">
+                    {newKeyError}
+                  </p>
                 )}
               </div>
 
@@ -831,15 +875,22 @@ export function PoliciesPage() {
             <div className="flex items-center gap-3 text-destructive">
               <AlertTriangle className="size-6 shrink-0" />
               <div>
-                <h3 className="font-semibold text-lg text-foreground">Delete Policy</h3>
+                <h3 className="font-semibold text-lg text-foreground">
+                  Delete Policy
+                </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Are you sure you want to delete <span className="font-semibold text-foreground font-mono">{selectedKey}</span>?
+                  Are you sure you want to delete{" "}
+                  <span className="font-semibold text-foreground font-mono">
+                    {selectedKey}
+                  </span>
+                  ?
                 </p>
               </div>
             </div>
 
             <p className="text-xs text-muted-foreground leading-relaxed">
-              This action will remove the policy document permanently from the database and public site.
+              This action will remove the policy document permanently from the
+              database and public site.
             </p>
 
             <div className="flex items-center justify-end gap-2.5 pt-3 border-t">
