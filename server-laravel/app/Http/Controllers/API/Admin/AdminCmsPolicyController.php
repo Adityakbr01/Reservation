@@ -12,32 +12,6 @@ class AdminCmsPolicyController extends Controller
     {
         $docs = CmsPolicyDoc::orderBy('title', 'asc')->get();
 
-        if ($docs->isEmpty()) {
-            try {
-                $terms = CmsPolicyDoc::create([
-                    'id' => bin2hex(random_bytes(12)),
-                    'key' => 'TERMS',
-                    'title' => 'Booking Conditions & Terms',
-                    'body' => '<p>Please read our booking terms and conditions carefully before reserving your cottage stay with Hamptworth Stays.</p>',
-                    'status' => 'PUBLISHED',
-                    'version' => 1,
-                    'published_at' => now(),
-                ]);
-                $privacy = CmsPolicyDoc::create([
-                    'id' => bin2hex(random_bytes(12)),
-                    'key' => 'PRIVACY',
-                    'title' => 'Privacy Notice & Policy',
-                    'body' => '<p>At Hamptworth Stays, we respect your privacy and protect your personal information.</p>',
-                    'status' => 'PUBLISHED',
-                    'version' => 1,
-                    'published_at' => now(),
-                ]);
-                $docs = collect([$terms, $privacy]);
-            } catch (\Throwable $e) {
-                // If create fails due to DB constraints or permissions, fallback to empty collection
-            }
-        }
-
         return response()->json([
             'success' => true,
             'data' => $docs,
@@ -46,32 +20,74 @@ class AdminCmsPolicyController extends Controller
 
     public function upsert(Request $request)
     {
-        $rawKey = $request->input('key') ?? $request->input('slug') ?? 'TERMS';
-        $cleanKey = strtoupper(trim(preg_replace('/[^A-Za-z0-9_]/', '_', (string) $rawKey)));
+        $rawKey = $request->input('key') ?? $request->input('slug') ?? 'terms';
+        // Normalize slug: lowercase alphanumeric, hyphens, and underscores allowed
+        $cleanKey = strtolower(trim(preg_replace('/[^A-Za-z0-9_\-]/', '-', (string) $rawKey)));
+        $cleanKey = trim($cleanKey, '-_');
         $cleanKey = substr($cleanKey, 0, 60);
 
         if (empty($cleanKey)) {
-            $cleanKey = 'POLICY_' . strtoupper(bin2hex(random_bytes(3)));
+            $cleanKey = 'policy-' . substr(bin2hex(random_bytes(3)), 0, 6);
         }
 
-        $doc = CmsPolicyDoc::whereRaw('UPPER(`key`) = ?', [$cleanKey])->first();
+        $id = $request->input('id');
+        $previousKey = $request->input('previous_key') ?? $request->input('previousKey');
 
+        $doc = null;
+        if (! empty($id)) {
+            $doc = CmsPolicyDoc::find($id);
+        }
+        if (! $doc && ! empty($previousKey)) {
+            $prevClean = strtolower(trim($previousKey));
+            $doc = CmsPolicyDoc::whereRaw('LOWER(`key`) = ?', [$prevClean])->first();
+        }
         if (! $doc) {
+            $doc = CmsPolicyDoc::whereRaw('LOWER(`key`) = ?', [$cleanKey])->first();
+        }
+
+        if ($doc) {
+            // Check if key is being changed and if there is a collision
+            if (strtolower($doc->key) !== strtolower($cleanKey)) {
+                $collision = CmsPolicyDoc::where('id', '!=', $doc->id)
+                    ->whereRaw('LOWER(`key`) = ?', [$cleanKey])
+                    ->first();
+                if ($collision) {
+                    return response()->json([
+                        'success' => false,
+                        'error' => [
+                            'code' => 'DUPLICATE_SLUG',
+                            'message' => "Policy slug '{$cleanKey}' is already in use by another policy.",
+                        ],
+                    ], 422);
+                }
+                $doc->key = $cleanKey;
+            }
+            $doc->version = (int) $request->input('version', ($doc->version ?? 1) + 1);
+        } else {
+            // Check for duplicate key on create
+            $collision = CmsPolicyDoc::whereRaw('LOWER(`key`) = ?', [$cleanKey])->first();
+            if ($collision) {
+                return response()->json([
+                    'success' => false,
+                    'error' => [
+                        'code' => 'DUPLICATE_SLUG',
+                        'message' => "Policy slug '{$cleanKey}' already exists.",
+                    ],
+                ], 422);
+            }
             $doc = new CmsPolicyDoc();
             $doc->id = bin2hex(random_bytes(12));
             $doc->key = $cleanKey;
             $doc->version = 1;
-        } else {
-            $doc->version = (int) $request->input('version', ($doc->version ?? 1) + 1);
         }
 
-        $defaultTitle = ucwords(str_replace('_', ' ', strtolower($cleanKey)));
+        $defaultTitle = ucwords(str_replace(['_', '-'], ' ', strtolower($cleanKey)));
         $newTitle = $request->input('title');
         $doc->title = (! empty($newTitle) && trim((string) $newTitle) !== '')
             ? trim((string) $newTitle)
             : ($doc->title ?: $defaultTitle);
 
-        // Extract body safely and ensure it is NEVER null for MySQL NOT NULL constraint
+        // Accept arbitrary full HTML/CSS/JS without stripping
         $body = $request->input('body');
         if ($body === null) {
             $body = $request->input('content_html');
@@ -81,9 +97,6 @@ class AdminCmsPolicyController extends Controller
         }
         if ($body === null) {
             $body = $doc->body ?? '';
-        }
-        if ($body === null || trim((string) $body) === '') {
-            $body = '<p></p>';
         }
         $doc->body = (string) $body;
 
@@ -107,8 +120,10 @@ class AdminCmsPolicyController extends Controller
 
     public function destroy(string $key)
     {
-        $cleanKey = strtoupper(trim($key));
-        $doc = CmsPolicyDoc::whereRaw('UPPER(`key`) = ?', [$cleanKey])->first();
+        $clean = trim($key);
+        $doc = CmsPolicyDoc::where('id', $clean)
+            ->orWhereRaw('LOWER(`key`) = ?', [strtolower($clean)])
+            ->first();
 
         if ($doc) {
             $doc->delete();
@@ -122,8 +137,10 @@ class AdminCmsPolicyController extends Controller
 
     public function status(string $key, Request $request)
     {
-        $cleanKey = strtoupper(trim($key));
-        $doc = CmsPolicyDoc::whereRaw('UPPER(`key`) = ?', [$cleanKey])->first();
+        $clean = trim($key);
+        $doc = CmsPolicyDoc::where('id', $clean)
+            ->orWhereRaw('LOWER(`key`) = ?', [strtolower($clean)])
+            ->first();
 
         if (! $doc) {
             return response()->json([

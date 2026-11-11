@@ -567,8 +567,8 @@ export function RootLayout() {
                               url: SITE_LINKS.bespoke,
                               openInNewTab: true,
                             },
-                            { label: "Booking terms", url: "/policies/TERMS" },
-                            { label: "Privacy policy", url: "/policies/PRIVACY" },
+                            { label: "Booking terms", url: "/policies/terms/" },
+                            { label: "Privacy policy", url: "/policies/privacy/" },
                           ]
                       ).map((l, i) => (
                         <DynamicLink

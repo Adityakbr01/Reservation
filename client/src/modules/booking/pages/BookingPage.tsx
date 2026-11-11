@@ -250,7 +250,7 @@ export function BookingPage() {
   const [specialRequests, setSpecialRequests] = useState("");
 
   // Book Faster (Optional).
-  const [bookFasterOpen, setBookFasterOpen] = useState(false);
+  const [bookFasterOpen, setBookFasterOpen] = useState<boolean | null>(null);
   const [createAccount, setCreateAccount] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -534,7 +534,7 @@ export function BookingPage() {
   }
 
   function passwordValid(): boolean {
-    if (!createAccount) return true;
+    if (!bookFasterEnabled || !createAccount) return true;
     return password.length >= 8 && password === confirmPassword;
   }
 
@@ -589,6 +589,16 @@ export function BookingPage() {
   }
 
   const ack = siteSettings?.bookingAcknowledgement;
+
+  const bookFaster = ack?.bookFaster;
+  const bookFasterEnabled = bookFaster?.isEnabled !== false;
+  const bookFasterTitle = bookFaster?.title?.trim() || "Book Faster (Optional)";
+  const bookFasterCheckboxText =
+    bookFaster?.checkboxText?.trim() || "I would like to create an account.";
+  const bookFasterPasswordHint =
+    bookFaster?.passwordHint?.trim() ||
+    "At least 8 characters long, case sensitive, can contain !$#%, no spaces, not the same as previous password or login";
+  const bookFasterIsOpen = bookFasterOpen ?? bookFaster?.expandedByDefault === true;
 
   const checkoutSections: CheckoutSection[] = useMemo(() => {
     if (ack?.sections && ack.sections.length > 0) {
@@ -773,14 +783,14 @@ export function BookingPage() {
           contact,
           ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
           ...(specialRequests.trim() ? { notes: specialRequests.trim() } : {}),
-          createAccount,
-          ...(createAccount && password ? { password, confirmPassword } : {}),
+          createAccount: bookFasterEnabled && createAccount,
+          ...(bookFasterEnabled && createAccount && password ? { password, confirmPassword } : {}),
           newsletter: newsletterOptIn,
           acceptPrivacy,
           acceptTerms,
         });
         // Sign-in only if guest explicitly chose to create an account
-        if (createAccount && result.token) {
+        if (bookFasterEnabled && createAccount && result.token) {
           setSession(
             {
               id: result.user.id,
@@ -961,17 +971,18 @@ export function BookingPage() {
             </CardContent>
           </Card>
 
+          {bookFasterEnabled && (
           <Card>
             <button
               type="button"
-              onClick={() => setBookFasterOpen((o) => !o)}
-              aria-expanded={bookFasterOpen}
+              onClick={() => setBookFasterOpen(!bookFasterIsOpen)}
+              aria-expanded={bookFasterIsOpen}
               className="flex w-full items-center justify-between p-4 text-left"
             >
-              <span className="text-sm font-medium">Book Faster (Optional)</span>
-              <ChevronDown className={`size-4 transition-transform ${bookFasterOpen ? "rotate-180" : ""}`} aria-hidden />
+              <span className="text-sm font-medium">{bookFasterTitle}</span>
+              <ChevronDown className={`size-4 transition-transform ${bookFasterIsOpen ? "rotate-180" : ""}`} aria-hidden />
             </button>
-            {bookFasterOpen && (
+            {bookFasterIsOpen && (
               <CardContent className="space-y-4 border-t border-border pt-4">
                 <label className="flex items-center gap-2 text-sm font-medium">
                   <input
@@ -980,7 +991,7 @@ export function BookingPage() {
                     onChange={(e) => setCreateAccount(e.target.checked)}
                     className="size-4 shrink-0 accent-brand"
                   />
-                  I would like to create an account.
+                  {bookFasterCheckboxText}
                 </label>
                 {createAccount && (
                   <>
@@ -997,7 +1008,7 @@ export function BookingPage() {
                         className="sm:max-w-xs"
                       />
                       <p className="text-xs text-muted-foreground">
-                        At least 8 characters long, case sensitive, can contain !$#%, no spaces, not the same as previous password or login
+                        {bookFasterPasswordHint}
                       </p>
                     </div>
                     <div className="space-y-2">
@@ -1021,6 +1032,7 @@ export function BookingPage() {
               </CardContent>
             )}
           </Card>
+          )}
 
           <Card>
             <CardHeader>

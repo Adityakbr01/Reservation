@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { AuthLayout } from "@/components/layouts/AuthLayout";
 import { RootLayout } from "@/components/layouts/RootLayout";
 import { SITE_LINKS } from "@/config/links";
@@ -60,6 +60,11 @@ export function AppRoutes() {
   return (
     <Suspense fallback={<PageFallback />}>
       <Routes>
+        {/* Standalone Policies (renders full custom HTML/CSS/JS without outer booking app header/footer) */}
+        <Route path="policies" element={<PolicyPage />} />
+        <Route path="policies/:key" element={<PolicyPage />} />
+        <Route path="policy/:key" element={<PolicyPage />} />
+
         <Route element={<RootLayout />}>
           <Route index element={<HomePage />} />
           <Route path="cottages/:slug" element={<CottageDetailPage />} />
@@ -67,11 +72,6 @@ export function AppRoutes() {
           <Route path="blogs" element={<BlogsPage />} />
           <Route path="blogs/:slug" element={<BlogPostPage />} />
           <Route path="faqs" element={<FaqsPage />} />
-          <Route path="policies" element={<PolicyPage />} />
-          <Route path="policies/:key" element={<PolicyPage />} />
-          <Route path="policy/:key" element={<PolicyPage />} />
-          <Route path="terms" element={<Navigate to="/policies/TERMS" replace />} />
-          <Route path="privacy" element={<Navigate to="/policies/PRIVACY" replace />} />
           <Route path="booking/new" element={<BookingPage />} />
           <Route
             path="booking/confirmation/:id"

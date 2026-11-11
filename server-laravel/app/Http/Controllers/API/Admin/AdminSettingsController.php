@@ -314,6 +314,13 @@ class AdminSettingsController extends Controller
             ],
             'booking_acknowledgement' => $settings->booking_acknowledgement ?? [
                 'showPoliciesSection' => true,
+                'bookFaster' => [
+                    'isEnabled' => true,
+                    'title' => 'Book Faster (Optional)',
+                    'checkboxText' => 'I would like to create an account.',
+                    'passwordHint' => 'At least 8 characters long, case sensitive, can contain !$#%, no spaces, not the same as previous password or login',
+                    'expandedByDefault' => false,
+                ],
                 'sections' => [
                     [
                         'id' => 'sec-acknowledgement',
@@ -340,6 +347,13 @@ class AdminSettingsController extends Controller
             ],
             'bookingAcknowledgement' => $settings->booking_acknowledgement ?? [
                 'showPoliciesSection' => true,
+                'bookFaster' => [
+                    'isEnabled' => true,
+                    'title' => 'Book Faster (Optional)',
+                    'checkboxText' => 'I would like to create an account.',
+                    'passwordHint' => 'At least 8 characters long, case sensitive, can contain !$#%, no spaces, not the same as previous password or login',
+                    'expandedByDefault' => false,
+                ],
                 'sections' => [
                     [
                         'id' => 'sec-acknowledgement',

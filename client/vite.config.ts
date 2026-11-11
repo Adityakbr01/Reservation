@@ -111,4 +111,7 @@ export default defineConfig({
     manifest: true,
     chunkSizeWarningLimit: 1000,
   },
+  ssr: {
+    noExternal: ['lucide-react'],
+  },
 })

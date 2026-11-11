@@ -147,8 +147,17 @@ export interface CheckoutSection {
   items: AcknowledgementItem[];
 }
 
+export interface BookFasterSettings {
+  isEnabled?: boolean;
+  title?: string;
+  checkboxText?: string;
+  passwordHint?: string;
+  expandedByDefault?: boolean;
+}
+
 export interface BookingAcknowledgement {
   sections?: CheckoutSection[];
+  bookFaster?: BookFasterSettings;
   showPoliciesSection?: boolean;
   showAcknowledgementSection?: boolean;
   isEnabled?: boolean;

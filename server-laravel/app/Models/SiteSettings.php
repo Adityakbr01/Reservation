@@ -99,6 +99,14 @@ class SiteSettings extends Model
                     ],
                 ],
                 'booking_acknowledgement' => [
+                    'showPoliciesSection' => true,
+                    'bookFaster' => [
+                        'isEnabled' => true,
+                        'title' => 'Book Faster (Optional)',
+                        'checkboxText' => 'I would like to create an account.',
+                        'passwordHint' => 'At least 8 characters long, case sensitive, can contain !$#%, no spaces, not the same as previous password or login',
+                        'expandedByDefault' => false,
+                    ],
                     'title' => 'Acknowledgement',
                     'privacyCheckboxText' => '* I agree with the Privacy Terms.',
                     'privacyLinkLabel' => 'Privacy Notice',

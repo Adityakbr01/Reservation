@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
+import CodeMirror from "@uiw/react-codemirror";
+import { html } from "@codemirror/lang-html";
+import beautify from "js-beautify";
 import {
   Save,
   ExternalLink,
@@ -12,6 +15,12 @@ import {
   Copy,
   Check,
   FileText,
+  Code,
+  Eye,
+  Sparkles,
+  Monitor,
+  Smartphone,
+  RefreshCw,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
@@ -25,7 +34,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { CkEditorField } from "@/components/common/CkEditorField";
 import {
   usePolicies,
   useSavePolicy,
@@ -38,78 +46,60 @@ interface StarterTemplate {
   label: string;
   key: string;
   title: string;
-  body: string;
 }
 
 const STARTER_TEMPLATES: StarterTemplate[] = [
-  {
-    id: "privacy",
-    label: "Privacy Notice & Policy",
-    key: "PRIVACY",
-    title: "Privacy Notice & Policy",
-    body: `<p>At Hamptworth Stays, we respect your privacy and are committed to protecting your personal data in accordance with the UK General Data Protection Regulation (UK GDPR).</p><h3>1. What Information We Collect</h3><p>When you make a reservation, we collect contact details (name, email address, telephone number, residential address) and payment transaction references.</p><h3>2. How We Use Your Data</h3><p>We use your information solely to process your booking, manage your stay, communicate check-in details, and fulfill legal accounting requirements.</p><h3>3. Contact Us</h3><p>For any privacy-related requests or data deletion queries, please contact us at our registered support email.</p>`,
-  },
-  {
-    id: "terms",
-    label: "Booking Conditions & Terms",
-    key: "TERMS",
-    title: "Booking Conditions & Terms",
-    body: `<p>Please read these booking terms and conditions carefully before reserving your cottage stay with Hamptworth Stays.</p><h3>1. Reservation & Payment</h3><p>Payment must be completed through our secure checkout. Once confirmed, you will receive an instant email confirmation and receipt.</p><h3>2. Guest Responsibilities</h3><p>Guests must take reasonable care of the property, furniture, and fittings. Any damages must be reported promptly.</p>`,
-  },
-  {
-    id: "cancellation",
-    label: "Cancellation & Refund Policy",
-    key: "CANCELLATION",
-    title: "Cancellation Policy",
-    body: `<p>We understand plans change. Our cancellation schedule is outlined below:</p><ul><li><strong>Full refund:</strong> Cancellations made up to 48 hours prior to check-in.</li><li><strong>Partial refund:</strong> Cancellations made within 48 hours will be subject to a 50% accommodation fee.</li></ul>`,
-  },
-  {
-    id: "house_rules",
-    label: "House Rules & Guidelines",
-    key: "HOUSE_RULES",
-    title: "House Rules & Guidelines",
-    body: `<p>To ensure a pleasant stay for all guests and neighbours in our New Forest setting:</p><ul><li><strong>Check-in:</strong> From 3:00 PM onwards.</li><li><strong>Check-out:</strong> By 10:00 AM on departure day.</li><li><strong>Quiet hours:</strong> Between 10:00 PM and 8:00 AM.</li><li><strong>Smoking:</strong> Strictly non-smoking inside cottages.</li></ul>`,
-  },
-  {
-    id: "pets",
-    label: "Dog & Pet Policy",
-    key: "PETS",
-    title: "Dog & Pet Policy",
-    body: `<p>We are delighted to welcome dogs to our designated pet-friendly cottages.</p><ul><li>Dogs must be kept on a lead in shared farm and driveway areas.</li><li>Please do not allow dogs on beds or upholstered furniture.</li><li>Please clean up after your pet in the garden and surrounding grounds.</li></ul>`,
-  },
-  {
-    id: "checkin_checkout",
-    label: "Check-in & Departure Guide",
-    key: "CHECKIN_CHECKOUT",
-    title: "Check-in & Departure Guidelines",
-    body: `<p>Everything you need to know about arriving and departing smoothly from your Hamptworth cottage:</p><h3>Arrival (Check-in from 3:00 PM)</h3><p>Key lockbox codes are dispatched via email 24 hours prior to arrival. Ample parking is situated adjacent to each cottage.</p><h3>Departure (Check-out by 10:00 AM)</h3><p>Please place used towels in the bathroom hamper and return key to the lockbox.</p>`,
-  },
+  { id: "blank", label: "— Blank (No Template) —", key: "", title: "" },
+  { id: "privacy", label: "Privacy Policy", key: "privacy-policy", title: "Privacy Notice & Policy" },
+  { id: "terms", label: "Terms & Conditions", key: "terms-and-conditions", title: "Booking Conditions & Terms" },
+  { id: "cancellation", label: "Cancellation Policy", key: "cancellation-policy", title: "Cancellation & Refund Policy" },
+  { id: "house_rules", label: "House Rules", key: "house-rules", title: "House Rules & Guidelines" },
 ];
 
-function getPublicPolicyUrl(key: string): string {
-  const clean = key.toLowerCase();
-  if (typeof window !== "undefined") {
-    if (
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1"
-    ) {
-      return `http://localhost:5173/policies/${clean}`;
+function prettifyHtml(source: string): string {
+  if (!source || !source.trim()) return source;
+  try {
+    const htmlBeautify =
+      beautify?.html ||
+      (beautify as unknown as { html?: typeof beautify.html })?.html;
+    if (typeof htmlBeautify === "function") {
+      return htmlBeautify(source, {
+        indent_size: 2,
+        wrap_line_length: 120,
+        preserve_newlines: true,
+        max_preserve_newlines: 2,
+        indent_inner_html: true,
+      });
     }
+    return source;
+  } catch {
+    return source;
   }
-  return `/policies/${clean}`;
+}
+
+function getPublicPolicyUrl(key: string): string {
+  const clean = (key || "").trim().toLowerCase();
+  const clientBase = (
+    import.meta.env.VITE_CLIENT_URL || "https://book.hamptworthstays.com"
+  ).replace(/\/+$/, "");
+  return `${clientBase}/policies/${clean}/`;
 }
 
 export function PoliciesPage() {
   const { data, isPending, refetch } = usePolicies();
   const items = useMemo(() => data ?? [], [data]);
 
-  const [selectedKey, setSelectedKey] = useState<string>("TERMS");
+  const [selectedKey, setSelectedKey] = useState<string>("");
+  const [slug, setSlug] = useState("");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<
-    "ALL" | "PUBLISHED" | "DRAFT"
-  >("ALL");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "PUBLISHED" | "DRAFT">("ALL");
+
+  // Mode: Code editor vs Live preview
+  const [viewMode, setViewMode] = useState<"code" | "preview">("code");
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
+  const [previewKey, setPreviewKey] = useState<number>(0);
 
   // Create Policy Modal state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -126,11 +116,11 @@ export function PoliciesPage() {
   const statusMutation = useSetPolicyStatus();
   const deleteMutation = useDeletePolicy();
 
-  // Keep selectedKey synchronized with actual items
+  // Initialize selectedKey when items load
   useEffect(() => {
     if (items.length > 0) {
       const exists = items.some(
-        (p) => p.key.toUpperCase() === selectedKey.toUpperCase(),
+        (p) => (p.key || "").toLowerCase() === selectedKey.toLowerCase(),
       );
       if (!exists) {
         setSelectedKey(items[0].key);
@@ -142,7 +132,7 @@ export function PoliciesPage() {
   const currentDoc = useMemo(
     () =>
       items.find(
-        (doc) => doc.key.toUpperCase() === selectedKey.toUpperCase(),
+        (doc) => (doc.key || "").toLowerCase() === selectedKey.toLowerCase(),
       ) ?? null,
     [items, selectedKey],
   );
@@ -151,6 +141,7 @@ export function PoliciesPage() {
   useEffect(() => {
     if (currentDoc) {
       setTitle(currentDoc.title || "");
+      setSlug(currentDoc.key || "");
       setBody(currentDoc.body || "");
     }
   }, [currentDoc]);
@@ -171,6 +162,12 @@ export function PoliciesPage() {
     });
   }, [items, statusFilter, searchQuery]);
 
+  function handleFormatHtml() {
+    const formatted = prettifyHtml(body);
+    setBody(formatted);
+    toast.success("Code formatted");
+  }
+
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (title.trim().length < 2) {
@@ -178,12 +175,32 @@ export function PoliciesPage() {
       return;
     }
 
-    savePolicy({
-      key: selectedKey,
-      title: title.trim(),
-      body: body || "<p></p>",
-      status: currentDoc?.status ?? "PUBLISHED",
-    });
+    const cleanSlug = (slug.trim() || selectedKey)
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    if (!cleanSlug) {
+      toast.error("Please provide a valid URL slug for this policy");
+      return;
+    }
+
+    savePolicy(
+      {
+        id: currentDoc?.id,
+        previous_key: currentDoc?.key,
+        key: cleanSlug,
+        title: title.trim(),
+        body: body ?? "",
+        status: currentDoc?.status ?? "PUBLISHED",
+      },
+      {
+        onSuccess: () => {
+          setSelectedKey(cleanSlug);
+          void refetch();
+        },
+      },
+    );
   }
 
   function handleTemplateSelect(tplId: string) {
@@ -205,36 +222,28 @@ export function PoliciesPage() {
     e.preventDefault();
     const formattedKey = newKey
       .trim()
-      .toUpperCase()
-      .replace(/[^A-Z0-9_]/g, "_");
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]/g, "-")
+      .replace(/^-+|-+$/g, "");
 
     if (!formattedKey || formattedKey.length < 2) {
-      setNewKeyError(
-        "Policy key must contain at least 2 alphanumeric characters.",
-      );
+      setNewKeyError("Policy slug must contain at least 2 alphanumeric characters.");
       return;
     }
 
-    if (items.some((p) => p.key.toUpperCase() === formattedKey)) {
-      setNewKeyError(`Policy key "${formattedKey}" already exists.`);
+    if (items.some((p) => (p.key || "").toLowerCase() === formattedKey)) {
+      setNewKeyError(`Policy slug "${formattedKey}" already exists.`);
       return;
     }
 
     setNewKeyError(null);
-    const finalTitle = newTitle.trim() || formattedKey.replace(/_/g, " ");
-
-    const chosenTemplate = STARTER_TEMPLATES.find(
-      (t) => t.id === selectedTemplateId,
-    );
-    const starterBody = chosenTemplate
-      ? chosenTemplate.body
-      : `<p>Please review our ${finalTitle} guidelines.</p>`;
+    const finalTitle = newTitle.trim() || formattedKey.replace(/[-_]/g, " ");
 
     savePolicy(
       {
         key: formattedKey,
         title: finalTitle,
-        body: starterBody,
+        body: "",
         status: "PUBLISHED",
       },
       {
@@ -251,14 +260,17 @@ export function PoliciesPage() {
   }
 
   function handleDeletePolicy() {
-    deleteMutation.mutate(selectedKey, {
+    if (!currentDoc) return;
+    deleteMutation.mutate(currentDoc.key, {
       onSuccess: () => {
         setIsDeleteOpen(false);
         const remaining = items.filter(
-          (p) => p.key.toUpperCase() !== selectedKey.toUpperCase(),
+          (p) => (p.key || "").toLowerCase() !== currentDoc.key.toLowerCase(),
         );
         if (remaining.length > 0) {
           setSelectedKey(remaining[0].key);
+        } else {
+          setSelectedKey("");
         }
         void refetch();
       },
@@ -266,12 +278,17 @@ export function PoliciesPage() {
   }
 
   function handleCopyPublicUrl() {
-    const url = getPublicPolicyUrl(selectedKey);
+    const url = getPublicPolicyUrl(slug || selectedKey);
     void navigator.clipboard.writeText(url);
     setCopied(true);
     toast.success("Policy URL copied to clipboard");
     setTimeout(() => setCopied(false), 2000);
   }
+
+  // Generate safe preview HTML document with user-authored HTML/CSS/JS
+  const previewHtml = useMemo(() => {
+    return body || "<div style='padding: 32px; text-align: center; color: #888; font-family: sans-serif;'>No HTML content yet. Switch to Code Editor to enter your HTML/CSS/JS.</div>";
+  }, [body]);
 
   return (
     <div className="space-y-6 max-w-7xl">
@@ -279,11 +296,10 @@ export function PoliciesPage() {
       <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-5">
         <div>
           <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">
-            Policies & Legal Guidelines
+            Policies & Custom Pages
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage live guest stay policies, booking conditions, checkout
-            agreements, and house rules.
+            Author full HTML, CSS, and JS policy documents with real-time live preview and custom URL slugs.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -295,7 +311,7 @@ export function PoliciesPage() {
               asChild
             >
               <a
-                href={getPublicPolicyUrl(selectedKey)}
+                href={getPublicPolicyUrl(slug || selectedKey)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center"
@@ -323,7 +339,7 @@ export function PoliciesPage() {
       </div>
 
       {/* Main 2-Column Grid */}
-      <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
+      <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
         {/* Left Sidebar: Document Directory */}
         <div className="space-y-4">
           <Card className="shadow-xs border">
@@ -412,7 +428,7 @@ export function PoliciesPage() {
               ) : (
                 filteredPolicies.map((doc) => {
                   const isSelected =
-                    selectedKey.toUpperCase() === doc.key.toUpperCase();
+                    selectedKey.toLowerCase() === (doc.key || "").toLowerCase();
                   const isPublished = doc.status === "PUBLISHED";
                   const isDraft = doc.status === "DRAFT";
 
@@ -454,7 +470,7 @@ export function PoliciesPage() {
                               : "text-muted-foreground"
                           }`}
                         >
-                          /{doc.key.toLowerCase()}
+                          /{doc.key.toLowerCase()}/
                         </span>
                         <span
                           className={`text-[10px] ${
@@ -473,7 +489,7 @@ export function PoliciesPage() {
             </CardContent>
           </Card>
 
-          {/* Policy Document Meta Box */}
+          {/* Policy Meta Box */}
           {currentDoc && (
             <Card className="border">
               <CardContent className="p-4 space-y-4">
@@ -496,8 +512,8 @@ export function PoliciesPage() {
                   </div>
                   <p className="text-[11px] text-muted-foreground mt-1.5">
                     {currentDoc.status === "PUBLISHED"
-                      ? "Currently live and visible to guests on the website."
-                      : "Hidden from guests. Only visible to admins."}
+                      ? "Live and accessible to visitors on the booking site."
+                      : "Draft mode. Hidden from public view."}
                   </p>
                 </div>
 
@@ -573,13 +589,13 @@ export function PoliciesPage() {
             <Card className="border shadow-xs">
               <CardHeader className="pb-4 border-b">
                 <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="min-w-0">
+                  <div className="min-w-0 space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <CardTitle className="text-xl truncate">
                         {currentDoc.title || selectedKey}
                       </CardTitle>
                       <Badge variant="outline" className="font-mono text-xs">
-                        {selectedKey}
+                        /{selectedKey}/
                       </Badge>
                       {currentDoc.status === "PUBLISHED" ? (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300">
@@ -593,48 +609,21 @@ export function PoliciesPage() {
                         </span>
                       )}
                     </div>
-                    <CardDescription className="mt-1.5 text-xs sm:text-sm">
-                      Public URL:{" "}
-                      <code className="text-primary font-mono text-xs">
-                        /policies/{selectedKey.toLowerCase()}
-                      </code>
+                    <CardDescription className="text-xs sm:text-sm flex flex-wrap items-center gap-2">
+                      <span>Live URL:</span>
+                      <a
+                        href={getPublicPolicyUrl(slug || selectedKey)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline font-mono text-xs inline-flex items-center gap-1"
+                      >
+                        {getPublicPolicyUrl(slug || selectedKey)}
+                        <ExternalLink className="size-3" />
+                      </a>
                     </CardDescription>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
-                    {/* Quick Publish / Unpublish button in top bar */}
-                    {currentDoc.status === "PUBLISHED" ? (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={statusMutation.isPending}
-                        onClick={() =>
-                          statusMutation.mutate(
-                            { key: currentDoc.key, to: "DRAFT" },
-                            { onSuccess: () => void refetch() },
-                          )
-                        }
-                        className="border-amber-400 text-amber-900 hover:bg-amber-50 dark:text-amber-200 dark:hover:bg-amber-950/50 text-xs h-8"
-                      >
-                        Unpublish
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        size="sm"
-                        disabled={statusMutation.isPending}
-                        onClick={() =>
-                          statusMutation.mutate(
-                            { key: currentDoc.key, to: "PUBLISHED" },
-                            { onSuccess: () => void refetch() },
-                          )
-                        }
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs h-8 shadow-xs"
-                      >
-                        Publish Policy
-                      </Button>
-                    )}
                     <Button
                       type="button"
                       variant="outline"
@@ -650,58 +639,220 @@ export function PoliciesPage() {
                       {copied ? "Copied" : "Copy URL"}
                     </Button>
 
-                    {items.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setIsDeleteOpen(true)}
-                        className="text-destructive hover:bg-destructive/10 border-destructive/30"
-                      >
-                        <Trash2 className="size-3.5 mr-1" />
-                        Delete
-                      </Button>
-                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsDeleteOpen(true)}
+                      className="text-destructive hover:bg-destructive/10 border-destructive/30"
+                    >
+                      <Trash2 className="size-3.5 mr-1" />
+                      Delete
+                    </Button>
                   </div>
                 </div>
               </CardHeader>
 
               <CardContent className="pt-6">
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="pol-title">
-                      Policy Title / Public Heading
-                    </Label>
-                    <Input
-                      id="pol-title"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      placeholder="e.g. Booking Conditions & Terms"
-                      className="font-medium text-base"
-                    />
+                  {/* Title & Editable Slug */}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="pol-title">Policy Title</Label>
+                      <Input
+                        id="pol-title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="e.g. Booking Conditions & Terms"
+                        className="font-medium text-sm"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="pol-slug">
+                        URL Slug <span className="text-xs text-muted-foreground font-normal">(Customizable)</span>
+                      </Label>
+                      <div className="flex rounded-md shadow-xs">
+                        <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-xs font-mono">
+                          /policies/
+                        </span>
+                        <Input
+                          id="pol-slug"
+                          value={slug}
+                          onChange={(e) =>
+                            setSlug(
+                              e.target.value
+                                .toLowerCase()
+                                .replace(/[^a-z0-9_-]/g, "-"),
+                            )
+                          }
+                          placeholder="e.g. privacy-policy"
+                          className="rounded-l-none font-mono text-xs"
+                        />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        Public link: <code className="text-primary font-mono">{getPublicPolicyUrl(slug || selectedKey)}</code>
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label>Policy Document Content</Label>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      Formatted HTML content shown on the public policies portal
-                      and checkout modal.
-                    </p>
-                    <CkEditorField
-                      key={`ck-${selectedKey}`}
-                      label=""
-                      value={body}
-                      onChange={(html) => setBody(html)}
-                      placeholder="Write detailed clauses, terms, rules, and guest instructions..."
-                      enableImages={true}
-                      uploadFolder="policies"
-                    />
+                  {/* Mode Bar: Code Editor vs Live Preview */}
+                  <div className="space-y-2 pt-2 border-t">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-1 p-1 bg-muted rounded-lg border">
+                        <button
+                          type="button"
+                          onClick={() => setViewMode("code")}
+                          className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition ${
+                            viewMode === "code"
+                              ? "bg-background text-foreground shadow-xs"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          <Code className="size-3.5" />
+                          Code Editor (HTML/CSS/JS)
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setViewMode("preview");
+                            setPreviewKey((k) => k + 1);
+                          }}
+                          className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition ${
+                            viewMode === "preview"
+                              ? "bg-background text-foreground shadow-xs"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          <Eye className="size-3.5" />
+                          Live Preview
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {viewMode === "code" ? (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleFormatHtml}
+                            className="h-8 text-xs gap-1.5"
+                          >
+                            <Sparkles className="size-3.5 text-primary" />
+                            Format Code
+                          </Button>
+                        ) : (
+                          <div className="flex items-center gap-1">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setPreviewDevice("desktop")}
+                              className={`h-8 px-2.5 text-xs gap-1 ${
+                                previewDevice === "desktop"
+                                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                                  : ""
+                              }`}
+                            >
+                              <Monitor className="size-3.5" />
+                              Desktop
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setPreviewDevice("mobile")}
+                              className={`h-8 px-2.5 text-xs gap-1 ${
+                                previewDevice === "mobile"
+                                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                                  : ""
+                              }`}
+                            >
+                              <Smartphone className="size-3.5" />
+                              Mobile
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setPreviewKey((k) => k + 1)}
+                              className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
+                              title="Refresh preview"
+                            >
+                              <RefreshCw className="size-3.5" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* View Switcher: CodeMirror or IFrame Sandbox */}
+                    {viewMode === "code" ? (
+                      <div className="space-y-1.5">
+                        <div className="rounded-lg border overflow-hidden shadow-xs focus-within:ring-2 focus-within:ring-primary/40">
+                          <CodeMirror
+                            value={body}
+                            height="520px"
+                            extensions={[html()]}
+                            onChange={(value) => setBody(value)}
+                            theme="dark"
+                            basicSetup={{
+                              lineNumbers: true,
+                              highlightActiveLineGutter: true,
+                              foldGutter: true,
+                              dropCursor: true,
+                              allowMultipleSelections: true,
+                              indentOnInput: true,
+                              bracketMatching: true,
+                              closeBrackets: true,
+                              autocompletion: true,
+                              rectangularSelection: true,
+                              crosshairCursor: true,
+                              highlightActiveLine: true,
+                              highlightSelectionMatches: true,
+                              closeBracketsKeymap: true,
+                              defaultKeymap: true,
+                              searchKeymap: true,
+                              historyKeymap: true,
+                              foldKeymap: true,
+                              completionKeymap: true,
+                              lintKeymap: true,
+                            }}
+                          />
+                        </div>
+                        <p className="text-[11px] text-muted-foreground flex items-center justify-between">
+                          <span>
+                            Tip: You can add arbitrary HTML tags, inline <code>&lt;style&gt;</code> blocks, Tailwind classes, and custom <code>&lt;script&gt;</code> tags.
+                          </span>
+                          <span>{body.length} characters</span>
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="rounded-lg border bg-muted/30 p-4 min-h-[520px] flex flex-col items-center justify-center">
+                        <div
+                          className={`transition-all duration-200 bg-background rounded-lg border shadow-sm overflow-hidden w-full ${
+                            previewDevice === "mobile"
+                              ? "max-w-[390px] h-[650px]"
+                              : "max-w-full h-[540px]"
+                          }`}
+                        >
+                          <iframe
+                            key={previewKey}
+                            srcDoc={previewHtml}
+                            title="Live Policy Preview"
+                            sandbox="allow-scripts allow-same-origin"
+                            className="w-full h-full border-0 bg-white"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t">
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <ShieldCheck className="size-4 text-emerald-600" />
-                      <span>Versioned & published dynamically to frontend</span>
+                      <span>Renders raw HTML/CSS/JS directly on booking site</span>
                     </div>
                     <Button
                       type="submit"
@@ -721,8 +872,7 @@ export function PoliciesPage() {
               <div>
                 <h3 className="font-semibold text-lg">No Policy Selected</h3>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Create a new policy or choose one from the directory to start
-                  editing.
+                  Create a new policy or choose one from the directory to start editing.
                 </p>
               </div>
               <Button
@@ -745,8 +895,7 @@ export function PoliciesPage() {
               <div>
                 <h3 className="font-semibold text-lg">Create New Policy</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Add a dynamic stay policy, legal notice, or guest guidelines
-                  document.
+                  Add a dynamic stay policy, legal notice, or guest guidelines document.
                 </p>
               </div>
               <button
@@ -759,10 +908,9 @@ export function PoliciesPage() {
             </div>
 
             <form onSubmit={handleCreatePolicy} className="space-y-4">
-              {/* Optional Starter Template */}
               <div className="space-y-1.5">
                 <Label htmlFor="pol-tpl" className="text-xs font-semibold">
-                  Starter Template (Optional)
+                  Preset Title (Optional)
                 </Label>
                 <select
                   id="pol-tpl"
@@ -770,26 +918,17 @@ export function PoliciesPage() {
                   onChange={(e) => handleTemplateSelect(e.target.value)}
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  <option value="blank">— Blank (Custom Policy) —</option>
                   {STARTER_TEMPLATES.map((tpl) => (
                     <option key={tpl.id} value={tpl.id}>
-                      {tpl.label} (/{tpl.key.toLowerCase()})
+                      {tpl.label}
                     </option>
                   ))}
                 </select>
-                <p className="text-[11px] text-muted-foreground">
-                  Select a template to pre-fill standard clauses, or start with
-                  a blank document.
-                </p>
               </div>
 
               <div className="space-y-1.5">
-                <Label
-                  htmlFor="new-pol-title"
-                  className="text-xs font-semibold"
-                >
-                  Policy Title / Heading{" "}
-                  <span className="text-destructive">*</span>
+                <Label htmlFor="new-pol-title" className="text-xs font-semibold">
+                  Policy Title / Heading <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="new-pol-title"
@@ -800,9 +939,9 @@ export function PoliciesPage() {
                       setNewKey(
                         e.target.value
                           .trim()
-                          .toUpperCase()
-                          .replace(/[^A-Z0-9_]/g, "_")
-                          .slice(0, 30),
+                          .toLowerCase()
+                          .replace(/[^a-z0-9_-]/g, "-")
+                          .slice(0, 40),
                       );
                     }
                   }}
@@ -814,8 +953,7 @@ export function PoliciesPage() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="new-pol-key" className="text-xs font-semibold">
-                  Policy Key (URL Slug){" "}
-                  <span className="text-destructive">*</span>
+                  Policy URL Slug <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="new-pol-key"
@@ -823,19 +961,19 @@ export function PoliciesPage() {
                   onChange={(e) => {
                     setNewKey(
                       e.target.value
-                        .toUpperCase()
-                        .replace(/[^A-Z0-9_]/g, "_")
+                        .toLowerCase()
+                        .replace(/[^a-z0-9_-]/g, "-")
                         .slice(0, 50),
                     );
                     setNewKeyError(null);
                   }}
-                  placeholder="e.g. PRIVACY, CANCELLATION, PETS"
-                  className="font-mono text-xs uppercase"
+                  placeholder="e.g. privacy-policy, house-rules, cancellation"
+                  className="font-mono text-xs"
                 />
                 <p className="text-[11px] text-muted-foreground">
                   Forms the website URL:{" "}
                   <code className="text-primary font-mono">
-                    /policies/{newKey ? newKey.toLowerCase() : "key"}
+                    {getPublicPolicyUrl(newKey ? newKey.toLowerCase() : "slug")}
                   </code>
                 </p>
                 {newKeyError && (
@@ -881,7 +1019,7 @@ export function PoliciesPage() {
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Are you sure you want to delete{" "}
                   <span className="font-semibold text-foreground font-mono">
-                    {selectedKey}
+                    {slug || selectedKey}
                   </span>
                   ?
                 </p>
@@ -889,8 +1027,7 @@ export function PoliciesPage() {
             </div>
 
             <p className="text-xs text-muted-foreground leading-relaxed">
-              This action will remove the policy document permanently from the
-              database and public site.
+              This action will permanently delete this policy document from the database and public site.
             </p>
 
             <div className="flex items-center justify-end gap-2.5 pt-3 border-t">

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -181,66 +182,107 @@ export function FaqsPage() {
   );
 }
 
+function RawHtmlJsRenderer({ html }: { html: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    // Extract title from HTML if provided
+    const titleEl = el.querySelector("title");
+    if (titleEl && titleEl.textContent) {
+      document.title = titleEl.textContent;
+    }
+
+    // Browser does not execute <script> tags inserted via innerHTML.
+    // Re-create each <script> tag so custom JS executes.
+    // Also wrap listeners so DOMContentLoaded / load fire immediately if document is already ready.
+    const scripts = Array.from(el.querySelectorAll("script"));
+    const createdScripts: HTMLScriptElement[] = [];
+
+    scripts.forEach((oldScript) => {
+      const newScript = document.createElement("script");
+      Array.from(oldScript.attributes).forEach((attr) => {
+        newScript.setAttribute(attr.name, attr.value);
+      });
+
+      const rawCode = oldScript.textContent || "";
+      if (rawCode.trim()) {
+        newScript.textContent = `
+(function() {
+  var origDocAdd = document.addEventListener;
+  var origWinAdd = window.addEventListener;
+  document.addEventListener = function(evt, handler, opts) {
+    if ((evt === 'DOMContentLoaded' || evt === 'load') && document.readyState !== 'loading') {
+      try { handler(new Event(evt)); } catch(e) { console.error(e); }
+      return;
+    }
+    return origDocAdd.call(document, evt, handler, opts);
+  };
+  window.addEventListener = function(evt, handler, opts) {
+    if ((evt === 'DOMContentLoaded' || evt === 'load') && document.readyState !== 'loading') {
+      try { handler(new Event(evt)); } catch(e) { console.error(e); }
+      return;
+    }
+    return origWinAdd.call(window, evt, handler, opts);
+  };
+  try {
+    ${rawCode}
+  } catch(e) {
+    console.error("Policy custom script execution error:", e);
+  } finally {
+    document.addEventListener = origDocAdd;
+    window.addEventListener = origWinAdd;
+  }
+})();
+`;
+      }
+
+      oldScript.parentNode?.replaceChild(newScript, oldScript);
+      createdScripts.push(newScript);
+    });
+
+    return () => {
+      createdScripts.forEach((s) => s.parentNode?.removeChild(s));
+    };
+  }, [html]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="w-full min-h-screen"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
+}
+
 export function PolicyPage() {
   const { key } = useParams();
   const { data: allPolicies, isPending: isAllPending } = usePolicies();
 
-  const activeKey = (key || allPolicies?.[0]?.key || "TERMS").toUpperCase();
-  const { data: singlePolicy, isPending: isSinglePending, isError } = usePolicyDoc(activeKey);
+  const normalizedKey = (key || allPolicies?.[0]?.key || "terms").toLowerCase();
+  const { data: singlePolicy, isPending: isSinglePending, isError } = usePolicyDoc(normalizedKey);
 
-  const activePolicy = allPolicies?.find((p) => p.key.toUpperCase() === activeKey) ?? singlePolicy;
+  const activePolicy =
+    allPolicies?.find((p) => (p.key || "").toLowerCase() === normalizedKey) ?? singlePolicy;
   const isPending = (isAllPending && !allPolicies) || (isSinglePending && !singlePolicy);
 
-  return (
-    <article className="mx-auto w-full max-w-7xl space-y-6 pb-8">
-      <div>
-        <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">Policies & Guidelines</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Clear guidelines for stays, bookings, privacy, and cancellations at Hamptworth.
-        </p>
+  if (isPending && !activePolicy) {
+    return (
+      <div className="w-full py-20 flex items-center justify-center text-muted-foreground text-sm" aria-label="Loading policy">
+        <div className="animate-pulse">Loading…</div>
       </div>
+    );
+  }
 
-      {allPolicies && allPolicies.length > 0 && (
-        <div className="border-b border-border">
-          <nav className="flex gap-6 overflow-x-auto" aria-label="Policies">
-            {allPolicies.map((p) => {
-              const isSelected = p.key.toUpperCase() === activeKey;
-              return (
-                <Link
-                  key={p.key}
-                  to={`/policies/${p.key}`}
-                  className={`border-b-2 py-2.5 text-sm font-medium transition whitespace-nowrap ${
-                    isSelected
-                      ? "border-brand text-brand-dark font-semibold"
-                      : "border-transparent text-muted-foreground hover:border-border hover:text-foreground"
-                  }`}
-                >
-                  {p.title}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-      )}
+  if (isError || !activePolicy) {
+    return <NotFound back="/" label="Back home" />;
+  }
 
-      {isPending && !activePolicy ? (
-        <div className="h-40 animate-pulse rounded-xl bg-muted" aria-label="Loading policy" />
-      ) : isError || !activePolicy ? (
-        <NotFound back="/" label="Back home" />
-      ) : (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border/50 pb-3">
-            <h2 className="font-display text-2xl font-medium tracking-tight">{activePolicy.title}</h2>
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <span>Version {activePolicy.version}</span>
-              {activePolicy.updatedAt && (
-                <span>Last updated {formatDate(activePolicy.updatedAt)}</span>
-              )}
-            </div>
-          </div>
-          <div className="rich-text leading-relaxed" dangerouslySetInnerHTML={{ __html: activePolicy.body }} />
-        </div>
-      )}
-    </article>
+  return (
+    <main className="w-full">
+      <RawHtmlJsRenderer html={activePolicy.body} />
+    </main>
   );
 }

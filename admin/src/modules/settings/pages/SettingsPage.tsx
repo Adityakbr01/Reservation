@@ -158,8 +158,17 @@ export interface CheckoutSection {
   items: AcknowledgementItem[];
 }
 
+export interface BookFasterSettings {
+  isEnabled?: boolean;
+  title?: string;
+  checkboxText?: string;
+  passwordHint?: string;
+  expandedByDefault?: boolean;
+}
+
 export interface BookingAcknowledgement {
   sections?: CheckoutSection[];
+  bookFaster?: BookFasterSettings;
   showPoliciesSection?: boolean;
   showAcknowledgementSection?: boolean;
   isEnabled?: boolean;
@@ -1532,6 +1541,73 @@ function SettingsForm({ initial }: { initial: Settings }) {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Book Faster (Optional) Section Control */}
+            {(() => {
+              const bf = form.bookingAcknowledgement?.bookFaster ?? {};
+              const updateBf = (patch: Partial<BookFasterSettings>) => {
+                set("bookingAcknowledgement", {
+                  ...(form.bookingAcknowledgement ?? {}),
+                  bookFaster: { ...bf, ...patch },
+                });
+              };
+              return (
+                <div className="rounded-lg border p-4 space-y-4 bg-muted/10">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <h4 className="text-sm font-semibold">Book Faster (Optional) Section</h4>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Guest account opt-in shown on checkout. Disable to hide it entirely, or customize its copy.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">Enabled</span>
+                      <Switch
+                        checked={bf.isEnabled !== false}
+                        onCheckedChange={(val) => updateBf({ isEnabled: val })}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs font-semibold">Section Heading / Title</Label>
+                      <Input
+                        value={bf.title ?? ""}
+                        placeholder="Book Faster (Optional)"
+                        disabled={bf.isEnabled === false}
+                        onChange={(e) => updateBf({ title: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs font-semibold">Checkbox Text</Label>
+                      <Input
+                        value={bf.checkboxText ?? ""}
+                        placeholder="I would like to create an account."
+                        disabled={bf.isEnabled === false}
+                        onChange={(e) => updateBf({ checkboxText: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label className="text-xs font-semibold">Password Hint</Label>
+                      <Input
+                        value={bf.passwordHint ?? ""}
+                        placeholder="At least 8 characters long, case sensitive, can contain !$#%, no spaces, not the same as previous password or login"
+                        disabled={bf.isEnabled === false}
+                        onChange={(e) => updateBf({ passwordHint: e.target.value })}
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 sm:col-span-2">
+                      <Switch
+                        checked={bf.expandedByDefault === true}
+                        disabled={bf.isEnabled === false}
+                        onCheckedChange={(val) => updateBf({ expandedByDefault: val })}
+                      />
+                      <span className="text-xs text-muted-foreground">Expanded by default on checkout</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Standard Policies Timing Card Toggle */}
             <div className="rounded-lg border p-4 flex flex-wrap items-center justify-between gap-4 bg-muted/10">
               <div>

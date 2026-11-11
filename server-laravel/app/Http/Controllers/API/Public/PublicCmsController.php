@@ -39,35 +39,11 @@ class PublicCmsController extends Controller
             $docs = \App\Models\CmsPolicyDoc::all();
         }
 
-        if ($docs->isEmpty()) {
-            try {
-                $terms = \App\Models\CmsPolicyDoc::create([
-                    'id' => bin2hex(random_bytes(12)),
-                    'key' => 'TERMS',
-                    'title' => 'Booking Conditions & Terms',
-                    'body' => '<p>Please read our booking terms and conditions carefully before reserving your cottage stay with Hamptworth Stays.</p>',
-                    'status' => 'PUBLISHED',
-                    'version' => 1,
-                    'published_at' => now(),
-                ]);
-                $privacy = \App\Models\CmsPolicyDoc::create([
-                    'id' => bin2hex(random_bytes(12)),
-                    'key' => 'PRIVACY',
-                    'title' => 'Privacy Notice & Policy',
-                    'body' => '<p>At Hamptworth Stays, we respect your privacy and protect your personal information.</p>',
-                    'status' => 'PUBLISHED',
-                    'version' => 1,
-                    'published_at' => now(),
-                ]);
-                $docs = collect([$terms, $privacy]);
-            } catch (\Throwable $e) {}
-        }
-
         $formatted = $docs->map(fn($d) => [
             'id' => $d->id ?? null,
-            'key' => strtoupper($d->key),
+            'key' => $d->key,
             'title' => $d->title,
-            'body' => $d->body ?? '<p></p>',
+            'body' => $d->body ?? '',
             'status' => $d->status ?? 'PUBLISHED',
             'version' => (int) ($d->version ?? 1),
             'updatedAt' => $d->updated_at ? $d->updated_at->toIso8601String() : now()->toIso8601String(),
@@ -82,17 +58,19 @@ class PublicCmsController extends Controller
 
     public function policy(string $key)
     {
-        $cleanKey = strtoupper(trim($key));
-        $doc = \App\Models\CmsPolicyDoc::whereRaw('UPPER(`key`) = ?', [$cleanKey])->first();
+        $cleanKey = strtolower(trim($key));
+        $doc = \App\Models\CmsPolicyDoc::where('id', trim($key))
+            ->orWhereRaw('LOWER(`key`) = ?', [$cleanKey])
+            ->first();
 
         if ($doc) {
             return response()->json([
                 'success' => true,
                 'data' => [
                     'id' => $doc->id ?? null,
-                    'key' => strtoupper($doc->key),
+                    'key' => $doc->key,
                     'title' => $doc->title,
-                    'body' => $doc->body ?? '<p></p>',
+                    'body' => $doc->body ?? '',
                     'status' => $doc->status ?? 'PUBLISHED',
                     'version' => (int) ($doc->version ?? 1),
                     'updatedAt' => $doc->updated_at ? $doc->updated_at->toIso8601String() : now()->toIso8601String(),
@@ -103,7 +81,7 @@ class PublicCmsController extends Controller
 
         return response()->json([
             'success' => false,
-            'error' => ['code' => 'NOT_FOUND', 'message' => "Policy document '{$cleanKey}' not found"],
+            'error' => ['code' => 'NOT_FOUND', 'message' => "Policy document '{$key}' not found"],
         ], 404);
     }
 
