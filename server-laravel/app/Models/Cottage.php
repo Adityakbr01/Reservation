@@ -17,6 +17,8 @@ class Cottage extends Model
 
     protected $fillable = [
         'id', 'property_id', 'name', 'slug', 'short_description', 'description',
+        'middle_description', 'about_heading', 'about_text', 'about_image_media_id',
+        'overview_bullets', 'section_settings',
         'max_adults', 'max_children', 'max_occupancy', 'beds', 'amenities',
         'images', 'media', 'property_details_html', 'layout_html',
         'floorplan_media_ids', 'location_text', 'surroundings_html',
@@ -37,6 +39,8 @@ class Cottage extends Model
         'welcome_hamper_included' => 'boolean',
         'amenity_ids' => 'array',
         'nearby_attractions' => 'array',
+        'overview_bullets' => 'array',
+        'section_settings' => 'array',
         'seo' => 'array',
     ];
 

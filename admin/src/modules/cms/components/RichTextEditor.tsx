@@ -88,10 +88,14 @@ export function RichTextEditor({ value, onChange, label, minHeightClass }: RichT
 
   // Keep editor in sync when the form loads/resets externally.
   useEffect(() => {
-    if (!editor) return;
-    const current = editor.getHTML();
-    if (value !== current && !editor.isFocused) {
-      editor.commands.setContent(value || "<p></p>", { emitUpdate: false });
+    if (!editor || editor.isDestroyed) return;
+    try {
+      const current = editor.getHTML();
+      if (value !== current && !editor.isFocused) {
+        editor.commands.setContent(value || "<p></p>", { emitUpdate: false });
+      }
+    } catch {
+      // Ignore if editor internals unmounted
     }
   }, [editor, value]);
 

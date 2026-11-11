@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useBlogPost, useBlogPosts, useCmsPage, useFaqs, usePolicyDoc } from "../hooks/use-cms";
+import { useBlogPost, useBlogPosts, useCmsPage, useFaqs, usePolicies, usePolicyDoc } from "../hooks/use-cms";
 import { CmsSections } from "../components/CmsSections";
 import { CottageImage } from "@/components/common/CottageImage";
 import { useMediaUrls } from "@/modules/media";
@@ -182,15 +182,65 @@ export function FaqsPage() {
 }
 
 export function PolicyPage() {
-  const { key = "CANCELLATION" } = useParams();
-  const { data, isPending, isError } = usePolicyDoc(key.toUpperCase());
-  if (isPending) return <div className="h-40 animate-pulse rounded-xl bg-muted" aria-label="Loading policy" />;
-  if (isError || !data) return <NotFound back="/" label="Back home" />;
+  const { key } = useParams();
+  const { data: allPolicies, isPending: isAllPending } = usePolicies();
+
+  const activeKey = (key || allPolicies?.[0]?.key || "TERMS").toUpperCase();
+  const { data: singlePolicy, isPending: isSinglePending, isError } = usePolicyDoc(activeKey);
+
+  const activePolicy = allPolicies?.find((p) => p.key.toUpperCase() === activeKey) ?? singlePolicy;
+  const isPending = (isAllPending && !allPolicies) || (isSinglePending && !singlePolicy);
+
   return (
-    <article className="mx-auto w-full max-w-7xl space-y-4 pb-8">
-      <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">{data.title}</h1>
-      <p className="text-xs text-muted-foreground">Version {data.version}</p>
-      <div className="rich-text leading-relaxed" dangerouslySetInnerHTML={{ __html: data.body }} />
+    <article className="mx-auto w-full max-w-7xl space-y-6 pb-8">
+      <div>
+        <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">Policies & Guidelines</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Clear guidelines for stays, bookings, privacy, and cancellations at Hamptworth.
+        </p>
+      </div>
+
+      {allPolicies && allPolicies.length > 0 && (
+        <div className="border-b border-border">
+          <nav className="flex gap-6 overflow-x-auto" aria-label="Policies">
+            {allPolicies.map((p) => {
+              const isSelected = p.key.toUpperCase() === activeKey;
+              return (
+                <Link
+                  key={p.key}
+                  to={`/policies/${p.key}`}
+                  className={`border-b-2 py-2.5 text-sm font-medium transition whitespace-nowrap ${
+                    isSelected
+                      ? "border-brand text-brand-dark font-semibold"
+                      : "border-transparent text-muted-foreground hover:border-border hover:text-foreground"
+                  }`}
+                >
+                  {p.title}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      )}
+
+      {isPending && !activePolicy ? (
+        <div className="h-40 animate-pulse rounded-xl bg-muted" aria-label="Loading policy" />
+      ) : isError || !activePolicy ? (
+        <NotFound back="/" label="Back home" />
+      ) : (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border/50 pb-3">
+            <h2 className="font-display text-2xl font-medium tracking-tight">{activePolicy.title}</h2>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span>Version {activePolicy.version}</span>
+              {activePolicy.updatedAt && (
+                <span>Last updated {formatDate(activePolicy.updatedAt)}</span>
+              )}
+            </div>
+          </div>
+          <div className="rich-text leading-relaxed" dangerouslySetInnerHTML={{ __html: activePolicy.body }} />
+        </div>
+      )}
     </article>
   );
 }

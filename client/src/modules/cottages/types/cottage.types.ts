@@ -41,5 +41,25 @@ export interface CottageDetail {
   bathrooms?: number | null;
   maxDogs?: number | null;
   status: "DRAFT" | "ACTIVE" | "INACTIVE";
+  middleDescription?: string | null;
+  aboutHeading?: string | null;
+  aboutText?: string | null;
+  aboutImageMediaId?: string | null;
+  aboutImageUrl?: string | null;
+  overviewBullets?: string[] | null;
+  sectionSettings?: {
+    showSubtitle?: boolean;
+    showMiddleDescription?: boolean;
+    showOverviewBullets?: boolean;
+    showAboutImage?: boolean;
+    tabs?: {
+      overview?: boolean;
+      availability?: boolean;
+      details?: boolean;
+      layout?: boolean;
+      location?: boolean;
+      reviews?: boolean;
+    };
+  } | null;
 }
 

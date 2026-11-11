@@ -1,10 +1,18 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { Loader } from "lucide-react";
+import { ArrowDown, ArrowUp, Loader, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { ImageField } from "@/components/common/ImageField";
 import { MediaPicker } from "@/components/common/MediaPicker";
 import { CkEditorField } from "@/components/common/CkEditorField";
 import { StatusBadge } from "@/components/common/StatusBadge";
@@ -14,10 +22,31 @@ import type { ApiEnvelope } from "@/lib/api-client";
 import type {
   CreateCottagePayload,
   Cottage,
-  CottageBed,
+  // CottageBed,
   CottageImage,
+  CottageSectionSettings,
   CottageStatus,
 } from "../types/cottage.types";
+
+function toBool(val: unknown, fallback = true): boolean {
+  if (val === undefined || val === null) return fallback;
+  if (val === false || val === 0 || val === "false" || val === "0") return false;
+  if (val === true || val === 1 || val === "true" || val === "1") return true;
+  return fallback;
+}
+
+function parseSettings(val: unknown): CottageSectionSettings | null {
+  if (!val) return null;
+  if (typeof val === "object") return val as CottageSectionSettings;
+  if (typeof val === "string") {
+    try {
+      return JSON.parse(val) as CottageSectionSettings;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
 
 interface CottageFormProps {
   initial?: Cottage;
@@ -54,10 +83,83 @@ export function CottageForm({
     setSlug(newSlug);
     setSlugManuallyEdited(newSlug.trim().length > 0);
   }
+  const initAny = initial as unknown as Record<string, unknown> | undefined;
   const [shortDescription, setShortDescription] = useState(
-    initial?.shortDescription ?? "",
+    initial?.shortDescription ?? (initAny?.short_description as string | undefined) ?? "",
   );
   const [description, setDescription] = useState(initial?.description ?? "");
+  const [middleDescription, setMiddleDescription] = useState(
+    initial?.middleDescription ?? (initAny?.middle_description as string | undefined) ?? "",
+  );
+  const [aboutHeading, setAboutHeading] = useState(
+    initial?.aboutHeading ?? (initAny?.about_heading as string | undefined) ?? "",
+  );
+  const [aboutText, setAboutText] = useState(
+    initial?.aboutText ?? (initAny?.about_text as string | undefined) ?? "",
+  );
+  const [aboutImageMediaId, setAboutImageMediaId] = useState<string | null>(
+    initial?.aboutImageMediaId ?? (initAny?.about_image_media_id as string | undefined) ?? null,
+  );
+  const [overviewBullets, setOverviewBullets] = useState<string[]>(
+    initial?.overviewBullets ?? (initAny?.overview_bullets as string[] | undefined) ?? [],
+  );
+  const [newBulletText, setNewBulletText] = useState("");
+
+  const rawSettings =
+    parseSettings(initial?.sectionSettings) ??
+    parseSettings(
+      (initial as unknown as { section_settings?: unknown })?.section_settings,
+    );
+
+  const [sectionSettings, setSectionSettings] =
+    useState<CottageSectionSettings>(() => ({
+      showSubtitle: toBool(rawSettings?.showSubtitle, true),
+      showMiddleDescription: toBool(rawSettings?.showMiddleDescription, true),
+      showOverviewBullets: toBool(rawSettings?.showOverviewBullets, true),
+      showAboutImage: toBool(rawSettings?.showAboutImage, true),
+      tabs: {
+        overview: toBool(rawSettings?.tabs?.overview, true),
+        availability: toBool(rawSettings?.tabs?.availability, true),
+        propertyDetails: toBool(
+          rawSettings?.tabs?.propertyDetails ??
+            (rawSettings?.tabs as Record<string, unknown> | undefined)?.property_details,
+          true,
+        ),
+        layout: toBool(rawSettings?.tabs?.layout, true),
+        location: toBool(rawSettings?.tabs?.location, true),
+        reviews: toBool(rawSettings?.tabs?.reviews, true),
+      },
+    }));
+
+  function addBullet() {
+    if (!newBulletText.trim()) return;
+    setOverviewBullets((prev) => [...prev, newBulletText.trim()]);
+    setNewBulletText("");
+  }
+
+  function removeBullet(index: number) {
+    setOverviewBullets((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function moveBullet(index: number, direction: "up" | "down") {
+    setOverviewBullets((prev) => {
+      const copy = [...prev];
+      const targetIndex = direction === "up" ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= copy.length) return prev;
+      const temp = copy[index];
+      copy[index] = copy[targetIndex];
+      copy[targetIndex] = temp;
+      return copy;
+    });
+  }
+
+  function updateBullet(index: number, val: string) {
+    setOverviewBullets((prev) => {
+      const copy = [...prev];
+      copy[index] = val;
+      return copy;
+    });
+  }
   const [maxAdults, setMaxAdults] = useState(String(initial?.maxAdults ?? 2));
   const [maxChildren, setMaxChildren] = useState(
     String(initial?.maxChildren ?? 0),
@@ -110,9 +212,9 @@ export function CottageForm({
         ? String(initial.base_price)
         : "150",
   );
-  const [beds, setBeds] = useState<CottageBed[]>(
-    initial?.beds.length ? initial.beds : [{ type: "", quantity: 1 }],
-  );
+  // const [beds, setBeds] = useState<CottageBed[]>(
+  //   initial?.beds.length ? initial.beds : [{ type: "", quantity: 1 }],
+  // );
   const gallerySeed: CottageImage[] =
     initial?.media && initial.media.length > 0
       ? initial.media.map((m) => ({
@@ -271,11 +373,11 @@ export function CottageForm({
 
   const invalid = name.trim().length < 2;
 
-  function updateBed(index: number, patch: Partial<CottageBed>) {
-    setBeds((rows) =>
-      rows.map((row, i) => (i === index ? { ...row, ...patch } : row)),
-    );
-  }
+  // function updateBed(index: number, patch: Partial<CottageBed>) {
+  //   setBeds((rows) =>
+  //     rows.map((row, i) => (i === index ? { ...row, ...patch } : row)),
+  //   );
+  // }
 
   function moveImage(index: number, dir: -1 | 1) {
     setImages((rows) => {
@@ -314,6 +416,18 @@ export function CottageForm({
       shortDescription: shortDescription.trim() || null,
       short_description: shortDescription.trim() || null,
       description: description.trim() || null,
+      middleDescription: middleDescription.trim() || null,
+      middle_description: middleDescription.trim() || null,
+      aboutHeading: aboutHeading.trim() || null,
+      about_heading: aboutHeading.trim() || null,
+      aboutText: aboutText.trim() || null,
+      about_text: aboutText.trim() || null,
+      aboutImageMediaId: aboutImageMediaId || null,
+      about_image_media_id: aboutImageMediaId || null,
+      overviewBullets: overviewBullets.map((b) => b.trim()).filter(Boolean),
+      overview_bullets: overviewBullets.map((b) => b.trim()).filter(Boolean),
+      sectionSettings,
+      section_settings: sectionSettings,
       maxAdults: Math.max(1, Number(maxAdults) || 2),
       max_adults: Math.max(1, Number(maxAdults) || 2),
       maxChildren: Math.max(0, Number(maxChildren) || 0),
@@ -332,7 +446,7 @@ export function CottageForm({
       ...(bathrooms.trim()
         ? { bathrooms: Math.max(0, Number(bathrooms) || 0) }
         : { bathrooms: null }),
-      beds: beds.filter((bed) => bed.type.trim().length > 0),
+      // beds: beds.filter((bed) => bed.type.trim().length > 0),
       // amenities: amenities
       //   .split(",")
       //   .map((item) => item.trim())
@@ -514,29 +628,362 @@ export function CottageForm({
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="rt-short">Short description</Label>
-        <Input
-          id="rt-short"
-          value={shortDescription}
-          onChange={(e) => setShortDescription(e.target.value)}
-          placeholder="One-line highlight"
-        />
-      </div>
+      {/* Page Display & Content Control (Top, Middle, Overview Tab) */}
+      <Card className="border-border/80 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">
+            Page Display & Narrative Control
+          </CardTitle>
+          <CardDescription>
+            Control the top tagline, middle intro paragraph, and overview tab
+            content displayed on the guest cottage page.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {/* Top Subtitle / Tagline */}
+          <div className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-4">
+            <div className="flex items-center justify-between">
+              <Label
+                htmlFor="rt-short"
+                className="font-semibold text-foreground"
+              >
+                Top Subtitle / Tagline (Under Title)
+              </Label>
+              <div
+                role="button"
+                tabIndex={0}
+                className="flex items-center gap-2 text-xs font-normal text-muted-foreground cursor-pointer select-none"
+                onClick={() =>
+                  setSectionSettings((prev) => ({
+                    ...prev,
+                    showSubtitle: !toBool(prev.showSubtitle, true),
+                  }))
+                }
+              >
+                <span>Show on page</span>
+                <Switch
+                  checked={toBool(sectionSettings.showSubtitle, true)}
+                  onCheckedChange={(checked) =>
+                    setSectionSettings((prev) => ({
+                      ...prev,
+                      showSubtitle: checked,
+                    }))
+                  }
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            </div>
+            <Input
+              id="rt-short"
+              value={shortDescription}
+              onChange={(e) => setShortDescription(e.target.value)}
+              placeholder="e.g. Gather around the dining table, unwind in the open-plan living space..."
+            />
+            <p className="text-xs text-muted-foreground">
+              Displayed in italics directly below the cottage title.
+            </p>
+          </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="rt-desc">Description</Label>
-        <textarea
-          id="rt-desc"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={3}
-          placeholder="Full room description"
-          className="flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
-        />
-      </div>
+          {/* Middle Intro Paragraph */}
+          <div className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-4">
+            <div className="flex items-center justify-between">
+              <Label
+                htmlFor="rt-middle-desc"
+                className="font-semibold text-foreground"
+              >
+                Middle Intro Paragraph (Below Stats)
+              </Label>
+              <div
+                role="button"
+                tabIndex={0}
+                className="flex items-center gap-2 text-xs font-normal text-muted-foreground cursor-pointer select-none"
+                onClick={() =>
+                  setSectionSettings((prev) => ({
+                    ...prev,
+                    showMiddleDescription: !toBool(prev.showMiddleDescription, true),
+                  }))
+                }
+              >
+                <span>Show on page</span>
+                <Switch
+                  checked={toBool(sectionSettings.showMiddleDescription, true)}
+                  onCheckedChange={(checked) =>
+                    setSectionSettings((prev) => ({
+                      ...prev,
+                      showMiddleDescription: checked,
+                    }))
+                  }
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            </div>
+            <textarea
+              id="rt-middle-desc"
+              value={middleDescription}
+              onChange={(e) => setMiddleDescription(e.target.value)}
+              rows={3}
+              placeholder="Distinct summary shown below the guests, bedrooms & bathrooms badges. (If empty, falls back to description)"
+              className="flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
+            />
+            <p className="text-xs text-muted-foreground">
+              Shown directly underneath the bedroom / bathroom icons. Set custom
+              text here to avoid repeating the Overview tab text.
+            </p>
+          </div>
 
-      <div className="space-y-3">
+          {/* General Description / Fallback */}
+          <div className="space-y-2">
+            <Label htmlFor="rt-desc" className="font-semibold text-foreground">
+              General Description
+            </Label>
+            <textarea
+              id="rt-desc"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              placeholder="Standard cottage description used as fallback or metadata"
+              className="flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
+            />
+          </div>
+
+          {/* Overview / About Tab Section */}
+          <div className="space-y-4 rounded-lg border border-border/60 bg-muted/20 p-4">
+            <h3 className="font-semibold text-foreground">
+              Overview Tab ("About Stay") Content
+            </h3>
+
+            <div className="space-y-2">
+              <Label htmlFor="rt-about-heading">About Section Heading</Label>
+              <Input
+                id="rt-about-heading"
+                value={aboutHeading}
+                onChange={(e) => setAboutHeading(e.target.value)}
+                placeholder={`About ${name || "this cottage"}`}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="rt-about-text">
+                About Section Narrative Text
+              </Label>
+              <textarea
+                id="rt-about-text"
+                value={aboutText}
+                onChange={(e) => setAboutText(e.target.value)}
+                rows={4}
+                placeholder="Detailed narrative describing the cottage interior, charm, and living spaces..."
+                className="flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
+              />
+            </div>
+
+            {/* Overview Bullets Manager */}
+            <div className="space-y-2 pt-2">
+              <div className="flex items-center justify-between">
+                <Label className="font-medium text-foreground">
+                  Overview Bullet Points
+                </Label>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  className="flex items-center gap-2 text-xs font-normal text-muted-foreground cursor-pointer select-none"
+                  onClick={() =>
+                    setSectionSettings((prev) => ({
+                      ...prev,
+                      showOverviewBullets: !toBool(prev.showOverviewBullets, true),
+                    }))
+                  }
+                >
+                  <span>Show bullets</span>
+                  <Switch
+                    checked={toBool(sectionSettings.showOverviewBullets, true)}
+                    onCheckedChange={(checked) =>
+                      setSectionSettings((prev) => ({
+                        ...prev,
+                        showOverviewBullets: checked,
+                      }))
+                    }
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Custom highlights displayed with checkmarks next to the About
+                description. (If empty, smart defaults like bedrooms and pet
+                policy are shown).
+              </p>
+
+              <div className="space-y-2 pt-1">
+                {overviewBullets.map((bullet, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <Input
+                      value={bullet}
+                      onChange={(e) => updateBullet(idx, e.target.value)}
+                      placeholder="e.g. Spacious dining area seating 6 comfortably"
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="size-8 rounded-full shrink-0"
+                      disabled={idx === 0}
+                      onClick={() => moveBullet(idx, "up")}
+                      aria-label="Move up"
+                    >
+                      <ArrowUp className="size-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="size-8 rounded-full shrink-0"
+                      disabled={idx === overviewBullets.length - 1}
+                      onClick={() => moveBullet(idx, "down")}
+                      aria-label="Move down"
+                    >
+                      <ArrowDown className="size-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 text-destructive hover:bg-destructive/10 shrink-0"
+                      onClick={() => removeBullet(idx)}
+                      aria-label="Remove bullet"
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                ))}
+
+                <div className="flex items-center gap-2 pt-1">
+                  <Input
+                    value={newBulletText}
+                    onChange={(e) => setNewBulletText(e.target.value)}
+                    placeholder="Type new bullet point..."
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addBullet();
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-full gap-1.5 shrink-0"
+                    onClick={addBullet}
+                  >
+                    <Plus className="size-4" />
+                    Add bullet
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Overview Image */}
+            <div className="space-y-2 pt-2 border-t border-border/50">
+              <div className="flex items-center justify-between">
+                <Label className="font-medium text-foreground">
+                  Overview Photo Card
+                </Label>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  className="flex items-center gap-2 text-xs font-normal text-muted-foreground cursor-pointer select-none"
+                  onClick={() =>
+                    setSectionSettings((prev) => ({
+                      ...prev,
+                      showAboutImage: !toBool(prev.showAboutImage, true),
+                    }))
+                  }
+                >
+                  <span>Show photo card</span>
+                  <Switch
+                    checked={toBool(sectionSettings.showAboutImage, true)}
+                    onCheckedChange={(checked) =>
+                      setSectionSettings((prev) => ({
+                        ...prev,
+                        showAboutImage: checked,
+                      }))
+                    }
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+              </div>
+              <ImageField
+                label="Custom About Photo (Optional — if unset, secondary gallery image is used)"
+                mediaId={aboutImageMediaId}
+                onChange={(id) => setAboutImageMediaId(id)}
+              />
+            </div>
+          </div>
+
+          {/* Individual Tab Controls ("What comes what not") */}
+          <div className="space-y-3 rounded-lg border border-border/60 bg-muted/20 p-4">
+            <Label className="font-semibold text-foreground">
+              Visible Page Tabs ("What comes what not")
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Enable or disable specific tabs for this cottage.
+            </p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 pt-1">
+              {[
+                { key: "overview", label: "Overview Tab" },
+                { key: "availability", label: "Availability Tab" },
+                { key: "propertyDetails", label: "Property Details Tab" },
+                { key: "layout", label: "Layout Tab" },
+                { key: "location", label: "Location Tab" },
+                { key: "reviews", label: "Reviews Tab" },
+              ].map(({ key, label }) => {
+                const isChecked = toBool(
+                  sectionSettings.tabs?.[
+                    key as keyof typeof sectionSettings.tabs
+                  ],
+                  true,
+                );
+                return (
+                  <div
+                    key={key}
+                    role="button"
+                    tabIndex={0}
+                    className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none"
+                    onClick={() =>
+                      setSectionSettings((prev) => ({
+                        ...prev,
+                        tabs: { ...prev.tabs, [key]: !isChecked },
+                      }))
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setSectionSettings((prev) => ({
+                          ...prev,
+                          tabs: { ...prev.tabs, [key]: !isChecked },
+                        }));
+                      }
+                    }}
+                  >
+                    <Switch
+                      checked={isChecked}
+                      onCheckedChange={(checked) =>
+                        setSectionSettings((prev) => ({
+                          ...prev,
+                          tabs: { ...prev.tabs, [key]: checked },
+                        }))
+                      }
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <span>{label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* <div className="space-y-3">
         <Label>Beds</Label>
         {beds.map((bed, index) => (
           <div key={index} className="flex gap-2">
@@ -582,7 +1029,7 @@ export function CottageForm({
         >
           Add bed
         </Button>
-      </div>
+      </div> */}
 
       {amenityOpts.length > 0 && (
         <div className="space-y-2">
@@ -634,16 +1081,16 @@ export function CottageForm({
                     key={a.id}
                     className="flex items-center gap-2 rounded-md border border-input px-3 py-2 text-sm"
                   >
-                    <input
-                      type="checkbox"
+                    <Switch
                       checked={amenityIds.includes(a.id)}
-                      onChange={(e) =>
+                      onCheckedChange={(on) =>
                         setAmenityIds((prev) =>
-                          e.target.checked
+                          on
                             ? [...prev, a.id]
                             : prev.filter((id) => id !== a.id),
                         )
                       }
+                      aria-label={a.name}
                     />
                     <span>{a.name}</span>
                   </label>

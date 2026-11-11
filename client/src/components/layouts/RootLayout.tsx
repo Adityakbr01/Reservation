@@ -10,6 +10,48 @@ import { useAuthInit } from "@/app/use-auth-init";
 import { useAuthStore } from "@/stores/auth-store";
 import { userKeys } from "@/lib/query-keys";
 import { SITE_LINKS } from "@/config/links";
+import { useSiteSettings } from "@/modules/cms/hooks/use-cms";
+
+function DynamicLink({
+  link,
+  className,
+  onClick,
+  children,
+}: {
+  link: { label: string; url: string; openInNewTab?: boolean };
+  className?: string;
+  onClick?: () => void;
+  children?: React.ReactNode;
+}) {
+  const isExternal =
+    link.openInNewTab ||
+    link.url.startsWith("http://") ||
+    link.url.startsWith("https://") ||
+    link.url.startsWith("tel:") ||
+    link.url.startsWith("mailto:");
+
+  const content = children ?? link.label;
+
+  if (isExternal) {
+    return (
+      <a
+        href={link.url}
+        target={link.openInNewTab ? "_blank" : undefined}
+        rel={link.openInNewTab ? "noopener noreferrer" : undefined}
+        className={className}
+        onClick={onClick}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link to={link.url} className={className} onClick={onClick}>
+      {content}
+    </Link>
+  );
+}
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return cn(
@@ -121,6 +163,27 @@ export function RootLayout() {
 
   const initial = sessionUser?.name.trim().charAt(0).toUpperCase() || "?";
 
+  const { data: siteSettings } = useSiteSettings();
+
+  const defaultHeaderLinks = [
+    { id: "local-area", label: "The Local Area", url: SITE_LINKS.localArea, openInNewTab: true, isEnabled: true },
+    { id: "the-estate", label: "The estate", url: SITE_LINKS.theEstate, openInNewTab: true, isEnabled: true },
+    { id: "bespoke", label: "Bespoke", url: SITE_LINKS.bespoke, openInNewTab: true, isEnabled: true },
+  ];
+
+  const headerLinks = (
+    siteSettings?.headerNavigation?.links && siteSettings.headerNavigation.links.length > 0
+      ? siteSettings.headerNavigation.links
+      : defaultHeaderLinks
+  ).filter((l) => l.isEnabled !== false);
+
+  const enquireBtn = siteSettings?.headerNavigation?.enquireButton ?? {
+    label: "Enquire",
+    url: SITE_LINKS.enquireNow,
+    openInNewTab: true,
+    isEnabled: true,
+  };
+
   return (
     <div
       id="top"
@@ -130,50 +193,33 @@ export function RootLayout() {
         <div className="mx-auto grid h-[84px] w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-[5px] px-[22px] sm:px-6 lg:h-[98px] lg:gap-3 lg:px-12">
           {/* Left links */}
           <div className="flex min-w-0 items-center gap-6">
-            <a
-              href={SITE_LINKS.localArea}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                "inline-flex items-center whitespace-nowrap border-b-[0.8px] border-[#889878] py-0 text-[9px] leading-[12.6px] text-foreground transition-colors",
-                "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-                "md:border-transparent md:py-3 md:text-[13px] md:leading-none md:hover:border-brand-light md:hover:text-foreground",
-              )}
-            >
-              The Local Area
-            </a>
-            <nav
-              aria-label="Booking navigation"
-              className="hidden items-center gap-6 md:flex"
-            >
-              <a
-                href={SITE_LINKS.theEstate}
-                target="_blank"
-                rel="noopener noreferrer"
+            {headerLinks[0] && (
+              <DynamicLink
+                link={headerLinks[0]}
                 className={cn(
-                  navLinkClass({ isActive: false }),
-                  "hidden gap-1 lg:inline-flex",
+                  "inline-flex items-center whitespace-nowrap border-b-[0.8px] border-[#889878] py-0 text-[9px] leading-[12.6px] text-foreground transition-colors",
+                  "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+                  "md:border-transparent md:py-3 md:text-[13px] md:leading-none md:hover:border-brand-light md:hover:text-foreground",
                 )}
+              />
+            )}
+            {headerLinks.length > 1 && (
+              <nav
+                aria-label="Booking navigation"
+                className="hidden items-center gap-6 md:flex"
               >
-                The estate{" "}
-                <span aria-hidden className="text-[10px]">
-                  ↗
-                </span>
-              </a>
-              <a
-                href={SITE_LINKS.bespoke}
-                target={SITE_LINKS.bespoke !== "#" ? "_blank" : undefined}
-                rel={
-                  SITE_LINKS.bespoke !== "#" ? "noopener noreferrer" : undefined
-                }
-                className={cn(
-                  navLinkClass({ isActive: false }),
-                  "hidden lg:inline-flex",
-                )}
-              >
-                Bespoke
-              </a>
-            </nav>
+                {headerLinks.slice(1).map((lnk, idx) => (
+                  <DynamicLink
+                    key={lnk.id ?? idx}
+                    link={lnk}
+                    className={cn(
+                      navLinkClass({ isActive: false }),
+                      "hidden gap-1 lg:inline-flex",
+                    )}
+                  />
+                ))}
+              </nav>
+            )}
           </div>
 
           {/* Centered logo */}
@@ -185,7 +231,7 @@ export function RootLayout() {
           >
             <img
               src="/navlogo.webp"
-              alt="Hamptworth Stays"
+              alt={siteSettings?.propertyName ?? "Hamptworth Stays"}
               className="h-[71px] w-[130px] shrink-0 object-contain mix-blend-multiply lg:h-[76px] lg:w-auto"
               loading="eager"
             />
@@ -194,15 +240,15 @@ export function RootLayout() {
           {/* Right actions */}
           <div className="col-start-3 flex items-center justify-end gap-5">
             <div className="hidden items-center gap-5 md:flex">
-              <a
-                href={SITE_LINKS.enquireNow}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="water-fill inline-flex items-center gap-5 border border-input px-4 py-2.5 text-[13px] leading-none text-foreground hover:border-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                Enquire
-                <span aria-hidden>→</span>
-              </a>
+              {enquireBtn.isEnabled !== false && (
+                <DynamicLink
+                  link={enquireBtn}
+                  className="water-fill inline-flex items-center gap-5 border border-input px-4 py-2.5 text-[13px] leading-none text-foreground hover:border-brand focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                >
+                  {enquireBtn.label}
+                  <span aria-hidden>→</span>
+                </DynamicLink>
+              )}
               {sessionUser ? (
                 <>
                   <NavLink
@@ -322,38 +368,21 @@ export function RootLayout() {
             <NavLink to="/" end className={mobileLinkClass} onClick={closeMenu}>
               Find a cottage
             </NavLink>
-            <a
-              href={SITE_LINKS.theEstate}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={mobileLinkClass({ isActive: false })}
-              onClick={closeMenu}
-            >
-              The estate{" "}
-              <span aria-hidden className="ml-1 text-xs">
-                ↗
-              </span>
-            </a>
-            <a
-              href={SITE_LINKS.bespoke}
-              target={SITE_LINKS.bespoke !== "#" ? "_blank" : undefined}
-              rel={
-                SITE_LINKS.bespoke !== "#" ? "noopener noreferrer" : undefined
-              }
-              className={mobileLinkClass({ isActive: false })}
-              onClick={closeMenu}
-            >
-              Bespoke
-            </a>
-            <a
-              href={SITE_LINKS.enquireNow}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={mobileLinkClass({ isActive: false })}
-              onClick={closeMenu}
-            >
-              Enquire
-            </a>
+            {headerLinks.map((lnk, idx) => (
+              <DynamicLink
+                key={lnk.id ?? idx}
+                link={lnk}
+                className={mobileLinkClass({ isActive: false })}
+                onClick={closeMenu}
+              />
+            ))}
+            {enquireBtn.isEnabled !== false && (
+              <DynamicLink
+                link={enquireBtn}
+                className={mobileLinkClass({ isActive: false })}
+                onClick={closeMenu}
+              />
+            )}
             {sessionUser && (
               <>
                 <NavLink
@@ -423,111 +452,193 @@ export function RootLayout() {
       </main>
       <footer className="font-georgia border-t-[0.8px] border-[#d8deca] bg-secondary text-[14px] font-semibold leading-6 tracking-[0.56px] text-[#1c2a1b]">
         <div className="mx-auto w-full max-w-7xl px-[22px] pb-[95px] pt-[39px] sm:px-6 lg:px-12 lg:py-14">
-          <div className="grid grid-cols-2 gap-x-[22px] gap-y-[30px] lg:grid-cols-[1.2fr_0.8fr_0.9fr_1fr] lg:gap-10">
-            <div className="col-span-2 lg:col-span-1">
-              <Link
-                to="/"
-                aria-label="Hamptworth Stays booking home"
-                className="inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                <img
-                  src="/navlogo.webp"
-                  alt="Hamptworth Stays"
-                  className="h-24 w-auto max-w-full object-contain object-left mix-blend-multiply lg:h-32"
-                  loading="lazy"
-                />
-              </Link>
-            </div>
+          {(() => {
+            const showCol1 =
+              siteSettings?.footerNavigation?.col1?.showLogo !== false ||
+              !!siteSettings?.footerNavigation?.col1?.tagline;
+            const showCol2 = siteSettings?.footerNavigation?.col2?.isEnabled !== false;
+            const showCol3 = siteSettings?.footerNavigation?.col3?.isEnabled !== false;
+            const showCol4 =
+              siteSettings?.footerNavigation?.col4?.isEnabled !== false &&
+              (siteSettings?.footerNavigation?.col4?.showPhone !== false ||
+                siteSettings?.footerNavigation?.col4?.showEmail !== false ||
+                !!siteSettings?.footerNavigation?.col4?.showAddress);
 
-            <div>
-              <h3 className="mb-5 text-[12px] font-extrabold font-georgia uppercase leading-5 tracking-[1.3px]">
-                Your stay
-              </h3>
-              <div className="flex flex-col gap-2.5">
-                <Link to="/" className="hover:text-brand">
-                  Find a cottage
-                </Link>
-                <a
-                  href={SITE_LINKS.enquireNow}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-brand"
-                >
-                  Group stays
-                </a>
-                <a
-                  href={SITE_LINKS.localArea}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-brand"
-                >
-                  Explore the local area ↗
-                </a>
+            const visibleColCount = [showCol1, showCol2, showCol3, showCol4].filter(Boolean).length;
+
+            let gridClass =
+              "grid grid-cols-2 gap-x-[22px] gap-y-[30px] lg:grid-cols-[1.3fr_1fr_1fr_1fr] lg:gap-8";
+            if (visibleColCount <= 1) {
+              gridClass = "grid grid-cols-1 gap-8 max-w-md";
+            } else if (visibleColCount === 2) {
+              gridClass =
+                "grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 lg:grid-cols-[1.4fr_1fr] lg:gap-16";
+            } else if (visibleColCount === 3) {
+              gridClass =
+                "grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-8 lg:grid-cols-[1.4fr_1fr_1fr] lg:gap-12";
+            }
+
+            return (
+              <div className={gridClass}>
+                {showCol1 && (
+                  <div
+                    className={
+                      visibleColCount === 4
+                        ? "col-span-2 lg:col-span-1 min-w-0"
+                        : "col-span-1 min-w-0"
+                    }
+                  >
+                    {siteSettings?.footerNavigation?.col1?.showLogo !== false && (
+                      <Link
+                        to="/"
+                        aria-label="Hamptworth Stays booking home"
+                        className="inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      >
+                        <img
+                          src="/navlogo.webp"
+                          alt={siteSettings?.propertyName ?? "Hamptworth Stays"}
+                          className="h-24 w-auto max-w-full object-contain object-left mix-blend-multiply lg:h-32"
+                          loading="lazy"
+                        />
+                      </Link>
+                    )}
+                    {siteSettings?.footerNavigation?.col1?.tagline && (
+                      <p className="mt-2 text-xs font-normal text-muted-foreground max-w-xs">
+                        {siteSettings.footerNavigation.col1.tagline}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {showCol2 && (
+                  <div className="col-span-1 min-w-0">
+                    <h3 className="mb-5 text-[12px] font-bold uppercase leading-5 tracking-[1.3px] break-words">
+                      {siteSettings?.footerNavigation?.col2?.heading ?? "Your stay"}
+                    </h3>
+                    <div className="flex flex-col gap-2.5">
+                      {(siteSettings?.footerNavigation?.col2?.links &&
+                      siteSettings.footerNavigation.col2.links.length > 0
+                        ? siteSettings.footerNavigation.col2.links.filter(
+                            (l) => l.isEnabled !== false,
+                          )
+                        : [
+                            { label: "Find a cottage", url: "/" },
+                            {
+                              label: "Group stays",
+                              url: SITE_LINKS.enquireNow,
+                              openInNewTab: true,
+                            },
+                            {
+                              label: "Explore the local area ↗",
+                              url: SITE_LINKS.localArea,
+                              openInNewTab: true,
+                            },
+                          ]
+                      ).map((l, i) => (
+                        <DynamicLink
+                          key={l.id ?? i}
+                          link={l}
+                          className="hover:text-brand"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {showCol3 && (
+                  <div className="col-span-1 min-w-0">
+                    <h3 className="mb-5 text-[12px] font-bold uppercase leading-5 tracking-[1.3px] break-words">
+                      {siteSettings?.footerNavigation?.col3?.heading ?? "A little help"}
+                    </h3>
+                    <div className="flex flex-col gap-2.5">
+                      {(siteSettings?.footerNavigation?.col3?.links &&
+                      siteSettings.footerNavigation.col3.links.length > 0
+                        ? siteSettings.footerNavigation.col3.links.filter(
+                            (l) => l.isEnabled !== false,
+                          )
+                        : [
+                            {
+                              label: "Make an enquiry",
+                              url: SITE_LINKS.enquireNow,
+                              openInNewTab: true,
+                            },
+                            {
+                              label: "Bespoke ↗",
+                              url: SITE_LINKS.bespoke,
+                              openInNewTab: true,
+                            },
+                            { label: "Booking terms", url: "/policies/TERMS" },
+                            { label: "Privacy policy", url: "/policies/PRIVACY" },
+                          ]
+                      ).map((l, i) => (
+                        <DynamicLink
+                          key={l.id ?? i}
+                          link={l}
+                          className="hover:text-brand"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {showCol4 && (
+                  <div
+                    className={
+                      visibleColCount === 4
+                        ? "col-span-2 lg:col-span-1 min-w-0"
+                        : "col-span-1 min-w-0"
+                    }
+                  >
+                    <h3 className="mb-5 text-[12px] font-bold uppercase leading-5 tracking-[1.3px] break-words">
+                      {siteSettings?.footerNavigation?.col4?.heading ?? "Contact"}
+                    </h3>
+
+                    <div className="flex flex-col gap-2.5">
+                      {siteSettings?.footerNavigation?.col4?.showPhone !== false && (
+                        <a
+                          href={`tel:${siteSettings?.phone ?? "+441794390155"}`}
+                          className="hover:text-brand"
+                        >
+                          {siteSettings?.phone ?? "+44 7943 547557"}
+                        </a>
+                      )}
+                      {siteSettings?.footerNavigation?.col4?.showEmail !== false && (
+                        <a
+                          href={`mailto:${siteSettings?.supportEmail ?? "info@hamptworthstays.com"}`}
+                          className="hover:text-brand"
+                        >
+                          {siteSettings?.supportEmail ?? "info@hamptworthstays.com"}
+                        </a>
+                      )}
+                      {siteSettings?.footerNavigation?.col4?.showAddress &&
+                        siteSettings?.address && (
+                          <p className="text-xs font-normal text-muted-foreground">
+                            {siteSettings.address}
+                          </p>
+                        )}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-
-            <div>
-              <h3 className="mb-5 text-[12px] font-bold uppercase leading-5 tracking-[1.3px]">
-                A little help
-              </h3>
-              <div className="flex flex-col gap-2.5">
-                <a
-                  href={SITE_LINKS.enquireNow}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-brand"
-                >
-                  Make an enquiry
-                </a>
-                <a
-                  href={SITE_LINKS.bespoke}
-                  target={SITE_LINKS.bespoke !== "#" ? "_blank" : undefined}
-                  rel={
-                    SITE_LINKS.bespoke !== "#"
-                      ? "noopener noreferrer"
-                      : undefined
-                  }
-                  className="hover:text-brand"
-                >
-                  Bespoke ↗
-                </a>
-
-                <Link to="/policies/TERMS" className="hover:text-brand">
-                  Booking terms
-                </Link>
-                <Link to="/policies/PRIVACY" className="hover:text-brand">
-                  Privacy policy
-                </Link>
-              </div>
-            </div>
-
-            <div className="col-span-2 lg:col-span-1">
-              <h3 className="mb-5 text-[12px] font-bold uppercase leading-5 tracking-[1.3px]">
-                Contact
-              </h3>
-
-              <div className="flex flex-col gap-2.5">
-                <a href="tel:+441794390155" className="hover:text-brand">
-                  +44 7943 547557
-                </a>
-                <a
-                  href="mailto:info@hamptworthstays.com"
-                  className="hover:text-brand"
-                >
-                  info@hamptworthstays.com
-                </a>
-              </div>
-              {/* <NewsletterFooterForm /> */}
-            </div>
-          </div>
+            );
+          })()}
 
           <div className="mt-[33px] flex flex-wrap items-center justify-between gap-[18px] border-t-[0.8px] border-[#cbd2c0] pt-5 text-[9px] leading-[12.6px] text-[#748165]">
-            <span>© 2026 Hamptworth Stays</span>
+            <span>
+              {siteSettings?.footerNavigation?.bottomBar?.copyrightText ??
+                `© ${new Date().getFullYear()} Hamptworth Stays`}
+            </span>
             <div className="ml-auto flex flex-wrap items-center gap-[18px]">
-              <span>Home Farm · Hamptworth</span>
-              <a href="#top" className="hover:text-foreground">
-                Back to top ↑
-              </a>
+              <span>
+                {siteSettings?.footerNavigation?.bottomBar?.locationText ??
+                  "Home Farm · Hamptworth"}
+              </span>
+              {siteSettings?.footerNavigation?.bottomBar?.showBackToTop !==
+                false && (
+                <a href="#top" className="hover:text-foreground">
+                  Back to top ↑
+                </a>
+              )}
             </div>
           </div>
         </div>

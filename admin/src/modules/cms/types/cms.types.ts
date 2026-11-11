@@ -82,12 +82,14 @@ export interface CmsOffer {
 }
 
 export interface CmsPolicyDoc {
+  id?: string;
   key: string;
   title: string;
   body: string;
   version: number;
   status: ContentStatus;
-  updatedAt: string;
+  updatedAt?: string;
+  updated_at?: string;
 }
 
 export interface CmsFilters {

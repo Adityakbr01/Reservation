@@ -211,9 +211,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function updateMe(UpdateMeRequest $request, Request $httpRequest)
+    public function updateMe(UpdateMeRequest $request)
     {
-        $user = $httpRequest->attributes->get('auth_user');
+        $user = $request->attributes->get('auth_user') ?? $request->user();
         $data = $request->validated();
 
         if (isset($data['name'])) {
@@ -227,9 +227,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function changePassword(ChangePasswordRequest $request, Request $httpRequest)
+    public function changePassword(ChangePasswordRequest $request)
     {
-        $user = $httpRequest->attributes->get('auth_user');
+        $user = $request->attributes->get('auth_user') ?? $request->user();
 
         if (! Hash::check($request->validated('current_password'), $user->password_hash)) {
             return response()->json([
@@ -247,9 +247,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function setPassword(SetPasswordRequest $request, Request $httpRequest)
+    public function setPassword(SetPasswordRequest $request)
     {
-        $user = $httpRequest->attributes->get('auth_user');
+        $user = $request->attributes->get('auth_user') ?? $request->user();
         $user->password_hash = Hash::make($request->validated('new_password'));
         $user->save();
 

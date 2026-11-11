@@ -50,6 +50,23 @@ function normalizeCottage(raw: any): Cottage {
     base_price: raw?.basePrice ?? raw?.base_price ?? null,
     roomId: raw?.roomId ?? raw?.room_id ?? null,
     room_id: raw?.roomId ?? raw?.room_id ?? null,
+    middleDescription: raw?.middleDescription ?? raw?.middle_description ?? null,
+    middle_description: raw?.middleDescription ?? raw?.middle_description ?? null,
+    aboutHeading: raw?.aboutHeading ?? raw?.about_heading ?? null,
+    about_heading: raw?.aboutHeading ?? raw?.about_heading ?? null,
+    aboutText: raw?.aboutText ?? raw?.about_text ?? null,
+    about_text: raw?.aboutText ?? raw?.about_text ?? null,
+    aboutImageMediaId: raw?.aboutImageMediaId ?? raw?.about_image_media_id ?? null,
+    about_image_media_id: raw?.aboutImageMediaId ?? raw?.about_image_media_id ?? null,
+    aboutImageUrl: raw?.aboutImageUrl ?? raw?.about_image_url ?? null,
+    overviewBullets: Array.isArray(raw?.overviewBullets ?? raw?.overview_bullets)
+      ? raw.overviewBullets ?? raw.overview_bullets
+      : [],
+    overview_bullets: Array.isArray(raw?.overviewBullets ?? raw?.overview_bullets)
+      ? raw.overviewBullets ?? raw.overview_bullets
+      : [],
+    sectionSettings: raw?.sectionSettings ?? raw?.section_settings ?? null,
+    section_settings: raw?.sectionSettings ?? raw?.section_settings ?? null,
     createdAt: raw?.createdAt ?? raw?.created_at ?? "",
     updatedAt: raw?.updatedAt ?? raw?.updated_at ?? "",
   };

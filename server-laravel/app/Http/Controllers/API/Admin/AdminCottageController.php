@@ -74,6 +74,12 @@ class AdminCottageController extends Controller
             'slug' => $slug,
             'short_description' => $request->input('short_description') ?? $request->input('shortDescription'),
             'description' => $request->input('description'),
+            'middle_description' => $request->input('middle_description') ?? $request->input('middleDescription'),
+            'about_heading' => $request->input('about_heading') ?? $request->input('aboutHeading'),
+            'about_text' => $request->input('about_text') ?? $request->input('aboutText'),
+            'about_image_media_id' => $request->input('about_image_media_id') ?? $request->input('aboutImageMediaId'),
+            'overview_bullets' => $request->input('overview_bullets') ?? $request->input('overviewBullets') ?? [],
+            'section_settings' => $request->input('section_settings') ?? $request->input('sectionSettings') ?? [],
             'max_adults' => $maxAdults,
             'max_children' => $maxChildren,
             'max_occupancy' => $maxOccupancy,
@@ -152,6 +158,24 @@ class AdminCottageController extends Controller
         }
         if ($request->has('description')) {
             $payload['description'] = $request->input('description');
+        }
+        if ($request->has('middle_description') || $request->has('middleDescription')) {
+            $payload['middle_description'] = $request->input('middle_description') ?? $request->input('middleDescription');
+        }
+        if ($request->has('about_heading') || $request->has('aboutHeading')) {
+            $payload['about_heading'] = $request->input('about_heading') ?? $request->input('aboutHeading');
+        }
+        if ($request->has('about_text') || $request->has('aboutText')) {
+            $payload['about_text'] = $request->input('about_text') ?? $request->input('aboutText');
+        }
+        if ($request->has('about_image_media_id') || $request->has('aboutImageMediaId')) {
+            $payload['about_image_media_id'] = $request->input('about_image_media_id') ?? $request->input('aboutImageMediaId');
+        }
+        if ($request->has('overview_bullets') || $request->has('overviewBullets')) {
+            $payload['overview_bullets'] = $request->input('overview_bullets') ?? $request->input('overviewBullets') ?? [];
+        }
+        if ($request->has('section_settings') || $request->has('sectionSettings')) {
+            $payload['section_settings'] = $request->input('section_settings') ?? $request->input('sectionSettings') ?? [];
         }
         if ($request->has('max_adults') || $request->has('maxAdults')) {
             $payload['max_adults'] = (int) ($request->input('max_adults') ?? $request->input('maxAdults'));
@@ -404,6 +428,20 @@ class AdminCottageController extends Controller
             'short_description' => $c->short_description,
             'shortDescription' => $c->short_description,
             'description' => $c->description,
+            'middle_description' => $c->middle_description,
+            'middleDescription' => $c->middle_description,
+            'about_heading' => $c->about_heading,
+            'aboutHeading' => $c->about_heading,
+            'about_text' => $c->about_text,
+            'aboutText' => $c->about_text,
+            'about_image_media_id' => $c->about_image_media_id,
+            'aboutImageMediaId' => $c->about_image_media_id,
+            'about_image_url' => $c->about_image_media_id ? \App\Models\Media::find($c->about_image_media_id)?->url : null,
+            'aboutImageUrl' => $c->about_image_media_id ? \App\Models\Media::find($c->about_image_media_id)?->url : null,
+            'overview_bullets' => $c->overview_bullets ?? [],
+            'overviewBullets' => $c->overview_bullets ?? [],
+            'section_settings' => $c->section_settings ?? [],
+            'sectionSettings' => $c->section_settings ?? [],
             'max_adults' => (int) ($c->max_adults ?? 2),
             'maxAdults' => (int) ($c->max_adults ?? 2),
             'max_children' => (int) ($c->max_children ?? 0),

@@ -21,7 +21,7 @@ import {
   validateCouponCode,
 } from "../api/booking.api";
 import { fetchCottageOffers } from "@/modules/cottages/api/cottages.api";
-import { fetchSiteSettings } from "@/modules/cms/api/cms.api";
+import { fetchSiteSettings, type CheckoutSection, type AcknowledgementItem } from "@/modules/cms/api/cms.api";
 import { useAvailabilitySearch } from "@/modules/availability";
 import {
   useCreateBooking,
@@ -259,6 +259,7 @@ export function BookingPage() {
   const newsletterOptIn = false;
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptedAckItems, setAcceptedAckItems] = useState<Record<string, boolean>>({});
 
   const [emailExists, setEmailExists] = useState(false);
   const [checkingEmail, setCheckingEmail] = useState(false);
@@ -587,6 +588,75 @@ export function BookingPage() {
     }
   }
 
+  const ack = siteSettings?.bookingAcknowledgement;
+
+  const checkoutSections: CheckoutSection[] = useMemo(() => {
+    if (ack?.sections && ack.sections.length > 0) {
+      return ack.sections;
+    }
+    return [
+      {
+        id: "sec-acknowledgement",
+        title: ack?.title || "Acknowledgement",
+        introText: ack?.introText || "",
+        isEnabled: ack?.isEnabled !== false && ack?.showAcknowledgementSection !== false,
+        items: (ack?.items && ack.items.length > 0)
+          ? ack.items
+          : [
+              {
+                id: "ack-privacy",
+                text: ack?.privacyCheckboxText || "* I agree with the Privacy Terms.",
+                linkLabel: ack?.privacyLinkLabel || "Privacy Notice",
+                linkUrl: ack?.privacyLinkUrl || "/policies/PRIVACY",
+                isRequired: true,
+                openInNewTab: true,
+                isEnabled: true,
+              },
+              {
+                id: "ack-terms",
+                text: ack?.termsCheckboxText || "I agree with the Booking Conditions.",
+                linkLabel: ack?.termsLinkLabel || "Booking Conditions",
+                linkUrl: ack?.termsLinkUrl || "/policies/TERMS",
+                isRequired: true,
+                openInNewTab: true,
+                isEnabled: true,
+              },
+            ],
+      },
+    ];
+  }, [ack]);
+
+  const activeCheckoutSections = useMemo(() => {
+    return checkoutSections.filter((s) => s.isEnabled !== false);
+  }, [checkoutSections]);
+
+  const allRequiredItems = useMemo(() => {
+    const list: AcknowledgementItem[] = [];
+    for (const sec of activeCheckoutSections) {
+      for (const it of (sec.items ?? [])) {
+        if (it.isEnabled !== false && it.isRequired !== false) {
+          list.push(it);
+        }
+      }
+    }
+    return list;
+  }, [activeCheckoutSections]);
+
+  const allRequiredAcksAccepted = useMemo(() => {
+    if (activeCheckoutSections.length === 0) return true;
+    return allRequiredItems.every((it) => !!acceptedAckItems[it.id]);
+  }, [activeCheckoutSections, allRequiredItems, acceptedAckItems]);
+
+  function toggleAckItem(id: string, checked: boolean) {
+    setAcceptedAckItems((prev) => {
+      const next = { ...prev, [id]: checked };
+      const allDone = allRequiredItems.every((it) => !!next[it.id]);
+      setAcceptPrivacy(!!next["ack-privacy"] || allDone);
+      setAcceptTerms(!!next["ack-terms"] || allDone);
+      return next;
+    });
+  }
+
   const canContinue =
     !!quote &&
     !busy &&
@@ -595,8 +665,7 @@ export function BookingPage() {
     isDatesAvailable &&
     contactValid() &&
     passwordValid() &&
-    acceptPrivacy &&
-    acceptTerms &&
+    allRequiredAcksAccepted &&
     !emailBlocked;
 
   /** First missing item, shown as a hint under the disabled buttons. */
@@ -606,11 +675,21 @@ export function BookingPage() {
     if (roomsError) return roomsError;
     if (!quote) return "Loading price…";
     if (busy) return "Working…";
-    if (!contactValid()) return "Complete contact info above to continue.";
-    if (emailBlocked) return "This email has an account — sign in or use a different email.";
+    if (!contactValid())
+      return (
+        ack?.incompleteContactHint || "Complete contact info above to continue."
+      );
+    if (emailBlocked)
+      return "This email has an account — sign in or use a different email.";
     if (!passwordValid())
-      return password.length < 8 ? "Password must be at least 8 characters." : "Passwords do not match.";
-    if (!acceptPrivacy || !acceptTerms) return "Accept the Privacy Terms and Booking Conditions to continue.";
+      return password.length < 8
+        ? "Password must be at least 8 characters."
+        : "Passwords do not match.";
+    if (!allRequiredAcksAccepted)
+      return (
+        ack?.incompleteTermsHint ||
+        "Accept the required terms and booking conditions to continue."
+      );
     return null;
   }
 
@@ -633,8 +712,11 @@ export function BookingPage() {
       );
       return;
     }
-    if (!acceptPrivacy || !acceptTerms) {
-      toast.error("Please accept the Privacy Terms and Booking Conditions to continue");
+    if (!allRequiredAcksAccepted) {
+      toast.error(
+        ack?.incompleteTermsHint ||
+          "Please accept the required terms and booking conditions to continue",
+      );
       return;
     }
     setHoldFailed(null);
@@ -1001,48 +1083,82 @@ export function BookingPage() {
             </Card>
           )}
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base tracking-wide">Policies</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 rounded-md bg-muted/50 p-4 text-sm">
-              <div className="flex gap-8">
-                <p><span className="font-semibold">Check-in</span><br />after {formatTimeLabel(siteSettings?.checkInTime, "4:00 pm")}</p>
-                <p><span className="font-semibold">Check-out</span><br />before {formatTimeLabel(siteSettings?.checkOutTime, "11:00 am")}</p>
-              </div>
-            </CardContent>
-          </Card>
+          {ack?.showPoliciesSection !== false && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base tracking-wide">Policies</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 rounded-md bg-muted/50 p-4 text-sm">
+                <div className="flex gap-8">
+                  <p><span className="font-semibold">Check-in</span><br />after {formatTimeLabel(siteSettings?.checkInTime, "4:00 pm")}</p>
+                  <p><span className="font-semibold">Check-out</span><br />before {formatTimeLabel(siteSettings?.checkOutTime, "11:00 am")}</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base tracking-wide">Acknowledgement</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <label className="flex items-start gap-2">
-                <input type="checkbox" checked={acceptPrivacy} onChange={(e) => setAcceptPrivacy(e.target.checked)} className="mt-1 size-4 shrink-0 accent-brand" />
-                <span>* I agree with the Privacy Terms. <Link to="/policies/PRIVACY" target="_blank" className="underline">Privacy Notice</Link></span>
-              </label>
-              <label className="flex items-start gap-2">
-                <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} className="mt-1 size-4 shrink-0 accent-brand" />
-                I agree with the Booking Conditions.
-              </label>
-              {!bookingId && (
-                <>
-                  <Button
-                    type="button"
-                    className="h-12 w-full rounded-full text-base disabled:cursor-not-allowed disabled:opacity-50"
-                    disabled={!canContinue}
-                    onClick={() => void handleContinueToPayment()}
-                  >
-                    {busy ? "Holding your cottage…" : "Confirm booking"}
-                  </Button>
-                  {!canContinue && continueHint() && (
-                    <p className="text-center text-xs text-muted-foreground">{continueHint()}</p>
-                  )}
-                </>
+          {/* Dynamic Checkout Sections (e.g. Acknowledgement, House Rules, Custom Agreements) */}
+          {activeCheckoutSections.map((sec) => (
+            <Card key={sec.id}>
+              <CardHeader>
+                <CardTitle className="text-base tracking-wide">
+                  {sec.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                {sec.introText && (
+                  <p className="text-xs text-muted-foreground pb-1">
+                    {sec.introText}
+                  </p>
+                )}
+                {(sec.items ?? [])
+                  .filter((item) => item.isEnabled !== false)
+                  .map((item) => (
+                    <label key={item.id} className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={!!acceptedAckItems[item.id]}
+                        onChange={(e) => toggleAckItem(item.id, e.target.checked)}
+                        className="mt-1 size-4 shrink-0 accent-brand cursor-pointer"
+                      />
+                      <span className="text-sm select-none">
+                        {item.text}{" "}
+                        {item.linkUrl && item.linkLabel && (
+                          <Link
+                            to={item.linkUrl}
+                            target={item.openInNewTab !== false ? "_blank" : undefined}
+                            rel={item.openInNewTab !== false ? "noopener noreferrer" : undefined}
+                            className="font-medium underline hover:text-brand"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {item.linkLabel}
+                          </Link>
+                        )}
+                      </span>
+                    </label>
+                  ))}
+              </CardContent>
+            </Card>
+          ))}
+
+          {/* Checkout Action CTA Button */}
+          {!bookingId && (
+            <div className="pt-2 space-y-2">
+              <Button
+                type="button"
+                className="h-12 w-full rounded-full text-base disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={!canContinue}
+                onClick={() => void handleContinueToPayment()}
+              >
+                {busy ? (ack?.busyButtonText || "Holding your cottage…") : (ack?.buttonText || "Confirm booking")}
+              </Button>
+              {!canContinue && continueHint() && (
+                <p className="text-center text-xs text-muted-foreground">
+                  {continueHint()}
+                </p>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          )}
         </div>
 
         <aside className="min-w-0">

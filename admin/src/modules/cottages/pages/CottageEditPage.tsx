@@ -56,7 +56,7 @@ export function CottageEditPage() {
         </CardHeader>
         <CardContent>
           <CottageForm
-            key={cottage.id}
+            key={`${cottage.id}-${cottage.updatedAt ?? (cottage as { updated_at?: string })?.updated_at ?? ""}`}
             initial={cottage}
             submitLabel="Save changes"
             isPending={isSaving}

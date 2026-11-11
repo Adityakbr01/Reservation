@@ -90,6 +90,146 @@ class PublicSettingsController extends Controller
                 'social' => $settings->social ?? [],
                 'default_seo' => $settings->default_seo ?? [],
                 'defaultSeo' => $settings->default_seo ?? [],
+                'header_navigation' => $settings->header_navigation ?? [
+                    'links' => [
+                        ['id' => 'local-area', 'label' => 'The Local Area', 'url' => 'https://hamptworthstays.com/local-area-and-map/', 'openInNewTab' => true, 'isEnabled' => true],
+                        ['id' => 'the-estate', 'label' => 'The estate', 'url' => 'https://hamptworthstays.com/', 'openInNewTab' => true, 'isEnabled' => true],
+                        ['id' => 'bespoke', 'label' => 'Bespoke', 'url' => 'https://hamptworthstays.com/private-bespoke/', 'openInNewTab' => true, 'isEnabled' => true],
+                    ],
+                    'enquireButton' => [
+                        'label' => 'Enquire',
+                        'url' => 'https://hamptworthstays.com/plan-your-experience/',
+                        'openInNewTab' => true,
+                        'isEnabled' => true,
+                    ],
+                ],
+                'headerNavigation' => $settings->header_navigation ?? [
+                    'links' => [
+                        ['id' => 'local-area', 'label' => 'The Local Area', 'url' => 'https://hamptworthstays.com/local-area-and-map/', 'openInNewTab' => true, 'isEnabled' => true],
+                        ['id' => 'the-estate', 'label' => 'The estate', 'url' => 'https://hamptworthstays.com/', 'openInNewTab' => true, 'isEnabled' => true],
+                        ['id' => 'bespoke', 'label' => 'Bespoke', 'url' => 'https://hamptworthstays.com/private-bespoke/', 'openInNewTab' => true, 'isEnabled' => true],
+                    ],
+                    'enquireButton' => [
+                        'label' => 'Enquire',
+                        'url' => 'https://hamptworthstays.com/plan-your-experience/',
+                        'openInNewTab' => true,
+                        'isEnabled' => true,
+                    ],
+                ],
+                'footer_navigation' => $settings->footer_navigation ?? [
+                    'col1' => ['showLogo' => true, 'tagline' => 'Luxury holiday cottages in Hamptworth, Hampshire'],
+                    'col2' => [
+                        'heading' => 'Your stay',
+                        'links' => [
+                            ['id' => 'c1', 'label' => 'Find a cottage', 'url' => '/', 'openInNewTab' => false, 'isEnabled' => true],
+                            ['id' => 'c2', 'label' => 'Group stays', 'url' => 'https://hamptworthstays.com/plan-your-experience/', 'openInNewTab' => true, 'isEnabled' => true],
+                            ['id' => 'c3', 'label' => 'Explore the local area ↗', 'url' => 'https://hamptworthstays.com/local-area-and-map/', 'openInNewTab' => true, 'isEnabled' => true],
+                        ],
+                    ],
+                    'col3' => [
+                        'heading' => 'A little help',
+                        'links' => [
+                            ['id' => 'h1', 'label' => 'Make an enquiry', 'url' => 'https://hamptworthstays.com/plan-your-experience/', 'openInNewTab' => true, 'isEnabled' => true],
+                            ['id' => 'h2', 'label' => 'Bespoke ↗', 'url' => 'https://hamptworthstays.com/private-bespoke/', 'openInNewTab' => true, 'isEnabled' => true],
+                            ['id' => 'h3', 'label' => 'Booking terms', 'url' => '/policies/TERMS', 'openInNewTab' => false, 'isEnabled' => true],
+                            ['id' => 'h4', 'label' => 'Privacy policy', 'url' => '/policies/PRIVACY', 'openInNewTab' => false, 'isEnabled' => true],
+                        ],
+                    ],
+                    'col4' => [
+                        'heading' => 'Contact',
+                        'showPhone' => true,
+                        'showEmail' => true,
+                        'showAddress' => false,
+                    ],
+                    'bottomBar' => [
+                        'copyrightText' => '© 2026 Hamptworth Stays',
+                        'locationText' => 'Home Farm · Hamptworth',
+                        'showBackToTop' => true,
+                    ],
+                ],
+                'footerNavigation' => $settings->footer_navigation ?? [
+                    'col1' => ['showLogo' => true, 'tagline' => 'Luxury holiday cottages in Hamptworth, Hampshire'],
+                    'col2' => [
+                        'heading' => 'Your stay',
+                        'links' => [
+                            ['id' => 'c1', 'label' => 'Find a cottage', 'url' => '/', 'openInNewTab' => false, 'isEnabled' => true],
+                            ['id' => 'c2', 'label' => 'Group stays', 'url' => 'https://hamptworthstays.com/plan-your-experience/', 'openInNewTab' => true, 'isEnabled' => true],
+                            ['id' => 'c3', 'label' => 'Explore the local area ↗', 'url' => 'https://hamptworthstays.com/local-area-and-map/', 'openInNewTab' => true, 'isEnabled' => true],
+                        ],
+                    ],
+                    'col3' => [
+                        'heading' => 'A little help',
+                        'links' => [
+                            ['id' => 'h1', 'label' => 'Make an enquiry', 'url' => 'https://hamptworthstays.com/plan-your-experience/', 'openInNewTab' => true, 'isEnabled' => true],
+                            ['id' => 'h2', 'label' => 'Bespoke ↗', 'url' => 'https://hamptworthstays.com/private-bespoke/', 'openInNewTab' => true, 'isEnabled' => true],
+                            ['id' => 'h3', 'label' => 'Booking terms', 'url' => '/policies/TERMS', 'openInNewTab' => false, 'isEnabled' => true],
+                            ['id' => 'h4', 'label' => 'Privacy policy', 'url' => '/policies/PRIVACY', 'openInNewTab' => false, 'isEnabled' => true],
+                        ],
+                    ],
+                    'col4' => [
+                        'heading' => 'Contact',
+                        'showPhone' => true,
+                        'showEmail' => true,
+                        'showAddress' => false,
+                    ],
+                    'bottomBar' => [
+                        'copyrightText' => '© 2026 Hamptworth Stays',
+                        'locationText' => 'Home Farm · Hamptworth',
+                        'showBackToTop' => true,
+                    ],
+                ],
+                'booking_acknowledgement' => $settings->booking_acknowledgement ?? [
+                    'showPoliciesSection' => true,
+                    'sections' => [
+                        [
+                            'id' => 'sec-acknowledgement',
+                            'title' => 'Acknowledgement',
+                            'introText' => '',
+                            'isEnabled' => true,
+                            'items' => [
+                                ['id' => 'ack-privacy', 'text' => '* I agree with the Privacy Terms.', 'linkLabel' => 'Privacy Notice', 'linkUrl' => '/policies/PRIVACY', 'openInNewTab' => true, 'isRequired' => true, 'isEnabled' => true],
+                                ['id' => 'ack-terms', 'text' => 'I agree with the Booking Conditions.', 'linkLabel' => 'Booking Conditions', 'linkUrl' => '/policies/TERMS', 'openInNewTab' => true, 'isRequired' => true, 'isEnabled' => true],
+                            ],
+                        ],
+                    ],
+                    'title' => 'Acknowledgement',
+                    'privacyCheckboxText' => '* I agree with the Privacy Terms.',
+                    'privacyLinkLabel' => 'Privacy Notice',
+                    'privacyLinkUrl' => '/policies/PRIVACY',
+                    'termsCheckboxText' => 'I agree with the Booking Conditions.',
+                    'termsLinkLabel' => 'Booking Conditions',
+                    'termsLinkUrl' => '/policies/TERMS',
+                    'buttonText' => 'Confirm booking',
+                    'busyButtonText' => 'Holding your cottage…',
+                    'incompleteContactHint' => 'Complete contact info above to continue.',
+                    'incompleteTermsHint' => 'Please accept the Privacy Terms and Booking Conditions to continue.',
+                ],
+                'bookingAcknowledgement' => $settings->booking_acknowledgement ?? [
+                    'showPoliciesSection' => true,
+                    'sections' => [
+                        [
+                            'id' => 'sec-acknowledgement',
+                            'title' => 'Acknowledgement',
+                            'introText' => '',
+                            'isEnabled' => true,
+                            'items' => [
+                                ['id' => 'ack-privacy', 'text' => '* I agree with the Privacy Terms.', 'linkLabel' => 'Privacy Notice', 'linkUrl' => '/policies/PRIVACY', 'openInNewTab' => true, 'isRequired' => true, 'isEnabled' => true],
+                                ['id' => 'ack-terms', 'text' => 'I agree with the Booking Conditions.', 'linkLabel' => 'Booking Conditions', 'linkUrl' => '/policies/TERMS', 'openInNewTab' => true, 'isRequired' => true, 'isEnabled' => true],
+                            ],
+                        ],
+                    ],
+                    'title' => 'Acknowledgement',
+                    'privacyCheckboxText' => '* I agree with the Privacy Terms.',
+                    'privacyLinkLabel' => 'Privacy Notice',
+                    'privacyLinkUrl' => '/policies/PRIVACY',
+                    'termsCheckboxText' => 'I agree with the Booking Conditions.',
+                    'termsLinkLabel' => 'Booking Conditions',
+                    'termsLinkUrl' => '/policies/TERMS',
+                    'buttonText' => 'Confirm booking',
+                    'busyButtonText' => 'Holding your cottage…',
+                    'incompleteContactHint' => 'Complete contact info above to continue.',
+                    'incompleteTermsHint' => 'Please accept the Privacy Terms and Booking Conditions to continue.',
+                ],
             ],
         ]);
     }

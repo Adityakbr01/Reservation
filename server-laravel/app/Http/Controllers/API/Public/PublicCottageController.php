@@ -65,6 +65,9 @@ class PublicCottageController extends Controller
             $mid = is_array($img) ? ($img['mediaId'] ?? null) : ($img->mediaId ?? null);
             if ($mid) $allMediaIds[] = $mid;
         }
+        if (!empty($c->about_image_media_id)) {
+            $allMediaIds[] = $c->about_image_media_id;
+        }
         $mediaMap = [];
         if (!empty($allMediaIds)) {
             $mediaMap = \App\Models\Media::whereIn('id', array_unique($allMediaIds))
@@ -101,6 +104,20 @@ class PublicCottageController extends Controller
             'short_description' => $c->short_description,
             'shortDescription' => $c->short_description,
             'description' => $c->description,
+            'middle_description' => $c->middle_description,
+            'middleDescription' => $c->middle_description,
+            'about_heading' => $c->about_heading,
+            'aboutHeading' => $c->about_heading,
+            'about_text' => $c->about_text,
+            'aboutText' => $c->about_text,
+            'about_image_media_id' => $c->about_image_media_id,
+            'aboutImageMediaId' => $c->about_image_media_id,
+            'about_image_url' => (!empty($c->about_image_media_id) && isset($mediaMap[$c->about_image_media_id])) ? $mediaMap[$c->about_image_media_id]->url : null,
+            'aboutImageUrl' => (!empty($c->about_image_media_id) && isset($mediaMap[$c->about_image_media_id])) ? $mediaMap[$c->about_image_media_id]->url : null,
+            'overview_bullets' => $c->overview_bullets ?? [],
+            'overviewBullets' => $c->overview_bullets ?? [],
+            'section_settings' => $c->section_settings ?? [],
+            'sectionSettings' => $c->section_settings ?? [],
             'max_adults' => (int) ($c->max_adults ?? 2),
             'maxAdults' => (int) ($c->max_adults ?? 2),
             'max_children' => (int) ($c->max_children ?? 0),

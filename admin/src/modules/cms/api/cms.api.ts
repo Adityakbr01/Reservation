@@ -111,3 +111,6 @@ export async function upsertPolicy(payload: object): Promise<void> {
 export async function setPolicyStatus(key: string, to: ContentStatus): Promise<void> {
   await apiClient.post(`${BASE}/policies/${key}/status`, { to });
 }
+export async function deletePolicy(key: string): Promise<void> {
+  await apiClient.delete(`${BASE}/policies/${encodeURIComponent(key)}`);
+}

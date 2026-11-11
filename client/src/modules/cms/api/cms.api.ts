@@ -65,6 +65,108 @@ export interface CmsPolicy {
   updatedAt: string;
 }
 
+export interface NavLinkItem {
+  id?: string;
+  label: string;
+  url: string;
+  openInNewTab?: boolean;
+  isEnabled?: boolean;
+}
+
+export interface HeaderNavigation {
+  links: NavLinkItem[];
+  enquireButton: {
+    label: string;
+    url: string;
+    openInNewTab?: boolean;
+    isEnabled?: boolean;
+  };
+}
+
+export interface FooterColumnLinks {
+  heading: string;
+  links: NavLinkItem[];
+  isEnabled?: boolean;
+}
+
+export interface FooterNavigation {
+  col1?: {
+    showLogo?: boolean;
+    tagline?: string;
+    isEnabled?: boolean;
+  };
+  col2?: FooterColumnLinks;
+  col3?: FooterColumnLinks;
+  col4?: {
+    heading?: string;
+    isEnabled?: boolean;
+    showPhone?: boolean;
+    showEmail?: boolean;
+    showAddress?: boolean;
+  };
+  bottomBar?: {
+    copyrightText?: string;
+    locationText?: string;
+    showBackToTop?: boolean;
+  };
+}
+
+export interface AcknowledgementItem {
+  id: string;
+  text: string;
+  linkLabel?: string;
+  linkUrl?: string;
+  openInNewTab?: boolean;
+  isRequired?: boolean;
+  isEnabled?: boolean;
+}
+
+export interface CheckoutSection {
+  id: string;
+  title: string;
+  introText?: string;
+  isEnabled?: boolean;
+  items: AcknowledgementItem[];
+}
+
+export interface AcknowledgementItem {
+  id: string;
+  text: string;
+  linkLabel?: string;
+  linkUrl?: string;
+  openInNewTab?: boolean;
+  isRequired?: boolean;
+  isEnabled?: boolean;
+}
+
+export interface CheckoutSection {
+  id: string;
+  title: string;
+  introText?: string;
+  isEnabled?: boolean;
+  items: AcknowledgementItem[];
+}
+
+export interface BookingAcknowledgement {
+  sections?: CheckoutSection[];
+  showPoliciesSection?: boolean;
+  showAcknowledgementSection?: boolean;
+  isEnabled?: boolean;
+  title?: string;
+  introText?: string;
+  items?: AcknowledgementItem[];
+  privacyCheckboxText?: string;
+  privacyLinkLabel?: string;
+  privacyLinkUrl?: string;
+  termsCheckboxText?: string;
+  termsLinkLabel?: string;
+  termsLinkUrl?: string;
+  buttonText?: string;
+  busyButtonText?: string;
+  incompleteContactHint?: string;
+  incompleteTermsHint?: string;
+}
+
 export interface WhyBookWithUsItem {
   title: string;
   text?: string | null;
@@ -85,6 +187,9 @@ export interface SiteSettings {
   supportEmail: string | null;
   whyBookWithUsHeading?: string | null;
   whyBookWithUs?: WhyBookWithUsItem[];
+  headerNavigation?: HeaderNavigation;
+  footerNavigation?: FooterNavigation;
+  bookingAcknowledgement?: BookingAcknowledgement;
 }
 
 const BASE = "/public/cms";
@@ -121,5 +226,10 @@ export async function fetchOffers(): Promise<CmsOffer[]> {
 
 export async function fetchPolicyDoc(key: string): Promise<CmsPolicy> {
   const response = await publicApiClient.get<ApiEnvelope<CmsPolicy>>(`${BASE}/policies/${key}`);
+  return unwrapResponse(response);
+}
+
+export async function fetchPolicies(): Promise<CmsPolicy[]> {
+  const response = await publicApiClient.get<ApiEnvelope<CmsPolicy[]>>(`${BASE}/policies`);
   return unwrapResponse(response);
 }

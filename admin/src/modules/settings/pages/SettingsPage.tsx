@@ -2,11 +2,22 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Plus,
+  Trash2,
+  Building2,
+  Sparkles,
+  Compass,
+  LayoutGrid,
+  ShieldCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -83,6 +94,90 @@ export interface WhyBookItem {
   badgeColor?: string | null;
 }
 
+export interface NavLinkItem {
+  id?: string;
+  label: string;
+  url: string;
+  openInNewTab?: boolean;
+  isEnabled?: boolean;
+}
+
+export interface HeaderNavigation {
+  links: NavLinkItem[];
+  enquireButton: {
+    label: string;
+    url: string;
+    openInNewTab?: boolean;
+    isEnabled?: boolean;
+  };
+}
+
+export interface FooterColumnLinks {
+  heading: string;
+  links: NavLinkItem[];
+  isEnabled?: boolean;
+}
+
+export interface FooterNavigation {
+  col1?: {
+    showLogo?: boolean;
+    tagline?: string;
+    isEnabled?: boolean;
+  };
+  col2?: FooterColumnLinks;
+  col3?: FooterColumnLinks;
+  col4?: {
+    heading?: string;
+    isEnabled?: boolean;
+    showPhone?: boolean;
+    showEmail?: boolean;
+    showAddress?: boolean;
+  };
+  bottomBar?: {
+    copyrightText?: string;
+    locationText?: string;
+    showBackToTop?: boolean;
+  };
+}
+
+export interface AcknowledgementItem {
+  id: string;
+  text: string;
+  linkLabel?: string;
+  linkUrl?: string;
+  openInNewTab?: boolean;
+  isRequired?: boolean;
+  isEnabled?: boolean;
+}
+
+export interface CheckoutSection {
+  id: string;
+  title: string;
+  introText?: string;
+  isEnabled?: boolean;
+  items: AcknowledgementItem[];
+}
+
+export interface BookingAcknowledgement {
+  sections?: CheckoutSection[];
+  showPoliciesSection?: boolean;
+  showAcknowledgementSection?: boolean;
+  isEnabled?: boolean;
+  title?: string;
+  introText?: string;
+  items?: AcknowledgementItem[];
+  privacyCheckboxText?: string;
+  privacyLinkLabel?: string;
+  privacyLinkUrl?: string;
+  termsCheckboxText?: string;
+  termsLinkLabel?: string;
+  termsLinkUrl?: string;
+  buttonText?: string;
+  busyButtonText?: string;
+  incompleteContactHint?: string;
+  incompleteTermsHint?: string;
+}
+
 interface Settings {
   propertyName: string;
   logoMediaId: string | null;
@@ -97,6 +192,9 @@ interface Settings {
   reminderHoursBefore: number;
   whyBookWithUsHeading?: string | null;
   whyBookWithUs?: WhyBookItem[];
+  headerNavigation?: HeaderNavigation;
+  footerNavigation?: FooterNavigation;
+  bookingAcknowledgement?: BookingAcknowledgement;
 }
 
 export function SettingsPage() {
@@ -156,6 +254,47 @@ function SettingsForm({ initial }: { initial: Settings }) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  type SettingsTab = "property" | "benefits" | "header" | "footer" | "checkout";
+  const [activeTab, setActiveTab] = useState<SettingsTab>("property");
+
+  const SETTINGS_TABS: {
+    id: SettingsTab;
+    label: string;
+    icon: typeof Building2;
+    desc: string;
+  }[] = [
+    {
+      id: "property",
+      label: "Property & Profile",
+      icon: Building2,
+      desc: "Contacts, timings, currency & timezone",
+    },
+    {
+      id: "benefits",
+      label: "Why Book Direct",
+      icon: Sparkles,
+      desc: "Perks, highlights & guarantees",
+    },
+    {
+      id: "header",
+      label: "Header Navigation",
+      icon: Compass,
+      desc: "Top menu links & Enquire button",
+    },
+    {
+      id: "footer",
+      label: "Footer Navigation",
+      icon: LayoutGrid,
+      desc: "Columns, copyright & contact section",
+    },
+    {
+      id: "checkout",
+      label: "Checkout & Acknowledgement",
+      icon: ShieldCheck,
+      desc: "Terms consent, button labels & hints",
+    },
+  ];
+
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     mutation.mutate({ ...form });
@@ -163,15 +302,55 @@ function SettingsForm({ initial }: { initial: Settings }) {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <div>
-        <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">
-          Settings
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Property profile and contact details
-        </p>
-      </div>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Header Bar with quick save button */}
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-4">
+          <div>
+            <h1 className="font-display text-3xl font-light tracking-tight sm:text-4xl">
+              Settings
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Configure global property profile, navigation menus, and booking controls.
+            </p>
+          </div>
+          <Button
+            type="submit"
+            className="rounded-full px-6 gap-2"
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending ? "Saving…" : "Save settings"}
+          </Button>
+        </div>
+
+        {/* Tab Navigation Switcher */}
+        <div className="flex border-b border-border/70 overflow-x-auto gap-2 pb-px">
+          {SETTINGS_TABS.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2.5 px-4 py-3 text-sm font-medium border-b-2 transition-all whitespace-nowrap cursor-pointer rounded-t-lg ${
+                  isActive
+                    ? "border-primary text-primary font-semibold bg-primary/5 shadow-xs"
+                    : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                }`}
+              >
+                <Icon
+                  className={`size-4 ${
+                    isActive ? "text-primary" : "text-muted-foreground"
+                  }`}
+                />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Tab Panels */}
+        {activeTab === "property" && (
         <Card>
           <CardHeader>
             <CardTitle className="text-xl">Property</CardTitle>
@@ -344,6 +523,10 @@ function SettingsForm({ initial }: { initial: Settings }) {
             </div>
           </CardContent>
         </Card>
+        )}
+
+        {/* Tab Panel: Benefits */}
+        {activeTab === "benefits" && (
         <Card>
           <CardHeader>
             <div className="flex flex-col gap-1">
@@ -592,13 +775,1350 @@ function SettingsForm({ initial }: { initial: Settings }) {
             </Button>
           </CardContent>
         </Card>
-        <Button
-          type="submit"
-          className="mt-4 rounded-full"
-          disabled={mutation.isPending}
-        >
-          {mutation.isPending ? "Saving…" : "Save settings"}
-        </Button>
+        )}
+
+        {/* Tab Panel: Header Navigation */}
+        {activeTab === "header" && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Header Navigation</CardTitle>
+            <CardDescription>
+              Configure top navigation links, destination URLs, and the "Enquire" action button.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-semibold">Header Links</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full"
+                  onClick={() => {
+                    const current = form.headerNavigation?.links ?? [];
+                    const updated = [
+                      ...current,
+                      {
+                        id: `nav-${Date.now()}`,
+                        label: "New link",
+                        url: "/",
+                        openInNewTab: false,
+                        isEnabled: true,
+                      },
+                    ];
+                    set("headerNavigation", {
+                      ...(form.headerNavigation ?? {
+                        enquireButton: {
+                          label: "Enquire",
+                          url: "https://hamptworthstays.com/plan-your-experience/",
+                          openInNewTab: true,
+                          isEnabled: true,
+                        },
+                      }),
+                      links: updated,
+                    });
+                  }}
+                >
+                  <Plus className="mr-1.5 size-3.5" />
+                  Add nav link
+                </Button>
+              </div>
+
+              <div className="space-y-3">
+                {(form.headerNavigation?.links ?? []).map((lnk, idx, arr) => (
+                  <div
+                    key={lnk.id ?? idx}
+                    className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/20 p-3 sm:flex-nowrap"
+                  >
+                    <div className="flex flex-col gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        disabled={idx === 0}
+                        onClick={() => {
+                          const list = [...arr];
+                          const [item] = list.splice(idx, 1);
+                          list.splice(idx - 1, 0, item);
+                          set("headerNavigation", {
+                            ...(form.headerNavigation ?? {
+                              enquireButton: { label: "Enquire", url: "", openInNewTab: true, isEnabled: true },
+                            }),
+                            links: list,
+                          });
+                        }}
+                      >
+                        <ArrowUp className="size-3.5" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        disabled={idx === arr.length - 1}
+                        onClick={() => {
+                          const list = [...arr];
+                          const [item] = list.splice(idx, 1);
+                          list.splice(idx + 1, 0, item);
+                          set("headerNavigation", {
+                            ...(form.headerNavigation ?? {
+                              enquireButton: { label: "Enquire", url: "", openInNewTab: true, isEnabled: true },
+                            }),
+                            links: list,
+                          });
+                        }}
+                      >
+                        <ArrowDown className="size-3.5" />
+                      </Button>
+                    </div>
+
+                    <div className="flex-1 space-y-1">
+                      <Label className="text-xs text-muted-foreground">Label</Label>
+                      <Input
+                        value={lnk.label}
+                        onChange={(e) => {
+                          const list = arr.map((item, i) =>
+                            i === idx ? { ...item, label: e.target.value } : item
+                          );
+                          set("headerNavigation", {
+                            ...(form.headerNavigation ?? {
+                              enquireButton: { label: "Enquire", url: "", openInNewTab: true, isEnabled: true },
+                            }),
+                            links: list,
+                          });
+                        }}
+                        placeholder="e.g. The estate"
+                      />
+                    </div>
+
+                    <div className="flex-[2] space-y-1">
+                      <Label className="text-xs text-muted-foreground">Destination URL</Label>
+                      <Input
+                        value={lnk.url}
+                        onChange={(e) => {
+                          const list = arr.map((item, i) =>
+                            i === idx ? { ...item, url: e.target.value } : item
+                          );
+                          set("headerNavigation", {
+                            ...(form.headerNavigation ?? {
+                              enquireButton: { label: "Enquire", url: "", openInNewTab: true, isEnabled: true },
+                            }),
+                            links: list,
+                          });
+                        }}
+                        placeholder="e.g. https://... or /policies"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-5">
+                      <Switch
+                        checked={lnk.openInNewTab ?? false}
+                        onCheckedChange={(val) => {
+                          const list = arr.map((item, i) =>
+                            i === idx ? { ...item, openInNewTab: val } : item
+                          );
+                          set("headerNavigation", {
+                            ...(form.headerNavigation ?? {
+                              enquireButton: { label: "Enquire", url: "", openInNewTab: true, isEnabled: true },
+                            }),
+                            links: list,
+                          });
+                        }}
+                      />
+                      <span className="text-xs text-muted-foreground">New tab</span>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-5">
+                      <Switch
+                        checked={lnk.isEnabled ?? true}
+                        onCheckedChange={(val) => {
+                          const list = arr.map((item, i) =>
+                            i === idx ? { ...item, isEnabled: val } : item
+                          );
+                          set("headerNavigation", {
+                            ...(form.headerNavigation ?? {
+                              enquireButton: { label: "Enquire", url: "", openInNewTab: true, isEnabled: true },
+                            }),
+                            links: list,
+                          });
+                        }}
+                      />
+                      <span className="text-xs text-muted-foreground">Active</span>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="mt-5 text-destructive hover:bg-destructive/10"
+                      onClick={() => {
+                        const list = arr.filter((_, i) => i !== idx);
+                        set("headerNavigation", {
+                          ...(form.headerNavigation ?? {
+                            enquireButton: { label: "Enquire", url: "", openInNewTab: true, isEnabled: true },
+                          }),
+                          links: list,
+                        });
+                      }}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-lg border bg-muted/10 p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-semibold">Header "Enquire" Button</h4>
+                  <p className="text-xs text-muted-foreground">CTA button displayed on top-right of the header</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={form.headerNavigation?.enquireButton?.isEnabled ?? true}
+                    onCheckedChange={(val) => {
+                      set("headerNavigation", {
+                        links: form.headerNavigation?.links ?? [],
+                        enquireButton: {
+                          label: form.headerNavigation?.enquireButton?.label ?? "Enquire",
+                          url: form.headerNavigation?.enquireButton?.url ?? "",
+                          openInNewTab: form.headerNavigation?.enquireButton?.openInNewTab ?? true,
+                          isEnabled: val,
+                        },
+                      });
+                    }}
+                  />
+                  <span className="text-xs font-medium">Show button</span>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">Button Label</Label>
+                  <Input
+                    value={form.headerNavigation?.enquireButton?.label ?? "Enquire"}
+                    onChange={(e) => {
+                      set("headerNavigation", {
+                        links: form.headerNavigation?.links ?? [],
+                        enquireButton: {
+                          label: e.target.value,
+                          url: form.headerNavigation?.enquireButton?.url ?? "",
+                          openInNewTab: form.headerNavigation?.enquireButton?.openInNewTab ?? true,
+                          isEnabled: form.headerNavigation?.enquireButton?.isEnabled ?? true,
+                        },
+                      });
+                    }}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Button URL</Label>
+                  <Input
+                    value={form.headerNavigation?.enquireButton?.url ?? ""}
+                    onChange={(e) => {
+                      set("headerNavigation", {
+                        links: form.headerNavigation?.links ?? [],
+                        enquireButton: {
+                          label: form.headerNavigation?.enquireButton?.label ?? "Enquire",
+                          url: e.target.value,
+                          openInNewTab: form.headerNavigation?.enquireButton?.openInNewTab ?? true,
+                          isEnabled: form.headerNavigation?.enquireButton?.isEnabled ?? true,
+                        },
+                      });
+                    }}
+                    placeholder="https://..."
+                  />
+                </div>
+                <div className="flex items-center gap-2 sm:col-span-2">
+                  <Switch
+                    checked={form.headerNavigation?.enquireButton?.openInNewTab ?? true}
+                    onCheckedChange={(val) => {
+                      set("headerNavigation", {
+                        links: form.headerNavigation?.links ?? [],
+                        enquireButton: {
+                          label: form.headerNavigation?.enquireButton?.label ?? "Enquire",
+                          url: form.headerNavigation?.enquireButton?.url ?? "",
+                          openInNewTab: val,
+                          isEnabled: form.headerNavigation?.enquireButton?.isEnabled ?? true,
+                        },
+                      });
+                    }}
+                  />
+                  <span className="text-xs text-muted-foreground">Open in new tab</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        )}
+
+        {/* Tab Panel: Footer Navigation */}
+        {activeTab === "footer" && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Footer Navigation & Columns</CardTitle>
+            <CardDescription>
+              Control each column of the footer, link categories, contact widgets, and copyright bar.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Column 1: Brand & Tagline */}
+            <div className="rounded-lg border p-4 space-y-3">
+              <h4 className="text-sm font-semibold">Column 1: Brand & Tagline</h4>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1 sm:col-span-2">
+                  <Label className="text-xs">Tagline Text</Label>
+                  <Input
+                    value={form.footerNavigation?.col1?.tagline ?? "Luxury holiday cottages in Hamptworth, Hampshire"}
+                    onChange={(e) => {
+                      set("footerNavigation", {
+                        ...(form.footerNavigation ?? {}),
+                        col1: {
+                          showLogo: form.footerNavigation?.col1?.showLogo ?? true,
+                          tagline: e.target.value,
+                        },
+                      });
+                    }}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={form.footerNavigation?.col1?.showLogo ?? true}
+                    onCheckedChange={(val) => {
+                      set("footerNavigation", {
+                        ...(form.footerNavigation ?? {}),
+                        col1: {
+                          tagline: form.footerNavigation?.col1?.tagline ?? "",
+                          showLogo: val,
+                        },
+                      });
+                    }}
+                  />
+                  <span className="text-xs">Show logo above tagline</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Column 2: Links */}
+            <div className="rounded-lg border p-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h4 className="text-sm font-semibold">Column 2 (e.g. Your stay)</h4>
+                  <p className="text-xs text-muted-foreground">Header and links in the second column</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground">Enabled</span>
+                    <Switch
+                      checked={form.footerNavigation?.col2?.isEnabled !== false}
+                      onCheckedChange={(val) => {
+                        set("footerNavigation", {
+                          ...(form.footerNavigation ?? {}),
+                          col2: {
+                            heading: form.footerNavigation?.col2?.heading ?? "Your stay",
+                            links: form.footerNavigation?.col2?.links ?? [],
+                            isEnabled: val,
+                          },
+                        });
+                      }}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full"
+                    onClick={() => {
+                      const col2 = form.footerNavigation?.col2 ?? { heading: "Your stay", links: [], isEnabled: true };
+                      const updated = [
+                        ...(col2.links ?? []),
+                        { id: `col2-${Date.now()}`, label: "New link", url: "/", openInNewTab: false, isEnabled: true },
+                      ];
+                      set("footerNavigation", {
+                        ...(form.footerNavigation ?? {}),
+                        col2: { ...col2, links: updated },
+                      });
+                    }}
+                  >
+                    <Plus className="mr-1.5 size-3.5" />
+                    Add link
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs">Column Title</Label>
+                <Input
+                  value={form.footerNavigation?.col2?.heading ?? "Your stay"}
+                  onChange={(e) => {
+                    set("footerNavigation", {
+                      ...(form.footerNavigation ?? {}),
+                      col2: {
+                        heading: e.target.value,
+                        links: form.footerNavigation?.col2?.links ?? [],
+                      },
+                    });
+                  }}
+                />
+              </div>
+
+              <div className="space-y-2">
+                {(form.footerNavigation?.col2?.links ?? []).map((lnk, idx, arr) => (
+                  <div key={lnk.id ?? idx} className="flex flex-wrap items-center gap-2 rounded border bg-muted/20 p-2 sm:flex-nowrap">
+                    <Input
+                      className="h-8 flex-1 text-xs"
+                      value={lnk.label}
+                      placeholder="Label"
+                      onChange={(e) => {
+                        const list = arr.map((item, i) => (i === idx ? { ...item, label: e.target.value } : item));
+                        set("footerNavigation", {
+                          ...(form.footerNavigation ?? {}),
+                          col2: { heading: form.footerNavigation?.col2?.heading ?? "Your stay", links: list },
+                        });
+                      }}
+                    />
+                    <Input
+                      className="h-8 flex-[2] text-xs"
+                      value={lnk.url}
+                      placeholder="URL"
+                      onChange={(e) => {
+                        const list = arr.map((item, i) => (i === idx ? { ...item, url: e.target.value } : item));
+                        set("footerNavigation", {
+                          ...(form.footerNavigation ?? {}),
+                          col2: { heading: form.footerNavigation?.col2?.heading ?? "Your stay", links: list },
+                        });
+                      }}
+                    />
+                    <div className="flex items-center gap-1">
+                      <Switch
+                        checked={lnk.openInNewTab ?? false}
+                        onCheckedChange={(val) => {
+                          const list = arr.map((item, i) => (i === idx ? { ...item, openInNewTab: val } : item));
+                          set("footerNavigation", {
+                            ...(form.footerNavigation ?? {}),
+                            col2: { heading: form.footerNavigation?.col2?.heading ?? "Your stay", links: list },
+                          });
+                        }}
+                      />
+                      <span className="text-[10px] text-muted-foreground">New tab</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Switch
+                        checked={lnk.isEnabled ?? true}
+                        onCheckedChange={(val) => {
+                          const list = arr.map((item, i) => (i === idx ? { ...item, isEnabled: val } : item));
+                          set("footerNavigation", {
+                            ...(form.footerNavigation ?? {}),
+                            col2: { heading: form.footerNavigation?.col2?.heading ?? "Your stay", links: list },
+                          });
+                        }}
+                      />
+                      <span className="text-[10px] text-muted-foreground">Active</span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-destructive"
+                      onClick={() => {
+                        const list = arr.filter((_, i) => i !== idx);
+                        set("footerNavigation", {
+                          ...(form.footerNavigation ?? {}),
+                          col2: { heading: form.footerNavigation?.col2?.heading ?? "Your stay", links: list },
+                        });
+                      }}
+                    >
+                      <Trash2 className="size-3.5" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Column 3: Links */}
+            <div className="rounded-lg border p-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h4 className="text-sm font-semibold">Column 3 (e.g. A little help)</h4>
+                  <p className="text-xs text-muted-foreground">Header and policy / help links in the third column</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground">Enabled</span>
+                    <Switch
+                      checked={form.footerNavigation?.col3?.isEnabled !== false}
+                      onCheckedChange={(val) => {
+                        set("footerNavigation", {
+                          ...(form.footerNavigation ?? {}),
+                          col3: {
+                            heading: form.footerNavigation?.col3?.heading ?? "A little help",
+                            links: form.footerNavigation?.col3?.links ?? [],
+                            isEnabled: val,
+                          },
+                        });
+                      }}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full"
+                    onClick={() => {
+                      const col3 = form.footerNavigation?.col3 ?? { heading: "A little help", links: [], isEnabled: true };
+                      const updated = [
+                        ...(col3.links ?? []),
+                        { id: `col3-${Date.now()}`, label: "New link", url: "/", openInNewTab: false, isEnabled: true },
+                      ];
+                      set("footerNavigation", {
+                        ...(form.footerNavigation ?? {}),
+                        col3: { ...col3, links: updated },
+                      });
+                    }}
+                  >
+                    <Plus className="mr-1.5 size-3.5" />
+                    Add link
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs">Column Title</Label>
+                <Input
+                  value={form.footerNavigation?.col3?.heading ?? "A little help"}
+                  onChange={(e) => {
+                    set("footerNavigation", {
+                      ...(form.footerNavigation ?? {}),
+                      col3: {
+                        heading: e.target.value,
+                        links: form.footerNavigation?.col3?.links ?? [],
+                      },
+                    });
+                  }}
+                />
+              </div>
+
+              <div className="space-y-2">
+                {(form.footerNavigation?.col3?.links ?? []).map((lnk, idx, arr) => (
+                  <div key={lnk.id ?? idx} className="flex flex-wrap items-center gap-2 rounded border bg-muted/20 p-2 sm:flex-nowrap">
+                    <Input
+                      className="h-8 flex-1 text-xs"
+                      value={lnk.label}
+                      placeholder="Label"
+                      onChange={(e) => {
+                        const list = arr.map((item, i) => (i === idx ? { ...item, label: e.target.value } : item));
+                        set("footerNavigation", {
+                          ...(form.footerNavigation ?? {}),
+                          col3: { heading: form.footerNavigation?.col3?.heading ?? "A little help", links: list },
+                        });
+                      }}
+                    />
+                    <Input
+                      className="h-8 flex-[2] text-xs"
+                      value={lnk.url}
+                      placeholder="URL"
+                      onChange={(e) => {
+                        const list = arr.map((item, i) => (i === idx ? { ...item, url: e.target.value } : item));
+                        set("footerNavigation", {
+                          ...(form.footerNavigation ?? {}),
+                          col3: { heading: form.footerNavigation?.col3?.heading ?? "A little help", links: list },
+                        });
+                      }}
+                    />
+                    <div className="flex items-center gap-1">
+                      <Switch
+                        checked={lnk.openInNewTab ?? false}
+                        onCheckedChange={(val) => {
+                          const list = arr.map((item, i) => (i === idx ? { ...item, openInNewTab: val } : item));
+                          set("footerNavigation", {
+                            ...(form.footerNavigation ?? {}),
+                            col3: { heading: form.footerNavigation?.col3?.heading ?? "A little help", links: list },
+                          });
+                        }}
+                      />
+                      <span className="text-[10px] text-muted-foreground">New tab</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Switch
+                        checked={lnk.isEnabled ?? true}
+                        onCheckedChange={(val) => {
+                          const list = arr.map((item, i) => (i === idx ? { ...item, isEnabled: val } : item));
+                          set("footerNavigation", {
+                            ...(form.footerNavigation ?? {}),
+                            col3: { heading: form.footerNavigation?.col3?.heading ?? "A little help", links: list },
+                          });
+                        }}
+                      />
+                      <span className="text-[10px] text-muted-foreground">Active</span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-destructive"
+                      onClick={() => {
+                        const list = arr.filter((_, i) => i !== idx);
+                        set("footerNavigation", {
+                          ...(form.footerNavigation ?? {}),
+                          col3: { heading: form.footerNavigation?.col3?.heading ?? "A little help", links: list },
+                        });
+                      }}
+                    >
+                      <Trash2 className="size-3.5" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Column 4: Contact & Bottom Bar */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-lg border p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-semibold">Column 4: Contact Display</h4>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground">Enabled</span>
+                    <Switch
+                      checked={form.footerNavigation?.col4?.isEnabled !== false}
+                      onCheckedChange={(val) => {
+                        set("footerNavigation", {
+                          ...(form.footerNavigation ?? {}),
+                          col4: {
+                            ...(form.footerNavigation?.col4 ?? { heading: "Contact" }),
+                            isEnabled: val,
+                          },
+                        });
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Column Title</Label>
+                  <Input
+                    value={form.footerNavigation?.col4?.heading ?? "Contact"}
+                    onChange={(e) => {
+                      set("footerNavigation", {
+                        ...(form.footerNavigation ?? {}),
+                        col4: {
+                          ...(form.footerNavigation?.col4 ?? {}),
+                          heading: e.target.value,
+                        },
+                      });
+                    }}
+                  />
+                </div>
+                <div className="space-y-2 pt-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs">Show Phone ({form.phone || "Not set"})</span>
+                    <Switch
+                      checked={form.footerNavigation?.col4?.showPhone ?? true}
+                      onCheckedChange={(val) => {
+                        set("footerNavigation", {
+                          ...(form.footerNavigation ?? {}),
+                          col4: {
+                            heading: form.footerNavigation?.col4?.heading ?? "Contact",
+                            showPhone: val,
+                            showEmail: form.footerNavigation?.col4?.showEmail ?? true,
+                            showAddress: form.footerNavigation?.col4?.showAddress ?? false,
+                          },
+                        });
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs">Show Email ({form.supportEmail || "Not set"})</span>
+                    <Switch
+                      checked={form.footerNavigation?.col4?.showEmail ?? true}
+                      onCheckedChange={(val) => {
+                        set("footerNavigation", {
+                          ...(form.footerNavigation ?? {}),
+                          col4: {
+                            heading: form.footerNavigation?.col4?.heading ?? "Contact",
+                            showPhone: form.footerNavigation?.col4?.showPhone ?? true,
+                            showEmail: val,
+                            showAddress: form.footerNavigation?.col4?.showAddress ?? false,
+                          },
+                        });
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs">Show Address</span>
+                    <Switch
+                      checked={form.footerNavigation?.col4?.showAddress ?? false}
+                      onCheckedChange={(val) => {
+                        set("footerNavigation", {
+                          ...(form.footerNavigation ?? {}),
+                          col4: {
+                            heading: form.footerNavigation?.col4?.heading ?? "Contact",
+                            showPhone: form.footerNavigation?.col4?.showPhone ?? true,
+                            showEmail: form.footerNavigation?.col4?.showEmail ?? true,
+                            showAddress: val,
+                          },
+                        });
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-lg border p-4 space-y-3">
+                <h4 className="text-sm font-semibold">Footer Bottom Bar</h4>
+                <div className="space-y-1">
+                  <Label className="text-xs">Copyright Text</Label>
+                  <Input
+                    value={form.footerNavigation?.bottomBar?.copyrightText ?? "© 2026 Hamptworth Stays"}
+                    onChange={(e) => {
+                      set("footerNavigation", {
+                        ...(form.footerNavigation ?? {}),
+                        bottomBar: {
+                          ...(form.footerNavigation?.bottomBar ?? {}),
+                          copyrightText: e.target.value,
+                        },
+                      });
+                    }}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Location Text</Label>
+                  <Input
+                    value={form.footerNavigation?.bottomBar?.locationText ?? "Home Farm · Hamptworth"}
+                    onChange={(e) => {
+                      set("footerNavigation", {
+                        ...(form.footerNavigation ?? {}),
+                        bottomBar: {
+                          ...(form.footerNavigation?.bottomBar ?? {}),
+                          locationText: e.target.value,
+                        },
+                      });
+                    }}
+                  />
+                </div>
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-xs">Show "Back to top" button</span>
+                  <Switch
+                    checked={form.footerNavigation?.bottomBar?.showBackToTop ?? true}
+                    onCheckedChange={(val) => {
+                      set("footerNavigation", {
+                        ...(form.footerNavigation ?? {}),
+                        bottomBar: {
+                          copyrightText: form.footerNavigation?.bottomBar?.copyrightText ?? "© 2026 Hamptworth Stays",
+                          locationText: form.footerNavigation?.bottomBar?.locationText ?? "Home Farm · Hamptworth",
+                          showBackToTop: val,
+                        },
+                      });
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        )}
+
+        {/* Tab Panel: Checkout & Acknowledgement */}
+        {activeTab === "checkout" && (
+        <Card>
+          <CardHeader>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <CardTitle className="text-xl">Checkout Sections & Policies Control</CardTitle>
+                <CardDescription className="mt-1">
+                  Manage agreement sections, legal checkboxes, timing cards, and action buttons shown on the checkout page.
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Standard Policies Timing Card Toggle */}
+            <div className="rounded-lg border p-4 flex flex-wrap items-center justify-between gap-4 bg-muted/10">
+              <div>
+                <h4 className="text-sm font-semibold">Standard Policies (Check-in & Check-out timing card)</h4>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Displays the Check-in (after {form.checkInTime || "4:00 pm"}) and Check-out (before {form.checkOutTime || "11:00 am"}) card above checkout agreements.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Enabled</span>
+                <Switch
+                  checked={form.bookingAcknowledgement?.showPoliciesSection !== false}
+                  onCheckedChange={(val) => {
+                    set("bookingAcknowledgement", {
+                      ...(form.bookingAcknowledgement ?? {}),
+                      showPoliciesSection: val,
+                    });
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Dynamic Checkout Sections */}
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
+                <div>
+                  <h4 className="text-sm font-semibold">Checkout Agreement & Policy Sections</h4>
+                  <p className="text-xs text-muted-foreground">
+                    You can add multiple agreement sections (e.g. "Acknowledgement", "House Rules", "Security Deposit Terms"), reorder them, edit titles, and toggle them on/off.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="rounded-full gap-1.5"
+                  onClick={() => {
+                    const currentSections: CheckoutSection[] =
+                      form.bookingAcknowledgement?.sections && form.bookingAcknowledgement.sections.length > 0
+                        ? form.bookingAcknowledgement.sections
+                        : [
+                            {
+                              id: "sec-acknowledgement",
+                              title: form.bookingAcknowledgement?.title ?? "Acknowledgement",
+                              introText: form.bookingAcknowledgement?.introText ?? "",
+                              isEnabled: true,
+                              items: (form.bookingAcknowledgement?.items && form.bookingAcknowledgement.items.length > 0)
+                                ? form.bookingAcknowledgement.items
+                                : [
+                                    {
+                                      id: "ack-privacy",
+                                      text: form.bookingAcknowledgement?.privacyCheckboxText ?? "* I agree with the Privacy Terms.",
+                                      linkLabel: form.bookingAcknowledgement?.privacyLinkLabel ?? "Privacy Notice",
+                                      linkUrl: form.bookingAcknowledgement?.privacyLinkUrl ?? "/policies/PRIVACY",
+                                      openInNewTab: true,
+                                      isRequired: true,
+                                      isEnabled: true,
+                                    },
+                                    {
+                                      id: "ack-terms",
+                                      text: form.bookingAcknowledgement?.termsCheckboxText ?? "I agree with the Booking Conditions.",
+                                      linkLabel: form.bookingAcknowledgement?.termsLinkLabel ?? "Booking Conditions",
+                                      linkUrl: form.bookingAcknowledgement?.termsLinkUrl ?? "/policies/TERMS",
+                                      openInNewTab: true,
+                                      isRequired: true,
+                                      isEnabled: true,
+                                    },
+                                  ],
+                            },
+                          ];
+
+                    const newSection: CheckoutSection = {
+                      id: `sec-${Date.now()}`,
+                      title: "House Rules & Stay Terms",
+                      introText: "Please read and confirm the stay guidelines.",
+                      isEnabled: true,
+                      items: [
+                        {
+                          id: `ack-${Date.now()}`,
+                          text: "I agree to observe the quiet hours and farm guidelines.",
+                          linkLabel: "House Rules",
+                          linkUrl: "/policies/HOUSE_RULES",
+                          openInNewTab: true,
+                          isRequired: true,
+                          isEnabled: true,
+                        },
+                      ],
+                    };
+
+                    set("bookingAcknowledgement", {
+                      ...(form.bookingAcknowledgement ?? {}),
+                      sections: [...currentSections, newSection],
+                    });
+                  }}
+                >
+                  <Plus className="size-3.5" />
+                  Add Checkout Section
+                </Button>
+              </div>
+
+              {(() => {
+                const currentSections: CheckoutSection[] =
+                  form.bookingAcknowledgement?.sections && form.bookingAcknowledgement.sections.length > 0
+                    ? form.bookingAcknowledgement.sections
+                    : [
+                        {
+                          id: "sec-acknowledgement",
+                          title: form.bookingAcknowledgement?.title ?? "Acknowledgement",
+                          introText: form.bookingAcknowledgement?.introText ?? "",
+                          isEnabled: true,
+                          items: (form.bookingAcknowledgement?.items && form.bookingAcknowledgement.items.length > 0)
+                            ? form.bookingAcknowledgement.items
+                            : [
+                                {
+                                  id: "ack-privacy",
+                                  text: form.bookingAcknowledgement?.privacyCheckboxText ?? "* I agree with the Privacy Terms.",
+                                  linkLabel: form.bookingAcknowledgement?.privacyLinkLabel ?? "Privacy Notice",
+                                  linkUrl: form.bookingAcknowledgement?.privacyLinkUrl ?? "/policies/PRIVACY",
+                                  openInNewTab: true,
+                                  isRequired: true,
+                                  isEnabled: true,
+                                },
+                                {
+                                  id: "ack-terms",
+                                  text: form.bookingAcknowledgement?.termsCheckboxText ?? "I agree with the Booking Conditions.",
+                                  linkLabel: form.bookingAcknowledgement?.termsLinkLabel ?? "Booking Conditions",
+                                  linkUrl: form.bookingAcknowledgement?.termsLinkUrl ?? "/policies/TERMS",
+                                  openInNewTab: true,
+                                  isRequired: true,
+                                  isEnabled: true,
+                                },
+                              ],
+                        },
+                      ];
+
+                return (
+                  <div className="space-y-6">
+                    {currentSections.map((sec, secIdx, secArr) => (
+                      <div
+                        key={sec.id ?? secIdx}
+                        className="rounded-xl border bg-card p-4 sm:p-5 shadow-xs space-y-4"
+                      >
+                        {/* Section Header */}
+                        <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground bg-muted/60 px-2 py-0.5 rounded">
+                              Section #{secIdx + 1}
+                            </span>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                disabled={secIdx === 0}
+                                className="h-7 w-7 p-0"
+                                onClick={() => {
+                                  if (secIdx === 0) return;
+                                  const updated = [...secArr];
+                                  const temp = updated[secIdx - 1];
+                                  updated[secIdx - 1] = updated[secIdx];
+                                  updated[secIdx] = temp;
+                                  set("bookingAcknowledgement", {
+                                    ...(form.bookingAcknowledgement ?? {}),
+                                    sections: updated,
+                                  });
+                                }}
+                              >
+                                <ArrowUp className="size-3.5" />
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                disabled={secIdx === secArr.length - 1}
+                                className="h-7 w-7 p-0"
+                                onClick={() => {
+                                  if (secIdx === secArr.length - 1) return;
+                                  const updated = [...secArr];
+                                  const temp = updated[secIdx + 1];
+                                  updated[secIdx + 1] = updated[secIdx];
+                                  updated[secIdx] = temp;
+                                  set("bookingAcknowledgement", {
+                                    ...(form.bookingAcknowledgement ?? {}),
+                                    sections: updated,
+                                  });
+                                }}
+                              >
+                                <ArrowDown className="size-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs text-muted-foreground">Enabled</span>
+                              <Switch
+                                checked={sec.isEnabled !== false}
+                                onCheckedChange={(val) => {
+                                  const updated = secArr.map((s, i) =>
+                                    i === secIdx ? { ...s, isEnabled: val } : s
+                                  );
+                                  set("bookingAcknowledgement", {
+                                    ...(form.bookingAcknowledgement ?? {}),
+                                    sections: updated,
+                                  });
+                                }}
+                              />
+                            </div>
+
+                            {secArr.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10"
+                                onClick={() => {
+                                  const updated = secArr.filter((_, i) => i !== secIdx);
+                                  set("bookingAcknowledgement", {
+                                    ...(form.bookingAcknowledgement ?? {}),
+                                    sections: updated,
+                                  });
+                                }}
+                              >
+                                <Trash2 className="size-3.5" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Section Title & Intro */}
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div className="space-y-1">
+                            <Label className="text-xs font-semibold">Section Heading / Title</Label>
+                            <Input
+                              value={sec.title}
+                              placeholder="e.g. Acknowledgement"
+                              onChange={(e) => {
+                                const updated = secArr.map((s, i) =>
+                                  i === secIdx ? { ...s, title: e.target.value } : s
+                                );
+                                set("bookingAcknowledgement", {
+                                  ...(form.bookingAcknowledgement ?? {}),
+                                  sections: updated,
+                                });
+                              }}
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <Label className="text-xs font-semibold">Introductory Note (Optional)</Label>
+                            <Input
+                              value={sec.introText ?? ""}
+                              placeholder="e.g. Please confirm you agree to our terms before booking."
+                              onChange={(e) => {
+                                const updated = secArr.map((s, i) =>
+                                  i === secIdx ? { ...s, introText: e.target.value } : s
+                                );
+                                set("bookingAcknowledgement", {
+                                  ...(form.bookingAcknowledgement ?? {}),
+                                  sections: updated,
+                                });
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Items inside this section */}
+                        <div className="rounded-lg border bg-muted/20 p-3 sm:p-4 space-y-3">
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
+                            <div>
+                              <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                Agreement Checkboxes in "{sec.title || "Section"}" ({sec.items?.length ?? 0})
+                              </h5>
+                            </div>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              className="h-7 text-xs rounded-full gap-1"
+                              onClick={() => {
+                                const newItem: AcknowledgementItem = {
+                                  id: `ack-${Date.now()}`,
+                                  text: "I agree to ",
+                                  linkLabel: "Booking Terms",
+                                  linkUrl: "/policies/TERMS",
+                                  openInNewTab: true,
+                                  isRequired: true,
+                                  isEnabled: true,
+                                };
+                                const updated = secArr.map((s, i) =>
+                                  i === secIdx
+                                    ? { ...s, items: [...(s.items ?? []), newItem] }
+                                    : s
+                                );
+                                set("bookingAcknowledgement", {
+                                  ...(form.bookingAcknowledgement ?? {}),
+                                  sections: updated,
+                                });
+                              }}
+                            >
+                              <Plus className="size-3" />
+                              Add Checkbox
+                            </Button>
+                          </div>
+
+                          {(sec.items ?? []).map((item: AcknowledgementItem, itIdx: number, itArr: AcknowledgementItem[]) => (
+                            <div
+                              key={item.id ?? itIdx}
+                              className="rounded-lg border bg-background p-3 space-y-2.5"
+                            >
+                              <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-1.5">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[11px] font-semibold text-muted-foreground">
+                                    Item #{itIdx + 1}
+                                  </span>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    disabled={itIdx === 0}
+                                    className="h-5 w-5 p-0"
+                                    onClick={() => {
+                                      if (itIdx === 0) return;
+                                      const newItems = [...itArr];
+                                      const temp = newItems[itIdx - 1];
+                                      newItems[itIdx - 1] = newItems[itIdx];
+                                      newItems[itIdx] = temp;
+                                      const updated = secArr.map((s, i) =>
+                                        i === secIdx ? { ...s, items: newItems } : s
+                                      );
+                                      set("bookingAcknowledgement", {
+                                        ...(form.bookingAcknowledgement ?? {}),
+                                        sections: updated,
+                                      });
+                                    }}
+                                  >
+                                    <ArrowUp className="size-3" />
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    disabled={itIdx === itArr.length - 1}
+                                    className="h-5 w-5 p-0"
+                                    onClick={() => {
+                                      if (itIdx === itArr.length - 1) return;
+                                      const newItems = [...itArr];
+                                      const temp = newItems[itIdx + 1];
+                                      newItems[itIdx + 1] = newItems[itIdx];
+                                      newItems[itIdx] = temp;
+                                      const updated = secArr.map((s, i) =>
+                                        i === secIdx ? { ...s, items: newItems } : s
+                                      );
+                                      set("bookingAcknowledgement", {
+                                        ...(form.bookingAcknowledgement ?? {}),
+                                        sections: updated,
+                                      });
+                                    }}
+                                  >
+                                    <ArrowDown className="size-3" />
+                                  </Button>
+                                </div>
+
+                                <div className="flex items-center gap-2.5">
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-[10px] text-muted-foreground">Required</span>
+                                    <Switch
+                                      checked={item.isRequired !== false}
+                                      onCheckedChange={(val) => {
+                                        const newItems = itArr.map((it: AcknowledgementItem, i: number) =>
+                                          i === itIdx ? { ...it, isRequired: val } : it
+                                        );
+                                        const updated = secArr.map((s, i) =>
+                                          i === secIdx ? { ...s, items: newItems } : s
+                                        );
+                                        set("bookingAcknowledgement", {
+                                          ...(form.bookingAcknowledgement ?? {}),
+                                          sections: updated,
+                                        });
+                                      }}
+                                    />
+                                  </div>
+
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-[10px] text-muted-foreground">Active</span>
+                                    <Switch
+                                      checked={item.isEnabled !== false}
+                                      onCheckedChange={(val) => {
+                                        const newItems = itArr.map((it: AcknowledgementItem, i: number) =>
+                                          i === itIdx ? { ...it, isEnabled: val } : it
+                                        );
+                                        const updated = secArr.map((s, i) =>
+                                          i === secIdx ? { ...s, items: newItems } : s
+                                        );
+                                        set("bookingAcknowledgement", {
+                                          ...(form.bookingAcknowledgement ?? {}),
+                                          sections: updated,
+                                        });
+                                      }}
+                                    />
+                                  </div>
+
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0 text-destructive hover:bg-destructive/10"
+                                    onClick={() => {
+                                      const newItems = itArr.filter((_: AcknowledgementItem, i: number) => i !== itIdx);
+                                      const updated = secArr.map((s, i) =>
+                                        i === secIdx ? { ...s, items: newItems } : s
+                                      );
+                                      set("bookingAcknowledgement", {
+                                        ...(form.bookingAcknowledgement ?? {}),
+                                        sections: updated,
+                                      });
+                                    }}
+                                  >
+                                    <Trash2 className="size-3" />
+                                  </Button>
+                                </div>
+                              </div>
+
+                              <div className="grid gap-2 sm:grid-cols-2">
+                                <div className="space-y-1 sm:col-span-2">
+                                  <Label className="text-[11px] font-semibold">Checkbox Text</Label>
+                                  <Input
+                                    className="h-8 text-xs"
+                                    value={item.text}
+                                    placeholder="e.g. * I agree with the Privacy Terms."
+                                    onChange={(e) => {
+                                      const newItems = itArr.map((it: AcknowledgementItem, i: number) =>
+                                        i === itIdx ? { ...it, text: e.target.value } : it
+                                      );
+                                      const updated = secArr.map((s, i) =>
+                                        i === secIdx ? { ...s, items: newItems } : s
+                                      );
+                                      set("bookingAcknowledgement", {
+                                        ...(form.bookingAcknowledgement ?? {}),
+                                        sections: updated,
+                                      });
+                                    }}
+                                  />
+                                </div>
+
+                                <div className="space-y-1">
+                                  <Label className="text-[11px]">Link Label (Optional)</Label>
+                                  <Input
+                                    className="h-8 text-xs"
+                                    value={item.linkLabel ?? ""}
+                                    placeholder="e.g. Privacy Notice"
+                                    onChange={(e) => {
+                                      const newItems = itArr.map((it: AcknowledgementItem, i: number) =>
+                                        i === itIdx ? { ...it, linkLabel: e.target.value } : it
+                                      );
+                                      const updated = secArr.map((s, i) =>
+                                        i === secIdx ? { ...s, items: newItems } : s
+                                      );
+                                      set("bookingAcknowledgement", {
+                                        ...(form.bookingAcknowledgement ?? {}),
+                                        sections: updated,
+                                      });
+                                    }}
+                                  />
+                                </div>
+
+                                <div className="space-y-1">
+                                  <Label className="text-[11px]">Link Destination URL (Optional)</Label>
+                                  <Input
+                                    className="h-8 text-xs"
+                                    value={item.linkUrl ?? ""}
+                                    placeholder="e.g. /policies/PRIVACY"
+                                    onChange={(e) => {
+                                      const newItems = itArr.map((it: AcknowledgementItem, i: number) =>
+                                        i === itIdx ? { ...it, linkUrl: e.target.value } : it
+                                      );
+                                      const updated = secArr.map((s, i) =>
+                                        i === secIdx ? { ...s, items: newItems } : s
+                                      );
+                                      set("bookingAcknowledgement", {
+                                        ...(form.bookingAcknowledgement ?? {}),
+                                        sections: updated,
+                                      });
+                                    }}
+                                  />
+                                </div>
+
+                                <div className="flex items-center gap-2 pt-1 sm:col-span-2">
+                                  <Switch
+                                    checked={item.openInNewTab !== false}
+                                    onCheckedChange={(val) => {
+                                      const newItems = itArr.map((it: AcknowledgementItem, i: number) =>
+                                        i === itIdx ? { ...it, openInNewTab: val } : it
+                                      );
+                                      const updated = secArr.map((s, i) =>
+                                        i === secIdx ? { ...s, items: newItems } : s
+                                      );
+                                      set("bookingAcknowledgement", {
+                                        ...(form.bookingAcknowledgement ?? {}),
+                                        sections: updated,
+                                      });
+                                    }}
+                                  />
+                                  <span className="text-[11px] text-muted-foreground">Open link in new tab</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Call To Action Buttons & Validation Hints */}
+            <div className="rounded-lg border p-4 space-y-3">
+              <h4 className="text-sm font-semibold">Button Labels & Validation Hints</h4>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">Confirm Button Text</Label>
+                  <Input
+                    value={form.bookingAcknowledgement?.buttonText ?? "Confirm booking"}
+                    onChange={(e) => {
+                      set("bookingAcknowledgement", {
+                        ...(form.bookingAcknowledgement ?? {}),
+                        buttonText: e.target.value,
+                      });
+                    }}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Processing / Busy Button Text</Label>
+                  <Input
+                    value={form.bookingAcknowledgement?.busyButtonText ?? "Holding your cottage…"}
+                    onChange={(e) => {
+                      set("bookingAcknowledgement", {
+                        ...(form.bookingAcknowledgement ?? {}),
+                        busyButtonText: e.target.value,
+                      });
+                    }}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Incomplete Contact Hint</Label>
+                  <Input
+                    value={form.bookingAcknowledgement?.incompleteContactHint ?? "Complete contact info above to continue."}
+                    onChange={(e) => {
+                      set("bookingAcknowledgement", {
+                        ...(form.bookingAcknowledgement ?? {}),
+                        incompleteContactHint: e.target.value,
+                      });
+                    }}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Incomplete Terms Hint</Label>
+                  <Input
+                    value={form.bookingAcknowledgement?.incompleteTermsHint ?? "Please accept the required terms to continue."}
+                    onChange={(e) => {
+                      set("bookingAcknowledgement", {
+                        ...(form.bookingAcknowledgement ?? {}),
+                        incompleteTermsHint: e.target.value,
+                      });
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        )}
+
+        {/* Bottom Save Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t">
+          <p className="text-xs text-muted-foreground">
+            Changes saved in any tab update the global system live across customer-facing pages.
+          </p>
+          <Button
+            type="submit"
+            className="rounded-full px-6"
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending ? "Saving…" : "Save settings"}
+          </Button>
+        </div>
       </form>
     </div>
   );

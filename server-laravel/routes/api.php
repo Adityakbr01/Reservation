@@ -270,37 +270,40 @@ Route::prefix('/v1/admin/dashboard')->middleware('jwt.auth', 'role:admin')->grou
 });
 
 // Admin CMS
-Route::prefix('/v1/admin/cms')->middleware('jwt.auth', 'role:admin')->group(function () {
-    Route::post('/pages', [AdminCmsPageController::class, 'store']);
-    Route::get('/pages', [AdminCmsPageController::class, 'index']);
-    Route::get('/pages/{id}', [AdminCmsPageController::class, 'show']);
-    Route::patch('/pages/{id}', [AdminCmsPageController::class, 'update']);
-    Route::post('/pages/{id}/status', [AdminCmsPageController::class, 'status']);
-    Route::post('/pages/{id}/preview', [AdminCmsPageController::class, 'preview']);
+foreach (['/admin/cms', '/v1/admin/cms'] as $prefix) {
+    Route::prefix($prefix)->middleware('jwt.auth', 'role:admin')->group(function () {
+        Route::post('/pages', [AdminCmsPageController::class, 'store']);
+        Route::get('/pages', [AdminCmsPageController::class, 'index']);
+        Route::get('/pages/{id}', [AdminCmsPageController::class, 'show']);
+        Route::patch('/pages/{id}', [AdminCmsPageController::class, 'update']);
+        Route::post('/pages/{id}/status', [AdminCmsPageController::class, 'status']);
+        Route::post('/pages/{id}/preview', [AdminCmsPageController::class, 'preview']);
 
-    Route::post('/blogs', [AdminCmsBlogPostController::class, 'store']);
-    Route::get('/blogs', [AdminCmsBlogPostController::class, 'index']);
-    Route::get('/blogs/{id}', [AdminCmsBlogPostController::class, 'show']);
-    Route::patch('/blogs/{id}', [AdminCmsBlogPostController::class, 'update']);
-    Route::post('/blogs/{id}/status', [AdminCmsBlogPostController::class, 'status']);
-    Route::post('/blogs/{id}/preview', [AdminCmsBlogPostController::class, 'preview']);
+        Route::post('/blogs', [AdminCmsBlogPostController::class, 'store']);
+        Route::get('/blogs', [AdminCmsBlogPostController::class, 'index']);
+        Route::get('/blogs/{id}', [AdminCmsBlogPostController::class, 'show']);
+        Route::patch('/blogs/{id}', [AdminCmsBlogPostController::class, 'update']);
+        Route::post('/blogs/{id}/status', [AdminCmsBlogPostController::class, 'status']);
+        Route::post('/blogs/{id}/preview', [AdminCmsBlogPostController::class, 'preview']);
 
-    Route::post('/faqs', [AdminCmsFaqController::class, 'store']);
-    Route::get('/faqs', [AdminCmsFaqController::class, 'index']);
-    Route::patch('/faqs/{id}', [AdminCmsFaqController::class, 'update']);
-    Route::post('/faqs/{id}/status', [AdminCmsFaqController::class, 'status']);
-    Route::delete('/faqs/{id}', [AdminCmsFaqController::class, 'destroy']);
+        Route::post('/faqs', [AdminCmsFaqController::class, 'store']);
+        Route::get('/faqs', [AdminCmsFaqController::class, 'index']);
+        Route::patch('/faqs/{id}', [AdminCmsFaqController::class, 'update']);
+        Route::post('/faqs/{id}/status', [AdminCmsFaqController::class, 'status']);
+        Route::delete('/faqs/{id}', [AdminCmsFaqController::class, 'destroy']);
 
-    Route::post('/offers', [AdminCmsOfferController::class, 'store']);
-    Route::get('/offers', [AdminCmsOfferController::class, 'index']);
-    Route::get('/offers/{id}', [AdminCmsOfferController::class, 'show']);
-    Route::patch('/offers/{id}', [AdminCmsOfferController::class, 'update']);
-    Route::post('/offers/{id}/status', [AdminCmsOfferController::class, 'status']);
+        Route::post('/offers', [AdminCmsOfferController::class, 'store']);
+        Route::get('/offers', [AdminCmsOfferController::class, 'index']);
+        Route::get('/offers/{id}', [AdminCmsOfferController::class, 'show']);
+        Route::patch('/offers/{id}', [AdminCmsOfferController::class, 'update']);
+        Route::post('/offers/{id}/status', [AdminCmsOfferController::class, 'status']);
 
-    Route::put('/policies', [AdminCmsPolicyController::class, 'upsert']);
-    Route::get('/policies', [AdminCmsPolicyController::class, 'index']);
-    Route::post('/policies/{key}/status', [AdminCmsPolicyController::class, 'status']);
-});
+        Route::put('/policies', [AdminCmsPolicyController::class, 'upsert']);
+        Route::get('/policies', [AdminCmsPolicyController::class, 'index']);
+        Route::post('/policies/{key}/status', [AdminCmsPolicyController::class, 'status']);
+        Route::delete('/policies/{key}', [AdminCmsPolicyController::class, 'destroy']);
+    });
+}
 
 // Public CMS (available at both /api/public/* and /api/v1/public/*)
 foreach (['/public/cms', '/v1/public/cms'] as $prefix) {
@@ -311,6 +314,7 @@ foreach (['/public/cms', '/v1/public/cms'] as $prefix) {
         Route::get('/blogs/{slug}', [PublicCmsController::class, 'blog']);
         Route::get('/faqs', [PublicCmsController::class, 'faqs']);
         Route::get('/offers', [PublicCmsController::class, 'offers']);
+        Route::get('/policies', [PublicCmsController::class, 'policies']);
         Route::get('/policies/{key}', [PublicCmsController::class, 'policy']);
         Route::get('/preview/{token}', [PublicCmsController::class, 'preview']);
     });

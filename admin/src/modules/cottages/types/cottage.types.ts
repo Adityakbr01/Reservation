@@ -5,6 +5,21 @@ export interface CottageBed {
   quantity: number;
 }
 
+export interface CottageSectionSettings {
+  showSubtitle?: boolean;
+  showMiddleDescription?: boolean;
+  showOverviewBullets?: boolean;
+  showAboutImage?: boolean;
+  tabs?: {
+    overview?: boolean;
+    availability?: boolean;
+    propertyDetails?: boolean;
+    layout?: boolean;
+    location?: boolean;
+    reviews?: boolean;
+  };
+}
+
 export interface CottageImage {
   mediaId: string;
   url?: string | null;
@@ -19,6 +34,19 @@ export interface Cottage {
   slug: string;
   shortDescription: string | null;
   description: string | null;
+  middleDescription?: string | null;
+  middle_description?: string | null;
+  aboutHeading?: string | null;
+  about_heading?: string | null;
+  aboutText?: string | null;
+  about_text?: string | null;
+  aboutImageMediaId?: string | null;
+  about_image_media_id?: string | null;
+  aboutImageUrl?: string | null;
+  overviewBullets?: string[];
+  overview_bullets?: string[];
+  sectionSettings?: CottageSectionSettings;
+  section_settings?: CottageSectionSettings;
   maxAdults: number;
   maxChildren: number;
   maxOccupancy: number;
@@ -62,7 +90,20 @@ export interface CreateCottagePayload {
   name: string;
   slug?: string;
   shortDescription?: string | null;
+  short_description?: string | null;
   description?: string | null;
+  middleDescription?: string | null;
+  middle_description?: string | null;
+  aboutHeading?: string | null;
+  about_heading?: string | null;
+  aboutText?: string | null;
+  about_text?: string | null;
+  aboutImageMediaId?: string | null;
+  about_image_media_id?: string | null;
+  overviewBullets?: string[];
+  overview_bullets?: string[];
+  sectionSettings?: CottageSectionSettings;
+  section_settings?: CottageSectionSettings;
   maxAdults: number;
   maxChildren: number;
   maxOccupancy: number;

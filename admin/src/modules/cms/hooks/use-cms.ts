@@ -8,6 +8,7 @@ import {
   createOffer,
   createPage,
   deleteFaq,
+  deletePolicy,
   getBlog,
   getOffer,
   getPage,
@@ -174,6 +175,18 @@ export function useSetPolicyStatus() {
     onSuccess: (_d, vars) => {
       void queryClient.invalidateQueries({ queryKey: cmsKeys.all });
       toast.success(`Policy → ${vars.to}`);
+    },
+    onError: (error) => toast.error(getApiErrorMessage(error)),
+  });
+}
+
+export function useDeletePolicy() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (key: string) => deletePolicy(key),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: cmsKeys.all });
+      toast.success("Policy deleted successfully");
     },
     onError: (error) => toast.error(getApiErrorMessage(error)),
   });

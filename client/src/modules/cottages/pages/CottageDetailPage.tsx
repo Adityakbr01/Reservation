@@ -297,16 +297,49 @@ export function CottageDetailPage() {
     roomType?.surroundingsHtml ||
     (roomType?.mapLat != null && roomType?.mapLng != null)
   );
-  // Proper tabs: only tabs with content are shown; clicking switches the panel.
-  const tabs = TABS.filter(
-    (t) =>
-      (t.id !== "reviews" || canReview) &&
-      (t.id !== "layout" || hasLayout) &&
-      (t.id !== "location" || hasLocation) &&
-      (t.id !== "property-details" ||
-        !!(roomType as { propertyDetailsHtml?: string | null })
-          ?.propertyDetailsHtml),
-  );
+  // Proper tabs: only tabs with content and enabled in admin are shown; clicking switches the panel.
+  const rawSecSettings = roomType?.sectionSettings;
+  const parsedSettings =
+    typeof rawSecSettings === "string"
+      ? (() => {
+          try {
+            return JSON.parse(rawSecSettings);
+          } catch {
+            return null;
+          }
+        })()
+      : rawSecSettings;
+  const tabToggles = parsedSettings?.tabs;
+  const isTabDisabled = (val: unknown) =>
+    val === false || val === "false" || val === 0 || val === "0";
+
+  const tabs = TABS.filter((t) => {
+    if (t.id === "overview" && isTabDisabled(tabToggles?.overview)) return false;
+    if (t.id === "availability" && isTabDisabled(tabToggles?.availability)) return false;
+    if (t.id === "property-details") {
+      if (
+        isTabDisabled(tabToggles?.propertyDetails) ||
+        isTabDisabled(tabToggles?.property_details) ||
+        isTabDisabled(tabToggles?.details)
+      ) {
+        return false;
+      }
+      return !!(roomType as { propertyDetailsHtml?: string | null })?.propertyDetailsHtml;
+    }
+    if (t.id === "layout") {
+      if (isTabDisabled(tabToggles?.layout)) return false;
+      return hasLayout;
+    }
+    if (t.id === "location") {
+      if (isTabDisabled(tabToggles?.location)) return false;
+      return hasLocation;
+    }
+    if (t.id === "reviews") {
+      if (isTabDisabled(tabToggles?.reviews)) return false;
+      return canReview;
+    }
+    return true;
+  });
   // If the active tab has no content, fall back to the first available tab.
   useEffect(() => {
     if (!tabs.some((t) => t.id === activeTab)) {
@@ -891,10 +924,12 @@ export function CottageDetailPage() {
                   />
                 </span>
               </div>
-              <p className="mt-1 font-display text-base italic text-muted-foreground">
-                {roomType.shortDescription ??
-                  `Cottage in Hamptworth, Hampshire — sleeps ${roomType.maxOccupancy}`}
-              </p>
+              {roomType.sectionSettings?.showSubtitle !== false && (
+                <p className="mt-1 font-display text-base italic text-muted-foreground">
+                  {roomType.shortDescription ??
+                    `Cottage in Hamptworth, Hampshire — sleeps ${roomType.maxOccupancy}`}
+                </p>
+              )}
             </div>
             <div className="flex shrink-0 items-center gap-2 pt-1">
               {reviewStats.count > 0 && (
@@ -925,11 +960,12 @@ export function CottageDetailPage() {
             />
           </div>
 
-          {roomType.description && (
-            <p className="mt-4 max-w-3xl text-sm leading-relaxed text-foreground">
-              {roomType.description}
-            </p>
-          )}
+          {roomType.sectionSettings?.showMiddleDescription !== false &&
+            (roomType.middleDescription || roomType.description) && (
+              <p className="mt-4 max-w-3xl text-sm leading-relaxed text-foreground">
+                {roomType.middleDescription || roomType.description}
+              </p>
+            )}
 
           {/* Amenity strip */}
           {highlights.length > 0 && (
@@ -1012,30 +1048,42 @@ export function CottageDetailPage() {
             {/* Overview / about */}
             {activeTab === "overview" && (
               <section aria-label="Overview">
-                <div className="grid gap-6 md:grid-cols-2">
+                <div
+                  className={
+                    roomType.sectionSettings?.showAboutImage !== false
+                      ? "grid gap-6 md:grid-cols-2"
+                      : "max-w-3xl"
+                  }
+                >
                   <div className="min-w-0">
                     <h2 className="font-display text-2xl font-medium tracking-tight">
-                      About {roomType.name}
+                      {roomType.aboutHeading || `About ${roomType.name}`}
                     </h2>
                     <p className="mt-3 text-sm leading-relaxed text-foreground">
-                      {roomType.description ??
+                      {roomType.aboutText ||
+                        roomType.description ||
                         `${roomType.name} sleeps up to ${roomType.maxOccupancy} guests in comfort.`}
                     </p>
-                    <ul className="mt-3 space-y-1.5">
-                      {aboutBullets.slice(0, 3).map((b) => (
-                        <li
-                          key={b}
-                          className="flex items-start gap-2 text-sm text-foreground"
-                        >
-                          <Check
-                            className="mt-0.5 size-4 shrink-0 text-brand"
-                            strokeWidth={3}
-                            aria-hidden
-                          />
-                          {b}
-                        </li>
-                      ))}
-                    </ul>
+                    {roomType.sectionSettings?.showOverviewBullets !== false && (
+                      <ul className="mt-3 space-y-1.5">
+                        {((roomType.overviewBullets && roomType.overviewBullets.length > 0)
+                          ? roomType.overviewBullets
+                          : aboutBullets.slice(0, 3)
+                        ).map((b) => (
+                          <li
+                            key={b}
+                            className="flex items-start gap-2 text-sm text-foreground"
+                          >
+                            <Check
+                              className="mt-0.5 size-4 shrink-0 text-brand"
+                              strokeWidth={3}
+                              aria-hidden
+                            />
+                            {b}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                     {propertyDetailsHtml && (
                       <button
                         type="button"
@@ -1047,14 +1095,25 @@ export function CottageDetailPage() {
                       </button>
                     )}
                   </div>
-                  <div className="min-h-56 overflow-hidden rounded-xl">
-                    <CottageImage
-                      name={roomType.name}
-                      imageUrl={aboutPhoto?.url ?? null}
-                      alt={aboutPhoto?.alt ?? `${roomType.name} interior`}
-                      className="h-full min-h-56"
-                    />
-                  </div>
+                  {roomType.sectionSettings?.showAboutImage !== false && (
+                    <div className="min-h-56 overflow-hidden rounded-xl">
+                      {roomType.aboutImageUrl ? (
+                        <img
+                          src={roomType.aboutImageUrl}
+                          alt={roomType.name}
+                          className="h-full min-h-56 w-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <CottageImage
+                          name={roomType.name}
+                          imageUrl={aboutPhoto?.url ?? null}
+                          alt={aboutPhoto?.alt ?? `${roomType.name} interior`}
+                          className="h-full min-h-56"
+                        />
+                      )}
+                    </div>
+                  )}
                 </div>
               </section>
             )}

@@ -31,21 +31,80 @@ class PublicCmsController extends Controller
         return response()->json(['success' => true, 'data' => []]);
     }
 
-    public function policy(string $key)
+    public function policies()
     {
-        $doc = \App\Models\CmsPolicyDoc::where('key', $key)->first();
+        $docs = \App\Models\CmsPolicyDoc::where('status', 'PUBLISHED')->orderBy('created_at', 'asc')->get();
 
-        if (! $doc) {
-            return response()->json([
-                'success' => false,
-                'error' => ['code' => 'NOT_FOUND', 'message' => 'Policy document not found'],
-            ], 404);
+        if ($docs->isEmpty()) {
+            $docs = \App\Models\CmsPolicyDoc::all();
         }
+
+        if ($docs->isEmpty()) {
+            try {
+                $terms = \App\Models\CmsPolicyDoc::create([
+                    'id' => bin2hex(random_bytes(12)),
+                    'key' => 'TERMS',
+                    'title' => 'Booking Conditions & Terms',
+                    'body' => '<p>Please read our booking terms and conditions carefully before reserving your cottage stay with Hamptworth Stays.</p>',
+                    'status' => 'PUBLISHED',
+                    'version' => 1,
+                    'published_at' => now(),
+                ]);
+                $privacy = \App\Models\CmsPolicyDoc::create([
+                    'id' => bin2hex(random_bytes(12)),
+                    'key' => 'PRIVACY',
+                    'title' => 'Privacy Notice & Policy',
+                    'body' => '<p>At Hamptworth Stays, we respect your privacy and protect your personal information.</p>',
+                    'status' => 'PUBLISHED',
+                    'version' => 1,
+                    'published_at' => now(),
+                ]);
+                $docs = collect([$terms, $privacy]);
+            } catch (\Throwable $e) {}
+        }
+
+        $formatted = $docs->map(fn($d) => [
+            'id' => $d->id ?? null,
+            'key' => strtoupper($d->key),
+            'title' => $d->title,
+            'body' => $d->body ?? '<p></p>',
+            'status' => $d->status ?? 'PUBLISHED',
+            'version' => (int) ($d->version ?? 1),
+            'updatedAt' => $d->updated_at ? $d->updated_at->toIso8601String() : now()->toIso8601String(),
+            'updated_at' => $d->updated_at ? $d->updated_at->toIso8601String() : now()->toIso8601String(),
+        ]);
 
         return response()->json([
             'success' => true,
-            'data' => $doc,
+            'data' => $formatted,
         ]);
+    }
+
+    public function policy(string $key)
+    {
+        $cleanKey = strtoupper(trim($key));
+        $doc = \App\Models\CmsPolicyDoc::whereRaw('UPPER(`key`) = ?', [$cleanKey])->first();
+
+        if ($doc) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $doc->id ?? null,
+                    'key' => strtoupper($doc->key),
+                    'title' => $doc->title,
+                    'body' => $doc->body ?? '<p></p>',
+                    'status' => $doc->status ?? 'PUBLISHED',
+                    'version' => (int) ($doc->version ?? 1),
+                    'updatedAt' => $doc->updated_at ? $doc->updated_at->toIso8601String() : now()->toIso8601String(),
+                    'updated_at' => $doc->updated_at ? $doc->updated_at->toIso8601String() : now()->toIso8601String(),
+                ],
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'error' => ['code' => 'NOT_FOUND', 'message' => "Policy document '{$cleanKey}' not found"],
+        ], 404);
     }
 
     public function preview(string $token)
