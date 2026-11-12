@@ -53,6 +53,8 @@ class PublicSettingsController extends Controller
             ];
         }
 
+        $bookingPage = $this->resolveBookingPage($settings->booking_page);
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -244,7 +246,24 @@ class PublicSettingsController extends Controller
                     'incompleteContactHint' => 'Complete contact info above to continue.',
                     'incompleteTermsHint' => 'Please accept the Privacy Terms and Booking Conditions to continue.',
                 ],
+                'booking_page' => $bookingPage,
+                'bookingPage' => $bookingPage,
             ],
+            'booking_page' => $bookingPage,
+            'bookingPage' => $bookingPage,
         ]);
+    }
+
+    private function resolveBookingPage(?array $stored): array
+    {
+        $defaults = SiteSettings::defaultBookingPage();
+        $stored = is_array($stored) ? $stored : [];
+
+        foreach ($defaults as $section => $values) {
+            $incoming = is_array($stored[$section] ?? null) ? $stored[$section] : [];
+            $defaults[$section] = array_merge($values, $incoming);
+        }
+
+        return $defaults;
     }
 }

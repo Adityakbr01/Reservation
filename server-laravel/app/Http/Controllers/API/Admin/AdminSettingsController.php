@@ -105,6 +105,12 @@ class AdminSettingsController extends Controller
         if (array_key_exists('bookingAcknowledgement', $input) || array_key_exists('booking_acknowledgement', $input)) {
             $data['booking_acknowledgement'] = $input['bookingAcknowledgement'] ?? $input['booking_acknowledgement'];
         }
+        if (array_key_exists('bookingPage', $input) || array_key_exists('booking_page', $input)) {
+            $raw = $input['bookingPage'] ?? $input['booking_page'];
+            if (is_array($raw)) {
+                $data['booking_page'] = $this->sanitizeBookingPage($raw, $settings->booking_page);
+            }
+        }
 
         if (! empty($data)) {
             $settings->update($data);
@@ -145,8 +151,47 @@ class AdminSettingsController extends Controller
         ]);
     }
 
+    private function resolveBookingPage(?array $stored): array
+    {
+        $defaults = SiteSettings::defaultBookingPage();
+        $stored = is_array($stored) ? $stored : [];
+
+        foreach ($defaults as $section => $values) {
+            $incoming = is_array($stored[$section] ?? null) ? $stored[$section] : [];
+            $defaults[$section] = array_merge($values, $incoming);
+        }
+
+        return $defaults;
+    }
+
+    private function sanitizeBookingPage(array $raw, ?array $current): array
+    {
+        $resolved = $this->resolveBookingPage($current);
+
+        foreach ($resolved as $section => $defaults) {
+            $incoming = is_array($raw[$section] ?? null) ? $raw[$section] : [];
+            foreach ($defaults as $key => $default) {
+                if (! array_key_exists($key, $incoming)) {
+                    continue;
+                }
+                $value = $incoming[$key];
+                if (is_bool($default)) {
+                    $resolved[$section][$key] = (bool) $value;
+                } elseif (is_int($default)) {
+                    $resolved[$section][$key] = max(1, (int) $value);
+                } else {
+                    $resolved[$section][$key] = is_string($value) ? $value : (string) $default;
+                }
+            }
+        }
+
+        return $resolved;
+    }
+
     private function settingsData(SiteSettings $settings): array
     {
+        $bookingPage = $this->resolveBookingPage($settings->booking_page);
+
         $rawWhy = $settings->why_book_with_us;
         $whyHeading = 'Why book with us?';
         $whyItems = [];
@@ -378,6 +423,8 @@ class AdminSettingsController extends Controller
                 'incompleteContactHint' => 'Complete contact info above to continue.',
                 'incompleteTermsHint' => 'Please accept the Privacy Terms and Booking Conditions to continue.',
             ],
+            'booking_page' => $bookingPage,
+            'bookingPage' => $bookingPage,
         ];
     }
 }

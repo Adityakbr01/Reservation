@@ -1,27 +1,22 @@
-import { useState } from "react";
-import type { FormEvent } from "react";
-import { Link } from "react-router-dom";
-import { Eye, EyeOff, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getApiErrorMessage } from "@/lib/api-client";
+import { Eye, EyeOff, Loader } from "lucide-react";
+import type { FormEvent } from "react";
+import { useState } from "react";
 import { registerDefaults } from "../form/register.form";
 import { useRegister } from "../hooks/use-register";
 
 export function RegisterForm() {
   const [form, setForm] = useState(registerDefaults);
   const [showPassword, setShowPassword] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [termsError, setTermsError] = useState(false);
+
   const { mutate, isPending, error } = useRegister();
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!acceptedTerms) {
-      setTermsError(true);
-      return;
-    }
+    
     mutate(form);
   }
 

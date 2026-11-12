@@ -24,18 +24,35 @@ import { useCreateBlock } from "../hooks/use-availability";
 
 export interface BlockFormProps {
   cottages?: Cottage[];
+  /** Pre-selected start/end dates (YYYY-MM-DD), e.g. from a calendar tap. */
+  startDate?: string;
+  endDate?: string;
+  /** Pre-selected cottage id, e.g. from a calendar row tap. */
+  cottageId?: string;
+  onDateChange?: (start: string, end: string) => void;
+  onCottageChange?: (id: string) => void;
 }
 
-export function BlockForm({ cottages: propCottages }: BlockFormProps = {}) {
-  const [cottageId, setCottageId] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+export function BlockForm({
+  cottages: propCottages,
+  startDate: propStartDate,
+  endDate: propEndDate,
+  cottageId: propCottageId,
+  onDateChange,
+  onCottageChange,
+}: BlockFormProps = {}) {
+  const [internalCottageId, setInternalCottageId] = useState(propCottageId ?? "");
+  const [internalStartDate, setInternalStartDate] = useState(propStartDate ?? "");
+  const [internalEndDate, setInternalEndDate] = useState(propEndDate ?? "");
+  const cottageId = propCottageId ?? internalCottageId;
+  const startDate = propStartDate ?? internalStartDate;
+  const endDate = propEndDate ?? internalEndDate;
   const [reason, setReason] = useState("");
   const [rangeError, setRangeError] = useState<string | null>(null);
 
   const { mutate, isPending } = useCreateBlock();
   const { data: cottagesData } = useCottages({ page: 1, limit: 100 });
-  const cottages = propCottages ?? cottagesData?.items ?? [];
+  const cottages = propCottages?.length ? propCottages : cottagesData?.items ?? [];
 
   const selectedCottage = useMemo(
     () => cottages.find((c) => String(c.id) === String(cottageId)),
@@ -63,8 +80,8 @@ export function BlockForm({ cottages: propCottages }: BlockFormProps = {}) {
       },
       {
         onSuccess: () => {
-          setStartDate("");
-          setEndDate("");
+          setInternalStartDate("");
+          setInternalEndDate("");
           setReason("");
         },
       },
@@ -76,7 +93,10 @@ export function BlockForm({ cottages: propCottages }: BlockFormProps = {}) {
       {/* Cottage selection */}
       <div className="space-y-2">
         <Label>Cottage</Label>
-        <Select value={cottageId} onValueChange={setCottageId}>
+        <Select value={cottageId} onValueChange={(value) => {
+          setInternalCottageId(value);
+          void onCottageChange?.(value);
+        }}>
           <SelectTrigger>
             <SelectValue placeholder="Select a cottage" />
           </SelectTrigger>
@@ -107,7 +127,11 @@ export function BlockForm({ cottages: propCottages }: BlockFormProps = {}) {
             type="date"
             required
             value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              setInternalStartDate(val);
+              void onDateChange?.(val, endDate);
+            }}
           />
         </div>
         <div className="space-y-2">
@@ -117,7 +141,11 @@ export function BlockForm({ cottages: propCottages }: BlockFormProps = {}) {
             type="date"
             required
             value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              setInternalEndDate(val);
+              void onDateChange?.(startDate, val);
+            }}
           />
         </div>
       </div>

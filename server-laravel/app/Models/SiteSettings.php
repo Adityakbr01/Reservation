@@ -19,6 +19,7 @@ class SiteSettings extends Model
         'check_in_time', 'check_out_time', 'reminder_hours_before',
         'social', 'default_seo', 'why_book_with_us',
         'header_navigation', 'footer_navigation', 'booking_acknowledgement',
+        'booking_page',
     ];
 
     protected $casts = [
@@ -29,7 +30,40 @@ class SiteSettings extends Model
         'header_navigation' => 'array',
         'footer_navigation' => 'array',
         'booking_acknowledgement' => 'array',
+        'booking_page' => 'array',
     ];
+
+    public static function defaultBookingPage(): array
+    {
+        return [
+            'enquiry' => [
+                'isEnabled' => true,
+                'heading' => 'Enquire about {cottage}',
+                'description' => 'Tell us your dates, party and budget — we will be in touch.',
+                'buttonLabel' => 'Enquire now',
+                'url' => 'https://hamptworthstays.com/plan-your-experience/',
+                'openInNewTab' => true,
+                'showBookNow' => true,
+                'bookNowLabel' => 'Book now',
+                'dialogDescription' => 'Holiday budget, party size, dates, location, dog friendly — anything helps.',
+            ],
+            'reservationDetails' => [
+                'isEnabled' => true,
+                'title' => 'Reservation details',
+                'specialRequestsLabel' => 'Special Requests',
+                'specialRequestsPlaceholder' => 'Special Requests',
+                'maxLength' => 1000,
+            ],
+            'policies' => [
+                'isEnabled' => true,
+                'title' => 'Policies',
+                'checkInLabel' => 'Check-in',
+                'checkInText' => 'after 4:00 pm',
+                'checkOutLabel' => 'Check-out',
+                'checkOutText' => 'before 10:00 am',
+            ],
+        ];
+    }
 
     public static function defaultSettings(): self
     {
@@ -119,6 +153,7 @@ class SiteSettings extends Model
                     'incompleteContactHint' => 'Complete contact info above to continue.',
                     'incompleteTermsHint' => 'Please accept the Privacy Terms and Booking Conditions to continue.',
                 ],
+                'booking_page' => self::defaultBookingPage(),
             ]
         );
     }

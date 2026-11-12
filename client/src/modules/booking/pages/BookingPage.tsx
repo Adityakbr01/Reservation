@@ -599,6 +599,32 @@ export function BookingPage() {
 
   const ack = siteSettings?.bookingAcknowledgement;
 
+  const bookingPage = siteSettings?.bookingPage;
+  const reservationConfig = bookingPage?.reservationDetails;
+  const showReservationDetails = reservationConfig?.isEnabled !== false;
+  const reservationTitle =
+    reservationConfig?.title?.trim() || "Reservation details";
+  const specialRequestsLabel =
+    reservationConfig?.specialRequestsLabel?.trim() || "Special Requests";
+  const specialRequestsPlaceholder =
+    reservationConfig?.specialRequestsPlaceholder?.trim() || "Special Requests";
+  const specialRequestsMaxLength =
+    reservationConfig?.maxLength && reservationConfig.maxLength > 0
+      ? reservationConfig.maxLength
+      : 1000;
+
+  const policiesConfig = bookingPage?.policies;
+  const showPolicies = ack?.showPoliciesSection !== false && policiesConfig?.isEnabled !== false;
+  const policiesTitle = policiesConfig?.title?.trim() || "Policies";
+  const checkInLabel = policiesConfig?.checkInLabel?.trim() || "Check-in";
+  const checkOutLabel = policiesConfig?.checkOutLabel?.trim() || "Check-out";
+  const policiesCheckInText =
+    policiesConfig?.checkInText?.trim() ||
+    `after ${formatTimeLabel(siteSettings?.checkInTime, "4:00 pm")}`;
+  const policiesCheckOutText =
+    policiesConfig?.checkOutText?.trim() ||
+    `before ${formatTimeLabel(siteSettings?.checkOutTime, "10:00 am")}`;
+
   const bookFaster = ack?.bookFaster;
   const bookFasterEnabled = bookFaster?.isEnabled !== false;
   const bookFasterTitle = bookFaster?.title?.trim() || "Book Faster (Optional)";
@@ -1043,23 +1069,25 @@ export function BookingPage() {
           </Card>
           )}
 
+          {showReservationDetails && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-base tracking-wide">Reservation details</CardTitle>
+              <CardTitle className="text-base tracking-wide">{reservationTitle}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Label htmlFor="co-requests">Special Requests</Label>
+              <Label htmlFor="co-requests">{specialRequestsLabel}</Label>
               <textarea
                 id="co-requests"
                 value={specialRequests}
                 onChange={(e) => setSpecialRequests(e.target.value)}
                 rows={3}
-                maxLength={1000}
-                placeholder="Special Requests"
+                maxLength={specialRequestsMaxLength}
+                placeholder={specialRequestsPlaceholder}
                 className="flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
               />
             </CardContent>
           </Card>
+          )}
 
           {bookingId && (clientSecret || holdFailed) && (
             <Card id="checkout-payment" className="scroll-mt-24 border-brand/50">
@@ -1104,15 +1132,15 @@ export function BookingPage() {
             </Card>
           )}
 
-          {ack?.showPoliciesSection !== false && (
+          {showPolicies && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base tracking-wide">Policies</CardTitle>
+                <CardTitle className="text-base tracking-wide">{policiesTitle}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 rounded-md bg-muted/50 p-4 text-sm">
                 <div className="flex gap-8">
-                  <p><span className="font-semibold">Check-in</span><br />after {formatTimeLabel(siteSettings?.checkInTime, "4:00 pm")}</p>
-                  <p><span className="font-semibold">Check-out</span><br />before {formatTimeLabel(siteSettings?.checkOutTime, "11:00 am")}</p>
+                  <p><span className="font-semibold">{checkInLabel}</span><br />{policiesCheckInText}</p>
+                  <p><span className="font-semibold">{checkOutLabel}</span><br />{policiesCheckOutText}</p>
                 </div>
               </CardContent>
             </Card>

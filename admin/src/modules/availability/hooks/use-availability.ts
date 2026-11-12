@@ -18,6 +18,7 @@ export function useCreateBlock() {
     mutationFn: createBlock,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: availabilityKeys.all });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "calendar"] });
       toast.success("Block added");
     },
     onError: (error) => {
@@ -32,6 +33,7 @@ export function useDeleteBlock() {
     mutationFn: deleteBlock,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: availabilityKeys.all });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "calendar"] });
       toast.success("Block removed");
     },
     onError: (error) => {

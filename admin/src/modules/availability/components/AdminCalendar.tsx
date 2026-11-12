@@ -44,7 +44,11 @@ function monthLabel(year: number, month: number): string {
 }
 
 /** Ops month grid: booked vs blocked vs free per room type (docs 07 §36). */
-export function AdminCalendar() {
+export function AdminCalendar({
+  onDateSelect,
+}: {
+  onDateSelect?: (date: string, roomTypeId: string) => void;
+} = {}) {
   const [now] = useState(() => new Date());
   const [offset, setOffset] = useState(0);
   const [cottageId, setCottageId] = useState("all");
@@ -119,17 +123,17 @@ export function AdminCalendar() {
                 {type.days.map((day) => (
                   <div
                     key={day.date}
-                    title={`${day.date}: ${day.available}/${day.total} free (${day.booked} booked, ${day.blocked} blocked)`}
+                    onClick={() => void onDateSelect?.(day.date, type.roomTypeId)}
                     className={
-                      day.available <= 0
+                      "cursor-pointer " +
+                      (day.available <= 0
                         ? "rounded-md bg-destructive/15 px-1 py-1.5 text-center text-xs font-medium text-destructive"
                         : day.available < day.total
                           ? "rounded-md bg-amber-400/20 px-1 py-1.5 text-center text-xs font-medium"
-                          : "rounded-md bg-emerald-500/10 px-1 py-1.5 text-center text-xs text-muted-foreground"
+                          : "rounded-md bg-emerald-500/10 px-1 py-1.5 text-center text-xs text-muted-foreground")
                     }
                   >
                     {Number(day.date.slice(8))}
-                    <span className="block text-[10px]">{day.available}/{day.total}</span>
                   </div>
                 ))}
               </div>

@@ -1,4 +1,4 @@
-import { format, differenceInCalendarDays } from "date-fns";
+import { format, differenceInCalendarDays, addDays } from "date-fns";
 
 let currentTimeZone =
   (typeof window !== "undefined" && localStorage.getItem("hs_admin_timezone")) ||
@@ -98,6 +98,16 @@ export function toUtcIsoString(dateStr: string): string {
 }
 
 /**
+ * Returns date input as MySQL datetime(3) string:
+ * "YYYY-MM-DD HH:MM:SS.fff" (UTC, no timezone suffix).
+ * Safe for MySQL datetime columns that reject ISO-8601 "T...Z" form.
+ */
+export function toMysqlDatetime(dateStr: string): string {
+  const day = dateStr.slice(0, 10);
+  return `${day} 00:00:00.000`;
+}
+
+/**
  * Returns date as YYYY-MM-DD.
  */
 export function toDayKey(date: Date | string): string {
@@ -105,6 +115,13 @@ export function toDayKey(date: Date | string): string {
     return date.slice(0, 10);
   }
   return date.toISOString().slice(0, 10);
+}
+
+/**
+ * Returns date advanced by `days`, as YYYY-MM-DD.
+ */
+export function addDaysKey(date: Date | string, days: number): string {
+  return toDayKey(addDays(date, days));
 }
 
 /**

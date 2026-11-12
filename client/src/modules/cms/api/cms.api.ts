@@ -185,6 +185,41 @@ export interface WhyBookWithUsItem {
   badgeColor?: string | null;
 }
 
+export interface CottageEnquirySettings {
+  isEnabled?: boolean;
+  heading?: string;
+  description?: string;
+  buttonLabel?: string;
+  url?: string;
+  openInNewTab?: boolean;
+  showBookNow?: boolean;
+  bookNowLabel?: string;
+  dialogDescription?: string;
+}
+
+export interface ReservationDetailsSettings {
+  isEnabled?: boolean;
+  title?: string;
+  specialRequestsLabel?: string;
+  specialRequestsPlaceholder?: string;
+  maxLength?: number;
+}
+
+export interface BookingPagePoliciesSettings {
+  isEnabled?: boolean;
+  title?: string;
+  checkInLabel?: string;
+  checkInText?: string;
+  checkOutLabel?: string;
+  checkOutText?: string;
+}
+
+export interface BookingPageSettings {
+  enquiry?: CottageEnquirySettings;
+  reservationDetails?: ReservationDetailsSettings;
+  policies?: BookingPagePoliciesSettings;
+}
+
 export interface SiteSettings {
   propertyName: string | null;
   currency: string | null;
@@ -199,13 +234,28 @@ export interface SiteSettings {
   headerNavigation?: HeaderNavigation;
   footerNavigation?: FooterNavigation;
   bookingAcknowledgement?: BookingAcknowledgement;
+  bookingPage?: BookingPageSettings;
 }
 
 const BASE = "/public/cms";
 
 export async function fetchSiteSettings(): Promise<SiteSettings> {
   const response = await publicApiClient.get<ApiEnvelope<SiteSettings>>(`${BASE}/site-settings`);
-  return unwrapResponse(response);
+  const data = unwrapResponse(response);
+  const rawData = response.data as unknown as {
+    bookingPage?: BookingPageSettings;
+    booking_page?: BookingPageSettings;
+  };
+  if (data) {
+    if (!data.bookingPage && (rawData?.bookingPage || rawData?.booking_page)) {
+      data.bookingPage = rawData.bookingPage || rawData.booking_page;
+    }
+    const dataWithSnake = data as unknown as { booking_page?: BookingPageSettings };
+    if (!data.bookingPage && dataWithSnake.booking_page) {
+      data.bookingPage = dataWithSnake.booking_page;
+    }
+  }
+  return data;
 }
 
 export async function fetchCmsPage(slug: string): Promise<CmsPage> {

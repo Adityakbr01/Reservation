@@ -25,11 +25,14 @@ import { InventoryStatus } from "../components/InventoryStatus";
 import { AdminCalendar } from "../components/AdminCalendar";
 import { useBlocks, useDeleteBlock } from "../hooks/use-availability";
 
-import { formatDisplayDate, countNights } from "@/lib/date";
+import { formatDisplayDate, countNights, addDaysKey } from "@/lib/date";
 
 export function AvailabilityPage() {
   const [cottageId, setCottageId] = useState("all");
   const [page, setPage] = useState(1);
+  const [blockStartDate, setBlockStartDate] = useState<string>("");
+  const [blockEndDate, setBlockEndDate] = useState<string>("");
+  const [blockCottageId, setBlockCottageId] = useState<string>("");
   const { data: cottagesData } = useCottages({ page: 1, limit: 100 });
   const cottages = useMemo(() => cottagesData?.items ?? [], [cottagesData]);
 
@@ -69,7 +72,17 @@ export function AvailabilityPage() {
             <CardDescription>End date is exclusive — checkout day stays free</CardDescription>
           </CardHeader>
           <CardContent>
-            <BlockForm cottages={cottages} />
+            <BlockForm
+              cottages={cottages}
+              cottageId={blockCottageId}
+              startDate={blockStartDate}
+              endDate={blockEndDate}
+              onDateChange={(start, end) => {
+                setBlockStartDate(start);
+                setBlockEndDate(end);
+              }}
+              onCottageChange={(id) => setBlockCottageId(id)}
+            />
           </CardContent>
         </Card>
 
@@ -166,7 +179,13 @@ export function AvailabilityPage() {
         </div>
       </div>
 
-      <AdminCalendar />
+      <AdminCalendar
+        onDateSelect={(date, roomTypeId) => {
+          setBlockStartDate(date);
+          setBlockEndDate(addDaysKey(date, 1));
+          setBlockCottageId(roomTypeId);
+        }}
+      />
     </div>
   );
 }

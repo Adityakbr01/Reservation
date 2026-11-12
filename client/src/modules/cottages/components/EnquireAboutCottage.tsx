@@ -5,6 +5,20 @@ import Dialog from "@/components/ui/dialog";
 import EnquiryForm from "@/modules/enquiry/components/EnquiryForm";
 import { useState } from "react";
 import { SITE_LINKS } from "@/config/links";
+import { useSiteSettings } from "@/modules/cms/hooks/use-cms";
+
+const DEFAULT_ENQUIRY = {
+  isEnabled: true,
+  heading: "Enquire about {cottage}",
+  description: "Tell us your dates, party and budget — we will be in touch.",
+  buttonLabel: "Enquire now",
+  url: SITE_LINKS.enquireNow,
+  openInNewTab: true,
+  showBookNow: true,
+  bookNowLabel: "Book now",
+  dialogDescription:
+    "Holiday budget, party size, dates, location, dog friendly — anything helps.",
+};
 
 export function EnquireAboutCottage({
   cottageId,
@@ -26,56 +40,73 @@ export function EnquireAboutCottage({
   onBookNow?: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const { data: siteSettings } = useSiteSettings();
+  const config = {
+    ...DEFAULT_ENQUIRY,
+    ...(siteSettings?.bookingPage?.enquiry ?? {}),
+  };
   const id = cottageId || roomTypeId || "";
   const name = cottageName || roomName || "Cottage";
 
-  const bookNowButton = bookNowHref ? (
-    <Button asChild className="h-11 w-full rounded-full px-6 sm:w-auto">
-      <Link to={bookNowHref} state={bookNowState}>
-        <CalendarCheck aria-hidden />
-        Book now
-        <ArrowRight aria-hidden />
-      </Link>
-    </Button>
-  ) : (
-    <Button
-      type="button"
-      className="h-11 w-full rounded-full px-6 sm:w-auto"
-      onClick={onBookNow}
-    >
-      <CalendarCheck aria-hidden />
-      Book now
-      <ArrowRight aria-hidden />
-    </Button>
-  );
+  if (config.isEnabled === false) return null;
 
-  const enquireButton =
-    SITE_LINKS.enquireNow && SITE_LINKS.enquireNow !== "#" ? (
-      <Button
-        asChild
-        variant="outline"
-        className="h-11 w-full rounded-full border-brand/25 bg-background/70 px-6 hover:border-brand hover:bg-background sm:w-auto"
-      >
-        <a
-          href={SITE_LINKS.enquireNow}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <MessageCircle aria-hidden />
-          Enquire now
-        </a>
+  const heading =
+    (config.heading ?? "").trim().replace(/\{cottage\}/gi, name) ||
+    `Enquire about ${name}`;
+  const description = (config.description ?? "").trim();
+  const dialogDescription =
+    (config.dialogDescription ?? "").trim() || description;
+  const buttonLabel = (config.buttonLabel ?? "").trim() || "Enquire now";
+  const bookNowLabel = (config.bookNowLabel ?? "").trim() || "Book now";
+  const enquireUrl = (config.url ?? "").trim();
+
+  const bookNowButton =
+    config.showBookNow === false ? null : bookNowHref ? (
+      <Button asChild className="h-11 w-full rounded-full px-6 sm:w-auto">
+        <Link to={bookNowHref} state={bookNowState}>
+          <CalendarCheck aria-hidden />
+          {bookNowLabel}
+          <ArrowRight aria-hidden />
+        </Link>
       </Button>
     ) : (
       <Button
         type="button"
-        variant="outline"
-        className="h-11 w-full rounded-full border-brand/25 bg-background/70 px-6 hover:border-brand hover:bg-background sm:w-auto"
-        onClick={() => setOpen(true)}
+        className="h-11 w-full rounded-full px-6 sm:w-auto"
+        onClick={onBookNow}
       >
-        <MessageCircle aria-hidden />
-        Enquire now
+        <CalendarCheck aria-hidden />
+        {bookNowLabel}
+        <ArrowRight aria-hidden />
       </Button>
     );
+
+  const enquireButton = enquireUrl ? (
+    <Button
+      asChild
+      variant="outline"
+      className="h-11 w-full rounded-full border-brand/25 bg-background/70 px-6 hover:border-brand hover:bg-background sm:w-auto"
+    >
+      <a
+        href={enquireUrl}
+        target={config.openInNewTab === false ? undefined : "_blank"}
+        rel={config.openInNewTab === false ? undefined : "noopener noreferrer"}
+      >
+        <MessageCircle aria-hidden />
+        {buttonLabel}
+      </a>
+    </Button>
+  ) : (
+    <Button
+      type="button"
+      variant="outline"
+      className="h-11 w-full rounded-full border-brand/25 bg-background/70 px-6 hover:border-brand hover:bg-background sm:w-auto"
+      onClick={() => setOpen(true)}
+    >
+      <MessageCircle aria-hidden />
+      {buttonLabel}
+    </Button>
+  );
 
   return (
     <section className="relative my-6 overflow-hidden rounded-2xl border border-brand/15 bg-gradient-to-br from-surface-2 via-surface-2 to-surface-3 p-5 sm:p-6">
@@ -90,11 +121,13 @@ export function EnquireAboutCottage({
           </span>
           <div className="min-w-0">
             <h2 className="font-display text-xl font-medium tracking-tight sm:text-2xl">
-              Enquire about {name}
+              {heading}
             </h2>
-            <p className="mt-1 max-w-md text-sm text-muted-foreground">
-              Tell us your dates, party and budget — we will be in touch.
-            </p>
+            {description && (
+              <p className="mt-1 max-w-md text-sm text-muted-foreground">
+                {description}
+              </p>
+            )}
           </div>
         </div>
         <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:items-center md:shrink-0">
@@ -111,12 +144,13 @@ export function EnquireAboutCottage({
           id="enquiry-dialog-title"
           className="pr-10 font-display text-2xl font-light tracking-tight"
         >
-          Enquire about {name}
+          {heading}
         </h2>
-        <p className="mb-4 mt-1 text-sm text-muted-foreground">
-          Holiday budget, party size, dates, location, dog friendly — anything
-          helps.
-        </p>
+        {dialogDescription && (
+          <p className="mb-4 mt-1 text-sm text-muted-foreground">
+            {dialogDescription}
+          </p>
+        )}
         <EnquiryForm
           roomTypeId={id}
           roomName={name}

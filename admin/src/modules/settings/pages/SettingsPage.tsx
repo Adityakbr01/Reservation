@@ -197,6 +197,71 @@ export interface BookingAcknowledgement {
   incompleteTermsHint?: string;
 }
 
+export interface CottageEnquirySettings {
+  isEnabled?: boolean;
+  heading?: string;
+  description?: string;
+  buttonLabel?: string;
+  url?: string;
+  openInNewTab?: boolean;
+  showBookNow?: boolean;
+  bookNowLabel?: string;
+  dialogDescription?: string;
+}
+
+export interface ReservationDetailsSettings {
+  isEnabled?: boolean;
+  title?: string;
+  specialRequestsLabel?: string;
+  specialRequestsPlaceholder?: string;
+  maxLength?: number;
+}
+
+export interface BookingPagePoliciesSettings {
+  isEnabled?: boolean;
+  title?: string;
+  checkInLabel?: string;
+  checkInText?: string;
+  checkOutLabel?: string;
+  checkOutText?: string;
+}
+
+export interface BookingPageSettings {
+  enquiry?: CottageEnquirySettings;
+  reservationDetails?: ReservationDetailsSettings;
+  policies?: BookingPagePoliciesSettings;
+}
+
+export const DEFAULT_BOOKING_PAGE = {
+  enquiry: {
+    isEnabled: true,
+    heading: "Enquire about {cottage}",
+    description: "Tell us your dates, party and budget — we will be in touch.",
+    buttonLabel: "Enquire now",
+    url: "https://hamptworthstays.com/plan-your-experience/",
+    openInNewTab: true,
+    showBookNow: true,
+    bookNowLabel: "Book now",
+    dialogDescription:
+      "Holiday budget, party size, dates, location, dog friendly — anything helps.",
+  } satisfies Required<CottageEnquirySettings>,
+  reservationDetails: {
+    isEnabled: true,
+    title: "Reservation details",
+    specialRequestsLabel: "Special Requests",
+    specialRequestsPlaceholder: "Special Requests",
+    maxLength: 1000,
+  } satisfies Required<ReservationDetailsSettings>,
+  policies: {
+    isEnabled: true,
+    title: "Policies",
+    checkInLabel: "Check-in",
+    checkInText: "after 4:00 pm",
+    checkOutLabel: "Check-out",
+    checkOutText: "before 10:00 am",
+  } satisfies Required<BookingPagePoliciesSettings>,
+};
+
 interface Settings {
   propertyName: string;
   logoMediaId: string | null;
@@ -214,6 +279,7 @@ interface Settings {
   headerNavigation?: HeaderNavigation;
   footerNavigation?: FooterNavigation;
   bookingAcknowledgement?: BookingAcknowledgement;
+  bookingPage?: BookingPageSettings;
 }
 
 function migrateLegacyAckLinks(
@@ -316,6 +382,20 @@ function SettingsForm({ initial }: { initial: Settings }) {
         ...(ack ?? {}),
         bookFaster: { ...DEFAULT_BOOK_FASTER, ...(ack?.bookFaster ?? {}) },
       },
+      bookingPage: {
+        enquiry: {
+          ...DEFAULT_BOOKING_PAGE.enquiry,
+          ...(initial.bookingPage?.enquiry ?? {}),
+        },
+        reservationDetails: {
+          ...DEFAULT_BOOKING_PAGE.reservationDetails,
+          ...(initial.bookingPage?.reservationDetails ?? {}),
+        },
+        policies: {
+          ...DEFAULT_BOOKING_PAGE.policies,
+          ...(initial.bookingPage?.policies ?? {}),
+        },
+      },
     };
   });
   const mutation = useMutation({
@@ -375,11 +455,52 @@ function SettingsForm({ initial }: { initial: Settings }) {
     },
     {
       id: "checkout",
-      label: "Checkout & Acknowledgement",
+      label: "Bookings & Checkout",
       icon: ShieldCheck,
-      desc: "Terms consent, button labels & hints",
+      desc: "Enquiry block, reservation details, policies & agreements",
     },
   ];
+
+  const enquiry = {
+    ...DEFAULT_BOOKING_PAGE.enquiry,
+    ...(form.bookingPage?.enquiry ?? {}),
+  };
+  const reservation = {
+    ...DEFAULT_BOOKING_PAGE.reservationDetails,
+    ...(form.bookingPage?.reservationDetails ?? {}),
+  };
+  const policies = {
+    ...DEFAULT_BOOKING_PAGE.policies,
+    ...(form.bookingPage?.policies ?? {}),
+  };
+  const updateEnquiry = (patch: Partial<CottageEnquirySettings>) => {
+    set("bookingPage", {
+      ...(form.bookingPage ?? {}),
+      enquiry: { ...enquiry, ...patch },
+    });
+  };
+  const updateReservation = (patch: Partial<ReservationDetailsSettings>) => {
+    set("bookingPage", {
+      ...(form.bookingPage ?? {}),
+      reservationDetails: { ...reservation, ...patch },
+    });
+  };
+  const updatePolicies = (patch: Partial<BookingPagePoliciesSettings>) => {
+    set("bookingPage", {
+      ...(form.bookingPage ?? {}),
+      policies: { ...policies, ...patch },
+    });
+  };
+  const policiesEnabled =
+    form.bookingAcknowledgement?.showPoliciesSection !== false &&
+    policies.isEnabled !== false;
+  const setPoliciesEnabled = (val: boolean) => {
+    set("bookingAcknowledgement", {
+      ...(form.bookingAcknowledgement ?? {}),
+      showPoliciesSection: val,
+    });
+    updatePolicies({ isEnabled: val });
+  };
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -1604,20 +1725,257 @@ function SettingsForm({ initial }: { initial: Settings }) {
         </Card>
         )}
 
-        {/* Tab Panel: Checkout & Acknowledgement */}
+        {/* Tab Panel: Bookings & Checkout */}
         {activeTab === "checkout" && (
         <Card>
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <CardTitle className="text-xl">Checkout Sections & Policies Control</CardTitle>
+                <CardTitle className="text-xl">Bookings & Checkout Content</CardTitle>
                 <CardDescription className="mt-1">
-                  Manage agreement sections, legal checkboxes, timing cards, and action buttons shown on the checkout page.
+                  Each section below controls a different part of the guest journey: cottage enquiry block, reservation details, policies, book-faster opt-in, agreements, and checkout buttons.
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Section: Cottage Enquiry Block */}
+            <div className="rounded-lg border p-4 space-y-4 bg-muted/10">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-sm font-semibold">Cottage Enquiry Block</h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    "Enquire about …" block shown on every cottage detail page. Disable to hide it entirely.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Show section</span>
+                  <Switch
+                    checked={enquiry.isEnabled !== false}
+                    onCheckedChange={(val) => updateEnquiry({ isEnabled: val })}
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1 sm:col-span-2">
+                  <Label className="text-xs font-semibold">Heading</Label>
+                  <Input
+                    value={enquiry.heading}
+                    disabled={enquiry.isEnabled === false}
+                    placeholder="Enquire about {cottage}"
+                    onChange={(e) => updateEnquiry({ heading: e.target.value })}
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Use <code className="font-mono">{"{cottage}"}</code> to insert the cottage name automatically.
+                  </p>
+                </div>
+                <div className="space-y-1 sm:col-span-2">
+                  <Label className="text-xs font-semibold">Description</Label>
+                  <textarea
+                    value={enquiry.description}
+                    disabled={enquiry.isEnabled === false}
+                    rows={2}
+                    placeholder="Tell us your dates, party and budget — we will be in touch."
+                    onChange={(e) => updateEnquiry({ description: e.target.value })}
+                    className="flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Enquire Button Label</Label>
+                  <Input
+                    value={enquiry.buttonLabel}
+                    disabled={enquiry.isEnabled === false}
+                    placeholder="Enquire now"
+                    onChange={(e) => updateEnquiry({ buttonLabel: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Enquire Button URL</Label>
+                  <Input
+                    value={enquiry.url}
+                    disabled={enquiry.isEnabled === false}
+                    placeholder="Leave empty to open the enquiry form"
+                    onChange={(e) => updateEnquiry({ url: e.target.value })}
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Leave empty to open the built-in enquiry dialog, or paste an external link.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={enquiry.openInNewTab === true}
+                    disabled={enquiry.isEnabled === false}
+                    onCheckedChange={(val) => updateEnquiry({ openInNewTab: val })}
+                  />
+                  <span className="text-xs text-muted-foreground">Open external URL in new tab</span>
+                </div>
+                <div className="space-y-1 sm:col-span-2">
+                  <Label className="text-xs font-semibold">Enquiry Dialog Description</Label>
+                  <Input
+                    value={enquiry.dialogDescription}
+                    disabled={enquiry.isEnabled === false}
+                    placeholder="Holiday budget, party size, dates, location, dog friendly — anything helps."
+                    onChange={(e) => updateEnquiry({ dialogDescription: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-end gap-3 border-t pt-3">
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={enquiry.showBookNow !== false}
+                    disabled={enquiry.isEnabled === false}
+                    onCheckedChange={(val) => updateEnquiry({ showBookNow: val })}
+                  />
+                  <span className="text-xs text-muted-foreground">Show "Book now" button</span>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Book Now Label</Label>
+                  <Input
+                    value={enquiry.bookNowLabel}
+                    disabled={enquiry.isEnabled === false || enquiry.showBookNow === false}
+                    placeholder="Book now"
+                    onChange={(e) => updateEnquiry({ bookNowLabel: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section: Reservation Details */}
+            <div className="rounded-lg border p-4 space-y-4 bg-muted/10">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-sm font-semibold">Reservation Details Card</h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Special requests input shown on the checkout page.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Show card</span>
+                  <Switch
+                    checked={reservation.isEnabled !== false}
+                    onCheckedChange={(val) => updateReservation({ isEnabled: val })}
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Card Title</Label>
+                  <Input
+                    value={reservation.title}
+                    disabled={reservation.isEnabled === false}
+                    placeholder="Reservation details"
+                    onChange={(e) => updateReservation({ title: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Field Label</Label>
+                  <Input
+                    value={reservation.specialRequestsLabel}
+                    disabled={reservation.isEnabled === false}
+                    placeholder="Special Requests"
+                    onChange={(e) => updateReservation({ specialRequestsLabel: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Placeholder</Label>
+                  <Input
+                    value={reservation.specialRequestsPlaceholder}
+                    disabled={reservation.isEnabled === false}
+                    placeholder="Special Requests"
+                    onChange={(e) => updateReservation({ specialRequestsPlaceholder: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Maximum Characters</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={5000}
+                    value={reservation.maxLength}
+                    disabled={reservation.isEnabled === false}
+                    onChange={(e) =>
+                      updateReservation({
+                        maxLength: Math.min(5000, Math.max(1, Number(e.target.value) || 1000)),
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section: Policies */}
+            <div className="rounded-lg border p-4 space-y-4 bg-muted/10">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-sm font-semibold">Policies Card (Check-in & Check-out)</h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Timing card shown above the checkout agreements.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Show card</span>
+                  <Switch
+                    checked={policiesEnabled}
+                    onCheckedChange={setPoliciesEnabled}
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1 sm:col-span-2">
+                  <Label className="text-xs font-semibold">Card Title</Label>
+                  <Input
+                    value={policies.title}
+                    disabled={!policiesEnabled}
+                    placeholder="Policies"
+                    onChange={(e) => updatePolicies({ title: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Check-in Label</Label>
+                  <Input
+                    value={policies.checkInLabel}
+                    disabled={!policiesEnabled}
+                    placeholder="Check-in"
+                    onChange={(e) => updatePolicies({ checkInLabel: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Check-in Text</Label>
+                  <Input
+                    value={policies.checkInText}
+                    disabled={!policiesEnabled}
+                    placeholder="after 4:00 pm"
+                    onChange={(e) => updatePolicies({ checkInText: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Check-out Label</Label>
+                  <Input
+                    value={policies.checkOutLabel}
+                    disabled={!policiesEnabled}
+                    placeholder="Check-out"
+                    onChange={(e) => updatePolicies({ checkOutLabel: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Check-out Text</Label>
+                  <Input
+                    value={policies.checkOutText}
+                    disabled={!policiesEnabled}
+                    placeholder="before 10:00 am"
+                    onChange={(e) => updatePolicies({ checkOutText: e.target.value })}
+                  />
+                </div>
+                <p className="text-[11px] text-muted-foreground sm:col-span-2">
+                  Type the exact text guests will see under each label (for example, "after 4:00 pm" or "before 10:00 am").
+                </p>
+              </div>
+            </div>
+
             {/* Book Faster (Optional) Section Control */}
             {(() => {
               const bf = form.bookingAcknowledgement?.bookFaster ?? DEFAULT_BOOK_FASTER;
@@ -1684,28 +2042,6 @@ function SettingsForm({ initial }: { initial: Settings }) {
                 </div>
               );
             })()}
-
-            {/* Standard Policies Timing Card Toggle */}
-            <div className="rounded-lg border p-4 flex flex-wrap items-center justify-between gap-4 bg-muted/10">
-              <div>
-                <h4 className="text-sm font-semibold">Standard Policies (Check-in & Check-out timing card)</h4>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Displays the Check-in (after {form.checkInTime || "4:00 pm"}) and Check-out (before {form.checkOutTime || "11:00 am"}) card above checkout agreements.
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">Enabled</span>
-                <Switch
-                  checked={form.bookingAcknowledgement?.showPoliciesSection !== false}
-                  onCheckedChange={(val) => {
-                    set("bookingAcknowledgement", {
-                      ...(form.bookingAcknowledgement ?? {}),
-                      showPoliciesSection: val,
-                    });
-                  }}
-                />
-              </div>
-            </div>
 
             {/* Dynamic Checkout Sections */}
             <div className="space-y-4">
