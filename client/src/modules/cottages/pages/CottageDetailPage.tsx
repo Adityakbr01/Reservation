@@ -644,6 +644,17 @@ export function CottageDetailPage() {
     setParams(next, { replace: true });
   }
 
+  // Same dates + lead rate as the sidebar: jump straight into checkout.
+  const bookNowHref =
+    leadRate && match && search && match.availableCount > 0
+      ? `/booking/new?roomTypeId=${match.roomType.id}&ratePlanId=${leadRate.ratePlanId}&checkIn=${search.checkIn}&checkOut=${search.checkOut}&adults=${search.adults}&children=${search.children}&infants=${currentInfants}&rooms=${search.rooms ?? 1}&roomName=${encodeURIComponent(roomType.name)}&rateName=${encodeURIComponent(leadRate.name)}&cottageSlug=${slug}`
+      : undefined;
+
+  function handleBookNow() {
+    openAvailabilityTab();
+    toast("Pick your stay dates to book");
+  }
+
   return (
     <div ref={rootRef} className="relative space-y-5 pb-8">
       {/* Ambient countryside framing foliage — crisp & clear of interactive controls */}
@@ -1274,6 +1285,12 @@ export function CottageDetailPage() {
           <EnquireAboutCottage
             roomTypeId={roomType.id}
             roomName={roomType.name}
+            bookNowHref={bookNowHref}
+            bookNowState={{
+              from: `/cottages/${slug}${location.search}`,
+              cottageSlug: slug,
+            }}
+            onBookNow={handleBookNow}
           />
         </div>
 
