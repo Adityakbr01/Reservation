@@ -100,45 +100,6 @@ export function RegisterForm() {
         </div>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex items-start gap-2.5">
-          <input
-            id="terms"
-            type="checkbox"
-            checked={acceptedTerms}
-            onChange={(e) => {
-              setAcceptedTerms(e.target.checked);
-              if (e.target.checked) setTermsError(false);
-            }}
-            aria-invalid={termsError || undefined}
-            aria-describedby={termsError ? "terms-error" : undefined}
-            className="mt-0.5 size-4 shrink-0 rounded border-input accent-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          />
-          <label htmlFor="terms" className="text-xs leading-relaxed text-muted-foreground">
-            I agree to the{" "}
-            <Link
-              to="/policies/TERMS"
-              className="font-medium text-brand underline underline-offset-4 hover:text-brand-dark focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              booking terms
-            </Link>{" "}
-            and{" "}
-            <Link
-              to="/policies/PRIVACY"
-              className="font-medium text-brand underline underline-offset-4 hover:text-brand-dark focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              privacy policy
-            </Link>
-            .
-          </label>
-        </div>
-        {termsError ? (
-          <p id="terms-error" role="alert" className="text-xs text-destructive">
-            Please accept the terms to create your account.
-          </p>
-        ) : null}
-      </div>
-
       {error ? (
         <p
           role="alert"

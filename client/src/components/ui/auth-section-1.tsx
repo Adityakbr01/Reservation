@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { GrainGradient } from "@paper-design/shaders-react";
+import { Water } from "@paper-design/shaders-react";
 
 type AuthMode = "login" | "register" | "forgot" | "reset" | "enquiry";
 
@@ -40,13 +40,13 @@ const ASIDE_COPY: Record<
     title: "A slower kind of stay.",
     description:
       "Five cottages tucked into the edge of the New Forest — for long weekends, family gatherings and mornings with nowhere to be.",
-    footnote: "Five cottages · New Forest",
+    footnote: "Cottages · New Forest",
   },
   register: {
     title: "Your next escape starts here.",
     description:
       "Create an account to book directly, keep your details close and return to the quiet whenever you need it.",
-    footnote: "Five cottages · New Forest",
+    footnote: "Cottages · New Forest",
   },
   forgot: {
     title: "We'll get you back in.",
@@ -176,35 +176,43 @@ export function AuthSection({
         </footer>
       </section>
 
-      <aside className="relative order-1 hidden overflow-hidden bg-[#0f1f16] lg:sticky lg:top-0 lg:flex lg:h-dvh lg:self-start lg:flex-col lg:justify-between">
-        <GrainGradient
+      <aside className="relative order-1 hidden overflow-hidden bg-[#0b1a12] lg:sticky lg:top-0 lg:flex lg:h-dvh lg:self-start lg:flex-col lg:justify-between">
+        <Water
           aria-hidden="true"
-          className="absolute inset-0"
-          colorBack={isEnquiry ? "#1a2415" : "#0f1f16"}
-          colors={
-            isEnquiry
-              ? ["#d7b56d", "#9a7b2e", "#4f6b57", "#1a3325"]
-              : ["#c9a24b", "#7d8f68", "#2f5240", "#14251b"]
-          }
-          shape={isEnquiry ? "wave" : "blob"}
-          softness={isEnquiry ? 0.55 : 0.85}
-          intensity={isEnquiry ? 0.22 : 0.45}
-          noise={isEnquiry ? 0.55 : 0.4}
-          scale={isEnquiry ? 0.9 : 1.15}
+          className="absolute inset-0 h-full w-full"
+          image="/Bright_Orange_flower.png"
+          colorBack={isEnquiry ? "#141a10" : "#0b1a12"}
+          colorHighlight="#f7f3e6"
+          highlights={0.12}
+          layering={0.5}
+          edges={0.6}
+          waves={0.25}
+          caustic={0.12}
+          size={1}
+          speed={reducedMotion ? 0 : 0.3}
+          scale={1.1}
           fit="cover"
-          speed={reducedMotion ? 0 : isEnquiry ? 0.16 : 0.22}
           maxPixelCount={2_200_000}
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,18,12,0.35)_0%,rgba(8,18,12,0.02)_38%,rgba(8,18,12,0.72)_78%,rgba(8,18,12,0.94)_100%)]"
+          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,16,11,0.78)_0%,rgba(7,16,11,0.34)_16%,rgba(7,16,11,0.04)_36%,rgba(7,16,11,0.16)_56%,rgba(7,16,11,0.82)_82%,rgba(7,16,11,0.96)_100%)]"
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 opacity-[0.18] [background-image:radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.35),transparent_32%),radial-gradient(circle_at_80%_70%,rgba(201,162,75,0.3),transparent_35%)]"
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_22%_96%,rgba(201,162,75,0.26),transparent_58%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_38%,rgba(5,12,8,0.55)_100%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-y-0 right-0 w-px bg-[linear-gradient(180deg,transparent,rgba(201,162,75,0.35),transparent)]"
         />
 
-        <div
+        <Link
+          to={"/"}
           className={
             wide
               ? "relative z-10 flex justify-end p-8 xl:p-10"
@@ -214,31 +222,32 @@ export function AuthSection({
           <img
             src="/navlogo.webp"
             alt="Hamptworth Stays"
-            className="h-12 w-auto brightness-0 invert opacity-90"
+            className="h-12 w-auto brightness-0 invert opacity-90 drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]"
           />
-        </div>
+        </Link>
 
         <div
           className={
             wide ? "relative z-10 p-8 xl:p-10" : "relative z-10 p-9 xl:p-12"
           }
         >
-          <p className="text-[10px] uppercase tracking-[0.28em] text-[#f7f3e6]/65">
+          <p className="flex items-center gap-3 text-[10px] uppercase tracking-[0.28em] text-[#f7f3e6]/65">
+            <span aria-hidden className="h-px w-6 bg-[#c9a24b]/80" />
             Home Farm · Hamptworth
           </p>
           <h2
             className={
               wide
-                ? "mt-4 max-w-md font-display text-4xl font-normal leading-[0.98] tracking-tight text-[#f7f3e6] xl:text-5xl"
-                : "mt-4 max-w-md font-display text-5xl font-normal leading-[0.96] tracking-tight text-[#f7f3e6] xl:text-6xl"
+                ? "mt-4 max-w-md text-balance font-display text-4xl font-normal leading-[0.98] tracking-tight text-[#f7f3e6] xl:text-5xl"
+                : "mt-4 max-w-md text-balance font-display text-5xl font-normal leading-[0.96] tracking-tight text-[#f7f3e6] xl:text-6xl"
             }
           >
             {aside.title}
           </h2>
-          <p className="mt-5 max-w-sm text-sm leading-relaxed text-[#f7f3e6]/70">
+          <p className="mt-5 max-w-sm text-pretty text-sm leading-relaxed text-[#f7f3e6]/75">
             {aside.description}
           </p>
-          <div className="mt-8 flex items-center gap-3 text-[10px] uppercase tracking-[0.2em] text-[#f7f3e6]/50">
+          <div className="mt-8 flex items-center gap-3 text-[10px] uppercase tracking-[0.2em] text-[#f7f3e6]/55">
             <span aria-hidden className="h-px w-8 bg-[#c9a24b]" />
             {aside.footnote}
           </div>
