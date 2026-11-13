@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
-    "basic-ftp": "^6.2.3",
+    "basic-ftp": "^6.2.4",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "date-fns": "^4.4.0",
