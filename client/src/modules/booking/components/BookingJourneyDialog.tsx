@@ -19,6 +19,15 @@ import type {
   CottageExtra,
 } from "@/modules/availability/types/availability.types";
 
+function sanitizeCheckoutHtml(html: string): string {
+  if (!html) return "";
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+    .replace(/(href|src)\s*=\s*(?:"|')?\s*javascript:[^"'>\s]*/gi, '$1="#"');
+}
+
 function SafeImage({
   src,
   alt,
@@ -993,13 +1002,23 @@ export function BookingJourneyDialog({
                   )}
 
                   {/* Make it your kind of stay */}
-                  <h3 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[32px] font-normal leading-[32.64px] tracking-[-0.8px]">
-                    {bjSettings?.extrasHeading || "Make it your kind of stay."}
-                  </h3>
-                  <p className="m-0 mt-[10px] text-[12px] leading-[20.4px] text-[#535b51]">
-                    {bjSettings?.extrasDescription ||
-                      "A little more time outdoors, or something lovely around the table. Everything here is optional."}
-                  </p>
+                  <h3
+                    className="m-0 font-['Instrument_Serif',Georgia,serif] text-[32px] font-normal leading-[32.64px] tracking-[-0.8px] [&_p]:m-0"
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeCheckoutHtml(
+                        bjSettings?.extrasHeading || "Make it your kind of stay.",
+                      ),
+                    }}
+                  />
+                  <div
+                    className="m-0 mt-[10px] text-[12px] leading-[20.4px] text-[#535b51] [&_p]:m-0 [&_a]:underline"
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeCheckoutHtml(
+                        bjSettings?.extrasDescription ||
+                          "A little more time outdoors, or something lovely around the table. Everything here is optional.",
+                      ),
+                    }}
+                  />
 
                   {availableExtras.length === 0 ? (
                     <div className="mt-[20px] rounded border border-dashed border-[#d8d9cb] p-6 text-center text-xs text-[#535b51]">
@@ -1023,12 +1042,20 @@ export function BookingJourneyDialog({
                             />
                             <div>
                               <span className="block text-[12px] font-medium">{extra.title}</span>
-                              <span className="mt-[5px] block text-[10px] leading-[16px] text-[#535b51]">
-                                {extra.description ||
-                                  (extra.pricingType === "PER_PERSON"
+                              {extra.description ? (
+                                <span
+                                  className="mt-[5px] block text-[10px] leading-[16px] text-[#535b51] [&_p]:m-0 [&_a]:underline"
+                                  dangerouslySetInnerHTML={{
+                                    __html: sanitizeCheckoutHtml(extra.description),
+                                  }}
+                                />
+                              ) : (
+                                <span className="mt-[5px] block text-[10px] leading-[16px] text-[#535b51]">
+                                  {extra.pricingType === "PER_PERSON"
                                     ? `£${extra.price} per adult`
-                                    : `£${extra.price} per stay`)}
-                              </span>
+                                    : `£${extra.price} per stay`}
+                                </span>
+                              )}
                               <span className="mt-[4px] block font-['Instrument_Serif',Georgia,serif] text-[21px]">
                                 + £{extraPrice}
                               </span>
@@ -1045,10 +1072,15 @@ export function BookingJourneyDialog({
                     </div>
                   )}
 
-                  <p className="m-0 mt-[18px] bg-[#e9e2cf] p-[11px_13px] text-[10px] leading-[17px] text-[#655b3e]">
-                    {bjSettings?.extrasDisclaimer ||
-                      "These prices demonstrate the booking flow. Final prices, times, availability and package inclusions must be confirmed before the live site offers them."}
-                  </p>
+                  <div
+                    className="m-0 mt-[18px] bg-[#e9e2cf] p-[11px_13px] text-[10px] leading-[17px] text-[#655b3e] [&_p]:m-0 [&_a]:underline"
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeCheckoutHtml(
+                        bjSettings?.extrasDisclaimer ||
+                          "These prices demonstrate the booking flow. Final prices, times, availability and package inclusions must be confirmed before the live site offers them.",
+                      ),
+                    }}
+                  />
 
                   <div className="mt-[25px] flex items-center justify-between gap-[15px]">
                     <button

@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { ImageField } from "@/components/common/ImageField";
 import { MediaPicker } from "@/components/common/MediaPicker";
 import { CkEditorField } from "@/components/common/CkEditorField";
+import { RichTextEditor } from "@/modules/cms/components/RichTextEditor";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { getCurrencySymbol } from "@/lib/money";
 import { apiClient } from "@/lib/api-client";
@@ -1792,12 +1793,12 @@ export function CottageForm({
                   </div>
 
                   <div className="mt-3 space-y-1">
-                    <Label className="text-xs">Description / Subtitle</Label>
-                    <Input
+                    <RichTextEditor
+                      label="Description / Subtitle"
+                      compact
+                      minHeightClass="min-h-[55px]"
                       value={extra.description || ""}
-                      onChange={(e) => handleUpdateExtra(extra.id, { description: e.target.value })}
-                      placeholder="e.g. £60 per adult · illustrative price"
-                      className="h-8 text-xs"
+                      onChange={(html) => handleUpdateExtra(extra.id, { description: html })}
                     />
                   </div>
 

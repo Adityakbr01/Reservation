@@ -2614,12 +2614,13 @@ function SettingsForm({ initial }: { initial: Settings }) {
                       />
                     </div>
 
-                    <div className="space-y-1">
-                      <Label className="text-xs font-semibold">Step 3 Extras Heading</Label>
-                      <Input
+                    <div className="space-y-1 sm:col-span-2">
+                      <RichTextEditor
+                        label="Step 3 Extras Heading / Title"
+                        compact
+                        minHeightClass="min-h-[55px]"
                         value={bj.extrasHeading ?? ""}
-                        placeholder="Make it your kind of stay."
-                        onChange={(e) => updateBj({ extrasHeading: e.target.value })}
+                        onChange={(html) => updateBj({ extrasHeading: html })}
                       />
                     </div>
                     <div className="space-y-1">
@@ -2632,11 +2633,22 @@ function SettingsForm({ initial }: { initial: Settings }) {
                     </div>
 
                     <div className="space-y-1 sm:col-span-2">
-                      <Label className="text-xs font-semibold">Step 3 Extras Subtitle</Label>
-                      <Input
+                      <RichTextEditor
+                        label="Step 3 Extras Description / Subtitle"
+                        compact
+                        minHeightClass="min-h-[75px]"
                         value={bj.extrasDescription ?? ""}
-                        placeholder="A little more time outdoors, or something lovely around the table. Everything here is optional."
-                        onChange={(e) => updateBj({ extrasDescription: e.target.value })}
+                        onChange={(html) => updateBj({ extrasDescription: html })}
+                      />
+                    </div>
+
+                    <div className="space-y-1 sm:col-span-2">
+                      <RichTextEditor
+                        label="Step 3 Extras Disclaimer / Footer Notice"
+                        compact
+                        minHeightClass="min-h-[55px]"
+                        value={bj.extrasDisclaimer ?? ""}
+                        onChange={(html) => updateBj({ extrasDisclaimer: html })}
                       />
                     </div>
 

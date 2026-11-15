@@ -1362,11 +1362,18 @@ export function BookingPage() {
                     <svg
                       viewBox="0 0 24 24"
                       aria-hidden="true"
-                      className="h-5 w-5 stroke-[#243c30] fill-none stroke-[1.5] stroke-linecap-round stroke-linejoin-round"
+                      className="h-5 w-5 stroke-[#243c30] fill-none stroke-[1.5] stroke-linecap-round stroke-linejoin-round shrink-0"
                     >
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                     </svg>
-                    {bjSettings?.extrasHeading || "Optional Extras & Activities"}
+                    <span
+                      className="[&_p]:m-0"
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeCheckoutHtml(
+                          bjSettings?.extrasHeading || "Optional Extras & Activities",
+                        ),
+                      }}
+                    />
                   </CardTitle>
                   {selectedExtraIds.size > 0 && (
                     <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#243c30] text-[#fffdf8]">
@@ -1374,10 +1381,15 @@ export function BookingPage() {
                     </span>
                   )}
                 </div>
-                <CardDescription className="text-xs text-[#535b51] mt-1">
-                  {bjSettings?.extrasDescription ||
-                    "A little more time outdoors, or something lovely around the table. Everything here is optional."}
-                </CardDescription>
+                <div
+                  className="text-xs text-[#535b51] mt-1 [&_p]:m-0 [&_a]:underline"
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeCheckoutHtml(
+                      bjSettings?.extrasDescription ||
+                        "A little more time outdoors, or something lovely around the table. Everything here is optional.",
+                    ),
+                  }}
+                />
               </CardHeader>
               <CardContent className="pt-4 space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1404,12 +1416,20 @@ export function BookingPage() {
                           <span className="block text-xs font-semibold text-[#243c30] truncate">
                             {extra.title}
                           </span>
-                          <span className="mt-0.5 block text-[11px] leading-snug text-[#535b51]">
-                            {extra.description ||
-                              (extra.pricingType === "PER_PERSON"
+                          {extra.description ? (
+                            <span
+                              className="mt-0.5 block text-[11px] leading-snug text-[#535b51] [&_p]:m-0 [&_a]:underline"
+                              dangerouslySetInnerHTML={{
+                                __html: sanitizeCheckoutHtml(extra.description),
+                              }}
+                            />
+                          ) : (
+                            <span className="mt-0.5 block text-[11px] leading-snug text-[#535b51]">
+                              {extra.pricingType === "PER_PERSON"
                                 ? `£${extra.price} per adult`
-                                : `£${extra.price} per stay`)}
-                          </span>
+                                : `£${extra.price} per stay`}
+                            </span>
+                          )}
                           <span className="mt-1 block font-['Instrument_Serif',Georgia,serif] text-lg font-medium text-[#243c30]">
                             + £{extraPrice}
                           </span>
@@ -1425,10 +1445,15 @@ export function BookingPage() {
                   })}
                 </div>
 
-                <p className="pt-2 text-[10px] leading-relaxed text-[#757c72] border-t border-[#d8d9cb]/50">
-                  {bjSettings?.extrasDisclaimer ||
-                    "These prices demonstrate the booking flow. Final prices, times, availability and package inclusions must be confirmed before your arrival."}
-                </p>
+                <div
+                  className="pt-2 text-[10px] leading-relaxed text-[#757c72] border-t border-[#d8d9cb]/50 [&_p]:m-0 [&_a]:underline"
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeCheckoutHtml(
+                      bjSettings?.extrasDisclaimer ||
+                        "These prices demonstrate the booking flow. Final prices, times, availability and package inclusions must be confirmed before your arrival.",
+                    ),
+                  }}
+                />
               </CardContent>
             </Card>
           )}
