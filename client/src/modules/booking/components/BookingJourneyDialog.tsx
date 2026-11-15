@@ -10,6 +10,7 @@ import { getStripePromise } from "@/lib/stripe";
 import { DateField } from "@/components/common/DateField";
 import { fetchSiteSettings } from "@/modules/cms/api/cms.api";
 import { useAvailabilitySearch, CottageGalleryDialog } from "@/modules/availability";
+import { useMediaUrls } from "@/modules/media";
 import { useBookingJourneyStore } from "@/stores/booking-journey-store";
 import { createGuestBooking } from "@/modules/booking/api/booking.api";
 import type {
@@ -30,6 +31,10 @@ function SafeImage({
   style?: React.CSSProperties;
 }) {
   const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setError(false);
+  }, [src]);
 
   if (!src || error) {
     return (
@@ -360,8 +365,45 @@ export function BookingJourneyDialog({
 
   // Extras available for the selected cottage (managed in Admin)
   const availableExtras: CottageExtra[] = useMemo(() => {
-    return selectedCottage?.extras ?? [];
-  }, [selectedCottage]);
+    const raw = selectedCottage?.extras ?? storeCottage?.extras ?? [];
+    return Array.isArray(raw) ? raw : [];
+  }, [selectedCottage, storeCottage]);
+
+  // Dynamic media resolution for extras: resolves any imageMediaId / image_media_id
+  const extraMediaIds = useMemo(() => {
+    const ids: string[] = [];
+    for (const ex of availableExtras) {
+      const mid = ex.imageMediaId || (ex as any).image_media_id;
+      if (mid && typeof mid === "string" && mid.trim().length > 0) {
+        ids.push(mid.trim());
+      }
+    }
+    return Array.from(new Set(ids));
+  }, [availableExtras]);
+
+  const { data: resolvedExtraPhotos } = useMediaUrls(extraMediaIds);
+
+  const extraMediaMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const item of resolvedExtraPhotos ?? []) {
+      if (item?.id && item?.url) {
+        map.set(item.id, item.url);
+      }
+    }
+    return map;
+  }, [resolvedExtraPhotos]);
+
+  const getExtraImageUrl = (extra: CottageExtra): string | null => {
+    const mid = extra.imageMediaId || (extra as any).image_media_id;
+    if (mid && extraMediaMap.has(mid)) {
+      return extraMediaMap.get(mid)!;
+    }
+    const directUrl = extra.imageUrl || (extra as any).image_url;
+    if (directUrl && typeof directUrl === "string" && directUrl.trim().length > 0) {
+      return directUrl.trim();
+    }
+    return null;
+  };
 
   const calculateExtraAmount = (extra: CottageExtra): number => {
     if (extra.pricingType === "PER_PERSON") {
@@ -975,7 +1017,7 @@ export function BookingJourneyDialog({
                             className="flex cursor-pointer items-center gap-[12px] border border-[#d8d9cb] bg-[#fffdf8] p-[12px] transition-colors hover:border-[#243c30]/50"
                           >
                             <SafeImage
-                              src={extra.imageUrl}
+                              src={getExtraImageUrl(extra)}
                               alt={extra.title}
                               className="h-[65px] w-[65px] shrink-0 object-cover"
                             />

@@ -76,11 +76,12 @@ class PublicAvailabilityController extends Controller
                 if ($mid) $allMediaIds[] = $mid;
             }
             if (!empty($rt->dog_policy_image_media_id)) {
-                $allMediaIds[] = $rt->dog_policy_image_media_id;
+                $allMediaIds[] = (string) $rt->dog_policy_image_media_id;
             }
-            foreach ($rt->extras ?? [] as $extra) {
+            $rtExtras = is_array($rt->extras) ? $rt->extras : (is_string($rt->extras) ? (json_decode($rt->extras, true) ?? []) : []);
+            foreach ($rtExtras as $extra) {
                 $mid = is_array($extra) ? ($extra['imageMediaId'] ?? $extra['image_media_id'] ?? null) : ($extra->imageMediaId ?? null);
-                if ($mid) $allMediaIds[] = $mid;
+                if ($mid) $allMediaIds[] = (string) $mid;
             }
         }
         $mediaMap = [];
@@ -168,12 +169,21 @@ class PublicAvailabilityController extends Controller
                     'extras' => array_map(function ($extra) use ($mediaMap) {
                         $ex = is_array($extra) ? $extra : (array) $extra;
                         $mid = $ex['imageMediaId'] ?? $ex['image_media_id'] ?? null;
-                        if ($mid && empty($ex['imageUrl']) && empty($ex['image_url']) && isset($mediaMap[$mid])) {
-                            $ex['imageUrl'] = $mediaMap[$mid]->url;
-                            $ex['image_url'] = $mediaMap[$mid]->url;
+                        if ($mid) {
+                            $midStr = (string) $mid;
+                            if (isset($mediaMap[$midStr])) {
+                                $ex['imageUrl'] = $mediaMap[$midStr]->url;
+                                $ex['image_url'] = $mediaMap[$midStr]->url;
+                            } else {
+                                $med = \App\Models\Media::find($midStr);
+                                if ($med) {
+                                    $ex['imageUrl'] = $med->url;
+                                    $ex['image_url'] = $med->url;
+                                }
+                            }
                         }
                         return $ex;
-                    }, $rt->extras ?? []),
+                    }, is_array($rt->extras) ? $rt->extras : (is_string($rt->extras) ? (json_decode($rt->extras, true) ?? []) : [])),
                 ],
                 'availableCount' => $availableCount,
                 'rates' => $rates,

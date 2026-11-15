@@ -69,7 +69,12 @@ class PublicCottageController extends Controller
             $allMediaIds[] = $c->about_image_media_id;
         }
         if (!empty($c->dog_policy_image_media_id)) {
-            $allMediaIds[] = $c->dog_policy_image_media_id;
+            $allMediaIds[] = (string) $c->dog_policy_image_media_id;
+        }
+        $extrasList = is_array($c->extras) ? $c->extras : (is_string($c->extras) ? (json_decode($c->extras, true) ?? []) : []);
+        foreach ($extrasList as $extra) {
+            $mid = is_array($extra) ? ($extra['imageMediaId'] ?? $extra['image_media_id'] ?? null) : ($extra->imageMediaId ?? null);
+            if ($mid) $allMediaIds[] = (string) $mid;
         }
         $mediaMap = [];
         if (!empty($allMediaIds)) {
@@ -178,12 +183,13 @@ class PublicCottageController extends Controller
             'extras' => array_map(function ($extra) use ($mediaMap) {
                 $ex = is_array($extra) ? $extra : (array) $extra;
                 $mid = $ex['imageMediaId'] ?? $ex['image_media_id'] ?? null;
-                if ($mid && empty($ex['imageUrl']) && empty($ex['image_url'])) {
-                    if (isset($mediaMap[$mid])) {
-                        $ex['imageUrl'] = $mediaMap[$mid]->url;
-                        $ex['image_url'] = $mediaMap[$mid]->url;
+                if ($mid) {
+                    $midStr = (string) $mid;
+                    if (isset($mediaMap[$midStr])) {
+                        $ex['imageUrl'] = $mediaMap[$midStr]->url;
+                        $ex['image_url'] = $mediaMap[$midStr]->url;
                     } else {
-                        $med = \App\Models\Media::find($mid);
+                        $med = \App\Models\Media::find($midStr);
                         if ($med) {
                             $ex['imageUrl'] = $med->url;
                             $ex['image_url'] = $med->url;
@@ -191,7 +197,7 @@ class PublicCottageController extends Controller
                     }
                 }
                 return $ex;
-            }, $c->extras ?? []),
+            }, is_array($c->extras) ? $c->extras : (is_string($c->extras) ? (json_decode($c->extras, true) ?? []) : [])),
             'status' => (string) ($c->status ?? 'ACTIVE'),
             'seo' => $c->seo ?? [],
         ];

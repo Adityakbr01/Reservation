@@ -334,8 +334,8 @@ export function CottageForm({
         description: item.description || "",
         price: Number(item.price ?? 0),
         pricingType: item.pricingType === "PER_STAY" ? "PER_STAY" : "PER_PERSON",
-        imageMediaId: item.imageMediaId || null,
-        imageUrl: item.imageUrl || null,
+        imageMediaId: item.imageMediaId || (item as any).image_media_id || null,
+        imageUrl: item.imageUrl || (item as any).image_url || null,
       }));
     }
     return [];
@@ -388,7 +388,7 @@ export function CottageForm({
         price: 60,
         pricingType: "PER_PERSON",
         imageMediaId: null,
-        imageUrl: "/assets/golf.webp",
+        imageUrl: null,
       },
       {
         id: "extra_padel",
@@ -397,7 +397,7 @@ export function CottageForm({
         price: 40,
         pricingType: "PER_STAY",
         imageMediaId: null,
-        imageUrl: "/assets/padel.webp",
+        imageUrl: null,
       },
       {
         id: "extra_lunch",
@@ -406,7 +406,7 @@ export function CottageForm({
         price: 25,
         pricingType: "PER_PERSON",
         imageMediaId: null,
-        imageUrl: "/assets/dining.webp",
+        imageUrl: null,
       },
       {
         id: "extra_dinner",
@@ -415,7 +415,7 @@ export function CottageForm({
         price: 35,
         pricingType: "PER_PERSON",
         imageMediaId: null,
-        imageUrl: "/assets/dining.webp",
+        imageUrl: null,
       },
     ]);
   }
@@ -1804,8 +1804,13 @@ export function CottageForm({
                   <div className="mt-3">
                     <ImageField
                       label="Extra Photo / Image (Optional)"
-                      mediaId={extra.imageMediaId || null}
-                      onChange={(id) => handleUpdateExtra(extra.id, { imageMediaId: id })}
+                      mediaId={extra.imageMediaId || (extra as any).image_media_id || null}
+                      onChange={(id, media) =>
+                        handleUpdateExtra(extra.id, {
+                          imageMediaId: id,
+                          imageUrl: media?.url ?? (id ? extra.imageUrl : null),
+                        })
+                      }
                     />
                   </div>
                 </div>

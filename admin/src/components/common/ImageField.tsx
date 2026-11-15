@@ -9,7 +9,10 @@ import type { ApiEnvelope } from "@/lib/api-client";
 interface ImageFieldProps {
   label: string;
   mediaId: string | null;
-  onChange: (mediaId: string | null) => void;
+  onChange: (
+    mediaId: string | null,
+    media?: { id: string; url: string; fileName: string } | null,
+  ) => void;
 }
 
 /** Single-image picker with auto-resolved preview (covers, heroes, logos). */
@@ -41,7 +44,7 @@ export function ImageField({ label, mediaId, onChange }: ImageFieldProps) {
             variant="ghost"
             size="sm"
             className="text-destructive"
-            onClick={() => onChange(null)}
+            onClick={() => onChange(null, null)}
           >
             Remove
           </Button>
@@ -51,7 +54,7 @@ export function ImageField({ label, mediaId, onChange }: ImageFieldProps) {
           {mediaId ? "Replace image" : "Choose image"}
         </Button>
       )}
-      <MediaPicker open={open} onClose={() => setOpen(false)} onSelect={(m) => onChange(m.id)} />
+      <MediaPicker open={open} onClose={() => setOpen(false)} onSelect={(m) => onChange(m.id, m)} />
     </div>
   );
 }

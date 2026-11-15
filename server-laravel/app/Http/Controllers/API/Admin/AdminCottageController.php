@@ -524,15 +524,15 @@ class AdminCottageController extends Controller
             'extras' => array_map(function ($extra) {
                 $ex = is_array($extra) ? $extra : (array) $extra;
                 $mid = $ex['imageMediaId'] ?? $ex['image_media_id'] ?? null;
-                if ($mid && empty($ex['imageUrl']) && empty($ex['image_url'])) {
-                    $med = \App\Models\Media::find($mid);
+                if ($mid) {
+                    $med = \App\Models\Media::find((string) $mid);
                     if ($med) {
                         $ex['imageUrl'] = $med->url;
                         $ex['image_url'] = $med->url;
                     }
                 }
                 return $ex;
-            }, $c->extras ?? []),
+            }, is_array($c->extras) ? $c->extras : (is_string($c->extras) ? (json_decode($c->extras, true) ?? []) : [])),
             'status' => (string) ($c->status ?? 'ACTIVE'),
             'seo' => $c->seo ?? [],
             'created_at' => $createdAt,
