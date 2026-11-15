@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SITE_LINKS } from "@/config/links";
 import { formatDisplayDate } from "@/lib/date";
+import { cn } from "@/lib/utils";
 import {
   CottageCard,
   SearchForm,
@@ -175,10 +176,11 @@ export function HomePage() {
   );
 
   const guestTotal = search.adults + search.children;
-  const summary =
-    search.checkIn && search.checkOut
-      ? `${formatDisplayDate(search.checkIn)} – ${formatDisplayDate(search.checkOut)} · ${guestTotal} total guest${guestTotal === 1 ? "" : "s"} · ${search.rooms} cottage${search.rooms === 1 ? "" : "s"}`
-      : "Choose your dates to see availability";
+  const hasSelectedDates = Boolean(search.checkIn && search.checkOut);
+  const showMobileStatus = hasSelectedDates || isRevalidating;
+  const summary = hasSelectedDates
+    ? `${formatDisplayDate(search.checkIn)} – ${formatDisplayDate(search.checkOut)} · ${guestTotal} total guest${guestTotal === 1 ? "" : "s"} · ${search.rooms} cottage${search.rooms === 1 ? "" : "s"}`
+    : "Choose your dates to see availability";
 
   return (
     <div ref={rootRef} className="-mx-4 pb-8 sm:-mx-6 sm:pb-12">
@@ -208,7 +210,7 @@ export function HomePage() {
         />
         {/* Ambient leaves (true transparency, tucked to edges, clear of text) */}
         <div
-          className="hero-leaf-wrap-a pointer-events-none absolute right-2 top-4 w-40 opacity-95 blur-[0.2px] sm:w-72 lg:top-6 lg:w-80"
+          className="hero-leaf-wrap-a pointer-events-none absolute right-2 top-4 hidden w-40 opacity-95 blur-[0.2px] sm:w-72 md:block lg:top-6 lg:w-80"
           aria-hidden
         >
           <img
@@ -241,9 +243,9 @@ export function HomePage() {
           />
         </div>
 
-        <div className="relative mx-auto w-full max-w-7xl px-4 pb-24 pt-10 sm:px-6 lg:px-12 lg:pb-28 lg:pt-16">
+        <div className="relative mx-auto w-full max-w-7xl px-4 pb-16 pt-8 sm:px-6 md:pb-24 md:pt-10 lg:px-12 lg:pb-28 lg:pt-16">
           <div className="max-w-[680px]">
-            <span className="hero-eyebrow mb-5 block text-[11px] font-medium uppercase tracking-[0.17em] text-foreground sm:mb-6">
+            <span className="hero-eyebrow mb-5 hidden text-[11px] font-medium uppercase tracking-[0.17em] text-foreground sm:mb-6 md:block">
               Hamptworth Stays · Home Farm
             </span>
             <h1 className="hero-title text-balance font-display text-[clamp(3.1rem,8vw,5.94rem)] font-normal leading-[1.03] tracking-[-1.5px] text-foreground">
@@ -255,7 +257,7 @@ export function HomePage() {
                   alt=""
                   aria-hidden
                   loading="eager"
-                  className="hero-bird pointer-events-none absolute bottom-0 left-full -ml-[0.22em] h-14 w-auto max-w-none object-contain saturate-[0.7] sm:h-[104px]"
+                  className="hero-bird pointer-events-none absolute bottom-0 left-full -ml-[0.22em] hidden h-14 w-auto max-w-none object-contain saturate-[0.7] sm:h-[104px] md:block"
                 />
               </span>
             </h1>
@@ -278,7 +280,10 @@ export function HomePage() {
         <p
           role="status"
           aria-live="polite"
-          className="mt-5 flex min-h-5 flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground"
+          className={cn(
+            "mt-5 min-h-5 flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground",
+            showMobileStatus ? "flex" : "hidden md:flex",
+          )}
         >
           <span>{summary}</span>
           {isRevalidating && (
@@ -289,9 +294,9 @@ export function HomePage() {
           )}
         </p>
 
-        <section className="pb-14 pt-6 sm:pt-8">
-          <div className="results-head mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <h2 className="font-display text-[32px] leading-[1.05] tracking-tight sm:text-[42px]">
+        <section className="pb-10 pt-4 sm:pb-14 sm:pt-8">
+          <div className="results-head mb-5 flex flex-col gap-4 sm:mb-7 sm:flex-row sm:items-end sm:justify-between">
+            <h2 className="font-display text-[28px] leading-[1.05] tracking-tight sm:text-[42px]">
               Available cottages
             </h2>
             <a

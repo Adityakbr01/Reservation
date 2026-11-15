@@ -270,7 +270,7 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
           type="button"
           onClick={handleReset}
           title="Reset search to show all cottages"
-          className="col-span-6 h-12 shrink-0 px-1 text-[12px] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring lg:col-span-1"
+          className="col-span-6 hidden h-12 shrink-0 px-1 text-[12px] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:block lg:col-span-1"
         >
           Reset
         </button>

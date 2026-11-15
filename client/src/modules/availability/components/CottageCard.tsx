@@ -80,13 +80,13 @@ export const CottageCard = memo(function CottageCard({
         data-gallery={roomType.slug}
         aria-label={`View ${roomType.name} photos`}
         onClick={() => setGalleryOpen(true)}
-        className="relative block h-[230px] w-full cursor-pointer overflow-hidden border-0 bg-[#d8ddcd] p-0 text-left text-[#243c30] outline-offset-[5px]"
+        className="relative block h-[200px] w-full cursor-pointer overflow-hidden border-0 bg-[#d8ddcd] p-0 text-left text-[#243c30] outline-offset-[5px] md:h-[230px]"
       >
         <CottageImage
           name={roomType.name}
           imageUrl={coverUrl ?? null}
           alt={coverAlt}
-          className="absolute inset-0 h-[230px] w-full object-cover transition-transform duration-600 ease-out group-hover:scale-105"
+          className="absolute inset-0 h-[200px] w-full object-cover transition-transform duration-600 ease-out group-hover:scale-105 md:h-[230px]"
         />
         <span className="pointer-events-none absolute right-[13px] bottom-[13px] flex items-center gap-[7px] rounded-[2px] bg-[rgba(255,253,248,0.937)] px-[10px] py-[7px] text-[10px] text-[#243c30] shadow-[0_2px_10px_0_rgba(0,0,0,0.067)]">
           <svg
@@ -109,8 +109,8 @@ export const CottageCard = memo(function CottageCard({
       />
 
       {/* Cottage details and actions */}
-      <div className="flex flex-1 flex-col p-[24px] pt-[23px]">
-        <h3 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[36px] font-normal leading-[39.6px] tracking-[-0.9px] text-[#243c30]">
+      <div className="flex flex-1 flex-col p-4 pt-4 md:p-[24px] md:pt-[23px]">
+        <h3 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[32px] font-normal leading-[35.2px] tracking-[-0.9px] text-[#243c30] md:text-[36px] md:leading-[39.6px]">
           <Link
             to={detailTo}
             state={{ search }}
@@ -135,7 +135,7 @@ export const CottageCard = memo(function CottageCard({
           {isDogFriendly && <span>Pet friendly</span>}
         </div>
 
-        <p className="m-0 mt-[17px] line-clamp-3 text-[12px] leading-[22.8px] text-[#535b51]">
+        <p className="m-0 mt-[17px] line-clamp-2 text-[12px] leading-[22.8px] text-[#535b51] md:line-clamp-3">
           {roomType.shortDescription ||
             "A welcoming cottage with a comfortable living space and kitchen. A lovely base for a break."}
         </p>
@@ -148,7 +148,7 @@ export const CottageCard = memo(function CottageCard({
           <small className="text-[10px] text-[#535b51]">/ night</small>
         </div>
 
-        <p className="m-0 mt-[7px] text-[10px] leading-[18px] text-[#535b51]">
+        <p className="m-0 mt-[7px] hidden text-[10px] leading-[18px] text-[#535b51] md:block">
           {hasRates && nights > 0
             ? `Example rate · ${nights} night${nights === 1 ? "" : "s"} selected`
             : "Example rate · choose dates when you’re ready"}
@@ -156,7 +156,7 @@ export const CottageCard = memo(function CottageCard({
 
         {/* Dog Policy Section - shown only when cottage is dog friendly */}
         {isDogFriendly && (
-          <p className="m-0 mt-[14px] block text-[11px] leading-[18.7px] text-[#243c30]">
+          <p className="m-0 mt-[14px] hidden text-[11px] leading-[18.7px] text-[#243c30] md:block">
             {customDogIcon ? (
               <img
                 src={customDogIcon}
