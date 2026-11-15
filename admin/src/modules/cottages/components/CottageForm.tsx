@@ -578,7 +578,9 @@ export function CottageForm({
       dog_fee: dogFee.trim() ? Math.max(0, Number(dogFee) || 0) : 70,
       dogPolicyImageMediaId,
       dog_policy_image_media_id: dogPolicyImageMediaId,
-      extras: extras.filter((ex) => ex.title.trim().length > 0),
+      extras: extras.filter(
+        (ex) => (ex.title || "").replace(/<[^>]*>/g, "").trim().length > 0,
+      ),
       ...(bathrooms.trim()
         ? { bathrooms: Math.max(0, Number(bathrooms) || 0) }
         : { bathrooms: null }),
@@ -1719,7 +1721,7 @@ export function CottageForm({
                 >
                   <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
                     <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Extra #{index + 1}: {extra.title || "(Untitled)"}
+                      Extra #{index + 1}: {extra.title ? extra.title.replace(/<[^>]*>/g, "").trim() || "(Untitled)" : "(Untitled)"}
                     </span>
                     <div className="flex items-center gap-1">
                       <Button
@@ -1759,12 +1761,12 @@ export function CottageForm({
 
                   <div className="mt-3 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
                     <div className="space-y-1 md:col-span-2">
-                      <Label className="text-xs">Title *</Label>
-                      <Input
-                        value={extra.title}
-                        onChange={(e) => handleUpdateExtra(extra.id, { title: e.target.value })}
-                        placeholder="e.g. A round of golf"
-                        className="h-8 text-xs"
+                      <RichTextEditor
+                        label="Title *"
+                        compact
+                        minHeightClass="min-h-[50px]"
+                        value={extra.title || ""}
+                        onChange={(html) => handleUpdateExtra(extra.id, { title: html })}
                       />
                     </div>
                     <div className="space-y-1">

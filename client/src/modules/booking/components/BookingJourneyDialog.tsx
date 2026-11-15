@@ -1029,22 +1029,34 @@ export function BookingJourneyDialog({
                       {availableExtras.map((extra) => {
                         const isChecked = selectedExtraIds.has(extra.id);
                         const extraPrice = calculateExtraAmount(extra);
+                        const plainTitle = (extra.title || "").replace(/<[^>]*>/g, "").trim();
 
                         return (
-                          <label
+                          <div
                             key={extra.id}
+                            onClick={(e) => {
+                              if ((e.target as HTMLElement).closest("a, button, input")) {
+                                return;
+                              }
+                              toggleExtra(extra.id);
+                            }}
                             className="flex cursor-pointer items-center gap-[12px] border border-[#d8d9cb] bg-[#fffdf8] p-[12px] transition-colors hover:border-[#243c30]/50"
                           >
                             <SafeImage
                               src={getExtraImageUrl(extra)}
-                              alt={extra.title}
+                              alt={plainTitle}
                               className="h-[65px] w-[65px] shrink-0 object-cover"
                             />
-                            <div>
-                              <span className="block text-[12px] font-medium">{extra.title}</span>
+                            <div className="min-w-0 flex-1">
+                              <div
+                                className="text-[12px] font-medium text-[#243c30] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30]"
+                                dangerouslySetInnerHTML={{
+                                  __html: sanitizeCheckoutHtml(extra.title),
+                                }}
+                              />
                               {extra.description ? (
-                                <span
-                                  className="mt-[5px] block text-[10px] leading-[16px] text-[#535b51] [&_p]:m-0 [&_a]:underline"
+                                <div
+                                  className="mt-[5px] text-[10px] leading-[16px] text-[#535b51] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30]"
                                   dangerouslySetInnerHTML={{
                                     __html: sanitizeCheckoutHtml(extra.description),
                                   }}
@@ -1064,9 +1076,11 @@ export function BookingJourneyDialog({
                               type="checkbox"
                               checked={isChecked}
                               onChange={() => toggleExtra(extra.id)}
-                              className="ml-auto h-[17px] w-[17px] shrink-0 accent-[#243c30]"
+                              onClick={(e) => e.stopPropagation()}
+                              className="ml-auto h-[17px] w-[17px] shrink-0 accent-[#243c30] cursor-pointer"
+                              aria-label={`Select ${plainTitle || "extra"}`}
                             />
-                          </label>
+                          </div>
                         );
                       })}
                     </div>

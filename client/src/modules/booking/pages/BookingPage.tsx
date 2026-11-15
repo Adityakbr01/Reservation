@@ -993,7 +993,7 @@ export function BookingPage() {
             .filter((x) => selectedExtraIds.has(x.id))
             .map(
               (x) =>
-                `${x.title}${x.pricingType === "PER_PERSON" ? ` (${selection.adults} adults)` : ""} (+£${calculateExtraAmount(x)})`,
+                `${x.title.replace(/<[^>]*>/g, "").trim()}${x.pricingType === "PER_PERSON" ? ` (${selection.adults} adults)` : ""} (+£${calculateExtraAmount(x)})`,
             )
             .join(", ")}`
         : "";
@@ -1397,10 +1397,17 @@ export function BookingPage() {
                     const isChecked = selectedExtraIds.has(extra.id);
                     const extraPrice = calculateExtraAmount(extra);
                     const imgSrc = getExtraImageUrl(extra);
+                    const plainTitle = (extra.title || "").replace(/<[^>]*>/g, "").trim();
 
                     return (
-                      <label
+                      <div
                         key={extra.id}
+                        onClick={(e) => {
+                          if ((e.target as HTMLElement).closest("a, button, input")) {
+                            return;
+                          }
+                          toggleExtra(extra.id);
+                        }}
                         className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-all ${
                           isChecked
                             ? "border-[#243c30] bg-[#f4f6f0] ring-1 ring-[#243c30]"
@@ -1409,16 +1416,19 @@ export function BookingPage() {
                       >
                         <SafeImage
                           src={imgSrc}
-                          alt={extra.title}
+                          alt={plainTitle}
                           className="h-16 w-16 shrink-0 rounded-md object-cover border border-[#d8d9cb]/50"
                         />
                         <div className="min-w-0 flex-1">
-                          <span className="block text-xs font-semibold text-[#243c30] truncate">
-                            {extra.title}
-                          </span>
+                          <div
+                            className="text-xs font-semibold text-[#243c30] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30]"
+                            dangerouslySetInnerHTML={{
+                              __html: sanitizeCheckoutHtml(extra.title),
+                            }}
+                          />
                           {extra.description ? (
-                            <span
-                              className="mt-0.5 block text-[11px] leading-snug text-[#535b51] [&_p]:m-0 [&_a]:underline"
+                            <div
+                              className="mt-0.5 text-[11px] leading-snug text-[#535b51] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30]"
                               dangerouslySetInnerHTML={{
                                 __html: sanitizeCheckoutHtml(extra.description),
                               }}
@@ -1438,9 +1448,11 @@ export function BookingPage() {
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => toggleExtra(extra.id)}
+                          onClick={(e) => e.stopPropagation()}
                           className="ml-auto h-4 w-4 shrink-0 rounded border-[#243c30] accent-[#243c30] cursor-pointer"
+                          aria-label={`Select ${plainTitle || "extra"}`}
                         />
-                      </label>
+                      </div>
                     );
                   })}
                 </div>
@@ -1773,7 +1785,7 @@ export function BookingPage() {
                         {selectedExtraList.map((extra) => (
                           <div key={extra.id} className="flex justify-between text-xs text-muted-foreground pl-1">
                             <span className="truncate pr-2">
-                              • {extra.title}
+                              • {(extra.title || "").replace(/<[^>]*>/g, "").trim()}
                               {extra.pricingType === "PER_PERSON" ? ` (${selection.adults} adults)` : ""}
                             </span>
                             <span className="font-medium text-[#243c30]">
