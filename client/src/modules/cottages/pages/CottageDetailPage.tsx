@@ -1561,7 +1561,7 @@ export function CottageDetailPage() {
                           </div>
                           <Button
                             asChild
-                            size="sm"
+                            size="lg"
                             className="shrink-0 rounded-full"
                           >
                             <Link

@@ -107,9 +107,7 @@ export const CottageCard = memo(function CottageCard({
             </strong>
             <span className="text-[12px] text-[#637359]">
               {formatMoney(minPerNight, currency)} per night
-              <span className="ml-1.5 whitespace-nowrap text-[9px] text-[#77866c]">
-                Example price
-              </span>
+          
             </span>
             {dateLabel ? (
               <span className="mt-[3px] text-[11px] leading-[16.5px] text-foreground">

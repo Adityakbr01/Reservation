@@ -39,7 +39,7 @@ const ASIDE_COPY: Record<
   login: {
     title: "A slower kind of stay.",
     description:
-      "Five cottages tucked into the edge of the New Forest — for long weekends, family gatherings and mornings with nowhere to be.",
+      "Cottages tucked into the edge of the New Forest — for long weekends, family gatherings and mornings with nowhere to be.",
     footnote: "Cottages · New Forest",
   },
   register: {
