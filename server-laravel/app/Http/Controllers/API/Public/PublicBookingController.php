@@ -47,6 +47,9 @@ class PublicBookingController extends Controller
         $quantity = (int) ($request->input('quantity', 1) ?: 1);
         $couponCode = trim((string) ($request->input('couponCode') ?? $request->input('coupon_code') ?? ''));
         $dogsCount = (int) ($request->input('dogs') ?? $request->input('dogsCount') ?? 0);
+        $adultsCount = (int) ($request->input('adults') ?? 2);
+        $extrasRaw = $request->input('extras') ?? $request->input('selectedExtras') ?? [];
+        $selectedExtraIds = is_array($extrasRaw) ? $extrasRaw : (is_string($extrasRaw) ? explode(',', $extrasRaw) : []);
 
         $cottage = Cottage::where('id', $cottageId)->orWhere('slug', $cottageId)->first();
         $ratePlan = null;
@@ -97,8 +100,21 @@ class PublicBookingController extends Controller
             }
         }
 
+        // Calculate optional extras fee
+        $extrasFeePence = 0;
+        if (!empty($selectedExtraIds) && $cottage && !empty($cottage->extras)) {
+            $cotExtras = is_array($cottage->extras) ? $cottage->extras : (json_decode($cottage->extras, true) ?? []);
+            foreach ($cotExtras as $ex) {
+                if (in_array($ex['id'] ?? null, $selectedExtraIds)) {
+                    $p = (float) ($ex['price'] ?? 0);
+                    $itemAmount = ($ex['pricingType'] ?? '') === 'PER_PERSON' ? ($p * max(1, $adultsCount)) : $p;
+                    $extrasFeePence += (int) round($itemAmount * 100);
+                }
+            }
+        }
+
         $tax = 0;
-        $total = max(0, $subtotal - $discount + $tax + $dogFeePence);
+        $total = max(0, $subtotal - $discount + $tax + $dogFeePence + $extrasFeePence);
         $currency = $ratePlan?->pricing['currency']
             ?? \App\Models\SiteSettings::first()?->currency
             ?? \App\Models\Property::first()?->currency
@@ -126,11 +142,13 @@ class PublicBookingController extends Controller
                     'subtotal' => $subtotal,
                     'discount' => $discount,
                     'tax' => $tax,
-                    'fees' => $dogFeePence,
+                    'fees' => $dogFeePence + $extrasFeePence,
                     'dogFee' => $dogFeePence,
                     'dog_fee' => $dogFeePence,
                     'dogsCount' => $dogsCount,
                     'dogs_count' => $dogsCount,
+                    'extrasFee' => $extrasFeePence,
+                    'extras_fee' => $extrasFeePence,
                     'total' => $total,
                     'currency' => $currency,
                 ],
@@ -307,7 +325,28 @@ class PublicBookingController extends Controller
             }
         }
 
-        $total = max(0, $total + $dogFeePence);
+        // Calculate optional extras fee
+        $extrasRaw = $request->input('extras') ?? $request->input('selectedExtras') ?? [];
+        $selectedExtraIds = is_array($extrasRaw) ? $extrasRaw : (is_string($extrasRaw) ? explode(',', $extrasRaw) : []);
+        $extrasFeePence = 0;
+        if (!empty($selectedExtraIds)) {
+            $adultsCount = (int) ($guests['adults'] ?? 2);
+            foreach ($bookingItemsData as $itemData) {
+                $cot = $itemData['cottage'];
+                if ($cot && !empty($cot->extras)) {
+                    $cotExtras = is_array($cot->extras) ? $cot->extras : (json_decode($cot->extras, true) ?? []);
+                    foreach ($cotExtras as $ex) {
+                        if (in_array($ex['id'] ?? null, $selectedExtraIds)) {
+                            $p = (float) ($ex['price'] ?? 0);
+                            $itemAmount = ($ex['pricingType'] ?? '') === 'PER_PERSON' ? ($p * max(1, $adultsCount)) : $p;
+                            $extrasFeePence += (int) round($itemAmount * 100);
+                        }
+                    }
+                }
+            }
+        }
+
+        $total = max(0, $total + $dogFeePence + $extrasFeePence);
         $bookingNumber = 'BK' . strtoupper(bin2hex(random_bytes(4)));
 
         $activeCurrency = \App\Models\SiteSettings::first()?->currency
@@ -323,10 +362,13 @@ class PublicBookingController extends Controller
             'subtotal' => $subtotal,
             'discount' => $discount,
             'taxes' => 0,
-            'fees' => $dogFeePence,
+            'fees' => $dogFeePence + $extrasFeePence,
             'dogFee' => $dogFeePence,
             'dog_fee' => $dogFeePence,
             'dogsCount' => $dogsCount,
+            'extrasFee' => $extrasFeePence,
+            'extras_fee' => $extrasFeePence,
+            'selectedExtras' => $selectedExtraIds,
             'total' => $total,
             'currency' => $activeCurrency,
         ];

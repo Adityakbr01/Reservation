@@ -23,6 +23,8 @@ import {
 import { fetchCottageOffers, getCottageBySlug } from "@/modules/cottages/api/cottages.api";
 import { fetchSiteSettings, type CheckoutSection, type AcknowledgementItem } from "@/modules/cms/api/cms.api";
 import { useAvailabilitySearch } from "@/modules/availability";
+import { useMediaUrls } from "@/modules/media";
+import type { CottageExtra } from "@/modules/availability/types/availability.types";
 import {
   useCreateBooking,
   usePaymentIntent,
@@ -96,6 +98,53 @@ function prettyDate(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleDateString("en-GB", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+}
+
+function SafeImage({
+  src,
+  alt,
+  className,
+  style,
+}: {
+  src?: string | null;
+  alt: string;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setError(false);
+  }, [src]);
+
+  if (!src || error) {
+    return (
+      <div
+        className={`flex items-center justify-center bg-[#d5d8cb] text-[#243c30]/40 ${className ?? ""}`}
+        style={style}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          className="h-6 w-6 fill-none stroke-current stroke-[1.5]"
+        >
+          <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      onError={() => setError(true)}
+      className={className}
+      style={style}
+      loading="lazy"
+      decoding="async"
+    />
+  );
 }
 
 function PayButton({ bookingId, totalLabel }: { bookingId: string; totalLabel: string }) {
@@ -368,6 +417,100 @@ export function BookingPage() {
     return { allowsDogs: false, maxDogs: 1, dogFee: 70, subtitle: null };
   }, [availabilityQuery.data, rooms, cottageDetail]);
 
+  // Extras available for the cottage(s) in this booking
+  const availableExtras: CottageExtra[] = useMemo(() => {
+    const results = availabilityQuery.data?.results ?? [];
+    const matched = results.filter((item) =>
+      rooms.some((r) => r.roomTypeId === item.roomType.id || r.roomTypeId === item.roomType.slug),
+    );
+    if (matched.length > 0) {
+      const list: CottageExtra[] = [];
+      const seen = new Set<string>();
+      for (const m of matched) {
+        for (const ex of m.roomType.extras ?? []) {
+          if (ex.id && !seen.has(ex.id)) {
+            seen.add(ex.id);
+            list.push(ex);
+          }
+        }
+      }
+      if (list.length > 0) return list;
+    }
+    if (cottageDetail?.extras && Array.isArray(cottageDetail.extras)) {
+      return cottageDetail.extras;
+    }
+    return [];
+  }, [availabilityQuery.data, rooms, cottageDetail]);
+
+  const [selectedExtraIds, setSelectedExtraIds] = useState<Set<string>>(new Set());
+
+  // Dynamic media resolution for extras
+  const extraMediaIds = useMemo(() => {
+    const ids: string[] = [];
+    for (const ex of availableExtras) {
+      const mid = ex.imageMediaId || (ex as any).image_media_id;
+      if (mid && typeof mid === "string" && mid.trim().length > 0) {
+        ids.push(mid.trim());
+      }
+    }
+    return Array.from(new Set(ids));
+  }, [availableExtras]);
+
+  const { data: resolvedExtraPhotos } = useMediaUrls(extraMediaIds);
+
+  const extraMediaMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const item of resolvedExtraPhotos ?? []) {
+      if (item?.id && item?.url) {
+        map.set(item.id, item.url);
+      }
+    }
+    return map;
+  }, [resolvedExtraPhotos]);
+
+  const getExtraImageUrl = (extra: CottageExtra): string | null => {
+    const mid = extra.imageMediaId || (extra as any).image_media_id;
+    if (mid && extraMediaMap.has(mid)) {
+      return extraMediaMap.get(mid)!;
+    }
+    const directUrl = extra.imageUrl || (extra as any).image_url;
+    if (directUrl && typeof directUrl === "string" && directUrl.trim().length > 0) {
+      return directUrl.trim();
+    }
+    return null;
+  };
+
+  const toggleExtra = (id: string) => {
+    setSelectedExtraIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const calculateExtraAmount = (extra: CottageExtra): number => {
+    const adultsCount = Math.max(1, selection?.adults ?? 2);
+    if (extra.pricingType === "PER_PERSON") {
+      return extra.price * adultsCount;
+    }
+    return extra.price;
+  };
+
+  const selectedExtraList = useMemo(() => {
+    return availableExtras.filter((ex) => selectedExtraIds.has(ex.id));
+  }, [availableExtras, selectedExtraIds]);
+
+  const totalExtrasPounds = useMemo(() => {
+    let sum = 0;
+    for (const extra of selectedExtraList) {
+      sum += calculateExtraAmount(extra);
+    }
+    return sum;
+  }, [selectedExtraList, selection?.adults]);
+
+  const totalExtrasPence = totalExtrasPounds * 100;
+
   // Authoritative pricing: one server quote per room line, summed. Never trust card prices.
   const quoteKey = useMemo(
     () =>
@@ -379,9 +522,10 @@ export function BookingPage() {
             rooms.map((r) => `${r.roomTypeId}:${r.ratePlanId}:${r.quantity}`).join("|"),
             appliedCoupon ?? "no-coupon",
             bringingDog ? `dogs-${dogsCount}` : "no-dogs",
+            Array.from(selectedExtraIds).sort().join(","),
           ].join("~")
         : "no-quote",
-    [selection, rooms, appliedCoupon, bringingDog, dogsCount],
+    [selection, rooms, appliedCoupon, bringingDog, dogsCount, selectedExtraIds],
   );
   const quoteQuery = useQuery({
     queryKey: [quoteKey],
@@ -396,8 +540,10 @@ export function BookingPage() {
             checkIn: selection.checkIn,
             checkOut: selection.checkOut,
             quantity: r.quantity,
+            adults: selection.adults,
             ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
             ...(idx === 0 && bringingDog ? { dogs: dogsCount, dogsCount } : {}),
+            ...(idx === 0 && selectedExtraIds.size > 0 ? { extras: Array.from(selectedExtraIds) } : {}),
           }),
         ),
       );
@@ -411,6 +557,10 @@ export function BookingPage() {
           tax: parts.reduce((s, p) => s + (p.pricing.tax ?? 0), 0),
           dogFee: parts.reduce(
             (s, p) => s + (p.pricing.dogFee ?? (p.pricing as { dog_fee?: number }).dog_fee ?? 0),
+            0,
+          ),
+          extrasFee: parts.reduce(
+            (s, p) => s + (p.pricing.extrasFee ?? (p.pricing as { extras_fee?: number }).extras_fee ?? 0),
             0,
           ),
           total: parts.reduce((s, p) => s + p.pricing.total, 0),
@@ -443,6 +593,8 @@ export function BookingPage() {
     queryFn: fetchSiteSettings,
     staleTime: 300_000,
   });
+
+  const bjSettings = siteSettings?.bookingPage?.bookingJourney;
 
   function setRoomQuantity(key: string, quantity: number) {
     setRoomError(null);
@@ -554,6 +706,15 @@ export function BookingPage() {
   const quote = quoteQuery.data ?? null;
   const nights = quote?.nights ?? quote?.nightly?.length ?? 0;
   const busy = createBooking.isPending || paymentIntent.isPending || guestBooking.isPending;
+
+  const displayGrandTotalPence = useMemo(() => {
+    if (!quote) return 0;
+    const serverExtrasFee = (quote.pricing.extrasFee ?? (quote.pricing as { extras_fee?: number }).extras_fee ?? 0);
+    if (serverExtrasFee > 0 || selectedExtraIds.size === 0) {
+      return quote.pricing.total;
+    }
+    return quote.pricing.total + totalExtrasPence;
+  }, [quote, selectedExtraIds.size, totalExtrasPence]);
 
   function applyCoupon() {
     const code = couponInput.trim();
@@ -826,6 +987,21 @@ export function BookingPage() {
       ...(county.trim() ? { county: county.trim() } : {}),
       ...(country.trim() ? { country: country.trim() } : {}),
     };
+    const extrasNote =
+      selectedExtraIds.size > 0
+        ? `Selected Extras: ${availableExtras
+            .filter((x) => selectedExtraIds.has(x.id))
+            .map(
+              (x) =>
+                `${x.title}${x.pricingType === "PER_PERSON" ? ` (${selection.adults} adults)` : ""} (+£${calculateExtraAmount(x)})`,
+            )
+            .join(", ")}`
+        : "";
+
+    const combinedNotes = [specialRequests.trim(), extrasNote]
+      .filter(Boolean)
+      .join("\n");
+
     try {
       if (isAuthed) {
         const created = await createBooking.mutateAsync({
@@ -839,8 +1015,9 @@ export function BookingPage() {
               ...(bringingDog ? { dogs: dogsCount, dogsCount } : {}),
             },
             contact,
+            extras: Array.from(selectedExtraIds),
             ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
-            ...(specialRequests.trim() ? { notes: specialRequests.trim() } : {}),
+            ...(combinedNotes ? { notes: combinedNotes } : {}),
           },
           idempotencyKey: idempotencyKey.current,
         });
@@ -870,8 +1047,9 @@ export function BookingPage() {
             ...(bringingDog ? { dogs: dogsCount, dogsCount } : {}),
           },
           contact,
+          extras: Array.from(selectedExtraIds),
           ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
-          ...(specialRequests.trim() ? { notes: specialRequests.trim() } : {}),
+          ...(combinedNotes ? { notes: combinedNotes } : {}),
           createAccount: bookFasterEnabled && createAccount,
           ...(bookFasterEnabled && createAccount && password ? { password, confirmPassword } : {}),
           newsletter: newsletterOptIn,
@@ -924,7 +1102,7 @@ export function BookingPage() {
     }
   }
 
-  const totalLabel = quote ? formatMoney(quote.pricing.total, quote.pricing.currency) : "";
+  const totalLabel = quote ? formatMoney(displayGrandTotalPence, quote.pricing.currency) : "";
   const signInTarget = `${location.pathname}${location.search}`;
 
   const roomSlug = params.get("roomSlug") || (location.state as { roomSlug?: string } | null)?.roomSlug;
@@ -1172,6 +1350,85 @@ export function BookingPage() {
                     </select>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          )}
+
+          {availableExtras.length > 0 && (
+            <Card className="border-[#d8d9cb] bg-[#fffdf8] shadow-sm">
+              <CardHeader className="pb-3 border-b border-[#d8d9cb]/60">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base tracking-wide flex items-center gap-2 text-[#243c30]">
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      className="h-5 w-5 stroke-[#243c30] fill-none stroke-[1.5] stroke-linecap-round stroke-linejoin-round"
+                    >
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    {bjSettings?.extrasHeading || "Optional Extras & Activities"}
+                  </CardTitle>
+                  {selectedExtraIds.size > 0 && (
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#243c30] text-[#fffdf8]">
+                      {selectedExtraIds.size} selected (+£{totalExtrasPounds})
+                    </span>
+                  )}
+                </div>
+                <CardDescription className="text-xs text-[#535b51] mt-1">
+                  {bjSettings?.extrasDescription ||
+                    "A little more time outdoors, or something lovely around the table. Everything here is optional."}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4 space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {availableExtras.map((extra) => {
+                    const isChecked = selectedExtraIds.has(extra.id);
+                    const extraPrice = calculateExtraAmount(extra);
+                    const imgSrc = getExtraImageUrl(extra);
+
+                    return (
+                      <label
+                        key={extra.id}
+                        className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-all ${
+                          isChecked
+                            ? "border-[#243c30] bg-[#f4f6f0] ring-1 ring-[#243c30]"
+                            : "border-[#d8d9cb] bg-white hover:border-[#243c30]/50 hover:bg-[#fafaf7]"
+                        }`}
+                      >
+                        <SafeImage
+                          src={imgSrc}
+                          alt={extra.title}
+                          className="h-16 w-16 shrink-0 rounded-md object-cover border border-[#d8d9cb]/50"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <span className="block text-xs font-semibold text-[#243c30] truncate">
+                            {extra.title}
+                          </span>
+                          <span className="mt-0.5 block text-[11px] leading-snug text-[#535b51]">
+                            {extra.description ||
+                              (extra.pricingType === "PER_PERSON"
+                                ? `£${extra.price} per adult`
+                                : `£${extra.price} per stay`)}
+                          </span>
+                          <span className="mt-1 block font-['Instrument_Serif',Georgia,serif] text-lg font-medium text-[#243c30]">
+                            + £{extraPrice}
+                          </span>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleExtra(extra.id)}
+                          className="ml-auto h-4 w-4 shrink-0 rounded border-[#243c30] accent-[#243c30] cursor-pointer"
+                        />
+                      </label>
+                    );
+                  })}
+                </div>
+
+                <p className="pt-2 text-[10px] leading-relaxed text-[#757c72] border-t border-[#d8d9cb]/50">
+                  {bjSettings?.extrasDisclaimer ||
+                    "These prices demonstrate the booking flow. Final prices, times, availability and package inclusions must be confirmed before your arrival."}
+                </p>
               </CardContent>
             </Card>
           )}
@@ -1482,6 +1739,25 @@ export function BookingPage() {
                         <span>{formatMoney(quote.pricing.tax ?? 0, quote.pricing.currency)}</span>
                       </div>
                     )}
+                    {selectedExtraList.length > 0 && (
+                      <div className="space-y-1.5 border-t border-border/60 pt-2 pb-1">
+                        <div className="flex items-center justify-between font-semibold text-[#243c30]">
+                          <span>Optional Extras ({selectedExtraList.length})</span>
+                          <span>+£{totalExtrasPounds}</span>
+                        </div>
+                        {selectedExtraList.map((extra) => (
+                          <div key={extra.id} className="flex justify-between text-xs text-muted-foreground pl-1">
+                            <span className="truncate pr-2">
+                              • {extra.title}
+                              {extra.pricingType === "PER_PERSON" ? ` (${selection.adults} adults)` : ""}
+                            </span>
+                            <span className="font-medium text-[#243c30]">
+                              +£{calculateExtraAmount(extra)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <p className="text-xs text-muted-foreground">
                       {prettyDate(selection.checkIn)} - {prettyDate(selection.checkOut)}<br />
                       {selection.adults + selection.children} Adult{selection.adults + selection.children === 1 ? "" : "s"}
@@ -1527,7 +1803,7 @@ export function BookingPage() {
                             : "text-foreground"
                         }`}
                       >
-                        {formatMoney(quote.pricing.total, quote.pricing.currency)}
+                        {formatMoney(displayGrandTotalPence, quote.pricing.currency)}
                       </p>
                       {!isDatesAvailable && (
                         <span className="text-[11px] font-semibold text-destructive block">

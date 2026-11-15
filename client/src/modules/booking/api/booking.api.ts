@@ -21,6 +21,8 @@ export interface QuoteRequest {
   couponCode?: string;
   dogs?: number;
   dogsCount?: number;
+  adults?: number;
+  extras?: string[];
 }
 
 /** Authoritative server pricing. Never trust search-result prices. */
@@ -38,6 +40,7 @@ export interface CreateBookingInput {
   couponCode?: string;
   dogs?: number;
   dogsCount?: number;
+  extras?: string[];
 }
 
 export async function createBooking(
