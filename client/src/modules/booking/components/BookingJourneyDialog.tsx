@@ -3,9 +3,11 @@ import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { addDays } from "date-fns";
 import toast from "react-hot-toast";
-import { countNights, formatDisplayDate } from "@/lib/date";
+import { countNights, formatDisplayDate, toDayKey } from "@/lib/date";
 import { getStripePromise } from "@/lib/stripe";
+import { DateField } from "@/components/common/DateField";
 import { fetchSiteSettings } from "@/modules/cms/api/cms.api";
 import { useAvailabilitySearch, CottageGalleryDialog } from "@/modules/availability";
 import { useBookingJourneyStore } from "@/stores/booking-journey-store";
@@ -164,7 +166,12 @@ export function BookingJourneyDialog({
 }: {
   cottages?: SearchResultItem[];
 }) {
-  const { isOpen, cottage: storeCottage, closeBookingJourney } = useBookingJourneyStore();
+  const {
+    isOpen,
+    cottage: storeCottage,
+    searchParams: storeSearchParams,
+    closeBookingJourney,
+  } = useBookingJourneyStore();
 
   // Load Admin Configured Site Settings
   const { data: siteSettings } = useQuery({
@@ -178,18 +185,11 @@ export function BookingJourneyDialog({
   // Step state: 0=Dates, 1=Cottage, 2=Extras, 3=Details & payment, 4=Confirmation
   const [step, setStep] = useState<number>(0);
 
-  // Dates & Guests
-  const [checkIn, setCheckIn] = useState<string>(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 10);
-    return d.toISOString().split("T")[0];
-  });
-
-  const [checkOut, setCheckOut] = useState<string>(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 17);
-    return d.toISOString().split("T")[0];
-  });
+  // Dates & Guests — no default dates; filled from the home search when the
+  // guest has already picked them, otherwise chosen in this step.
+  const [checkIn, setCheckIn] = useState<string>("");
+  const [checkOut, setCheckOut] = useState<string>("");
+  const [today] = useState(() => toDayKey(new Date()));
 
   const [adults, setAdults] = useState<number>(2);
   const [children, setChildren] = useState<number>(0);
@@ -232,9 +232,12 @@ export function BookingJourneyDialog({
   );
 
   // Live availability query if propCottages not provided
+  const hasStayDates = Boolean(checkIn && checkOut && checkOut > checkIn);
   const availabilityQuery = useAvailabilitySearch(
     !propCottages || propCottages.length === 0
-      ? { checkIn, checkOut, adults, children, rooms: 1 }
+      ? hasStayDates
+        ? { checkIn, checkOut, adults, children, rooms: 1 }
+        : null
       : null,
   );
 
@@ -272,6 +275,22 @@ export function BookingJourneyDialog({
       if (storeCottage?.id) {
         setSelectedCottageId(storeCottage.id);
       }
+      if (storeSearchParams?.checkIn) {
+        setCheckIn(storeSearchParams.checkIn);
+      } else {
+        setCheckIn("");
+      }
+      if (storeSearchParams?.checkOut) {
+        setCheckOut(storeSearchParams.checkOut);
+      } else {
+        setCheckOut("");
+      }
+      if (storeSearchParams?.adults) {
+        setAdults(storeSearchParams.adults);
+      }
+      if (storeSearchParams?.children !== undefined) {
+        setChildren(storeSearchParams.children);
+      }
       setStep(0); // NEVER SKIP THE DATE STEP
       setClientSecret(null);
       setBookingId(null);
@@ -283,7 +302,7 @@ export function BookingJourneyDialog({
       setClientSecret(null);
       setGalleryCottageId(null);
     }
-  }, [isOpen, storeCottage]);
+  }, [isOpen, storeCottage, storeSearchParams]);
 
   // If no cottage selected yet, default to first cottage
   useEffect(() => {
@@ -494,6 +513,10 @@ export function BookingJourneyDialog({
             <form
               onSubmit={(e) => {
                 e.preventDefault();
+                if (!checkIn || !checkOut) {
+                  toast.error("Choose both arrival and departure dates.");
+                  return;
+                }
                 if (checkOut <= checkIn) {
                   toast.error("Check-out date must be after check-in date.");
                   return;
@@ -503,30 +526,30 @@ export function BookingJourneyDialog({
               className="mt-[27px]"
             >
               <div className="grid grid-cols-2 gap-[20px]">
-                <label className="flex flex-col gap-[9px] text-[11px]">
-                  <span className="text-[10px] tracking-[0.6px] text-[#535b51]">ARRIVAL</span>
-                  <input
-                    type="date"
-                    name="booking-checkIn"
-                    aria-label="Booking arrival date"
-                    value={checkIn}
-                    onChange={(e) => setCheckIn(e.target.value)}
-                    required
-                    className="h-[48px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[11px_13px] text-[13px] text-[#243c30] outline-offset-[5px]"
-                  />
-                </label>
-                <label className="flex flex-col gap-[9px] text-[11px]">
-                  <span className="text-[10px] tracking-[0.6px] text-[#535b51]">DEPARTURE</span>
-                  <input
-                    type="date"
-                    name="booking-checkOut"
-                    aria-label="Booking departure date"
-                    value={checkOut}
-                    onChange={(e) => setCheckOut(e.target.value)}
-                    required
-                    className="h-[48px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[11px_13px] text-[13px] text-[#243c30] outline-offset-[5px]"
-                  />
-                </label>
+                <DateField
+                  id="booking-checkIn"
+                  label="Arrival"
+                  value={checkIn}
+                  min={today}
+                  contentClassName="z-[120]"
+                  onChange={(value) => {
+                    setCheckIn(value);
+                    if (!checkOut || checkOut <= value) {
+                      const inDate = new Date(`${value}T00:00:00`);
+                      if (!Number.isNaN(inDate.getTime())) {
+                        setCheckOut(toDayKey(addDays(inDate, 3)));
+                      }
+                    }
+                  }}
+                />
+                <DateField
+                  id="booking-checkOut"
+                  label="Departure"
+                  value={checkOut}
+                  min={checkIn || today}
+                  contentClassName="z-[120]"
+                  onChange={setCheckOut}
+                />
                 <label className="flex flex-col gap-[9px] text-[11px]">
                   <span className="text-[10px] tracking-[0.6px] text-[#535b51]">ADULTS</span>
                   <select

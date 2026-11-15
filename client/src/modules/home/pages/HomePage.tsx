@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -7,11 +7,12 @@ import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SITE_LINKS } from "@/config/links";
-import { formatDisplayDate, toDayKey } from "@/lib/date";
+import { formatDisplayDate } from "@/lib/date";
 import {
   CottageCard,
   SearchForm,
   defaultSearchDates,
+  defaultSearchParams,
   parseAvailabilitySearchParams,
   toSearchRecord,
   useAvailabilitySearch,
@@ -31,9 +32,9 @@ export function HomePage() {
   const restored =
     (location.state as { search?: AvailabilitySearchParams } | null)?.search ??
     null;
-  // Pre-rendered home embeds the build-time default search so the server
-  // and hydration markup match. Later client navigations fall back to live
-  // defaults (the flag is cleared once hydration finishes).
+  // Pre-rendered home embeds the build-time search (dates empty) so the
+  // server and hydration markup match. Later client navigations start with
+  // empty dates too — the guest picks them in the search card.
   const ssgSearch =
     typeof window === "undefined"
       ? (globalThis.__HS_SSG_SEARCH__ ?? null)
@@ -42,30 +43,30 @@ export function HomePage() {
         : null;
   const initial: AvailabilitySearchParams = urlSearch ??
     restored ??
-    ssgSearch ?? {
-      ...defaultSearchDates(),
-      adults: 2,
-      children: 0,
-      rooms: 1,
-    };
+    ssgSearch ??
+    defaultSearchParams;
   const [search, setSearch] = useState<AvailabilitySearchParams>(initial);
-  const { data, isFetching, isError, refetch } = useAvailabilitySearch(search);
+
+  // Until the guest picks dates, keep the results grid populated using a
+  // rolling example window. The cards themselves display "choose dates".
+  const availabilitySearch = useMemo(
+    () =>
+      search.checkIn && search.checkOut
+        ? search
+        : { ...search, ...defaultSearchDates() },
+    [search],
+  );
+  const { data, isFetching, isError, refetch } = useAvailabilitySearch(availabilitySearch);
   const isInitialLoading = isFetching && !data;
   const isRevalidating = isFetching && !!data;
 
   function handleSearch(next: AvailabilitySearchParams) {
     setSearch(next);
-    setUrlParams(toSearchRecord(next), { replace: true });
+    setUrlParams(
+      next.checkIn && next.checkOut ? toSearchRecord(next) : {},
+      { replace: true },
+    );
   }
-
-  // A static build can age; roll the default dates forward if they are now
-  // in the past, then let React Query revalidate in the background.
-  useEffect(() => {
-    if (urlSearch || restored) return;
-    if (!ssgSearch || ssgSearch.checkIn >= toDayKey(new Date())) return;
-    const fresh = { ...ssgSearch, ...defaultSearchDates() };
-    setSearch(fresh);
-  }, [restored, ssgSearch, urlSearch]);
 
   const results = useMemo(() => {
     const list = data?.results ?? [];

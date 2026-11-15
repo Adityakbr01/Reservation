@@ -27,10 +27,12 @@ interface DateFieldProps {
   /** Minimum selectable day as yyyy-mm-dd. */
   min?: string;
   onChange: (value: string) => void;
+  /** Extra classes for the calendar popover (e.g. z-index inside modals). */
+  contentClassName?: string;
 }
 
 /** shadcn-style date picker field (popover calendar, brand themed). */
-export function DateField({ id, label, value, min, onChange }: DateFieldProps) {
+export function DateField({ id, label, value, min, onChange, contentClassName }: DateFieldProps) {
   const [open, setOpen] = useState(false);
   const selected = parseInput(value);
   const minDate = min ? parseInput(min) : undefined;
@@ -60,7 +62,7 @@ export function DateField({ id, label, value, min, onChange }: DateFieldProps) {
             <CalendarIcon className="ml-2 size-4 shrink-0 opacity-60" aria-hidden />
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="start" className="rounded-none border-border">
+        <PopoverContent align="start" className={cn("rounded-none border-border", contentClassName)}>
           <Calendar
             mode="single"
             selected={selected}

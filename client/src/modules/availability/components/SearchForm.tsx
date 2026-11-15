@@ -149,16 +149,15 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
   }
 
   function handleReset() {
-    const dates = defaultSearchDates();
-    setCheckIn(dates.checkIn);
-    setCheckOut(dates.checkOut);
+    setCheckIn("");
+    setCheckOut("");
     setAdults("2");
     setChildren("0");
     setRooms("1");
     setRangeError(null);
     onSearch({
-      checkIn: dates.checkIn,
-      checkOut: dates.checkOut,
+      checkIn: "",
+      checkOut: "",
       adults: 2,
       children: 0,
       rooms: 1,

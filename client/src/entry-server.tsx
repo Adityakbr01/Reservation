@@ -1,20 +1,18 @@
 import { StrictMode } from "react";
 import { renderToString } from "react-dom/server";
 import { StaticRouter } from "react-router-dom";
-import { addDays } from "date-fns";
 import App from "./App";
-import { toDayKey } from "@/lib/date";
 import type { AvailabilitySearchParams } from "@/modules/availability/types/availability.types";
 
 /**
  * Build-time render for the home route. Only the marketing shell, search
  * form and loading placeholders are static; availability is fetched in the
- * browser after hydration.
+ * browser after hydration. Dates start empty so the guest picks them.
  */
 export function render(url: string) {
   const search: AvailabilitySearchParams = {
-    checkIn: toDayKey(addDays(new Date(), 7)),
-    checkOut: toDayKey(addDays(new Date(), 9)),
+    checkIn: "",
+    checkOut: "",
     adults: 2,
     children: 0,
     rooms: 1,

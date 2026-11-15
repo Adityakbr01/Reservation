@@ -199,7 +199,7 @@ export const CottageCard = memo(function CottageCard({
               type="button"
               data-action="book"
               data-key={roomType.slug}
-              onClick={() => openBookingJourney(roomType)}
+              onClick={() => openBookingJourney(roomType, search)}
               className="flex min-h-[43px] cursor-pointer items-center justify-center gap-[15px] border-0 bg-[#243c30] p-[12px_16px] text-[10px] font-medium leading-[13.5px] text-[#fffdf8] outline-offset-[5px] transition-colors hover:bg-[#1a2d24]"
             >
               Check availability
