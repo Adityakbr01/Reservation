@@ -214,10 +214,36 @@ export interface BookingPagePoliciesSettings {
   checkOutText?: string;
 }
 
+export interface BookingJourneySettings {
+  previewNotice?: string;
+  modalTitle?: string;
+  step1Subtitle?: string;
+  step1Title?: string;
+  step1Note?: string;
+  step1ExploreLinkText?: string;
+  step2Subtitle?: string;
+  step2Title?: string;
+  step2Description?: string;
+  groupStayText?: string;
+  groupStayUrl?: string;
+  step3DogsTitle?: string;
+  noPetsNotice?: string;
+  extrasHeading?: string;
+  extrasDescription?: string;
+  extrasDisclaimer?: string;
+  step4Title?: string;
+  step4Description?: string;
+  acknowledgementText?: string;
+  step5Title?: string;
+  step5Subtitle?: string;
+  step5Disclaimer?: string;
+}
+
 export interface BookingPageSettings {
   enquiry?: CottageEnquirySettings;
   reservationDetails?: ReservationDetailsSettings;
   policies?: BookingPagePoliciesSettings;
+  bookingJourney?: BookingJourneySettings;
 }
 
 export interface SiteSettings {

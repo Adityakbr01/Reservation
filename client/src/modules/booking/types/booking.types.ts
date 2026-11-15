@@ -29,9 +29,11 @@ export interface GuestBookingPayload {
   rooms: Array<{ roomTypeId: string; ratePlanId: string; quantity: number }>;
   checkIn: string;
   checkOut: string;
-  guests: { adults: number; children: number };
+  guests: { adults: number; children: number; dogs?: number };
   contact: GuestDetails;
   couponCode?: string;
+  dogs?: number;
+  dogsCount?: number;
   notes?: string | null;
   createAccount?: boolean | null;
   password?: string | null;
@@ -56,6 +58,8 @@ export interface QuotePricing {
   subtotal: number;
   discount: number;
   tax: number;
+  dogFee?: number;
+  dog_fee?: number;
   total: number;
   currency: string;
 }

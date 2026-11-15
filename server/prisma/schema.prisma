@@ -83,6 +83,11 @@ model RoomType {
   bedrooms                 Int?
   bathrooms                Int?
   maxDogs                  Int?
+  dogPolicyEnabled          Boolean?  @default(false)
+  dogPolicyTitle            String?   @db.VarChar(160)
+  dogPolicySubtitle         String?   @db.VarChar(255)
+  dogFee                    Float?    @default(70)
+  dogPolicyImageMediaId     String?   @db.Char(24)
   status                   String   @default("DRAFT") @db.VarChar(20)
   seo                      Json?
   createdAt                DateTime @default(now()) @db.DateTime(3)

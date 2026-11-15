@@ -9,6 +9,16 @@ export interface CottageImageRef {
   sortOrder: number;
 }
 
+export interface CottageExtra {
+  id: string;
+  title: string;
+  description?: string;
+  price: number;
+  pricingType: "PER_PERSON" | "PER_STAY";
+  imageMediaId?: string | null;
+  imageUrl?: string | null;
+}
+
 /** Full cottage detail as returned by GET /api/public/cottages/:slug. */
 export interface CottageDetail {
   id: string;
@@ -40,6 +50,20 @@ export interface CottageDetail {
   bedrooms?: number | null;
   bathrooms?: number | null;
   maxDogs?: number | null;
+  max_dogs?: number | null;
+  dogPolicyEnabled?: boolean;
+  dog_policy_enabled?: boolean;
+  dogPolicyTitle?: string | null;
+  dog_policy_title?: string | null;
+  dogPolicySubtitle?: string | null;
+  dog_policy_subtitle?: string | null;
+  dogFee?: number | null;
+  dog_fee?: number | null;
+  dogPolicyImageMediaId?: string | null;
+  dog_policy_image_media_id?: string | null;
+  dogPolicyImageUrl?: string | null;
+  dog_policy_image_url?: string | null;
+  extras?: CottageExtra[];
   status: "DRAFT" | "ACTIVE" | "INACTIVE";
   middleDescription?: string | null;
   aboutHeading?: string | null;

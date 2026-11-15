@@ -358,6 +358,7 @@ class AdminBookingController extends Controller
             'guests' => [
                 'adults' => (int) ($guests['adults'] ?? 1),
                 'children' => (int) ($guests['children'] ?? 0),
+                'dogs' => (int) ($guests['dogs'] ?? 0),
             ],
             'contact' => [
                 'title' => $contact['title'] ?? null,
@@ -381,6 +382,7 @@ class AdminBookingController extends Controller
                 'discount' => (float) ($pricing['discount'] ?? 0),
                 'taxes' => (float) ($pricing['taxes'] ?? 0),
                 'fees' => (float) ($pricing['fees'] ?? 0),
+                'dogFee' => (float) ($pricing['dogFee'] ?? $pricing['dog_fee'] ?? $pricing['fees'] ?? 0),
                 'total' => (float) ($pricing['total'] ?? 0),
                 'couponCode' => $pricing['couponCode'] ?? $pricing['coupon_code'] ?? null,
             ],

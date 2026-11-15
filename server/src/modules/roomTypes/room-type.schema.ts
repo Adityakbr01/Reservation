@@ -67,6 +67,11 @@ export const createRoomTypeSchema = occupancySchema.extend({
   bedrooms: z.number().int().min(0).max(20).nullable().optional(),
   bathrooms: z.number().int().min(0).max(20).nullable().optional(),
   maxDogs: z.number().int().min(0).max(10).nullable().optional(),
+  dogPolicyEnabled: z.boolean().nullable().optional(),
+  dogPolicyTitle: z.string().max(160).nullable().optional(),
+  dogPolicySubtitle: z.string().max(255).nullable().optional(),
+  dogFee: z.number().min(0).nullable().optional(),
+  dogPolicyImageMediaId: objectIdSchema.nullable().optional(),
   status: z.enum(ROOM_TYPE_STATUSES).optional(),
   seo: seoSchema.nullable().optional(),
 });

@@ -20,7 +20,7 @@ import {
   fetchQuote,
   validateCouponCode,
 } from "../api/booking.api";
-import { fetchCottageOffers } from "@/modules/cottages/api/cottages.api";
+import { fetchCottageOffers, getCottageBySlug } from "@/modules/cottages/api/cottages.api";
 import { fetchSiteSettings, type CheckoutSection, type AcknowledgementItem } from "@/modules/cms/api/cms.api";
 import { useAvailabilitySearch } from "@/modules/availability";
 import {
@@ -280,6 +280,8 @@ export function BookingPage() {
   const [stripePromise] = useState(getStripePromise);
   const [showAddRoom, setShowAddRoom] = useState(false);
   const [roomError, setRoomError] = useState<string | null>(null);
+  const [bringingDog, setBringingDog] = useState(false);
+  const [dogsCount, setDogsCount] = useState(1);
 
   // Multi-room selection. Starts with the room from the URL; guests can add more.
   const [rooms, setRooms] = useState<BookedRoom[]>(() =>
@@ -328,6 +330,44 @@ export function BookingPage() {
     return map;
   }, [availabilityQuery.data]);
 
+  const { data: cottageDetail } = useQuery({
+    queryKey: ["cottage-detail", selection?.roomTypeId],
+    queryFn: () => getCottageBySlug(selection?.roomTypeId as string),
+    enabled: !!selection?.roomTypeId,
+    staleTime: 300_000,
+  });
+
+  const cottageDogPolicy = useMemo(() => {
+    const results = availabilityQuery.data?.results ?? [];
+    const matched = results.filter((item) =>
+      rooms.some((r) => r.roomTypeId === item.roomType.id || r.roomTypeId === item.roomType.slug),
+    );
+    if (matched.length > 0) {
+      const allowsDogs = matched.some(
+        (m) =>
+          Boolean(
+            m.roomType.dogPolicyEnabled ??
+              (m.roomType.maxDogs != null && Number(m.roomType.maxDogs) > 0),
+          ),
+      );
+      const maxDogs = matched.reduce((acc, m) => Math.max(acc, Number(m.roomType.maxDogs ?? 1)), 1);
+      const dogFee = matched.find((m) => m.roomType.dogFee != null)?.roomType.dogFee ?? 70;
+      const subtitle = matched.find((m) => m.roomType.dogPolicySubtitle)?.roomType.dogPolicySubtitle ?? null;
+      return { allowsDogs, maxDogs: Math.max(1, maxDogs), dogFee, subtitle };
+    }
+    if (cottageDetail) {
+      const allowsDogs = Boolean(
+        cottageDetail.dogPolicyEnabled ??
+          (cottageDetail.maxDogs != null && Number(cottageDetail.maxDogs) > 0),
+      );
+      const maxDogs = Math.max(1, Number(cottageDetail.maxDogs ?? 1));
+      const dogFee = cottageDetail.dogFee != null ? Number(cottageDetail.dogFee) : 70;
+      const subtitle = cottageDetail.dogPolicySubtitle ?? null;
+      return { allowsDogs, maxDogs, dogFee, subtitle };
+    }
+    return { allowsDogs: false, maxDogs: 1, dogFee: 70, subtitle: null };
+  }, [availabilityQuery.data, rooms, cottageDetail]);
+
   // Authoritative pricing: one server quote per room line, summed. Never trust card prices.
   const quoteKey = useMemo(
     () =>
@@ -338,9 +378,10 @@ export function BookingPage() {
             selection.checkOut,
             rooms.map((r) => `${r.roomTypeId}:${r.ratePlanId}:${r.quantity}`).join("|"),
             appliedCoupon ?? "no-coupon",
+            bringingDog ? `dogs-${dogsCount}` : "no-dogs",
           ].join("~")
         : "no-quote",
-    [selection, rooms, appliedCoupon],
+    [selection, rooms, appliedCoupon, bringingDog, dogsCount],
   );
   const quoteQuery = useQuery({
     queryKey: [quoteKey],
@@ -348,7 +389,7 @@ export function BookingPage() {
       if (!selection) throw new Error("Missing selection");
       if (rooms.length === 0) throw new Error("Add at least one cottage");
       const parts = await Promise.all(
-        rooms.map((r) =>
+        rooms.map((r, idx) =>
           fetchQuote({
             roomTypeId: r.roomTypeId,
             ratePlanId: r.ratePlanId,
@@ -356,6 +397,7 @@ export function BookingPage() {
             checkOut: selection.checkOut,
             quantity: r.quantity,
             ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
+            ...(idx === 0 && bringingDog ? { dogs: dogsCount, dogsCount } : {}),
           }),
         ),
       );
@@ -367,6 +409,10 @@ export function BookingPage() {
           subtotal: parts.reduce((s, p) => s + p.pricing.subtotal, 0),
           discount: parts.reduce((s, p) => s + p.pricing.discount, 0),
           tax: parts.reduce((s, p) => s + (p.pricing.tax ?? 0), 0),
+          dogFee: parts.reduce(
+            (s, p) => s + (p.pricing.dogFee ?? (p.pricing as { dog_fee?: number }).dog_fee ?? 0),
+            0,
+          ),
           total: parts.reduce((s, p) => s + p.pricing.total, 0),
           currency,
         },
@@ -787,7 +833,11 @@ export function BookingPage() {
             rooms: rooms.map((r) => ({ roomTypeId: r.roomTypeId, ratePlanId: r.ratePlanId, quantity: r.quantity })),
             checkIn: selection.checkIn,
             checkOut: selection.checkOut,
-            guests: { adults: selection.adults, children: selection.children },
+            guests: {
+              adults: selection.adults,
+              children: selection.children,
+              ...(bringingDog ? { dogs: dogsCount, dogsCount } : {}),
+            },
             contact,
             ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
             ...(specialRequests.trim() ? { notes: specialRequests.trim() } : {}),
@@ -814,7 +864,11 @@ export function BookingPage() {
           rooms: rooms.map((r) => ({ roomTypeId: r.roomTypeId, ratePlanId: r.ratePlanId, quantity: r.quantity })),
           checkIn: selection.checkIn,
           checkOut: selection.checkOut,
-          guests: { adults: selection.adults, children: selection.children },
+          guests: {
+            adults: selection.adults,
+            children: selection.children,
+            ...(bringingDog ? { dogs: dogsCount, dogsCount } : {}),
+          },
           contact,
           ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
           ...(specialRequests.trim() ? { notes: specialRequests.trim() } : {}),
@@ -1067,6 +1121,59 @@ export function BookingPage() {
               </CardContent>
             )}
           </Card>
+          )}
+
+          {cottageDogPolicy.allowsDogs && (
+            <Card className="border-[#d8d9cb] bg-[#fffdf8]">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base tracking-wide flex items-center gap-2">
+                  <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    className="h-5 w-5 stroke-[#243c30] fill-none stroke-[1.5] stroke-linecap-round stroke-linejoin-round"
+                  >
+                    <path d="M6 12 3 5l6 3m9 4 3-7-6 3M5 14a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0Zm4 0h.01M15 14h.01m-5 4 2 1 2-1" />
+                  </svg>
+                  Dogs &amp; Pets
+                </CardTitle>
+                <CardDescription>
+                  {cottageDogPolicy.subtitle || `Up to ${cottageDogPolicy.maxDogs} dog${cottageDogPolicy.maxDogs === 1 ? "" : "s"} · added only if you bring a dog`}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={bringingDog}
+                    onChange={(e) => setBringingDog(e.target.checked)}
+                    className="mt-1 size-4 shrink-0 accent-[#243c30]"
+                  />
+                  <div className="text-sm">
+                    <span className="font-medium text-[#243c30]">
+                      I am bringing a dog (+£{cottageDogPolicy.dogFee} per stay)
+                    </span>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Dogs are warmly welcomed. Dog fee includes dog bed, towel and welcome treats.
+                    </p>
+                  </div>
+                </label>
+                {bringingDog && cottageDogPolicy.maxDogs > 1 && (
+                  <div className="pt-2 pl-7 flex items-center gap-3">
+                    <Label htmlFor="co-dogs-count" className="text-xs">Number of dogs:</Label>
+                    <select
+                      id="co-dogs-count"
+                      value={dogsCount}
+                      onChange={(e) => setDogsCount(Number(e.target.value))}
+                      className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                    >
+                      {Array.from({ length: cottageDogPolicy.maxDogs }, (_, i) => i + 1).map((n) => (
+                        <option key={n} value={n}>{n} dog{n > 1 ? "s" : ""}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           )}
 
           {showReservationDetails && (
@@ -1361,6 +1468,12 @@ export function BookingPage() {
                       <div className="flex justify-between text-success">
                         <span>Coupon {appliedCoupon}</span>
                         <span>−{formatMoney(quote.pricing.discount, quote.pricing.currency)}</span>
+                      </div>
+                    )}
+                    {Boolean(quote.pricing.dogFee && quote.pricing.dogFee > 0) && (
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Dog fee ({dogsCount} dog{dogsCount > 1 ? "s" : ""})</span>
+                        <span>{formatMoney(quote.pricing.dogFee, quote.pricing.currency)}</span>
                       </div>
                     )}
                     {(quote.pricing.tax ?? 0) > 0 && (

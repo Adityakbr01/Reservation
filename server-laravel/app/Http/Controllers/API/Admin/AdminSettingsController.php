@@ -157,7 +157,10 @@ class AdminSettingsController extends Controller
         $stored = is_array($stored) ? $stored : [];
 
         foreach ($defaults as $section => $values) {
-            $incoming = is_array($stored[$section] ?? null) ? $stored[$section] : [];
+            $snakeSection = \Illuminate\Support\Str::snake($section);
+            $incoming = is_array($stored[$section] ?? null)
+                ? $stored[$section]
+                : (is_array($stored[$snakeSection] ?? null) ? $stored[$snakeSection] : []);
             $defaults[$section] = array_merge($values, $incoming);
         }
 
@@ -169,12 +172,16 @@ class AdminSettingsController extends Controller
         $resolved = $this->resolveBookingPage($current);
 
         foreach ($resolved as $section => $defaults) {
-            $incoming = is_array($raw[$section] ?? null) ? $raw[$section] : [];
+            $snakeSection = \Illuminate\Support\Str::snake($section);
+            $incoming = is_array($raw[$section] ?? null)
+                ? $raw[$section]
+                : (is_array($raw[$snakeSection] ?? null) ? $raw[$snakeSection] : []);
             foreach ($defaults as $key => $default) {
-                if (! array_key_exists($key, $incoming)) {
+                $snakeKey = \Illuminate\Support\Str::snake($key);
+                if (! array_key_exists($key, $incoming) && ! array_key_exists($snakeKey, $incoming)) {
                     continue;
                 }
-                $value = $incoming[$key];
+                $value = array_key_exists($key, $incoming) ? $incoming[$key] : $incoming[$snakeKey];
                 if (is_bool($default)) {
                     $resolved[$section][$key] = (bool) $value;
                 } elseif (is_int($default)) {

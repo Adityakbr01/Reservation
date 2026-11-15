@@ -453,6 +453,19 @@ html.lenis body {
   box-shadow: 0 0 0 1px var(--color-brand);
 }
 
+/* Booking journey preview dialog (mock data until live availability is wired). */
+.booking-preview {
+  font-family: "DM Sans", Arial, sans-serif;
+  letter-spacing: 0;
+}
+.booking-preview .booking-display {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-weight: 400;
+}
+.booking-preview .booking-sans {
+  font-family: "DM Sans", Arial, sans-serif;
+}
+
 /* Rendered CMS rich text (blog posts, policy pages). Server-sanitized HTML. */
 .rich-text h2 {
   @apply mt-6 font-display text-2xl font-light tracking-tight first:mt-0;

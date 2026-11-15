@@ -25,7 +25,10 @@ class Cottage extends Model
         'map_lat', 'map_lng', 'map_embed_url', 'welcome_hamper_included',
         'welcome_hamper_description', 'welcome_hamper_image_media_id',
         'welcome_hamper_html', 'amenity_ids', 'nearby_attractions',
-        'bedrooms', 'bathrooms', 'max_dogs', 'status', 'seo',
+        'bedrooms', 'bathrooms', 'max_dogs',
+        'dog_policy_enabled', 'dog_policy_title', 'dog_policy_subtitle', 'dog_fee', 'dog_policy_image_media_id',
+        'extras',
+        'status', 'seo',
     ];
 
     protected $casts = [
@@ -37,6 +40,9 @@ class Cottage extends Model
         'map_lat' => 'float',
         'map_lng' => 'float',
         'welcome_hamper_included' => 'boolean',
+        'dog_policy_enabled' => 'boolean',
+        'dog_fee' => 'float',
+        'extras' => 'array',
         'amenity_ids' => 'array',
         'nearby_attractions' => 'array',
         'overview_bullets' => 'array',

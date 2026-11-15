@@ -64,6 +64,11 @@ export interface RoomType {
   bedrooms: number | null;
   bathrooms: number | null;
   maxDogs: number | null;
+  dogPolicyEnabled?: boolean | null;
+  dogPolicyTitle?: string | null;
+  dogPolicySubtitle?: string | null;
+  dogFee?: number | null;
+  dogPolicyImageMediaId?: string | null;
   status: RoomTypeStatus;
   seo: RoomTypeSeo | null;
   createdAt: Date;

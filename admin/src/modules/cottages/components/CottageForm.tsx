@@ -22,6 +22,7 @@ import type { ApiEnvelope } from "@/lib/api-client";
 import type {
   CreateCottagePayload,
   Cottage,
+  CottageExtra,
   // CottageBed,
   CottageImage,
   CottageSectionSettings,
@@ -272,6 +273,34 @@ export function CottageForm({
       ? String((initial as unknown as Record<string, number | null>)?.maxDogs)
       : "",
   );
+  const [dogPolicyEnabled, setDogPolicyEnabled] = useState<boolean>(() => {
+    const rawAny = initial as unknown as Record<string, unknown> | undefined;
+    if (rawAny?.dogPolicyEnabled !== undefined) return Boolean(rawAny.dogPolicyEnabled);
+    if (rawAny?.dog_policy_enabled !== undefined) return Boolean(rawAny.dog_policy_enabled);
+    const d = rawAny?.maxDogs ?? rawAny?.max_dogs;
+    return d != null && Number(d) > 0;
+  });
+  const [dogPolicyTitle, setDogPolicyTitle] = useState(
+    (initial as unknown as Record<string, string | null>)?.dogPolicyTitle ??
+      (initial as unknown as Record<string, string | null>)?.dog_policy_title ??
+      "",
+  );
+  const [dogPolicySubtitle, setDogPolicySubtitle] = useState(
+    (initial as unknown as Record<string, string | null>)?.dogPolicySubtitle ??
+      (initial as unknown as Record<string, string | null>)?.dog_policy_subtitle ??
+      "",
+  );
+  const [dogFee, setDogFee] = useState(() => {
+    const rawAny = initial as unknown as Record<string, number | null> | undefined;
+    if (rawAny?.dogFee != null) return String(rawAny.dogFee);
+    if (rawAny?.dog_fee != null) return String(rawAny.dog_fee);
+    return "70";
+  });
+  const [dogPolicyImageMediaId, setDogPolicyImageMediaId] = useState<string | null>(
+    (initial as unknown as Record<string, string | null>)?.dogPolicyImageMediaId ??
+      (initial as unknown as Record<string, string | null>)?.dog_policy_image_media_id ??
+      null,
+  );
   const [bathrooms, setBathrooms] = useState(
     (initial as unknown as Record<string, number | null>)?.bathrooms != null
       ? String((initial as unknown as Record<string, number | null>)?.bathrooms)
@@ -295,6 +324,101 @@ export function CottageForm({
   const [featureTab, setFeatureTab] = useState<"HIGHLIGHT" | "FACILITY">(
     "HIGHLIGHT",
   );
+
+  const [extras, setExtras] = useState<CottageExtra[]>(() => {
+    const raw = (initial as unknown as { extras?: CottageExtra[] })?.extras;
+    if (Array.isArray(raw) && raw.length > 0) {
+      return raw.map((item, idx) => ({
+        id: item.id || `extra_${Date.now()}_${idx}`,
+        title: item.title || "",
+        description: item.description || "",
+        price: Number(item.price ?? 0),
+        pricingType: item.pricingType === "PER_STAY" ? "PER_STAY" : "PER_PERSON",
+        imageMediaId: item.imageMediaId || null,
+        imageUrl: item.imageUrl || null,
+      }));
+    }
+    return [];
+  });
+
+  function handleAddExtra() {
+    const newId = `extra_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    setExtras((prev) => [
+      ...prev,
+      {
+        id: newId,
+        title: "",
+        description: "",
+        price: 0,
+        pricingType: "PER_PERSON",
+        imageMediaId: null,
+        imageUrl: null,
+      },
+    ]);
+  }
+
+  function handleUpdateExtra(id: string, updates: Partial<CottageExtra>) {
+    setExtras((prev) =>
+      prev.map((ex) => (ex.id === id ? { ...ex, ...updates } : ex)),
+    );
+  }
+
+  function handleRemoveExtra(id: string) {
+    setExtras((prev) => prev.filter((ex) => ex.id !== id));
+  }
+
+  function handleMoveExtra(index: number, direction: "up" | "down") {
+    setExtras((prev) => {
+      const targetIndex = direction === "up" ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
+      const copy = [...prev];
+      const temp = copy[index];
+      copy[index] = copy[targetIndex];
+      copy[targetIndex] = temp;
+      return copy;
+    });
+  }
+
+  function handleLoadDefaultExtras() {
+    setExtras([
+      {
+        id: "extra_golf",
+        title: "A round of golf",
+        description: "£60 per adult · illustrative price",
+        price: 60,
+        pricingType: "PER_PERSON",
+        imageMediaId: null,
+        imageUrl: "/assets/golf.webp",
+      },
+      {
+        id: "extra_padel",
+        title: "Time on the padel court",
+        description: "£40 per court session · illustrative price",
+        price: 40,
+        pricingType: "PER_STAY",
+        imageMediaId: null,
+        imageUrl: "/assets/padel.webp",
+      },
+      {
+        id: "extra_lunch",
+        title: "Lunch at the clubhouse",
+        description: "£25 per adult · illustrative price",
+        price: 25,
+        pricingType: "PER_PERSON",
+        imageMediaId: null,
+        imageUrl: "/assets/dining.webp",
+      },
+      {
+        id: "extra_dinner",
+        title: "An evening around the table",
+        description: "£35 per adult · illustrative price",
+        price: 35,
+        pricingType: "PER_PERSON",
+        imageMediaId: null,
+        imageUrl: "/assets/dining.webp",
+      },
+    ]);
+  }
 
   useEffect(() => {
     void apiClient
@@ -443,6 +567,17 @@ export function CottageForm({
             max_dogs: Math.max(0, Number(maxDogs) || 0),
           }
         : { maxDogs: null, max_dogs: null }),
+      dogPolicyEnabled,
+      dog_policy_enabled: dogPolicyEnabled,
+      dogPolicyTitle: dogPolicyTitle.trim() || null,
+      dog_policy_title: dogPolicyTitle.trim() || null,
+      dogPolicySubtitle: dogPolicySubtitle.trim() || null,
+      dog_policy_subtitle: dogPolicySubtitle.trim() || null,
+      dogFee: dogFee.trim() ? Math.max(0, Number(dogFee) || 0) : 70,
+      dog_fee: dogFee.trim() ? Math.max(0, Number(dogFee) || 0) : 70,
+      dogPolicyImageMediaId,
+      dog_policy_image_media_id: dogPolicyImageMediaId,
+      extras: extras.filter((ex) => ex.title.trim().length > 0),
       ...(bathrooms.trim()
         ? { bathrooms: Math.max(0, Number(bathrooms) || 0) }
         : { bathrooms: null }),
@@ -1444,6 +1579,242 @@ export function CottageForm({
           item. Empty = section hidden on the public page.
         </p>
       </div>
+      <Card className="border border-input">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-base font-semibold">Dogs &amp; Pets Policy</CardTitle>
+              <CardDescription className="text-xs">
+                Manage dog-friendly status, fee, customized card notice, and custom icon
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-medium text-muted-foreground">
+                {dogPolicyEnabled ? "Dogs Welcome" : "No Dogs Allowed"}
+              </span>
+              <Switch
+                id="rt-dog-policy-toggle"
+                checked={dogPolicyEnabled}
+                onCheckedChange={(val) => {
+                  setDogPolicyEnabled(val);
+                  if (val && (!maxDogs || Number(maxDogs) === 0)) {
+                    setMaxDogs("1");
+                  } else if (!val) {
+                    setMaxDogs("0");
+                  }
+                }}
+                aria-label="Toggle dogs policy"
+              />
+            </div>
+          </div>
+        </CardHeader>
+        {dogPolicyEnabled && (
+          <CardContent className="space-y-4 pt-2">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="rt-max-dogs-policy">Max Dogs Allowed</Label>
+                <Input
+                  id="rt-max-dogs-policy"
+                  type="number"
+                  min={1}
+                  value={maxDogs || "1"}
+                  onChange={(e) => setMaxDogs(e.target.value)}
+                  placeholder="1"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="rt-dog-fee">Dog Fee (£ per dog, per stay)</Label>
+                <Input
+                  id="rt-dog-fee"
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={dogFee}
+                  onChange={(e) => setDogFee(e.target.value)}
+                  placeholder="70"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="rt-dog-title">Policy Title (Display on Card)</Label>
+              <Input
+                id="rt-dog-title"
+                value={dogPolicyTitle}
+                onChange={(e) => setDogPolicyTitle(e.target.value)}
+                placeholder="Dogs welcome · £70 per dog, per stay"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Leave empty to auto-format: &ldquo;Dogs welcome · £{dogFee || 70} per dog, per stay&rdquo;
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="rt-dog-subtitle">Policy Subtitle / Note (Display on Card)</Label>
+              <Input
+                id="rt-dog-subtitle"
+                value={dogPolicySubtitle}
+                onChange={(e) => setDogPolicySubtitle(e.target.value)}
+                placeholder="Up to 1 dog · added only if you bring a dog"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Leave empty to auto-format: &ldquo;Up to {maxDogs || 1} dog · added only if you bring a dog&rdquo;
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <ImageField
+                label="Custom Dog Icon / Image (Optional — if unset, default dog line icon is used)"
+                mediaId={dogPolicyImageMediaId}
+                onChange={(id) => setDogPolicyImageMediaId(id)}
+              />
+            </div>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Optional Extras & Activities per Cottage */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <div>
+            <CardTitle className="text-base font-semibold">Optional Extras &amp; Activities</CardTitle>
+            <CardDescription className="text-xs">
+              Configure optional add-ons available for this cottage (e.g. Golf, Padel, Dining). Admin can add, edit, reorder, or delete extras anytime.
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            {extras.length === 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleLoadDefaultExtras}
+              >
+                Load Starter Extras
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              onClick={handleAddExtra}
+              className="gap-1"
+            >
+              <Plus className="size-4" /> Add Extra
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {extras.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+              No extras added yet for this cottage. Click <strong>Add Extra</strong> or <strong>Load Starter Extras</strong> to add options for guests during checkout.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {extras.map((extra, index) => (
+                <div
+                  key={extra.id}
+                  className="rounded-lg border border-border bg-card p-4 transition-all"
+                >
+                  <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Extra #{index + 1}: {extra.title || "(Untitled)"}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="size-7"
+                        disabled={index === 0}
+                        onClick={() => handleMoveExtra(index, "up")}
+                        title="Move Up"
+                      >
+                        <ArrowUp className="size-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="size-7"
+                        disabled={index === extras.length - 1}
+                        onClick={() => handleMoveExtra(index, "down")}
+                        title="Move Down"
+                      >
+                        <ArrowDown className="size-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="size-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => handleRemoveExtra(extra.id)}
+                        title="Delete Extra"
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+                    <div className="space-y-1 md:col-span-2">
+                      <Label className="text-xs">Title *</Label>
+                      <Input
+                        value={extra.title}
+                        onChange={(e) => handleUpdateExtra(extra.id, { title: e.target.value })}
+                        placeholder="e.g. A round of golf"
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Price ({getCurrencySymbol()}) *</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={extra.price}
+                        onChange={(e) => handleUpdateExtra(extra.id, { price: Math.max(0, parseFloat(e.target.value) || 0) })}
+                        placeholder="e.g. 60"
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Pricing Type</Label>
+                      <select
+                        value={extra.pricingType}
+                        onChange={(e) => handleUpdateExtra(extra.id, { pricingType: e.target.value as "PER_PERSON" | "PER_STAY" })}
+                        className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      >
+                        <option value="PER_PERSON">Per Person / Adult</option>
+                        <option value="PER_STAY">Per Stay / Session</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 space-y-1">
+                    <Label className="text-xs">Description / Subtitle</Label>
+                    <Input
+                      value={extra.description || ""}
+                      onChange={(e) => handleUpdateExtra(extra.id, { description: e.target.value })}
+                      placeholder="e.g. £60 per adult · illustrative price"
+                      className="h-8 text-xs"
+                    />
+                  </div>
+
+                  <div className="mt-3">
+                    <ImageField
+                      label="Extra Photo / Image (Optional)"
+                      mediaId={extra.imageMediaId || null}
+                      onChange={(id) => handleUpdateExtra(extra.id, { imageMediaId: id })}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <div className="space-y-3 rounded-md border border-input p-4">
         <div className="flex items-center gap-2">
           <Switch

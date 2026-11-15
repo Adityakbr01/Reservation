@@ -12,6 +12,7 @@ export type BookingStatus =
 export interface ReservationGuests {
   adults: number;
   children: number;
+  dogs?: number;
 }
 
 export interface ReservationContact {
@@ -35,6 +36,7 @@ export interface ReservationPricing {
   discount: number;
   taxes: number;
   fees: number;
+  dogFee?: number;
   total: number;
   couponCode: string | null;
 }

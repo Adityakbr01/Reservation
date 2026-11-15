@@ -86,6 +86,12 @@ class AdminCottageController extends Controller
             'bedrooms' => $request->filled('bedrooms') ? (int) $request->input('bedrooms') : null,
             'bathrooms' => $request->filled('bathrooms') ? (float) $request->input('bathrooms') : null,
             'max_dogs' => $request->filled('maxDogs') ? (int) $request->input('maxDogs') : ($request->filled('max_dogs') ? (int) $request->input('max_dogs') : 0),
+            'dog_policy_enabled' => filter_var($request->input('dog_policy_enabled') ?? $request->input('dogPolicyEnabled'), FILTER_VALIDATE_BOOLEAN),
+            'dog_policy_title' => $request->input('dog_policy_title') ?? $request->input('dogPolicyTitle'),
+            'dog_policy_subtitle' => $request->input('dog_policy_subtitle') ?? $request->input('dogPolicySubtitle'),
+            'dog_fee' => $request->filled('dog_fee') ? (float) $request->input('dog_fee') : ($request->filled('dogFee') ? (float) $request->input('dogFee') : 70.00),
+            'dog_policy_image_media_id' => $request->input('dog_policy_image_media_id') ?? $request->input('dogPolicyImageMediaId'),
+            'extras' => $request->input('extras') ?? [],
             'beds' => $request->input('beds') ?? [],
             'amenities' => $request->input('amenities') ?? [],
             'amenity_ids' => $request->input('amenity_ids') ?? $request->input('amenityIds') ?? [],
@@ -200,6 +206,25 @@ class AdminCottageController extends Controller
         }
         if ($request->has('max_dogs') || $request->has('maxDogs')) {
             $payload['max_dogs'] = $request->filled('maxDogs') ? (int) $request->input('maxDogs') : ($request->filled('max_dogs') ? (int) $request->input('max_dogs') : 0);
+        }
+        if ($request->has('dog_policy_enabled') || $request->has('dogPolicyEnabled')) {
+            $payload['dog_policy_enabled'] = filter_var($request->input('dog_policy_enabled') ?? $request->input('dogPolicyEnabled'), FILTER_VALIDATE_BOOLEAN);
+        }
+        if ($request->has('dog_policy_title') || $request->has('dogPolicyTitle')) {
+            $payload['dog_policy_title'] = $request->input('dog_policy_title') ?? $request->input('dogPolicyTitle');
+        }
+        if ($request->has('dog_policy_subtitle') || $request->has('dogPolicySubtitle')) {
+            $payload['dog_policy_subtitle'] = $request->input('dog_policy_subtitle') ?? $request->input('dogPolicySubtitle');
+        }
+        if ($request->has('dog_fee') || $request->has('dogFee')) {
+            $val = $request->input('dog_fee') ?? $request->input('dogFee');
+            $payload['dog_fee'] = ($val !== null && $val !== '') ? (float) $val : 70.00;
+        }
+        if ($request->has('dog_policy_image_media_id') || $request->has('dogPolicyImageMediaId')) {
+            $payload['dog_policy_image_media_id'] = $request->input('dog_policy_image_media_id') ?? $request->input('dogPolicyImageMediaId');
+        }
+        if ($request->has('extras')) {
+            $payload['extras'] = $request->input('extras') ?? [];
         }
         if ($request->has('beds')) $payload['beds'] = $request->input('beds');
         if ($request->has('amenities')) $payload['amenities'] = $request->input('amenities');
@@ -484,6 +509,30 @@ class AdminCottageController extends Controller
             'bathrooms' => $c->bathrooms !== null ? (int) $c->bathrooms : null,
             'max_dogs' => $c->max_dogs !== null ? (int) $c->max_dogs : null,
             'maxDogs' => $c->max_dogs !== null ? (int) $c->max_dogs : null,
+            'dog_policy_enabled' => (bool) ($c->dog_policy_enabled ?? ($c->max_dogs > 0)),
+            'dogPolicyEnabled' => (bool) ($c->dog_policy_enabled ?? ($c->max_dogs > 0)),
+            'dog_policy_title' => $c->dog_policy_title,
+            'dogPolicyTitle' => $c->dog_policy_title,
+            'dog_policy_subtitle' => $c->dog_policy_subtitle,
+            'dogPolicySubtitle' => $c->dog_policy_subtitle,
+            'dog_fee' => $c->dog_fee !== null ? (float) $c->dog_fee : 70.00,
+            'dogFee' => $c->dog_fee !== null ? (float) $c->dog_fee : 70.00,
+            'dog_policy_image_media_id' => $c->dog_policy_image_media_id,
+            'dogPolicyImageMediaId' => $c->dog_policy_image_media_id,
+            'dog_policy_image_url' => $c->dog_policy_image_media_id ? \App\Models\Media::find($c->dog_policy_image_media_id)?->url : null,
+            'dogPolicyImageUrl' => $c->dog_policy_image_media_id ? \App\Models\Media::find($c->dog_policy_image_media_id)?->url : null,
+            'extras' => array_map(function ($extra) {
+                $ex = is_array($extra) ? $extra : (array) $extra;
+                $mid = $ex['imageMediaId'] ?? $ex['image_media_id'] ?? null;
+                if ($mid && empty($ex['imageUrl']) && empty($ex['image_url'])) {
+                    $med = \App\Models\Media::find($mid);
+                    if ($med) {
+                        $ex['imageUrl'] = $med->url;
+                        $ex['image_url'] = $med->url;
+                    }
+                }
+                return $ex;
+            }, $c->extras ?? []),
             'status' => (string) ($c->status ?? 'ACTIVE'),
             'seo' => $c->seo ?? [],
             'created_at' => $createdAt,

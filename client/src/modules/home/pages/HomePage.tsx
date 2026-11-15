@@ -17,6 +17,7 @@ import {
   useAvailabilitySearch,
 } from "@/modules/availability";
 import type { AvailabilitySearchParams } from "@/modules/availability";
+import { BookingJourneyDialog } from "@/modules/booking/components/BookingJourneyDialog";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -333,12 +334,12 @@ export function HomePage() {
             </div>
           ) : !data ? (
             <div
-              className="grid gap-5 lg:grid-cols-2"
+              className="grid grid-cols-1 md:grid-cols-2 gap-[26px] items-stretch"
               aria-busy="true"
               aria-label="Searching availability"
             >
-              {[0, 1, 2, 3].map((row) => (
-                <Skeleton key={row} className="h-[328px] w-full rounded-none" />
+              {[0, 1].map((row) => (
+                <Skeleton key={row} className="h-[520px] w-full rounded-none" />
               ))}
             </div>
           ) : results.length === 0 ? (
@@ -352,7 +353,7 @@ export function HomePage() {
             </div>
           ) : (
             <>
-              <div className="grid items-stretch gap-5 md:grid-cols-[repeat(auto-fit,minmax(420px,1fr))]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-[26px] items-stretch">
                 {results.map((item) => (
                   <CottageCard
                     key={item.roomType.id}
@@ -365,6 +366,8 @@ export function HomePage() {
           )}
         </section>
       </div>
+
+      <BookingJourneyDialog cottages={results} />
     </div>
   );
 }

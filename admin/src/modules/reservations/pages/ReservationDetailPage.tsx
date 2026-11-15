@@ -105,6 +105,7 @@ export function ReservationDetailPage() {
     guests: {
       adults: Number(rawBooking?.guests?.adults ?? 1),
       children: Number(rawBooking?.guests?.children ?? 0),
+      dogs: Number(rawBooking?.guests?.dogs ?? 0),
     },
     contact: {
       title: rawBooking?.contact?.title ?? null,
@@ -126,6 +127,7 @@ export function ReservationDetailPage() {
       discount: Number(rawBooking?.pricing?.discount ?? 0),
       taxes: Number(rawBooking?.pricing?.taxes ?? 0),
       fees: Number(rawBooking?.pricing?.fees ?? 0),
+      dogFee: Number(rawBooking?.pricing?.dogFee ?? rawBooking?.pricing?.dog_fee ?? rawBooking?.pricing?.fees ?? 0),
       total: Number(rawBooking?.pricing?.total ?? 0),
       couponCode: rawBooking?.pricing?.couponCode ?? rawBooking?.pricing?.coupon_code ?? null,
     },
@@ -298,11 +300,15 @@ export function ReservationDetailPage() {
               {formatDate(booking.checkIn)} → {formatDate(booking.checkOut)} ·{" "}
               {booking.guests.adults + booking.guests.children} guest
               {booking.guests.adults + booking.guests.children === 1 ? "" : "s"}
+              {Number(booking.guests.dogs ?? 0) > 0 &&
+                ` · ${Number(booking.guests.dogs)} dog${Number(booking.guests.dogs) === 1 ? "" : "s"}`}
             </p>
             <p className="text-muted-foreground">
               Total {formatMoney(booking.pricing.total, booking.pricing.currency)}
               {booking.pricing.discount > 0 &&
                 ` (incl. ${formatMoney(booking.pricing.discount, booking.pricing.currency)} coupon)`}
+              {Number(booking.pricing.dogFee ?? 0) > 0 &&
+                ` (incl. ${formatMoney(Number(booking.pricing.dogFee), booking.pricing.currency)} dog fee)`}
             </p>
             {booking.cancellation.cancelledAt && (
               <p className="text-muted-foreground">

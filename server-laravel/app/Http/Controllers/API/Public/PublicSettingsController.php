@@ -260,7 +260,10 @@ class PublicSettingsController extends Controller
         $stored = is_array($stored) ? $stored : [];
 
         foreach ($defaults as $section => $values) {
-            $incoming = is_array($stored[$section] ?? null) ? $stored[$section] : [];
+            $snakeSection = \Illuminate\Support\Str::snake($section);
+            $incoming = is_array($stored[$section] ?? null)
+                ? $stored[$section]
+                : (is_array($stored[$snakeSection] ?? null) ? $stored[$snakeSection] : []);
             $defaults[$section] = array_merge($values, $incoming);
         }
 

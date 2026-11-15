@@ -36,6 +36,8 @@ class PublicBookingController extends Controller
             'quantity' => 'nullable|integer|min:1',
             'couponCode' => 'nullable|string',
             'coupon_code' => 'nullable|string',
+            'dogs' => 'nullable|integer|min:0',
+            'dogsCount' => 'nullable|integer|min:0',
         ]);
 
         $cottageId = $request->input('roomTypeId') ?? $request->input('room_type_id');
@@ -44,6 +46,7 @@ class PublicBookingController extends Controller
         $checkOut = $request->input('checkOut') ?? $request->input('check_out') ?? date('Y-m-d', strtotime('+2 days'));
         $quantity = (int) ($request->input('quantity', 1) ?: 1);
         $couponCode = trim((string) ($request->input('couponCode') ?? $request->input('coupon_code') ?? ''));
+        $dogsCount = (int) ($request->input('dogs') ?? $request->input('dogsCount') ?? 0);
 
         $cottage = Cottage::where('id', $cottageId)->orWhere('slug', $cottageId)->first();
         $ratePlan = null;
@@ -84,8 +87,18 @@ class PublicBookingController extends Controller
             }
         }
 
+        // Calculate dog fee if guest opted to bring dog(s) and cottage allows dogs
+        $dogFeePence = 0;
+        if ($dogsCount > 0 && $cottage) {
+            $isDogFriendly = $cottage->dog_policy_enabled ?? ($cottage->max_dogs > 0);
+            if ($isDogFriendly) {
+                $unitDogFee = $cottage->dog_fee !== null ? (float) $cottage->dog_fee : 70.00;
+                $dogFeePence = (int) round($unitDogFee * 100) * $dogsCount;
+            }
+        }
+
         $tax = 0;
-        $total = max(0, $subtotal - $discount + $tax);
+        $total = max(0, $subtotal - $discount + $tax + $dogFeePence);
         $currency = $ratePlan?->pricing['currency']
             ?? \App\Models\SiteSettings::first()?->currency
             ?? \App\Models\Property::first()?->currency
@@ -113,6 +126,11 @@ class PublicBookingController extends Controller
                     'subtotal' => $subtotal,
                     'discount' => $discount,
                     'tax' => $tax,
+                    'fees' => $dogFeePence,
+                    'dogFee' => $dogFeePence,
+                    'dog_fee' => $dogFeePence,
+                    'dogsCount' => $dogsCount,
+                    'dogs_count' => $dogsCount,
                     'total' => $total,
                     'currency' => $currency,
                 ],
@@ -272,17 +290,43 @@ class PublicBookingController extends Controller
         }
 
         $total = max(0, $subtotal - $discount);
+
+        $dogsCount = (int) ($request->input('dogs') ?? $request->input('dogsCount') ?? ($guests['dogs'] ?? 0));
+        $dogFeePence = 0;
+        if ($dogsCount > 0) {
+            foreach ($bookingItemsData as $itemData) {
+                $cot = $itemData['cottage'];
+                if ($cot) {
+                    $isDogFriendly = $cot->dog_policy_enabled ?? ($cot->max_dogs > 0);
+                    if ($isDogFriendly) {
+                        $unitDogFee = $cot->dog_fee !== null ? (float) $cot->dog_fee : 70.00;
+                        $dogFeePence = (int) round($unitDogFee * 100) * $dogsCount;
+                        break;
+                    }
+                }
+            }
+        }
+
+        $total = max(0, $total + $dogFeePence);
         $bookingNumber = 'BK' . strtoupper(bin2hex(random_bytes(4)));
 
         $activeCurrency = \App\Models\SiteSettings::first()?->currency
             ?? \App\Models\Property::first()?->currency
             ?? 'GBP';
 
+        if (!is_array($guests)) {
+            $guests = ['adults' => 2, 'children' => 0];
+        }
+        $guests['dogs'] = $dogsCount;
+
         $pricingPayload = [
             'subtotal' => $subtotal,
             'discount' => $discount,
             'taxes' => 0,
-            'fees' => 0,
+            'fees' => $dogFeePence,
+            'dogFee' => $dogFeePence,
+            'dog_fee' => $dogFeePence,
+            'dogsCount' => $dogsCount,
             'total' => $total,
             'currency' => $activeCurrency,
         ];

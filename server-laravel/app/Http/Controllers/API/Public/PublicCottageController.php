@@ -68,6 +68,9 @@ class PublicCottageController extends Controller
         if (!empty($c->about_image_media_id)) {
             $allMediaIds[] = $c->about_image_media_id;
         }
+        if (!empty($c->dog_policy_image_media_id)) {
+            $allMediaIds[] = $c->dog_policy_image_media_id;
+        }
         $mediaMap = [];
         if (!empty($allMediaIds)) {
             $mediaMap = \App\Models\Media::whereIn('id', array_unique($allMediaIds))
@@ -160,6 +163,35 @@ class PublicCottageController extends Controller
             'bathrooms' => $c->bathrooms !== null ? (int) $c->bathrooms : null,
             'max_dogs' => $c->max_dogs !== null ? (int) $c->max_dogs : null,
             'maxDogs' => $c->max_dogs !== null ? (int) $c->max_dogs : null,
+            'dog_policy_enabled' => (bool) ($c->dog_policy_enabled ?? ($c->max_dogs > 0)),
+            'dogPolicyEnabled' => (bool) ($c->dog_policy_enabled ?? ($c->max_dogs > 0)),
+            'dog_policy_title' => $c->dog_policy_title,
+            'dogPolicyTitle' => $c->dog_policy_title,
+            'dog_policy_subtitle' => $c->dog_policy_subtitle,
+            'dogPolicySubtitle' => $c->dog_policy_subtitle,
+            'dog_fee' => $c->dog_fee !== null ? (float) $c->dog_fee : 70.00,
+            'dogFee' => $c->dog_fee !== null ? (float) $c->dog_fee : 70.00,
+            'dog_policy_image_media_id' => $c->dog_policy_image_media_id,
+            'dogPolicyImageMediaId' => $c->dog_policy_image_media_id,
+            'dog_policy_image_url' => (!empty($c->dog_policy_image_media_id) && isset($mediaMap[$c->dog_policy_image_media_id])) ? $mediaMap[$c->dog_policy_image_media_id]->url : null,
+            'dogPolicyImageUrl' => (!empty($c->dog_policy_image_media_id) && isset($mediaMap[$c->dog_policy_image_media_id])) ? $mediaMap[$c->dog_policy_image_media_id]->url : null,
+            'extras' => array_map(function ($extra) use ($mediaMap) {
+                $ex = is_array($extra) ? $extra : (array) $extra;
+                $mid = $ex['imageMediaId'] ?? $ex['image_media_id'] ?? null;
+                if ($mid && empty($ex['imageUrl']) && empty($ex['image_url'])) {
+                    if (isset($mediaMap[$mid])) {
+                        $ex['imageUrl'] = $mediaMap[$mid]->url;
+                        $ex['image_url'] = $mediaMap[$mid]->url;
+                    } else {
+                        $med = \App\Models\Media::find($mid);
+                        if ($med) {
+                            $ex['imageUrl'] = $med->url;
+                            $ex['image_url'] = $med->url;
+                        }
+                    }
+                }
+                return $ex;
+            }, $c->extras ?? []),
             'status' => (string) ($c->status ?? 'ACTIVE'),
             'seo' => $c->seo ?? [],
         ];

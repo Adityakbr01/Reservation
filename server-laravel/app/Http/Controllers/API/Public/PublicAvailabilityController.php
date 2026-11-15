@@ -75,6 +75,13 @@ class PublicAvailabilityController extends Controller
                 $mid = is_array($img) ? ($img['mediaId'] ?? null) : ($img->mediaId ?? null);
                 if ($mid) $allMediaIds[] = $mid;
             }
+            if (!empty($rt->dog_policy_image_media_id)) {
+                $allMediaIds[] = $rt->dog_policy_image_media_id;
+            }
+            foreach ($rt->extras ?? [] as $extra) {
+                $mid = is_array($extra) ? ($extra['imageMediaId'] ?? $extra['image_media_id'] ?? null) : ($extra->imageMediaId ?? null);
+                if ($mid) $allMediaIds[] = $mid;
+            }
         }
         $mediaMap = [];
         if (!empty($allMediaIds)) {
@@ -142,10 +149,31 @@ class PublicAvailabilityController extends Controller
                     'bathrooms' => $rt->bathrooms,
                     'maxDogs' => $rt->max_dogs,
                     'max_dogs' => $rt->max_dogs,
+                    'dogPolicyEnabled' => (bool) ($rt->dog_policy_enabled ?? ($rt->max_dogs > 0)),
+                    'dog_policy_enabled' => (bool) ($rt->dog_policy_enabled ?? ($rt->max_dogs > 0)),
+                    'dogPolicyTitle' => $rt->dog_policy_title,
+                    'dog_policy_title' => $rt->dog_policy_title,
+                    'dogPolicySubtitle' => $rt->dog_policy_subtitle,
+                    'dog_policy_subtitle' => $rt->dog_policy_subtitle,
+                    'dogFee' => $rt->dog_fee !== null ? (float) $rt->dog_fee : 70.00,
+                    'dog_fee' => $rt->dog_fee !== null ? (float) $rt->dog_fee : 70.00,
+                    'dogPolicyImageMediaId' => $rt->dog_policy_image_media_id,
+                    'dog_policy_image_media_id' => $rt->dog_policy_image_media_id,
+                    'dogPolicyImageUrl' => (!empty($rt->dog_policy_image_media_id) && isset($mediaMap[$rt->dog_policy_image_media_id])) ? $mediaMap[$rt->dog_policy_image_media_id]->url : null,
+                    'dog_policy_image_url' => (!empty($rt->dog_policy_image_media_id) && isset($mediaMap[$rt->dog_policy_image_media_id])) ? $mediaMap[$rt->dog_policy_image_media_id]->url : null,
                     'shortDescription' => $rt->short_description,
                     'amenities' => $rt->amenities ?? [],
                     'images' => $resolvedImages,
                     'media' => $resolvedMedia,
+                    'extras' => array_map(function ($extra) use ($mediaMap) {
+                        $ex = is_array($extra) ? $extra : (array) $extra;
+                        $mid = $ex['imageMediaId'] ?? $ex['image_media_id'] ?? null;
+                        if ($mid && empty($ex['imageUrl']) && empty($ex['image_url']) && isset($mediaMap[$mid])) {
+                            $ex['imageUrl'] = $mediaMap[$mid]->url;
+                            $ex['image_url'] = $mediaMap[$mid]->url;
+                        }
+                        return $ex;
+                    }, $rt->extras ?? []),
                 ],
                 'availableCount' => $availableCount,
                 'rates' => $rates,

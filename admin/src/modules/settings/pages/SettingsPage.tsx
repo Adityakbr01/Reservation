@@ -226,10 +226,36 @@ export interface BookingPagePoliciesSettings {
   checkOutText?: string;
 }
 
+export interface BookingJourneySettings {
+  previewNotice?: string;
+  modalTitle?: string;
+  step1Subtitle?: string;
+  step1Title?: string;
+  step1Note?: string;
+  step1ExploreLinkText?: string;
+  step2Subtitle?: string;
+  step2Title?: string;
+  step2Description?: string;
+  groupStayText?: string;
+  groupStayUrl?: string;
+  step3DogsTitle?: string;
+  noPetsNotice?: string;
+  extrasHeading?: string;
+  extrasDescription?: string;
+  extrasDisclaimer?: string;
+  step4Title?: string;
+  step4Description?: string;
+  acknowledgementText?: string;
+  step5Title?: string;
+  step5Subtitle?: string;
+  step5Disclaimer?: string;
+}
+
 export interface BookingPageSettings {
   enquiry?: CottageEnquirySettings;
   reservationDetails?: ReservationDetailsSettings;
   policies?: BookingPagePoliciesSettings;
+  bookingJourney?: BookingJourneySettings;
 }
 
 export const DEFAULT_BOOKING_PAGE = {
@@ -260,6 +286,30 @@ export const DEFAULT_BOOKING_PAGE = {
     checkOutLabel: "Check-out",
     checkOutText: "before 10:00 am",
   } satisfies Required<BookingPagePoliciesSettings>,
+  bookingJourney: {
+    previewNotice: "DESIGN PREVIEW · NO BOOKINGS OR PAYMENTS TAKEN",
+    modalTitle: "Book your stay.",
+    step1Subtitle: "YOUR STAY AT HOME FARM",
+    step1Title: "When would you like to stay?",
+    step1Note: "Design preview · example prices, no live availability.",
+    step1ExploreLinkText: "Explore the cottages first",
+    step2Subtitle: "YOUR STAY AT HOME FARM",
+    step2Title: "Choose your cottage.",
+    step2Description: "Take a closer look and choose your place at Home Farm.",
+    groupStayText: "Booking several cottages? Plan a group stay ↗",
+    groupStayUrl: "",
+    step3DogsTitle: "Bringing a dog?",
+    noPetsNotice: "This cottage does not accommodate pets.",
+    extrasHeading: "Make it your kind of stay.",
+    extrasDescription: "A little more time outdoors, or something lovely around the table. Everything here is optional.",
+    extrasDisclaimer: "These prices demonstrate the booking flow. Final prices, times, availability and package inclusions must be confirmed before the live site offers them.",
+    step4Title: "Almost there.",
+    step4Description: "A short guest checkout, with your selected dates and full total kept in view.",
+    acknowledgementText: "I understand this is a design preview. No booking, enquiry or payment will be submitted.",
+    step5Title: "A clear path",
+    step5Subtitle: "from cottage to checkout.",
+    step5Disclaimer: "The live payment step needs to connect to the existing booking system and Stripe after the final price and availability are confirmed.",
+  } satisfies Required<BookingJourneySettings>,
 };
 
 interface Settings {
@@ -394,6 +444,10 @@ function SettingsForm({ initial }: { initial: Settings }) {
         policies: {
           ...DEFAULT_BOOKING_PAGE.policies,
           ...(initial.bookingPage?.policies ?? {}),
+        },
+        bookingJourney: {
+          ...DEFAULT_BOOKING_PAGE.bookingJourney,
+          ...(initial.bookingPage?.bookingJourney ?? {}),
         },
       },
     };
@@ -2470,6 +2524,168 @@ function SettingsForm({ initial }: { initial: Settings }) {
                 </div>
               </div>
             </div>
+
+            {/* Booking Journey Preview Modal Content */}
+            {(() => {
+              const bj = form.bookingPage?.bookingJourney ?? DEFAULT_BOOKING_PAGE.bookingJourney;
+              const updateBj = (patch: Partial<BookingJourneySettings>) => {
+                set("bookingPage", {
+                  ...(form.bookingPage ?? {}),
+                  bookingJourney: { ...bj, ...patch },
+                });
+              };
+
+              return (
+                <div className="rounded-lg border p-4 space-y-4 bg-muted/10">
+                  <div className="border-b pb-3">
+                    <h4 className="text-sm font-semibold">Booking Journey Preview Modal Content</h4>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Configure text, titles, subtitles, notices, and disclaimers displayed inside the 5-step interactive booking preview dialog.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs font-semibold">Header Top Notice</Label>
+                      <Input
+                        value={bj.previewNotice ?? ""}
+                        placeholder="DESIGN PREVIEW · NO BOOKINGS OR PAYMENTS TAKEN"
+                        onChange={(e) => updateBj({ previewNotice: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs font-semibold">Modal Main Title</Label>
+                      <Input
+                        value={bj.modalTitle ?? ""}
+                        placeholder="Book your stay."
+                        onChange={(e) => updateBj({ modalTitle: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-xs font-semibold">Step 1 Subtitle</Label>
+                      <Input
+                        value={bj.step1Subtitle ?? ""}
+                        placeholder="YOUR STAY AT HOME FARM"
+                        onChange={(e) => updateBj({ step1Subtitle: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs font-semibold">Step 1 Heading</Label>
+                      <Input
+                        value={bj.step1Title ?? ""}
+                        placeholder="When would you like to stay?"
+                        onChange={(e) => updateBj({ step1Title: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label className="text-xs font-semibold">Step 1 Subtitle Note</Label>
+                      <Input
+                        value={bj.step1Note ?? ""}
+                        placeholder="Design preview · example prices, no live availability."
+                        onChange={(e) => updateBj({ step1Note: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-xs font-semibold">Step 2 Subtitle</Label>
+                      <Input
+                        value={bj.step2Subtitle ?? ""}
+                        placeholder="YOUR STAY AT HOME FARM"
+                        onChange={(e) => updateBj({ step2Subtitle: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs font-semibold">Step 2 Heading</Label>
+                      <Input
+                        value={bj.step2Title ?? ""}
+                        placeholder="Choose your cottage."
+                        onChange={(e) => updateBj({ step2Title: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label className="text-xs font-semibold">Step 2 Description</Label>
+                      <Input
+                        value={bj.step2Description ?? ""}
+                        placeholder="Take a closer look and choose your place at Home Farm."
+                        onChange={(e) => updateBj({ step2Description: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-xs font-semibold">Step 3 Extras Heading</Label>
+                      <Input
+                        value={bj.extrasHeading ?? ""}
+                        placeholder="Make it your kind of stay."
+                        onChange={(e) => updateBj({ extrasHeading: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs font-semibold">Step 3 Non-Pet Notice</Label>
+                      <Input
+                        value={bj.noPetsNotice ?? ""}
+                        placeholder="This cottage does not accommodate pets."
+                        onChange={(e) => updateBj({ noPetsNotice: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label className="text-xs font-semibold">Step 3 Extras Subtitle</Label>
+                      <Input
+                        value={bj.extrasDescription ?? ""}
+                        placeholder="A little more time outdoors, or something lovely around the table. Everything here is optional."
+                        onChange={(e) => updateBj({ extrasDescription: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-xs font-semibold">Step 4 Heading</Label>
+                      <Input
+                        value={bj.step4Title ?? ""}
+                        placeholder="Almost there."
+                        onChange={(e) => updateBj({ step4Title: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs font-semibold">Step 4 Description</Label>
+                      <Input
+                        value={bj.step4Description ?? ""}
+                        placeholder="A short guest checkout, with your selected dates and full total kept in view."
+                        onChange={(e) => updateBj({ step4Description: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label className="text-xs font-semibold">Step 4 Acknowledgement Checkbox Text</Label>
+                      <Input
+                        value={bj.acknowledgementText ?? ""}
+                        placeholder="I understand this is a design preview. No booking, enquiry or payment will be submitted."
+                        onChange={(e) => updateBj({ acknowledgementText: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-xs font-semibold">Step 5 Title</Label>
+                      <Input
+                        value={bj.step5Title ?? ""}
+                        placeholder="A clear path"
+                        onChange={(e) => updateBj({ step5Title: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs font-semibold">Step 5 Subtitle (Italic)</Label>
+                      <Input
+                        value={bj.step5Subtitle ?? ""}
+                        placeholder="from cottage to checkout."
+                        onChange={(e) => updateBj({ step5Subtitle: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
         )}

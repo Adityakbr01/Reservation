@@ -17,6 +17,16 @@ export interface SearchRate {
   nightly?: Array<{ date: string; price: number }>;
 }
 
+export interface CottageExtra {
+  id: string;
+  title: string;
+  description?: string;
+  price: number;
+  pricingType: "PER_PERSON" | "PER_STAY";
+  imageMediaId?: string | null;
+  imageUrl?: string | null;
+}
+
 export interface SearchResultRoomType {
   id: string;
   name: string;
@@ -27,10 +37,24 @@ export interface SearchResultRoomType {
   bedrooms?: number | null;
   bathrooms?: number | null;
   maxDogs?: number | null;
+  max_dogs?: number | null;
+  dogPolicyEnabled?: boolean;
+  dog_policy_enabled?: boolean;
+  dogPolicyTitle?: string | null;
+  dog_policy_title?: string | null;
+  dogPolicySubtitle?: string | null;
+  dog_policy_subtitle?: string | null;
+  dogFee?: number | null;
+  dog_fee?: number | null;
+  dogPolicyImageMediaId?: string | null;
+  dog_policy_image_media_id?: string | null;
+  dogPolicyImageUrl?: string | null;
+  dog_policy_image_url?: string | null;
+  extras?: CottageExtra[];
   shortDescription: string | null;
   amenities: string[];
-  images?: Array<{ mediaId: string; altText: string | null; sortOrder: number }>;
-  media?: Array<{ mediaId: string; kind: "image" | "video"; altText: string | null; sortOrder: number }>;
+  images?: Array<{ mediaId: string; altText: string | null; sortOrder: number; url?: string }>;
+  media?: Array<{ mediaId: string; kind: "image" | "video"; altText: string | null; sortOrder: number; url?: string }>;
 }
 
 export interface SearchResultItem {

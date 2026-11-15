@@ -25,6 +25,7 @@ export function SmoothScroll() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const lenis = new Lenis({ duration: 1.15, smoothWheel: true });
     lenisRef.current = lenis;
+    (window as any).__lenis = lenis;
     lenis.on("scroll", ScrollTrigger.update);
     const tick = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(tick);
@@ -33,6 +34,9 @@ export function SmoothScroll() {
       gsap.ticker.remove(tick);
       lenis.destroy();
       lenisRef.current = null;
+      if ((window as any).__lenis === lenis) {
+        (window as any).__lenis = null;
+      }
     };
   }, []);
 

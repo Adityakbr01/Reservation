@@ -99,6 +99,11 @@ export function toRoomType(doc: any): RoomType {
     bedrooms: doc.bedrooms ?? null,
     bathrooms: doc.bathrooms ?? null,
     maxDogs: doc.maxDogs ?? null,
+    dogPolicyEnabled: doc.dogPolicyEnabled !== null && doc.dogPolicyEnabled !== undefined ? Boolean(doc.dogPolicyEnabled) : (doc.maxDogs > 0),
+    dogPolicyTitle: doc.dogPolicyTitle ?? null,
+    dogPolicySubtitle: doc.dogPolicySubtitle ?? null,
+    dogFee: doc.dogFee !== null && doc.dogFee !== undefined ? Number(doc.dogFee) : 70,
+    dogPolicyImageMediaId: doc.dogPolicyImageMediaId ?? null,
     status: doc.status as RoomTypeStatus,
     seo,
     createdAt: doc.createdAt,
@@ -135,6 +140,11 @@ export interface CreateRoomTypeInput {
   bedrooms?: number | null;
   bathrooms?: number | null;
   maxDogs?: number | null;
+  dogPolicyEnabled?: boolean | null;
+  dogPolicyTitle?: string | null;
+  dogPolicySubtitle?: string | null;
+  dogFee?: number | null;
+  dogPolicyImageMediaId?: string | null;
   status?: RoomTypeStatus;
   seo?: RoomType["seo"];
 }
@@ -172,6 +182,11 @@ export async function createRoomType(input: CreateRoomTypeInput): Promise<RoomTy
       bedrooms: input.bedrooms ?? null,
       bathrooms: input.bathrooms ?? null,
       maxDogs: input.maxDogs ?? null,
+      dogPolicyEnabled: input.dogPolicyEnabled ?? false,
+      dogPolicyTitle: input.dogPolicyTitle ?? null,
+      dogPolicySubtitle: input.dogPolicySubtitle ?? null,
+      dogFee: input.dogFee ?? 70,
+      dogPolicyImageMediaId: input.dogPolicyImageMediaId ?? null,
       status: input.status ?? "DRAFT",
       seo: (input.seo ?? null) as any,
     },
@@ -271,6 +286,11 @@ export type UpdateRoomTypeInput = Partial<
     | "bedrooms"
     | "bathrooms"
     | "maxDogs"
+    | "dogPolicyEnabled"
+    | "dogPolicyTitle"
+    | "dogPolicySubtitle"
+    | "dogFee"
+    | "dogPolicyImageMediaId"
     | "status"
     | "seo"
   >
@@ -311,6 +331,11 @@ export async function updateRoomTypeById(
         ...(input.bedrooms !== undefined ? { bedrooms: input.bedrooms } : {}),
         ...(input.bathrooms !== undefined ? { bathrooms: input.bathrooms } : {}),
         ...(input.maxDogs !== undefined ? { maxDogs: input.maxDogs } : {}),
+        ...(input.dogPolicyEnabled !== undefined ? { dogPolicyEnabled: input.dogPolicyEnabled } : {}),
+        ...(input.dogPolicyTitle !== undefined ? { dogPolicyTitle: input.dogPolicyTitle } : {}),
+        ...(input.dogPolicySubtitle !== undefined ? { dogPolicySubtitle: input.dogPolicySubtitle } : {}),
+        ...(input.dogFee !== undefined ? { dogFee: input.dogFee } : {}),
+        ...(input.dogPolicyImageMediaId !== undefined ? { dogPolicyImageMediaId: input.dogPolicyImageMediaId } : {}),
         ...(input.status !== undefined ? { status: input.status } : {}),
         ...(input.seo !== undefined ? { seo: input.seo as any } : {}),
       },
