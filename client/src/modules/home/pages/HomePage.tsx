@@ -215,7 +215,7 @@ export function HomePage() {
       <section className="hero relative left-1/2 -mt-4 w-screen -translate-x-1/2 overflow-hidden sm:-mt-6">
         {/* Exterior stay photograph (approved repo asset) with a soft cream wash
             so the serif headline stays crisp. Foreground remains fully opaque. */}
-        <picture className="hero-banner absolute inset-0 block h-full w-full">
+        <picture className="hero-banner absolute inset-0 block h-full w-full hidden sm:block">
           <source srcSet="/hero_cottage_bg.avif" type="image/avif" />
           <img
             src="/hero_cottage_bg.webp"
@@ -230,7 +230,7 @@ export function HomePage() {
         </picture>
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-b from-[#f5f2e9]/95 via-[#f5f2e9]/80 to-[#f5f2e9]/30 lg:bg-gradient-to-r lg:from-[#f5f2e9] lg:via-[#f5f2e9]/75 lg:to-transparent"
+          className="absolute inset-0 bg-gradient-to-b from-[#f5f2e9]/95 via-[#f5f2e9]/80 to-[#f5f2e9]/30 lg:bg-gradient-to-r lg:from-[#f5f2e9] lg:via-[#f5f2e9]/75 lg:to-transparent hidden sm:block"
         />
         <div
           aria-hidden
@@ -275,7 +275,7 @@ export function HomePage() {
           </>
         )}
 
-        <div className="relative mx-auto w-full max-w-7xl px-4 pb-16 pt-8 sm:px-6 md:pb-24 md:pt-10 lg:px-12 lg:pb-28 lg:pt-16">
+        <div className="relative mx-auto w-full max-w-7xl px-4 pb-16 pt-8 sm:px-6 md:pb-24 md:pt-10 lg:px-12 lg:pb-28 lg:pt-16 hidden sm:block">
           <div className="max-w-[680px]">
             {hp?.hero?.showEyebrow === true && (
               <span className="hero-eyebrow mb-5 hidden text-[11px] font-medium uppercase tracking-[0.17em] text-foreground sm:mb-6 md:block">
@@ -334,7 +334,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <div className="relative z-10 mx-auto -mt-10 w-full max-w-7xl px-4 sm:-mt-14 sm:px-6 lg:px-12">
+      <div className="relative z-10 mx-auto pt-6 w-full max-w-7xl px-4 sm:-mt-14 sm:pt-0 sm:px-6 lg:px-12">
         <div className="search-card border border-border bg-card p-4 shadow-card sm:p-6">
           <SearchForm
             initial={search}

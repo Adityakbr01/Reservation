@@ -2071,10 +2071,10 @@ export function CottageForm({
 
             <div className="space-y-2">
               <Label htmlFor="rt-dog-title">Policy Title (Display on Card)</Label>
-              <Input
-                id="rt-dog-title"
+              <CkEditorField
+                label="Policy Title (Display on Card)"
                 value={dogPolicyTitle}
-                onChange={(e) => setDogPolicyTitle(e.target.value)}
+                onChange={setDogPolicyTitle}
                 placeholder={`Dogs welcome · ${getCurrencySymbol()}70 per dog, per stay`}
               />
               <p className="text-[11px] text-muted-foreground">
@@ -2084,10 +2084,10 @@ export function CottageForm({
 
             <div className="space-y-2">
               <Label htmlFor="rt-dog-subtitle">Policy Subtitle / Note (Display on Card)</Label>
-              <Input
-                id="rt-dog-subtitle"
+              <CkEditorField
+                label="Policy Subtitle / Note (Display on Card)"
                 value={dogPolicySubtitle}
-                onChange={(e) => setDogPolicySubtitle(e.target.value)}
+                onChange={setDogPolicySubtitle}
                 placeholder="Up to 1 dog · added only if you bring a dog"
               />
               <p className="text-[11px] text-muted-foreground">

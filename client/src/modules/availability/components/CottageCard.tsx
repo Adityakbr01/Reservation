@@ -12,6 +12,23 @@ import type {
 import { toSearchRecord } from "../utils/search-params";
 import { CottageGalleryDialog } from "./CottageGalleryDialog";
 
+const dogPolicyLinkStyles = document.createElement("style");
+dogPolicyLinkStyles.textContent = `
+  .dog-policy-html a {
+    text-decoration: underline;
+    text-decoration-color: currentColor;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+  .dog-policy-html a:hover {
+    opacity: 0.85;
+  }
+`;
+if (typeof document !== "undefined" && !document.querySelector("style[data-dog-policy]")) {
+  dogPolicyLinkStyles.setAttribute("data-dog-policy", "true");
+  document.head?.appendChild(dogPolicyLinkStyles);
+}
+
 function toBool(val: unknown, fallback = true): boolean {
   if (val === undefined || val === null) return fallback;
   if (val === false || val === 0 || val === "false" || val === "0") return false;
@@ -208,27 +225,32 @@ export const CottageCard = memo(function CottageCard({
 
         {/* Dog Policy Section - shown only when cottage is dog friendly */}
         {showDogPolicy && isDogFriendly && (
-          <p className="m-0 mt-[14px] hidden text-[11px] leading-[18.7px] text-[#243c30] md:block">
-            {customDogIcon ? (
-              <img
-                src={customDogIcon}
-                alt="Dogs welcome"
-                className="mr-[5px] inline-block h-[17px] w-[17px] object-contain align-middle"
-              />
-            ) : (
-              <svg
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-                className="mr-[5px] inline-block h-[17px] w-[17px] shrink-0 fill-none stroke-[#243c30] stroke-[1.5] stroke-linecap-round stroke-linejoin-round align-middle"
-              >
-                <path d="M6 12 3 5l6 3m9 4 3-7-6 3M5 14a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0Zm4 0h.01M15 14h.01m-5 4 2 1 2-1" />
-              </svg>
-            )}
-            {dogPolicyTitleText}
-            <small className="block pl-[24px] text-[10px] text-[#535b51]">
-              {dogPolicySubtitleText}
-            </small>
-          </p>
+          <div className="dog-policy-html relative mt-[14px]">
+            <p className="m-0 hidden text-[11px] leading-[18.7px] text-[#243c30] md:block">
+              {customDogIcon ? (
+                <img
+                  src={customDogIcon}
+                  alt="Dogs welcome"
+                  className="mr-[5px] inline-block h-[17px] w-[17px] object-contain align-middle"
+                />
+              ) : (
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className="mr-[5px] inline-block h-[17px] w-[17px] shrink-0 fill-none stroke-[#243c30] stroke-[1.5] stroke-linecap-round stroke-linejoin-round align-middle"
+                >
+                  <path d="M6 12 3 5l6 3m9 4 3-7-6 3M5 14a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0Zm4 0h.01M15 14h.01m-5 4 2 1 2-1" />
+                </svg>
+              )}
+              {dogPolicyTitleText && (
+                <span
+                  className="inline-block"
+                  dangerouslySetInnerHTML={{ __html: dogPolicyTitleText }}
+                />
+              )}
+            </p>
+            <small className="block pl-[24px] mt-[1px] text-[10px] text-[#535b51]" dangerouslySetInnerHTML={{ __html: dogPolicySubtitleText || "" }} />
+          </div>
         )}
 
         <div className="mt-auto pt-[20px]">
