@@ -32,9 +32,10 @@ interface SearchFormProps {
   initial: AvailabilitySearchParams;
   isPending: boolean;
   onSearch: (params: AvailabilitySearchParams) => void;
+  onFindCottages?: (params: AvailabilitySearchParams) => void;
 }
 
-export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
+export function SearchForm({ initial, isPending, onSearch, onFindCottages }: SearchFormProps) {
   const [checkIn, setCheckIn] = useState(initial.checkIn);
   const [checkOut, setCheckOut] = useState(initial.checkOut);
   const [adults, setAdults] = useState(String(initial.adults));
@@ -139,13 +140,15 @@ export function SearchForm({ initial, isPending, onSearch }: SearchFormProps) {
       return;
     }
     setRangeError(null);
-    onSearch({
+    const searchParams: AvailabilitySearchParams = {
       checkIn,
       checkOut,
       adults: Math.max(1, Number(adults) || 1),
       children: Math.max(0, Number(children) || 0),
       rooms: Math.max(1, Number(rooms) || 1),
-    });
+    };
+    onSearch(searchParams);
+    onFindCottages?.(searchParams);
   }
 
   function handleReset() {

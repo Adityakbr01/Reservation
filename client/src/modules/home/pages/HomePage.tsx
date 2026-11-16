@@ -20,6 +20,7 @@ import {
 } from "@/modules/availability";
 import type { AvailabilitySearchParams } from "@/modules/availability";
 import { BookingJourneyDialog } from "@/modules/booking/components/BookingJourneyDialog";
+import { useBookingJourneyStore } from "@/stores/booking-journey-store";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -67,6 +68,12 @@ export function HomePage() {
       next.checkIn && next.checkOut ? toSearchRecord(next) : {},
       { replace: true },
     );
+  }
+
+  const openBookingJourney = useBookingJourneyStore((state) => state.openBookingJourney);
+
+  function handleFindCottages(next: AvailabilitySearchParams) {
+    openBookingJourney(null, next);
   }
 
   const results = useMemo(() => {
@@ -274,6 +281,7 @@ export function HomePage() {
             initial={search}
             isPending={isInitialLoading}
             onSearch={handleSearch}
+            onFindCottages={handleFindCottages}
           />
         </div>
 

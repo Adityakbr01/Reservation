@@ -283,7 +283,8 @@ export function BookingJourneyDialog({
     };
   }, [isOpen, closeBookingJourney, galleryCottageId]);
 
-  // When store triggers open or cottage changes - ALWAYS START AT STEP 0 (DATES)
+  // When store triggers open - start at step 0 (Dates) unless dates are
+  // already selected, in which case jump straight to step 2 (Extras)
   useEffect(() => {
     if (isOpen) {
       if (storeCottage?.id) {
@@ -305,7 +306,11 @@ export function BookingJourneyDialog({
       if (storeSearchParams?.children !== undefined) {
         setChildren(storeSearchParams.children);
       }
-      setStep(0); // NEVER SKIP THE DATE STEP
+      if (storeSearchParams?.checkIn && storeSearchParams?.checkOut) {
+        setStep(1); // Dates already picked — go straight to extras
+      } else {
+        setStep(0);
+      }
       setClientSecret(null);
       setBookingId(null);
       setBookingNumber(null);
