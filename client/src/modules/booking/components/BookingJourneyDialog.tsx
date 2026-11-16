@@ -225,8 +225,8 @@ export function BookingJourneyDialog({
   // Cottage whose photo gallery is open (selection stays on the Choose button/radio)
   const [galleryCottageId, setGalleryCottageId] = useState<string | null>(null);
 
-  // Selected Extras (Set of IDs)
-  const [selectedExtraIds, setSelectedExtraIds] = useState<Set<string>>(new Set());
+  // Selected Extras (qty by id; qty > 0 means selected)
+  const [extraQtys, setExtraQtys] = useState<Record<string, number>>({});
 
   // Dogs selection (count: 0 or 1+)
   const [dogsCount, setDogsCount] = useState<number>(0);
@@ -327,7 +327,7 @@ export function BookingJourneyDialog({
       setBookingNumber(null);
       setHoldError(null);
     } else {
-      setSelectedExtraIds(new Set());
+      setExtraQtys({});
       setDogsCount(0);
       setClientSecret(null);
       setGalleryCottageId(null);
@@ -430,35 +430,57 @@ export function BookingJourneyDialog({
     return null;
   };
 
-  const calculateExtraAmount = (extra: CottageExtra): number => {
+  const calculateExtraAmount = (extra: CottageExtra, qty?: number): number => {
+    const q = qty ?? (extraQtys[extra.id] ?? 0);
+    if (q <= 0) return 0;
     if (extra.pricingType === "PER_PERSON") {
-      return extra.price * Math.max(1, adults);
+      return extra.price * Math.max(1, adults) * q;
     }
-    return extra.price;
+    return extra.price * q;
   };
+
+  // Seed quantities from available extras when they load: counter on => min, counter off => 0.
+  useEffect(() => {
+    const next: Record<string, number> = {};
+    for (const ex of availableExtras) {
+      next[ex.id] = ex.showCounter === true ? Math.max(0, Number(ex.min ?? 1)) : 0;
+    }
+    setExtraQtys(next);
+  }, [availableExtras]);
 
   const totalExtrasPounds = useMemo(() => {
     let sum = 0;
     for (const extra of availableExtras) {
-      if (selectedExtraIds.has(extra.id)) {
-        sum += calculateExtraAmount(extra);
-      }
+      const q = extraQtys[extra.id] ?? 0;
+      if (q > 0) sum += calculateExtraAmount(extra, q);
     }
     return sum;
-  }, [availableExtras, selectedExtraIds, adults]);
+  }, [availableExtras, extraQtys, adults]);
 
   const grandTotal = cottageTotalPounds + totalDogFee + totalExtrasPounds;
 
   if (!isOpen) return null;
 
-  const toggleExtra = (id: string) => {
-    setSelectedExtraIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
+  function changeExtraQty(id: string, delta: number) {
+    setExtraQtys((prev) => {
+      const ex = availableExtras.find((e) => e.id === id);
+      if (!ex) return prev;
+      const counterOn = ex.showCounter === true;
+      const min = Math.max(0, Number(ex.min ?? 1));
+      const max = ex.max == null ? Infinity : Math.max(0, Number(ex.max));
+      const current = prev[id] ?? 0;
+      let next: number;
+      if (!counterOn) {
+        // Checkbox: only 0 or 1, toggles on each click.
+        next = current > 0 ? 0 : 1;
+      } else {
+        next = current + delta;
+        if (next < 1) next = 0;
+        else next = Math.max(min, Math.min(max, next));
+      }
+      return { ...prev, [id]: next };
     });
-  };
+  }
 
   const getCottageCoverUrl = (rt: SearchResultRoomType): string | null => {
     const mediaList = rt.media && rt.media.length > 0 ? rt.media : [];
@@ -1062,15 +1084,19 @@ export function BookingJourneyDialog({
                   ) : (
                     <div className="mt-[24px] grid gap-[12px]">
                       {availableExtras.map((extra) => {
-                        const isChecked = selectedExtraIds.has(extra.id);
-                        const extraPrice = calculateExtraAmount(extra);
+                        const qty = extraQtys[extra.id] ?? 0;
+                        const isSelected = qty > 0;
+                        const extraPrice = calculateExtraAmount(extra, qty);
                         const plainTitle = (extra.title || "").replace(/<[^>]*>/g, "").trim();
+                        const counterOn = extra.showCounter === true;
+                        const min = Math.max(0, Number(extra.min ?? 1));
+                        const max = extra.max == null ? Infinity : Math.max(0, Number(extra.max));
 
                         return (
                           <div
                             key={extra.id}
                             className={`flex items-center gap-[12px] border bg-[#fffdf8] p-[12px] transition-colors ${
-                              isChecked
+                              isSelected
                                 ? "border-[#243c30] ring-1 ring-[#243c30]"
                                 : "border-[#d8d9cb] hover:border-[#243c30]/50"
                             }`}
@@ -1102,23 +1128,57 @@ export function BookingJourneyDialog({
                                 </span>
                               )}
                               <span className="mt-[4px] block font-['Instrument_Serif',Georgia,serif] text-[21px]">
-                                + {currencySymbol}{extraPrice}
+                                {isSelected ? `+ ${currencySymbol}${extraPrice}` : `+ ${currencySymbol}${extra.price}`}
                               </span>
                             </div>
-                            <label
-                              htmlFor={`dialog-extra-${extra.id}`}
-                              className="ml-auto flex items-center justify-center p-2 cursor-pointer -mr-2"
-                              title={`Select ${plainTitle || "extra"}`}
-                            >
-                              <input
-                                id={`dialog-extra-${extra.id}`}
-                                type="checkbox"
-                                checked={isChecked}
-                                onChange={() => toggleExtra(extra.id)}
-                                className="h-[18px] w-[18px] shrink-0 accent-[#243c30] cursor-pointer"
-                                aria-label={`Select ${plainTitle || "extra"}`}
-                              />
-                            </label>
+                            <div className="flex items-center gap-[6px] shrink-0 ml-[12px]">
+                              {counterOn ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => changeExtraQty(extra.id, -1)}
+                                    disabled={qty <= 0 || qty <= min}
+                                    className="flex h-[22px] w-[22px] items-center justify-center rounded-[4px] border border-[#d8d9cb] bg-[#eef2ed] text-[10px] font-medium text-[#243c30] disabled:opacity-50 disabled:cursor-not-allowed"
+                                    aria-label={`Decrease ${plainTitle}`}
+                                  >
+                                    −
+                                  </button>
+                                  <input
+                                    type="number"
+                                    value={qty}
+                                    readOnly
+                                    className="flex h-[22px] w-[24px] items-center justify-center rounded-[4px] border border-[#d8d9cb] bg-white text-[10px] font-medium text-center text-[#243c30]"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => changeExtraQty(extra.id, 1)}
+                                    disabled={max !== Infinity && qty >= max}
+                                    className="flex h-[22px] w-[22px] items-center justify-center rounded-[4px] border border-[#d8d9cb] bg-[#eef2ed] text-[10px] font-medium text-[#243c30] disabled:opacity-50 disabled:cursor-not-allowed"
+                                    aria-label={`Increase ${plainTitle}`}
+                                  >
+                                    +
+                                  </button>
+                                  <span className="ml-[6px] text-[9px] text-[#655b3e]">
+                                    {max !== Infinity ? `max ${max}` : ""}
+                                  </span>
+                                </>
+                              ) : (
+                                <label
+                                  htmlFor={`dialog-extra-${extra.id}`}
+                                  className="flex items-center justify-center p-2 cursor-pointer -mr-2"
+                                  title={`Select ${plainTitle || "extra"}`}
+                                >
+                                  <input
+                                    id={`dialog-extra-${extra.id}`}
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={() => changeExtraQty(extra.id, (qty > 0 ? 0 : 1))}
+                                    className="h-[18px] w-[18px] shrink-0 accent-[#243c30] cursor-pointer"
+                                    aria-label={`Select ${plainTitle || "extra"}`}
+                                  />
+                                </label>
+                              )}
+                            </div>
                           </div>
                         );
                       })}
@@ -1164,10 +1224,10 @@ export function BookingJourneyDialog({
                   <button
                     type="button"
                     data-action="skip-extras"
-                    onClick={() => {
-                      setSelectedExtraIds(new Set());
-                      setStep(3);
-                    }}
+                      onClick={() => {
+                        setExtraQtys({});
+                        setStep(3);
+                      }}
                     className="mt-[18px] block cursor-pointer border-0 text-left text-[10px] text-[#243c30] underline underline-offset-4 outline-offset-[5px]"
                   >
                     {bjSettings?.skipExtrasText || "Skip activities & dining →"}
@@ -1264,13 +1324,18 @@ export function BookingJourneyDialog({
                                 ...(city.trim() ? { city: city.trim() } : {}),
                                 ...(postcode.trim() ? { postcode: postcode.trim() } : {}),
                               },
-                              extras: Array.from(selectedExtraIds),
+                              extras: Object.entries(extraQtys)
+                                .filter(([, q]) => q > 0)
+                                .map(([id, q]) => ({ id, qty: q })),
                               notes: [
                                 requests.trim(),
-                                selectedExtraIds.size > 0
+                                Object.values(extraQtys).some((q) => q > 0)
                                   ? `Selected Extras: ${availableExtras
-                                      .filter((x) => selectedExtraIds.has(x.id))
-                                      .map((x) => `${(x.title || "").replace(/<[^>]*>/g, "").trim()}${x.pricingType === "PER_PERSON" ? ` (${adults} guests)` : ""}`)
+                                      .filter((x) => (extraQtys[x.id] ?? 0) > 0)
+                                      .map(
+                                        (x) =>
+                                          `${(x.title || "").replace(/<[^>]*>/g, "").trim()} ×${extraQtys[x.id]}`,
+                                      )
                                       .join(", ")}`
                                   : "",
                               ]
@@ -1572,7 +1637,7 @@ export function BookingJourneyDialog({
               )}
 
               {availableExtras
-                .filter((ex) => selectedExtraIds.has(ex.id))
+                .filter((ex) => (extraQtys[ex.id] ?? 0) > 0)
                 .map((extra) => (
                   <div
                     key={extra.id}
@@ -1581,7 +1646,9 @@ export function BookingJourneyDialog({
                     <span className="truncate pr-2">
                       {(extra.title || "").replace(/<[^>]*>/g, "").trim()}
                     </span>
-                    <span>{currencySymbol}{calculateExtraAmount(extra)}</span>
+                    <span>
+                      {currencySymbol}{calculateExtraAmount(extra, extraQtys[extra.id])}
+                    </span>
                   </div>
                 ))}
 

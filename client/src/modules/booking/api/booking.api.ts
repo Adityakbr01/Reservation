@@ -22,7 +22,7 @@ export interface QuoteRequest {
   dogs?: number;
   dogsCount?: number;
   adults?: number;
-  extras?: string[];
+  extras?: Array<{ id: string; qty: number }>;
 }
 
 /** Authoritative server pricing. Never trust search-result prices. */
@@ -40,7 +40,7 @@ export interface CreateBookingInput {
   couponCode?: string;
   dogs?: number;
   dogsCount?: number;
-  extras?: string[];
+  extras?: Array<{ id: string; qty: number }>;
 }
 
 export async function createBooking(

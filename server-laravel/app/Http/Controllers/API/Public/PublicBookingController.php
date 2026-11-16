@@ -15,6 +15,7 @@ use Firebase\JWT\JWT;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class PublicBookingController extends Controller
 {
@@ -48,8 +49,25 @@ class PublicBookingController extends Controller
         $couponCode = trim((string) ($request->input('couponCode') ?? $request->input('coupon_code') ?? ''));
         $dogsCount = (int) ($request->input('dogs') ?? $request->input('dogsCount') ?? 0);
         $adultsCount = (int) ($request->input('adults') ?? 2);
-        $extrasRaw = $request->input('extras') ?? $request->input('selectedExtras') ?? [];
-        $selectedExtraIds = is_array($extrasRaw) ? $extrasRaw : (is_string($extrasRaw) ? explode(',', $extrasRaw) : []);
+        $extrasRequested = $request->input('extras') ?? $request->input('selectedExtras') ?? [];
+        if (is_string($extrasRequested)) {
+            $extrasRequested = array_map(fn ($id) => ['id' => $id, 'qty' => 1], explode(',', $extrasRequested));
+        }
+        if (!is_array($extrasRequested)) {
+            $extrasRequested = [];
+        }
+        // Normalize to [{id, qty}] for validation & pricing.
+        $normalizedExtras = [];
+        foreach ($extrasRequested as $ex) {
+            if (!is_array($ex)) {
+                $normalizedExtras[] = ['id' => (string) $ex, 'qty' => 1];
+                continue;
+            }
+            $normalizedExtras[] = [
+                'id' => (string) ($ex['id'] ?? ''),
+                'qty' => (int) ($ex['qty'] ?? 1),
+            ];
+        }
 
         $cottage = Cottage::where('id', $cottageId)->orWhere('slug', $cottageId)->first();
         $ratePlan = null;
@@ -100,16 +118,59 @@ class PublicBookingController extends Controller
             }
         }
 
-        // Calculate optional extras fee
+        // Calculate optional extras fee (server-authoritative qty validation).
         $extrasFeePence = 0;
-        if (!empty($selectedExtraIds) && $cottage && !empty($cottage->extras)) {
+        $pricedExtras = [];
+        if (!empty($normalizedExtras) && $cottage && !empty($cottage->extras)) {
             $cotExtras = is_array($cottage->extras) ? $cottage->extras : (json_decode($cottage->extras, true) ?? []);
-            foreach ($cotExtras as $ex) {
-                if (in_array($ex['id'] ?? null, $selectedExtraIds)) {
-                    $p = (float) ($ex['price'] ?? 0);
-                    $itemAmount = ($ex['pricingType'] ?? '') === 'PER_PERSON' ? ($p * max(1, $adultsCount)) : $p;
-                    $extrasFeePence += (int) round($itemAmount * 100);
+            $extrasById = [];
+            foreach ($cotExtras as $candidate) {
+                $candId = $candidate['id'] ?? ($candidate['id'] ?? null);
+                if ($candId !== null && $candId !== '') {
+                    $extrasById[(string) $candId] = $candidate;
                 }
+            }
+            $validationErrors = [];
+            foreach ($normalizedExtras as $item) {
+                $id = $item['id'] ?? '';
+                $qty = (int) ($item['qty'] ?? 1);
+                if ($qty <= 0) {
+                    continue; // not selected
+                }
+                if (!isset($extrasById[$id])) {
+                    continue; // unknown extra ignored
+                }
+                $ex = $extrasById[$id];
+                $showCounter = $ex['showCounter'] ?? true;
+                $min = (int) ($ex['min'] ?? ($showCounter ? 1 : 0));
+                $maxRaw = $ex['max'] ?? null;
+                $max = ($maxRaw === null || $maxRaw === '') ? null : (int) $maxRaw;
+                if ($showCounter && $max !== null && $qty > $max) {
+                    $extraTitle = $ex['title'] ?? $id;
+                    $validationErrors[] = "Extra \"{$extraTitle}\" quantity exceeds maximum of {$max}.";
+                    $qty = $max;
+                }
+                if ($showCounter && $qty < $min) {
+                    $qty = $min;
+                }
+                if ($qty <= 0) {
+                    continue;
+                }
+                $p = (float) ($ex['price'] ?? 0);
+                $unitAmount = ($ex['pricingType'] ?? '') === 'PER_PERSON' ? ($p * max(1, $adultsCount)) : $p;
+                $itemAmount = $unitAmount * $qty;
+                $extrasFeePence += (int) round($itemAmount * 100);
+                $pricedExtras[] = [
+                    'id' => $id,
+                    'title' => $ex['title'] ?? '',
+                    'qty' => $qty,
+                    'lineAmount' => (int) round($itemAmount * 100),
+                ];
+            }
+            if (!empty($validationErrors)) {
+                throw ValidationException::withMessages([
+                    'extras' => $validationErrors,
+                ]);
             }
         }
 
@@ -149,6 +210,7 @@ class PublicBookingController extends Controller
                     'dogs_count' => $dogsCount,
                     'extrasFee' => $extrasFeePence,
                     'extras_fee' => $extrasFeePence,
+                    'extras' => $pricedExtras,
                     'total' => $total,
                     'currency' => $currency,
                 ],
@@ -325,22 +387,81 @@ class PublicBookingController extends Controller
             }
         }
 
-        // Calculate optional extras fee
+        // Calculate optional extras fee (server-authoritative qty validation).
         $extrasRaw = $request->input('extras') ?? $request->input('selectedExtras') ?? [];
-        $selectedExtraIds = is_array($extrasRaw) ? $extrasRaw : (is_string($extrasRaw) ? explode(',', $extrasRaw) : []);
+        if (is_string($extrasRaw)) {
+            $extrasRaw = array_map(fn ($id) => ['id' => $id, 'qty' => 1], explode(',', $extrasRaw));
+        }
+        if (!is_array($extrasRaw)) {
+            $extrasRaw = [];
+        }
+        $normalizedExtras = [];
+        foreach ($extrasRaw as $ex) {
+            if (!is_array($ex)) {
+                $normalizedExtras[] = ['id' => (string) $ex, 'qty' => 1];
+                continue;
+            }
+            $normalizedExtras[] = [
+                'id' => (string) ($ex['id'] ?? ''),
+                'qty' => (int) ($ex['qty'] ?? 1),
+            ];
+        }
         $extrasFeePence = 0;
-        if (!empty($selectedExtraIds)) {
+        $pricedExtras = [];
+        if (!empty($normalizedExtras)) {
             $adultsCount = (int) ($guests['adults'] ?? 2);
             foreach ($bookingItemsData as $itemData) {
                 $cot = $itemData['cottage'];
                 if ($cot && !empty($cot->extras)) {
                     $cotExtras = is_array($cot->extras) ? $cot->extras : (json_decode($cot->extras, true) ?? []);
-                    foreach ($cotExtras as $ex) {
-                        if (in_array($ex['id'] ?? null, $selectedExtraIds)) {
-                            $p = (float) ($ex['price'] ?? 0);
-                            $itemAmount = ($ex['pricingType'] ?? '') === 'PER_PERSON' ? ($p * max(1, $adultsCount)) : $p;
-                            $extrasFeePence += (int) round($itemAmount * 100);
+                    $extrasById = [];
+                    foreach ($cotExtras as $candidate) {
+                        $candId = $candidate['id'] ?? ($candidate['id'] ?? null);
+                        if ($candId !== null && $candId !== '') {
+                            $extrasById[(string) $candId] = $candidate;
                         }
+                    }
+                    $validationErrors = [];
+                    foreach ($normalizedExtras as $item) {
+                        $id = $item['id'] ?? '';
+                        $qty = (int) ($item['qty'] ?? 1);
+                        if ($qty <= 0) {
+                            continue;
+                        }
+                        if (!isset($extrasById[$id])) {
+                            continue;
+                        }
+                        $ex = $extrasById[$id];
+                        $showCounter = $ex['showCounter'] ?? true;
+                        $min = (int) ($ex['min'] ?? ($showCounter ? 1 : 0));
+                        $maxRaw = $ex['max'] ?? null;
+                        $max = ($maxRaw === null || $maxRaw === '') ? null : (int) $maxRaw;
+                        if ($showCounter && $max !== null && $qty > $max) {
+                            $extraTitle = $ex['title'] ?? $id;
+                            $validationErrors[] = "Extra \"{$extraTitle}\" quantity exceeds maximum of {$max}.";
+                            $qty = $max;
+                        }
+                        if ($showCounter && $qty < $min) {
+                            $qty = $min;
+                        }
+                        if ($qty <= 0) {
+                            continue;
+                        }
+                        $p = (float) ($ex['price'] ?? 0);
+                        $unitAmount = ($ex['pricingType'] ?? '') === 'PER_PERSON' ? ($p * max(1, $adultsCount)) : $p;
+                        $itemAmount = $unitAmount * $qty;
+                        $extrasFeePence += (int) round($itemAmount * 100);
+                        $pricedExtras[] = [
+                            'id' => $id,
+                            'title' => $ex['title'] ?? '',
+                            'qty' => $qty,
+                            'lineAmount' => (int) round($itemAmount * 100),
+                        ];
+                    }
+                    if (!empty($validationErrors)) {
+                        throw ValidationException::withMessages([
+                            'extras' => $validationErrors,
+                        ]);
                     }
                 }
             }
@@ -368,7 +489,8 @@ class PublicBookingController extends Controller
             'dogsCount' => $dogsCount,
             'extrasFee' => $extrasFeePence,
             'extras_fee' => $extrasFeePence,
-            'selectedExtras' => $selectedExtraIds,
+            'selectedExtras' => array_column($pricedExtras, 'id'),
+            'extras' => $pricedExtras,
             'total' => $total,
             'currency' => $activeCurrency,
         ];

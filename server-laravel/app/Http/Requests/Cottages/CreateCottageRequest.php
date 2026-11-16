@@ -77,7 +77,37 @@ class CreateCottageRequest extends FormRequest
             'property_id' => 'nullable|string',
             'propertyId' => 'nullable|string',
             'extras' => 'nullable|array',
+            'extras.*.id' => 'nullable|string|max:120',
+            'extras.*.title' => 'nullable|string|max:160',
+            'extras.*.description' => 'nullable|string|max:500',
+            'extras.*.price' => 'nullable|numeric|min:0',
+            'extras.*.pricingType' => 'nullable|in:PER_PERSON,PER_STAY',
+            'extras.*.showCounter' => 'nullable|boolean',
+            'extras.*.min' => 'nullable|integer|min:0',
+            'extras.*.max' => 'nullable|integer|min:0',
             'seo' => 'nullable|array',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $extras = $this->input('extras', []);
+            if (!is_array($extras)) {
+                return;
+            }
+            foreach ($extras as $index => $ex) {
+                if (!is_array($ex)) {
+                    continue;
+                }
+                $key = "extras.{$index}";
+                $showCounter = $ex['showCounter'] ?? true;
+                $min = isset($ex['min']) ? (int) $ex['min'] : 1;
+                $max = isset($ex['max']) && $ex['max'] !== null && $ex['max'] !== '' ? (int) $ex['max'] : null;
+                if ($showCounter && $max !== null && $min > $max) {
+                    $validator->errors()->add("$key.max", 'Max must be greater than or equal to min.');
+                }
+            }
+        });
     }
 }

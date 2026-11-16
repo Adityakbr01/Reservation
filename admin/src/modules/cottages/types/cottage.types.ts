@@ -37,6 +37,12 @@ export interface CottageExtra {
   pricingType: "PER_PERSON" | "PER_STAY";
   imageMediaId?: string | null;
   imageUrl?: string | null;
+  /** When true, render a qty stepper with min/max instead of a plain checkbox. Default true. */
+  showCounter?: boolean;
+  /** Minimum quantity when counter is on. Default 1. */
+  min?: number;
+  /** Maximum quantity when counter is on. null = no explicit cap. Default null. */
+  max?: number | null;
 }
 
 export interface Cottage {

@@ -34,7 +34,7 @@ export interface GuestBookingPayload {
   couponCode?: string;
   dogs?: number;
   dogsCount?: number;
-  extras?: string[];
+  extras?: Array<{ id: string; qty: number }>;
   notes?: string | null;
   createAccount?: boolean | null;
   password?: string | null;
@@ -63,6 +63,7 @@ export interface QuotePricing {
   dog_fee?: number;
   extrasFee?: number;
   extras_fee?: number;
+  extras?: Array<{ id: string; title: string; qty: number; lineAmount: number }>;
   total: number;
   currency: string;
 }

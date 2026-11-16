@@ -345,6 +345,9 @@ export function CottageForm({
         pricingType: item.pricingType === "PER_STAY" ? "PER_STAY" : "PER_PERSON",
         imageMediaId: item.imageMediaId || (item as any).image_media_id || null,
         imageUrl: item.imageUrl || (item as any).image_url || null,
+        showCounter: item.showCounter ?? false,
+        min: item.min ?? 1,
+        max: item.max ?? null,
       }));
     }
     return [];
@@ -362,6 +365,9 @@ export function CottageForm({
         pricingType: "PER_PERSON",
         imageMediaId: null,
         imageUrl: null,
+        showCounter: false,
+        min: 1,
+        max: null,
       },
     ]);
   }
@@ -399,6 +405,9 @@ export function CottageForm({
         pricingType: "PER_PERSON",
         imageMediaId: null,
         imageUrl: null,
+        showCounter: false,
+        min: 1,
+        max: null,
       },
       {
         id: "extra_padel",
@@ -408,6 +417,9 @@ export function CottageForm({
         pricingType: "PER_STAY",
         imageMediaId: null,
         imageUrl: null,
+        showCounter: false,
+        min: 1,
+        max: null,
       },
       {
         id: "extra_lunch",
@@ -417,6 +429,9 @@ export function CottageForm({
         pricingType: "PER_PERSON",
         imageMediaId: null,
         imageUrl: null,
+        showCounter: false,
+        min: 1,
+        max: null,
       },
       {
         id: "extra_dinner",
@@ -426,6 +441,9 @@ export function CottageForm({
         pricingType: "PER_PERSON",
         imageMediaId: null,
         imageUrl: null,
+        showCounter: false,
+        min: 1,
+        max: null,
       },
     ]);
   }
@@ -505,7 +523,10 @@ export function CottageForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const invalid = name.trim().length < 2;
+  const extrasLimitInvalid = extras.some(
+    (ex) => ex.showCounter && ex.max != null && Number(ex.min ?? 1) > Number(ex.max),
+  );
+  const invalid = name.trim().length < 2 || extrasLimitInvalid;
 
   // function updateBed(index: number, patch: Partial<CottageBed>) {
   //   setBeds((rows) =>
@@ -523,6 +544,15 @@ export function CottageForm({
       next.splice(target, 0, m);
       return next;
     });
+  }
+
+  function extraLimitError(id: string): string | null {
+    const ex = extras.find((e) => e.id === id);
+    if (!ex || !ex.showCounter) return null;
+    const min = Number(ex.min ?? 1);
+    const max = ex.max == null ? null : Number(ex.max);
+    if (max != null && !Number.isNaN(max) && min > max) return "Max must be greater than or equal to min";
+    return null;
   }
 
   function handleSubmit(e: FormEvent) {
@@ -1858,6 +1888,66 @@ export function CottageForm({
                         <option value="PER_PERSON">Per Person / Adult</option>
                         <option value="PER_STAY">Per Stay / Session</option>
                       </select>
+                    </div>
+                  </div>
+
+                  {/* Counter & limits */}
+                  <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          id={`extra-show-counter-${extra.id}`}
+                          checked={extra.showCounter ?? true}
+                          onCheckedChange={(v) =>
+                            handleUpdateExtra(extra.id, { showCounter: v })
+                          }
+                          aria-label={`Show counter for ${extra.title || "extra"}`}
+                        />
+                        <Label className="text-xs">Show quantity counter</Label>
+                      </div>
+                      {(extra.showCounter ?? true) && (
+                        <p className="text-[10px] text-muted-foreground">
+                          Guests increase/decrease quantity between min and max.
+                        </p>
+                      )}
+                      {!((extra.showCounter ?? true)) && (
+                        <p className="text-[10px] text-muted-foreground">
+                          Renders as an optional checkbox (qty 0 or 1).
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Min qty</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={String(extra.min ?? 1)}
+                        disabled={!(extra.showCounter ?? true)}
+                        onChange={(e) =>
+                          handleUpdateExtra(extra.id, { min: Math.max(0, Number(e.target.value) || 0) })
+                        }
+                        placeholder="1"
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Max qty</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={extra.max == null ? "" : String(extra.max)}
+                        disabled={!(extra.showCounter ?? true)}
+                        onChange={(e) =>
+                          handleUpdateExtra(extra.id, {
+                            max: e.target.value === "" ? null : Math.max(0, Number(e.target.value) || 0),
+                          })
+                        }
+                        placeholder="none"
+                        className="h-8 text-xs"
+                      />
+                      {extraLimitError(extra.id) && (
+                        <p className="text-[10px] text-destructive">{extraLimitError(extra.id)}</p>
+                      )}
                     </div>
                   </div>
 

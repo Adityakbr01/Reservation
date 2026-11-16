@@ -442,7 +442,16 @@ export function BookingPage() {
     return [];
   }, [availabilityQuery.data, rooms, cottageDetail]);
 
-  const [selectedExtraIds, setSelectedExtraIds] = useState<Set<string>>(new Set());
+  const [extraQtys, setExtraQtys] = useState<Record<string, number>>({});
+
+  // Seed quantities from available extras: counter on => start at min, counter off => 0.
+  useEffect(() => {
+    const next: Record<string, number> = {};
+    for (const ex of availableExtras) {
+      next[ex.id] = ex.showCounter === true ? Math.max(0, Number(ex.min ?? 1)) : 0;
+    }
+    setExtraQtys(next);
+  }, [availableExtras]);
 
   // Dynamic media resolution for extras
   const extraMediaIds = useMemo(() => {
@@ -480,26 +489,39 @@ export function BookingPage() {
     return null;
   };
 
-  const toggleExtra = (id: string) => {
-    setSelectedExtraIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
+  function changeExtraQty(id: string, delta: number) {
+    setExtraQtys((prev) => {
+      const ex = availableExtras.find((e) => e.id === id);
+      if (!ex) return prev;
+      const counterOn = ex.showCounter === true;
+      const min = Math.max(0, Number(ex.min ?? 1));
+      const max = ex.max == null ? Infinity : Math.max(0, Number(ex.max));
+      const current = prev[id] ?? 0;
+      let next: number;
+      if (!counterOn) {
+        // Checkbox: only 0 or 1, toggles on each click.
+        next = current > 0 ? 0 : 1;
+      } else {
+        next = current + delta;
+        if (next < 1) next = 0; // allow deselect
+        else next = Math.max(min, Math.min(max, next));
+      }
+      return { ...prev, [id]: next };
     });
-  };
+  }
 
-  const calculateExtraAmount = (extra: CottageExtra): number => {
-    const adultsCount = Math.max(1, selection?.adults ?? 2);
+  const calculateExtraAmount = (extra: CottageExtra, qty?: number): number => {
+    const q = qty ?? (extraQtys[extra.id] ?? 0);
+    if (q <= 0) return 0;
     if (extra.pricingType === "PER_PERSON") {
-      return extra.price * adultsCount;
+      return extra.price * q;
     }
-    return extra.price;
+    return extra.price * q;
   };
 
   const selectedExtraList = useMemo(() => {
-    return availableExtras.filter((ex) => selectedExtraIds.has(ex.id));
-  }, [availableExtras, selectedExtraIds]);
+    return availableExtras.filter((ex) => (extraQtys[ex.id] ?? 0) > 0);
+  }, [availableExtras, extraQtys]);
 
   const totalExtrasPounds = useMemo(() => {
     let sum = 0;
@@ -507,9 +529,7 @@ export function BookingPage() {
       sum += calculateExtraAmount(extra);
     }
     return sum;
-  }, [selectedExtraList, selection?.adults]);
-
-  const totalExtrasPence = totalExtrasPounds * 100;
+  }, [selectedExtraList, extraQtys]);
 
   // Authoritative pricing: one server quote per room line, summed. Never trust card prices.
   const quoteKey = useMemo(
@@ -522,16 +542,23 @@ export function BookingPage() {
             rooms.map((r) => `${r.roomTypeId}:${r.ratePlanId}:${r.quantity}`).join("|"),
             appliedCoupon ?? "no-coupon",
             bringingDog ? `dogs-${dogsCount}` : "no-dogs",
-            Array.from(selectedExtraIds).sort().join(","),
+            Object.entries(extraQtys)
+              .filter(([, q]) => q > 0)
+              .map(([id, q]) => `${id}:${q}`)
+              .sort()
+              .join(","),
           ].join("~")
         : "no-quote",
-    [selection, rooms, appliedCoupon, bringingDog, dogsCount, selectedExtraIds],
+    [selection, rooms, appliedCoupon, bringingDog, dogsCount, extraQtys],
   );
   const quoteQuery = useQuery({
     queryKey: [quoteKey],
     queryFn: async () => {
       if (!selection) throw new Error("Missing selection");
       if (rooms.length === 0) throw new Error("Add at least one cottage");
+      const selectedExtrasPayload = Object.entries(extraQtys)
+        .filter(([, q]) => q > 0)
+        .map(([id, q]) => ({ id, qty: q }));
       const parts = await Promise.all(
         rooms.map((r, idx) =>
           fetchQuote({
@@ -543,7 +570,7 @@ export function BookingPage() {
             adults: selection.adults,
             ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
             ...(idx === 0 && bringingDog ? { dogs: dogsCount, dogsCount } : {}),
-            ...(idx === 0 && selectedExtraIds.size > 0 ? { extras: Array.from(selectedExtraIds) } : {}),
+            ...(idx === 0 && selectedExtrasPayload.length > 0 ? { extras: selectedExtrasPayload } : {}),
           }),
         ),
       );
@@ -717,12 +744,8 @@ export function BookingPage() {
 
   const displayGrandTotalPence = useMemo(() => {
     if (!quote) return 0;
-    const serverExtrasFee = (quote.pricing.extrasFee ?? (quote.pricing as { extras_fee?: number }).extras_fee ?? 0);
-    if (serverExtrasFee > 0 || selectedExtraIds.size === 0) {
-      return quote.pricing.total;
-    }
-    return quote.pricing.total + totalExtrasPence;
-  }, [quote, selectedExtraIds.size, totalExtrasPence]);
+    return quote.pricing.total;
+  }, [quote]);
 
   function applyCoupon() {
     const code = couponInput.trim();
@@ -996,12 +1019,11 @@ export function BookingPage() {
       ...(country.trim() ? { country: country.trim() } : {}),
     };
     const extrasNote =
-      selectedExtraIds.size > 0
-        ? `Selected Extras: ${availableExtras
-            .filter((x) => selectedExtraIds.has(x.id))
+      Object.values(extraQtys).some((q) => q > 0)
+        ? `Selected Extras: ${selectedExtraList
             .map(
               (x) =>
-                `${x.title.replace(/<[^>]*>/g, "").trim()}${x.pricingType === "PER_PERSON" ? ` (${selection.adults} adults)` : ""} (+${currencySymbol}${calculateExtraAmount(x)})`,
+                `${(x.title || "").replace(/<[^>]*>/g, "").trim()} ×${extraQtys[x.id]} (+${currencySymbol}${calculateExtraAmount(x)})`,
             )
             .join(", ")}`
         : "";
@@ -1023,7 +1045,9 @@ export function BookingPage() {
               ...(bringingDog ? { dogs: dogsCount, dogsCount } : {}),
             },
             contact,
-            extras: Array.from(selectedExtraIds),
+            extras: Object.entries(extraQtys)
+              .filter(([, q]) => q > 0)
+              .map(([id, q]) => ({ id, qty: q })),
             ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
             ...(combinedNotes ? { notes: combinedNotes } : {}),
           },
@@ -1055,7 +1079,9 @@ export function BookingPage() {
             ...(bringingDog ? { dogs: dogsCount, dogsCount } : {}),
           },
           contact,
-          extras: Array.from(selectedExtraIds),
+          extras: Object.entries(extraQtys)
+            .filter(([, q]) => q > 0)
+            .map(([id, q]) => ({ id, qty: q })),
           ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
           ...(combinedNotes ? { notes: combinedNotes } : {}),
           createAccount: bookFasterEnabled && createAccount,
@@ -1383,9 +1409,9 @@ export function BookingPage() {
                       }}
                     />
                   </CardTitle>
-                  {selectedExtraIds.size > 0 && (
+                  {Object.values(extraQtys).some((q) => q > 0) && (
                     <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#243c30] text-[#fffdf8]">
-                      {selectedExtraIds.size} selected (+{currencySymbol}{totalExtrasPounds})
+                      {Object.values(extraQtys).filter((q) => q > 0).length} selected (+{currencySymbol}{totalExtrasPounds})
                     </span>
                   )}
                 </div>
@@ -1402,16 +1428,20 @@ export function BookingPage() {
               <CardContent className="pt-4 space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {availableExtras.map((extra) => {
-                    const isChecked = selectedExtraIds.has(extra.id);
+                    const qty = extraQtys[extra.id] ?? 0;
+                    const isSelected = qty > 0;
                     const extraPrice = calculateExtraAmount(extra);
                     const imgSrc = getExtraImageUrl(extra);
                     const plainTitle = (extra.title || "").replace(/<[^>]*>/g, "").trim();
+                    const counterOn = extra.showCounter === true;
+                    const min = Math.max(0, Number(extra.min ?? 1));
+                    const max = extra.max == null ? Infinity : Math.max(0, Number(extra.max));
 
                     return (
                       <div
                         key={extra.id}
                         className={`flex items-center gap-3 rounded-lg border p-3 transition-all ${
-                          isChecked
+                          isSelected
                             ? "border-[#243c30] bg-[#f4f6f0] ring-1 ring-[#243c30]"
                             : "border-[#d8d9cb] bg-white hover:border-[#243c30]/50"
                         }`}
@@ -1438,28 +1468,62 @@ export function BookingPage() {
                           ) : (
                             <span className="mt-0.5 block text-[11px] leading-snug text-[#535b51]">
                               {extra.pricingType === "PER_PERSON"
-                                ? `${currencySymbol}${extra.price} per adult`
+                                ? `${currencySymbol}${extra.price} per person`
                                 : `${currencySymbol}${extra.price} per stay`}
                             </span>
                           )}
                           <span className="mt-1 block font-['Instrument_Serif',Georgia,serif] text-lg font-medium text-[#243c30]">
-                            + {currencySymbol}{extraPrice}
+                            {isSelected ? `+ ${currencySymbol}${extraPrice}` : `+ ${currencySymbol}${extra.price}`}
                           </span>
                         </div>
-                        <label
-                          htmlFor={`checkout-extra-${extra.id}`}
-                          className="ml-auto flex items-center justify-center p-2 cursor-pointer -mr-1"
-                          title={`Select ${plainTitle || "extra"}`}
-                        >
-                          <input
-                            id={`checkout-extra-${extra.id}`}
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => toggleExtra(extra.id)}
-                            className="h-4 w-4 shrink-0 rounded border-[#243c30] accent-[#243c30] cursor-pointer"
-                            aria-label={`Select ${plainTitle || "extra"}`}
-                          />
-                        </label>
+                        <div className="flex items-center gap-2 shrink-0 ml-2">
+                          {counterOn ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => changeExtraQty(extra.id, -1)}
+                                disabled={qty <= 0 || qty <= min}
+                                className="flex h-6 w-6 items-center justify-center rounded-md border border-[#d8d9cb] bg-[#f4f6f0] text-[11px] font-medium text-[#243c30] disabled:opacity-50 disabled:cursor-not-allowed"
+                                aria-label={`Decrease ${plainTitle}`}
+                              >
+                                −
+                              </button>
+                              <input
+                                type="number"
+                                value={qty}
+                                readOnly
+                                className="flex h-6 w-8 items-center justify-center rounded-md border border-[#d8d9cb] bg-white text-[11px] font-medium text-center text-[#243c30]"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => changeExtraQty(extra.id, 1)}
+                                disabled={max !== Infinity && qty >= max}
+                                className="flex h-6 w-6 items-center justify-center rounded-md border border-[#d8d9cb] bg-[#f4f6f0] text-[11px] font-medium text-[#243c30] disabled:opacity-50 disabled:cursor-not-allowed"
+                                aria-label={`Increase ${plainTitle}`}
+                              >
+                                +
+                              </button>
+                              <span className="ml-1 text-[10px] text-muted-foreground">
+                                {max !== Infinity ? `max ${max}` : ""}
+                              </span>
+                            </>
+                          ) : (
+                            <label
+                              htmlFor={`checkout-extra-${extra.id}`}
+                              className="flex items-center justify-center p-2 cursor-pointer -mr-1"
+                              title={`Select ${plainTitle || "extra"}`}
+                            >
+                              <input
+                                id={`checkout-extra-${extra.id}`}
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => changeExtraQty(extra.id, (qty > 0 ? 0 : 1))}
+                                className="h-4 w-4 shrink-0 rounded border-[#243c30] accent-[#243c30] cursor-pointer"
+                                aria-label={`Select ${plainTitle || "extra"}`}
+                              />
+                            </label>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
