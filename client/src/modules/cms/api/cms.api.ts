@@ -263,6 +263,9 @@ export interface HomePageHeroSettings {
   eyebrow?: string;
   title?: string;
   subtitle?: string;
+  showEyebrow?: boolean;
+  showTitle?: boolean;
+  showSubtitle?: boolean;
   showBird?: boolean;
   showLeaves?: boolean;
 }
@@ -271,6 +274,9 @@ export interface HomePageSectionSettings {
   heading?: string;
   subtitle?: string;
   enquireUrl?: string;
+  showHeading?: boolean;
+  showSubtitle?: boolean;
+  showEnquireUrl?: boolean;
   showEnquireLink?: boolean;
   isEnabled?: boolean;
 }

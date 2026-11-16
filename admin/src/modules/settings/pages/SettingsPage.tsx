@@ -357,6 +357,9 @@ export interface HomePageHeroSettings {
   eyebrow?: string;
   title?: string;
   subtitle?: string;
+  showEyebrow?: boolean;
+  showTitle?: boolean;
+  showSubtitle?: boolean;
   showBird?: boolean;
   showLeaves?: boolean;
 }
@@ -365,6 +368,9 @@ export interface HomePageSectionSettings {
   heading?: string;
   subtitle?: string;
   enquireUrl?: string;
+  showHeading?: boolean;
+  showSubtitle?: boolean;
+  showEnquireUrl?: boolean;
   showEnquireLink?: boolean;
   isEnabled?: boolean;
 }
@@ -980,7 +986,40 @@ function SettingsForm({ initial }: { initial: Settings }) {
                   </p>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2 pt-2">
+                <div className="grid gap-4 sm:grid-cols-3 pt-2">
+                  <div className="flex items-center justify-between gap-4 rounded-md border p-3">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="hp-show-eyebrow" className="text-sm font-medium">Show Top Eyebrow Text</Label>
+                      <p className="text-xs text-muted-foreground">Show the eyebrow above the hero title.</p>
+                    </div>
+                    <Switch
+                      id="hp-show-eyebrow"
+                      checked={home.hero.showEyebrow !== false}
+                      onCheckedChange={(checked) => updateHome("hero", { showEyebrow: checked })}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between gap-4 rounded-md border p-3">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="hp-show-title" className="text-sm font-medium">Show Main Hero Title</Label>
+                      <p className="text-xs text-muted-foreground">Show the large serif hero title.</p>
+                    </div>
+                    <Switch
+                      id="hp-show-title"
+                      checked={home.hero.showTitle !== false}
+                      onCheckedChange={(checked) => updateHome("hero", { showTitle: checked })}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between gap-4 rounded-md border p-3">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="hp-show-subtitle" className="text-sm font-medium">Show Hero Subtitle</Label>
+                      <p className="text-xs text-muted-foreground">Show the italic subtitle below the title.</p>
+                    </div>
+                    <Switch
+                      id="hp-show-subtitle"
+                      checked={home.hero.showSubtitle !== false}
+                      onCheckedChange={(checked) => updateHome("hero", { showSubtitle: checked })}
+                    />
+                  </div>
                   <div className="flex items-center justify-between gap-4 rounded-md border p-3">
                     <div className="space-y-0.5">
                       <Label htmlFor="hp-bird" className="text-sm font-medium">Decorative Bird Animation</Label>
@@ -994,7 +1033,6 @@ function SettingsForm({ initial }: { initial: Settings }) {
                       onCheckedChange={(checked) => updateHome("hero", { showBird: checked })}
                     />
                   </div>
-
                   <div className="flex items-center justify-between gap-4 rounded-md border p-3">
                     <div className="space-y-0.5">
                       <Label htmlFor="hp-leaves" className="text-sm font-medium">Ambient Leaves</Label>
@@ -1022,25 +1060,60 @@ function SettingsForm({ initial }: { initial: Settings }) {
                       Displays all cottages assigned to Section 1 (e.g. Home Farm Cottages).
                     </CardDescription>
                   </div>
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
-                    1st Section
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="hp-sec1-enable" className="text-xs font-medium">Enable Section 1</Label>
+                    <Switch
+                      id="hp-sec1-enable"
+                      checked={home.section1.isEnabled !== false}
+                      onCheckedChange={(checked) => updateHome("section1", { isEnabled: checked })}
+                    />
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="flex items-center justify-between gap-4 rounded-md border p-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="hp-sec1-show-heading" className="text-sm font-medium">Show Section 1 Heading</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Display the section heading on the home page.
+                    </p>
+                  </div>
+                  <Switch
+                    id="hp-sec1-show-heading"
+                    checked={home.section1.showHeading !== false}
+                    onCheckedChange={(checked) =>
+                      updateHome("section1", { showHeading: checked })
+                    }
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="hp-sec1-heading">Section 1 Heading</Label>
                   <Input
                     id="hp-sec1-heading"
                     value={home.section1.heading ?? ""}
                     onChange={(e) => updateHome("section1", { heading: e.target.value })}
-                    placeholder="e.g. Available cottages"
+                    placeholder="e.g. Home Farm Cottages"
                   />
                 </div>
 
+                <div className="flex items-center justify-between gap-4 rounded-md border p-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="hp-sec1-show-sub" className="text-sm font-medium">Show Section 1 Subtitle</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Display the section 1 subtitle / link text on the home page.
+                    </p>
+                  </div>
+                  <Switch
+                    id="hp-sec1-show-sub"
+                    checked={home.section1.showSubtitle !== false}
+                    onCheckedChange={(checked) =>
+                      updateHome("section1", { showSubtitle: checked })
+                    }
+                  />
+                </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="hp-sec1-sub">Group Stay / Enquire Link Text</Label>
+                    <Label htmlFor="hp-sec1-sub">Section 1 Subtitle / Link Text</Label>
                     <Input
                       id="hp-sec1-sub"
                       value={home.section1.subtitle ?? ""}
@@ -1049,7 +1122,7 @@ function SettingsForm({ initial }: { initial: Settings }) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="hp-sec1-url">Group Stay Link URL</Label>
+                    <Label htmlFor="hp-sec1-url">Section 1 Enquire Link URL</Label>
                     <Input
                       id="hp-sec1-url"
                       value={home.section1.enquireUrl ?? ""}
@@ -1096,16 +1169,46 @@ function SettingsForm({ initial }: { initial: Settings }) {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="flex items-center justify-between gap-4 rounded-md border p-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="hp-sec2-show-heading" className="text-sm font-medium">Show Section 2 Heading</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Display the section heading on the home page.
+                    </p>
+                  </div>
+                  <Switch
+                    id="hp-sec2-show-heading"
+                    checked={home.section2.showHeading !== false}
+                    onCheckedChange={(checked) =>
+                      updateHome("section2", { showHeading: checked })
+                    }
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="hp-sec2-heading">Section 2 Heading</Label>
                   <Input
                     id="hp-sec2-heading"
                     value={home.section2.heading ?? ""}
                     onChange={(e) => updateHome("section2", { heading: e.target.value })}
-                    placeholder="e.g. More Estate Cottages"
+                    placeholder="e.g. The Estate Collection"
                   />
                 </div>
 
+                <div className="flex items-center justify-between gap-4 rounded-md border p-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="hp-sec2-show-sub" className="text-sm font-medium">Show Section 2 Subtitle</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Display the section 2 subtitle / link text on the home page.
+                    </p>
+                  </div>
+                  <Switch
+                    id="hp-sec2-show-sub"
+                    checked={home.section2.showSubtitle !== false}
+                    onCheckedChange={(checked) =>
+                      updateHome("section2", { showSubtitle: checked })
+                    }
+                  />
+                </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="hp-sec2-sub">Section 2 Subtitle / Link Text</Label>
@@ -1129,7 +1232,7 @@ function SettingsForm({ initial }: { initial: Settings }) {
 
                 <div className="flex items-center justify-between gap-4 rounded-md border p-3">
                   <div className="space-y-0.5">
-                    <Label htmlFor="hp-sec2-link-toggle" className="text-sm font-medium">Show Enquire Link in Section 2</Label>
+                    <Label htmlFor="hp-sec2-link-toggle" className="text-sm font-medium">Show Enquire Link</Label>
                     <p className="text-xs text-muted-foreground">
                       Display enquire button in Section 2 header.
                     </p>
