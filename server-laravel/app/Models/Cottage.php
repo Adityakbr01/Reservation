@@ -27,7 +27,7 @@ class Cottage extends Model
         'welcome_hamper_html', 'amenity_ids', 'nearby_attractions',
         'bedrooms', 'bathrooms', 'max_dogs',
         'dog_policy_enabled', 'dog_policy_title', 'dog_policy_subtitle', 'dog_fee', 'dog_policy_image_media_id',
-        'extras',
+        'extras', 'home_section',
         'status', 'seo',
     ];
 

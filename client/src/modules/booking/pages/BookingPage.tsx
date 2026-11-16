@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatMoney } from "@/lib/money";
+import { formatMoney, getCurrencySymbol, setDefaultCurrency } from "@/lib/money";
 import { normalizeApiError } from "@/lib/api-client";
 import { getStripePromise } from "@/lib/stripe";
 import { useAuthStore } from "@/stores/auth-store";
@@ -595,6 +595,14 @@ export function BookingPage() {
   });
 
   const bjSettings = siteSettings?.bookingPage?.bookingJourney;
+  const currencyCode = siteSettings?.currency || "GBP";
+  const currencySymbol = getCurrencySymbol(currencyCode);
+
+  useEffect(() => {
+    if (siteSettings?.currency) {
+      setDefaultCurrency(siteSettings.currency);
+    }
+  }, [siteSettings?.currency]);
 
   function setRoomQuantity(key: string, quantity: number) {
     setRoomError(null);
@@ -993,7 +1001,7 @@ export function BookingPage() {
             .filter((x) => selectedExtraIds.has(x.id))
             .map(
               (x) =>
-                `${x.title.replace(/<[^>]*>/g, "").trim()}${x.pricingType === "PER_PERSON" ? ` (${selection.adults} adults)` : ""} (+£${calculateExtraAmount(x)})`,
+                `${x.title.replace(/<[^>]*>/g, "").trim()}${x.pricingType === "PER_PERSON" ? ` (${selection.adults} adults)` : ""} (+${currencySymbol}${calculateExtraAmount(x)})`,
             )
             .join(", ")}`
         : "";
@@ -1328,7 +1336,7 @@ export function BookingPage() {
                   />
                   <div className="text-sm">
                     <span className="font-medium text-[#243c30]">
-                      I am bringing a dog (+£{cottageDogPolicy.dogFee} per stay)
+                      I am bringing a dog (+{currencySymbol}{cottageDogPolicy.dogFee} per stay)
                     </span>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       Dogs are warmly welcomed. Dog fee includes dog bed, towel and welcome treats.
@@ -1377,7 +1385,7 @@ export function BookingPage() {
                   </CardTitle>
                   {selectedExtraIds.size > 0 && (
                     <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#243c30] text-[#fffdf8]">
-                      {selectedExtraIds.size} selected (+£{totalExtrasPounds})
+                      {selectedExtraIds.size} selected (+{currencySymbol}{totalExtrasPounds})
                     </span>
                   )}
                 </div>
@@ -1402,16 +1410,10 @@ export function BookingPage() {
                     return (
                       <div
                         key={extra.id}
-                        onClick={(e) => {
-                          if ((e.target as HTMLElement).closest("a, button, input")) {
-                            return;
-                          }
-                          toggleExtra(extra.id);
-                        }}
-                        className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-all ${
+                        className={`flex items-center gap-3 rounded-lg border p-3 transition-all ${
                           isChecked
                             ? "border-[#243c30] bg-[#f4f6f0] ring-1 ring-[#243c30]"
-                            : "border-[#d8d9cb] bg-white hover:border-[#243c30]/50 hover:bg-[#fafaf7]"
+                            : "border-[#d8d9cb] bg-white hover:border-[#243c30]/50"
                         }`}
                       >
                         <SafeImage
@@ -1421,14 +1423,14 @@ export function BookingPage() {
                         />
                         <div className="min-w-0 flex-1">
                           <div
-                            className="text-xs font-semibold text-[#243c30] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30]"
+                            className="text-xs font-semibold text-[#243c30] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
                             dangerouslySetInnerHTML={{
                               __html: sanitizeCheckoutHtml(extra.title),
                             }}
                           />
                           {extra.description ? (
                             <div
-                              className="mt-0.5 text-[11px] leading-snug text-[#535b51] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30]"
+                              className="mt-0.5 text-[11px] leading-snug text-[#535b51] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
                               dangerouslySetInnerHTML={{
                                 __html: sanitizeCheckoutHtml(extra.description),
                               }}
@@ -1436,22 +1438,28 @@ export function BookingPage() {
                           ) : (
                             <span className="mt-0.5 block text-[11px] leading-snug text-[#535b51]">
                               {extra.pricingType === "PER_PERSON"
-                                ? `£${extra.price} per adult`
-                                : `£${extra.price} per stay`}
+                                ? `${currencySymbol}${extra.price} per adult`
+                                : `${currencySymbol}${extra.price} per stay`}
                             </span>
                           )}
                           <span className="mt-1 block font-['Instrument_Serif',Georgia,serif] text-lg font-medium text-[#243c30]">
-                            + £{extraPrice}
+                            + {currencySymbol}{extraPrice}
                           </span>
                         </div>
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => toggleExtra(extra.id)}
-                          onClick={(e) => e.stopPropagation()}
-                          className="ml-auto h-4 w-4 shrink-0 rounded border-[#243c30] accent-[#243c30] cursor-pointer"
-                          aria-label={`Select ${plainTitle || "extra"}`}
-                        />
+                        <label
+                          htmlFor={`checkout-extra-${extra.id}`}
+                          className="ml-auto flex items-center justify-center p-2 cursor-pointer -mr-1"
+                          title={`Select ${plainTitle || "extra"}`}
+                        >
+                          <input
+                            id={`checkout-extra-${extra.id}`}
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleExtra(extra.id)}
+                            className="h-4 w-4 shrink-0 rounded border-[#243c30] accent-[#243c30] cursor-pointer"
+                            aria-label={`Select ${plainTitle || "extra"}`}
+                          />
+                        </label>
                       </div>
                     );
                   })}
@@ -1780,7 +1788,7 @@ export function BookingPage() {
                       <div className="space-y-1.5 border-t border-border/60 pt-2 pb-1">
                         <div className="flex items-center justify-between font-semibold text-[#243c30]">
                           <span>Optional Extras ({selectedExtraList.length})</span>
-                          <span>+£{totalExtrasPounds}</span>
+                          <span>+{currencySymbol}{totalExtrasPounds}</span>
                         </div>
                         {selectedExtraList.map((extra) => (
                           <div key={extra.id} className="flex justify-between text-xs text-muted-foreground pl-1">
@@ -1789,7 +1797,7 @@ export function BookingPage() {
                               {extra.pricingType === "PER_PERSON" ? ` (${selection.adults} adults)` : ""}
                             </span>
                             <span className="font-medium text-[#243c30]">
-                              +£{calculateExtraAmount(extra)}
+                              +{currencySymbol}{calculateExtraAmount(extra)}
                             </span>
                           </div>
                         ))}

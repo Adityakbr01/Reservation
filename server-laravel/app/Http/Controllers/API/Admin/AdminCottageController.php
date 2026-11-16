@@ -79,7 +79,14 @@ class AdminCottageController extends Controller
             'about_text' => $request->input('about_text') ?? $request->input('aboutText'),
             'about_image_media_id' => $request->input('about_image_media_id') ?? $request->input('aboutImageMediaId'),
             'overview_bullets' => $request->input('overview_bullets') ?? $request->input('overviewBullets') ?? [],
-            'section_settings' => $request->input('section_settings') ?? $request->input('sectionSettings') ?? [],
+            'section_settings' => (function() use ($request) {
+                $ss = $request->input('section_settings') ?? $request->input('sectionSettings') ?? [];
+                if (is_array($ss)) {
+                    $ss['home_section'] = $request->input('home_section') ?? $request->input('homeSection') ?? 'section_1';
+                }
+                return $ss;
+            })(),
+            'home_section' => $request->input('home_section') ?? $request->input('homeSection') ?? 'section_1',
             'max_adults' => $maxAdults,
             'max_children' => $maxChildren,
             'max_occupancy' => $maxOccupancy,
@@ -182,6 +189,15 @@ class AdminCottageController extends Controller
         }
         if ($request->has('section_settings') || $request->has('sectionSettings')) {
             $payload['section_settings'] = $request->input('section_settings') ?? $request->input('sectionSettings') ?? [];
+        }
+        if ($request->has('home_section') || $request->has('homeSection')) {
+            $homeSec = $request->input('home_section') ?? $request->input('homeSection') ?? 'section_1';
+            $payload['home_section'] = $homeSec;
+            $curSS = $payload['section_settings'] ?? $cottage->section_settings ?? [];
+            if (is_array($curSS)) {
+                $curSS['home_section'] = $homeSec;
+                $payload['section_settings'] = $curSS;
+            }
         }
         if ($request->has('max_adults') || $request->has('maxAdults')) {
             $payload['max_adults'] = (int) ($request->input('max_adults') ?? $request->input('maxAdults'));
@@ -467,6 +483,8 @@ class AdminCottageController extends Controller
             'overviewBullets' => $c->overview_bullets ?? [],
             'section_settings' => $c->section_settings ?? [],
             'sectionSettings' => $c->section_settings ?? [],
+            'home_section' => $c->home_section ?? ($c->section_settings['home_section'] ?? 'section_1'),
+            'homeSection' => $c->home_section ?? ($c->section_settings['home_section'] ?? 'section_1'),
             'max_adults' => (int) ($c->max_adults ?? 2),
             'maxAdults' => (int) ($c->max_adults ?? 2),
             'max_children' => (int) ($c->max_children ?? 0),

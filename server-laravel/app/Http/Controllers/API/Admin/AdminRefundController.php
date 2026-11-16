@@ -22,7 +22,7 @@ class AdminRefundController extends Controller
         return [
             'id' => $r->id,
             'booking_id' => $r->booking_id,
-            'amount' => $r->amount,
+            'amount' => (int) round(((float) $r->amount) * 100),
             'currency' => $r->currency,
             'status' => $r->status,
         ];

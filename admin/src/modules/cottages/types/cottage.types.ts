@@ -10,6 +10,8 @@ export interface CottageSectionSettings {
   showMiddleDescription?: boolean;
   showOverviewBullets?: boolean;
   showAboutImage?: boolean;
+  home_section?: string;
+  homeSection?: string;
   tabs?: {
     overview?: boolean;
     availability?: boolean;
@@ -57,6 +59,8 @@ export interface Cottage {
   overview_bullets?: string[];
   sectionSettings?: CottageSectionSettings;
   section_settings?: CottageSectionSettings;
+  homeSection?: string;
+  home_section?: string;
   maxAdults: number;
   maxChildren: number;
   maxOccupancy: number;
@@ -127,6 +131,8 @@ export interface CreateCottagePayload {
   overview_bullets?: string[];
   sectionSettings?: CottageSectionSettings;
   section_settings?: CottageSectionSettings;
+  homeSection?: string;
+  home_section?: string;
   maxAdults: number;
   maxChildren: number;
   maxOccupancy: number;

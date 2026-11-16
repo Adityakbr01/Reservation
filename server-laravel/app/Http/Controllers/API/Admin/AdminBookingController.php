@@ -64,7 +64,7 @@ class AdminBookingController extends Controller
         $payments = $booking->payments->map(function ($p) {
             return [
                 'id' => $p->id,
-                'amount' => (float) $p->amount,
+                'amount' => (int) round(((float) $p->amount) * 100),
                 'currency' => $p->currency ?? 'GBP',
                 'status' => $p->status,
                 'createdAt' => $p->created_at?->toIso8601String(),
@@ -92,7 +92,7 @@ class AdminBookingController extends Controller
             ], 404);
         }
 
-        $paidTotal = (float) $booking->payments->where('status', 'PAID')->sum('amount');
+        $paidTotal = (int) round(((float) $booking->payments->where('status', 'PAID')->sum('amount')) * 100);
 
         return response()->json([
             'success' => true,

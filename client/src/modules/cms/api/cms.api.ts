@@ -219,24 +219,68 @@ export interface BookingJourneySettings {
   modalTitle?: string;
   step1Subtitle?: string;
   step1Title?: string;
+  step1CheckInLabel?: string;
+  step1CheckOutLabel?: string;
+  step1AdultsLabel?: string;
+  step1ChildrenLabel?: string;
+  step1ButtonText?: string;
   step1Note?: string;
   step1ExploreLinkText?: string;
+  noCottagesMessage?: string;
   step2Subtitle?: string;
   step2Title?: string;
   step2Description?: string;
   groupStayText?: string;
   groupStayUrl?: string;
   step3DogsTitle?: string;
+  step3DogsDescription?: string;
+  step3DogsSelectLabel?: string;
+  step3DogsZeroOption?: string;
   noPetsNotice?: string;
+  seePetCottagesText?: string;
   extrasHeading?: string;
   extrasDescription?: string;
+  extrasEmptyMessage?: string;
   extrasDisclaimer?: string;
+  skipExtrasText?: string;
+  step3NextButtonText?: string;
   step4Title?: string;
   step4Description?: string;
+  step4ReservedDescription?: string;
+  contactSectionTitle?: string;
+  specialRequestsLabel?: string;
+  specialRequestsPlaceholder?: string;
+  payButtonText?: string;
   acknowledgementText?: string;
   step5Title?: string;
   step5Subtitle?: string;
+  step5Note?: string;
   step5Disclaimer?: string;
+  sidebarTaxesNotice?: string;
+}
+
+export interface HomePageHeroSettings {
+  eyebrow?: string;
+  title?: string;
+  subtitle?: string;
+  showBird?: boolean;
+  showLeaves?: boolean;
+}
+
+export interface HomePageSectionSettings {
+  heading?: string;
+  subtitle?: string;
+  enquireUrl?: string;
+  showEnquireLink?: boolean;
+  isEnabled?: boolean;
+}
+
+export interface HomePageSettings {
+  hero?: HomePageHeroSettings;
+  section1?: HomePageSectionSettings;
+  section2?: HomePageSectionSettings;
+  emptyHeading?: string;
+  emptySubtitle?: string;
 }
 
 export interface BookingPageSettings {
@@ -261,6 +305,7 @@ export interface SiteSettings {
   footerNavigation?: FooterNavigation;
   bookingAcknowledgement?: BookingAcknowledgement;
   bookingPage?: BookingPageSettings;
+  homePage?: HomePageSettings;
 }
 
 const BASE = "/public/cms";
@@ -271,14 +316,25 @@ export async function fetchSiteSettings(): Promise<SiteSettings> {
   const rawData = response.data as unknown as {
     bookingPage?: BookingPageSettings;
     booking_page?: BookingPageSettings;
+    homePage?: HomePageSettings;
+    home_page?: HomePageSettings;
   };
   if (data) {
     if (!data.bookingPage && (rawData?.bookingPage || rawData?.booking_page)) {
       data.bookingPage = rawData.bookingPage || rawData.booking_page;
     }
-    const dataWithSnake = data as unknown as { booking_page?: BookingPageSettings };
+    if (!data.homePage && (rawData?.homePage || rawData?.home_page)) {
+      data.homePage = rawData.homePage || rawData.home_page;
+    }
+    const dataWithSnake = data as unknown as {
+      booking_page?: BookingPageSettings;
+      home_page?: HomePageSettings;
+    };
     if (!data.bookingPage && dataWithSnake.booking_page) {
       data.bookingPage = dataWithSnake.booking_page;
+    }
+    if (!data.homePage && dataWithSnake.home_page) {
+      data.homePage = dataWithSnake.home_page;
     }
   }
   return data;

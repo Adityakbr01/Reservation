@@ -334,14 +334,22 @@ export function ReservationDetailPage() {
               <p className="text-sm text-muted-foreground">No payments yet.</p>
             ) : (
               <ul className="space-y-2">
-                {payments.map((payment) => (
-                  <li key={payment.id} className="flex items-center justify-between gap-3 text-sm">
-                    <span className="text-muted-foreground">
-                      {formatMoney(payment.amount, payment.currency)}
-                    </span>
-                    <StatusBadge status={payment.status} />
-                  </li>
-                ))}
+                {payments.map((payment) => {
+                  const paymentPence =
+                    payment.amount > 0 &&
+                    booking.pricing?.total > 0 &&
+                    Math.abs(payment.amount * 100 - booking.pricing.total) < 1
+                      ? payment.amount * 100
+                      : payment.amount;
+                  return (
+                    <li key={payment.id} className="flex items-center justify-between gap-3 text-sm">
+                      <span className="text-muted-foreground">
+                        {formatMoney(paymentPence, payment.currency)}
+                      </span>
+                      <StatusBadge status={payment.status} />
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </CardContent>

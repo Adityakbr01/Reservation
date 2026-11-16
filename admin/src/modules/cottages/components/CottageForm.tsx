@@ -18,6 +18,7 @@ import { CkEditorField } from "@/components/common/CkEditorField";
 import { RichTextEditor } from "@/modules/cms/components/RichTextEditor";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { getCurrencySymbol } from "@/lib/money";
+import { cn } from "@/lib/utils";
 import { apiClient } from "@/lib/api-client";
 import type { ApiEnvelope } from "@/lib/api-client";
 import type {
@@ -132,6 +133,13 @@ export function CottageForm({
         reviews: toBool(rawSettings?.tabs?.reviews, true),
       },
     }));
+
+  const [homeSection, setHomeSection] = useState<string>(
+    initial?.homeSection ??
+      (initial as unknown as { home_section?: string })?.home_section ??
+      (rawSettings?.home_section as string | undefined) ??
+      "section_1",
+  );
 
   function addBullet() {
     if (!newBulletText.trim()) return;
@@ -381,11 +389,12 @@ export function CottageForm({
   }
 
   function handleLoadDefaultExtras() {
+    const sym = getCurrencySymbol();
     setExtras([
       {
         id: "extra_golf",
         title: "A round of golf",
-        description: "£60 per adult · illustrative price",
+        description: `${sym}60 per adult · illustrative price`,
         price: 60,
         pricingType: "PER_PERSON",
         imageMediaId: null,
@@ -394,7 +403,7 @@ export function CottageForm({
       {
         id: "extra_padel",
         title: "Time on the padel court",
-        description: "£40 per court session · illustrative price",
+        description: `${sym}40 per court session · illustrative price`,
         price: 40,
         pricingType: "PER_STAY",
         imageMediaId: null,
@@ -403,7 +412,7 @@ export function CottageForm({
       {
         id: "extra_lunch",
         title: "Lunch at the clubhouse",
-        description: "£25 per adult · illustrative price",
+        description: `${sym}25 per adult · illustrative price`,
         price: 25,
         pricingType: "PER_PERSON",
         imageMediaId: null,
@@ -412,7 +421,7 @@ export function CottageForm({
       {
         id: "extra_dinner",
         title: "An evening around the table",
-        description: "£35 per adult · illustrative price",
+        description: `${sym}35 per adult · illustrative price`,
         price: 35,
         pricingType: "PER_PERSON",
         imageMediaId: null,
@@ -551,8 +560,10 @@ export function CottageForm({
       about_image_media_id: aboutImageMediaId || null,
       overviewBullets: overviewBullets.map((b) => b.trim()).filter(Boolean),
       overview_bullets: overviewBullets.map((b) => b.trim()).filter(Boolean),
-      sectionSettings,
-      section_settings: sectionSettings,
+      sectionSettings: { ...sectionSettings, home_section: homeSection },
+      section_settings: { ...sectionSettings, home_section: homeSection },
+      homeSection,
+      home_section: homeSection,
       maxAdults: Math.max(1, Number(maxAdults) || 2),
       max_adults: Math.max(1, Number(maxAdults) || 2),
       maxChildren: Math.max(0, Number(maxChildren) || 0),
@@ -659,6 +670,62 @@ export function CottageForm({
             onChange={(e) => handleSlugChange(e.target.value)}
             placeholder="Auto-generated from name"
           />
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-border bg-card p-4 space-y-2">
+        <Label className="text-sm font-semibold">Home Page Placement · Section</Label>
+        <p className="text-xs text-muted-foreground">
+          Select which section on the public Home page this cottage should render in.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2 pt-1">
+          <label
+            onClick={() => setHomeSection("section_1")}
+            className={cn(
+              "flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors",
+              homeSection !== "section_2"
+                ? "border-primary bg-primary/5 shadow-sm"
+                : "border-border hover:bg-muted/50",
+            )}
+          >
+            <input
+              type="radio"
+              name="homeSectionRadio"
+              checked={homeSection !== "section_2"}
+              onChange={() => setHomeSection("section_1")}
+              className="mt-0.5 text-primary"
+            />
+            <div>
+              <div className="text-sm font-semibold text-foreground">Section 1 · Main Cottages</div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                Renders in the 1st section on the Home page (e.g. Home Farm Cottages).
+              </div>
+            </div>
+          </label>
+
+          <label
+            onClick={() => setHomeSection("section_2")}
+            className={cn(
+              "flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors",
+              homeSection === "section_2"
+                ? "border-primary bg-primary/5 shadow-sm"
+                : "border-border hover:bg-muted/50",
+            )}
+          >
+            <input
+              type="radio"
+              name="homeSectionRadio"
+              checked={homeSection === "section_2"}
+              onChange={() => setHomeSection("section_2")}
+              className="mt-0.5 text-primary"
+            />
+            <div>
+              <div className="text-sm font-semibold text-foreground">Section 2 · Estate / Other Property</div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                Renders in the 2nd section on the Home page (e.g. Estate / Other Property Cottages).
+              </div>
+            </div>
+          </label>
         </div>
       </div>
 
@@ -1626,7 +1693,7 @@ export function CottageForm({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="rt-dog-fee">Dog Fee (£ per dog, per stay)</Label>
+                <Label htmlFor="rt-dog-fee">Dog Fee ({getCurrencySymbol()} per dog, per stay)</Label>
                 <Input
                   id="rt-dog-fee"
                   type="number"
@@ -1645,10 +1712,10 @@ export function CottageForm({
                 id="rt-dog-title"
                 value={dogPolicyTitle}
                 onChange={(e) => setDogPolicyTitle(e.target.value)}
-                placeholder="Dogs welcome · £70 per dog, per stay"
+                placeholder={`Dogs welcome · ${getCurrencySymbol()}70 per dog, per stay`}
               />
               <p className="text-[11px] text-muted-foreground">
-                Leave empty to auto-format: &ldquo;Dogs welcome · £{dogFee || 70} per dog, per stay&rdquo;
+                Leave empty to auto-format: &ldquo;Dogs welcome · {getCurrencySymbol()}{dogFee || 70} per dog, per stay&rdquo;
               </p>
             </div>
 

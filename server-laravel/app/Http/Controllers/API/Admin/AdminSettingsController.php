@@ -111,6 +111,19 @@ class AdminSettingsController extends Controller
                 $data['booking_page'] = $this->sanitizeBookingPage($raw, $settings->booking_page);
             }
         }
+        if (array_key_exists('homePage', $input) || array_key_exists('home_page', $input)) {
+            $raw = $input['homePage'] ?? $input['home_page'];
+            if (is_array($raw)) {
+                $sanitized = $this->sanitizeHomePage($raw, $settings->home_page);
+                if (\Illuminate\Support\Facades\Schema::hasColumn('site_settings', 'home_page')) {
+                    $data['home_page'] = $sanitized;
+                } else {
+                    $bp = $data['booking_page'] ?? $settings->booking_page ?? [];
+                    $bp['homePage'] = $sanitized;
+                    $data['booking_page'] = $bp;
+                }
+            }
+        }
 
         if (! empty($data)) {
             $settings->update($data);
@@ -195,9 +208,73 @@ class AdminSettingsController extends Controller
         return $resolved;
     }
 
+    private function resolveHomePage(?array $stored): array
+    {
+        $defaults = SiteSettings::defaultHomePage();
+        $stored = is_array($stored) ? $stored : [];
+
+        foreach ($defaults as $section => $values) {
+            if (is_array($values)) {
+                $snakeSection = \Illuminate\Support\Str::snake($section);
+                $incoming = is_array($stored[$section] ?? null)
+                    ? $stored[$section]
+                    : (is_array($stored[$snakeSection] ?? null) ? $stored[$snakeSection] : []);
+                $defaults[$section] = array_merge($values, $incoming);
+            } else {
+                $snakeSection = \Illuminate\Support\Str::snake($section);
+                if (array_key_exists($section, $stored)) {
+                    $defaults[$section] = $stored[$section];
+                } elseif (array_key_exists($snakeSection, $stored)) {
+                    $defaults[$section] = $stored[$snakeSection];
+                }
+            }
+        }
+
+        return $defaults;
+    }
+
+    private function sanitizeHomePage(array $raw, ?array $current): array
+    {
+        $resolved = $this->resolveHomePage($current);
+
+        foreach ($resolved as $section => $defaults) {
+            $snakeSection = \Illuminate\Support\Str::snake($section);
+            if (is_array($defaults)) {
+                $incoming = is_array($raw[$section] ?? null)
+                    ? $raw[$section]
+                    : (is_array($raw[$snakeSection] ?? null) ? $raw[$snakeSection] : []);
+                foreach ($defaults as $key => $default) {
+                    $snakeKey = \Illuminate\Support\Str::snake($key);
+                    if (! array_key_exists($key, $incoming) && ! array_key_exists($snakeKey, $incoming)) {
+                        continue;
+                    }
+                    $value = array_key_exists($key, $incoming) ? $incoming[$key] : $incoming[$snakeKey];
+                    if (is_bool($default)) {
+                        $resolved[$section][$key] = (bool) $value;
+                    } else {
+                        $resolved[$section][$key] = is_string($value) ? $value : (string) $default;
+                    }
+                }
+            } else {
+                if (array_key_exists($section, $raw)) {
+                    $resolved[$section] = is_string($raw[$section]) ? $raw[$section] : (string) $defaults;
+                } elseif (array_key_exists($snakeSection, $raw)) {
+                    $resolved[$section] = is_string($raw[$snakeSection]) ? $raw[$snakeSection] : (string) $defaults;
+                }
+            }
+        }
+
+        return $resolved;
+    }
+
     private function settingsData(SiteSettings $settings): array
     {
         $bookingPage = $this->resolveBookingPage($settings->booking_page);
+        $rawHomePage = $settings->home_page;
+        if (! $rawHomePage && isset($settings->booking_page['homePage'])) {
+            $rawHomePage = $settings->booking_page['homePage'];
+        }
+        $homePage = $this->resolveHomePage($rawHomePage);
 
         $rawWhy = $settings->why_book_with_us;
         $whyHeading = 'Why book with us?';
@@ -432,6 +509,8 @@ class AdminSettingsController extends Controller
             ],
             'booking_page' => $bookingPage,
             'bookingPage' => $bookingPage,
+            'home_page' => $homePage,
+            'homePage' => $homePage,
         ];
     }
 }

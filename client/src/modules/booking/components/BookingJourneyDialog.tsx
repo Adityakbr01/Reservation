@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { countNights, formatDisplayDate, toDayKey } from "@/lib/date";
 import { getStripePromise } from "@/lib/stripe";
 import { DateField } from "@/components/common/DateField";
+import { getCurrencySymbol, setDefaultCurrency } from "@/lib/money";
 import { fetchSiteSettings } from "@/modules/cms/api/cms.api";
 import { useAvailabilitySearch, CottageGalleryDialog } from "@/modules/availability";
 import { useMediaUrls } from "@/modules/media";
@@ -78,11 +79,13 @@ function SafeImage({
 function JourneyPaymentForm({
   totalAmount,
   bookingId,
+  currencySymbol = "£",
   onSuccess,
   onBack,
 }: {
   totalAmount: number;
   bookingId: string;
+  currencySymbol?: string;
   onSuccess: () => void;
   onBack: () => void;
 }) {
@@ -157,7 +160,7 @@ function JourneyPaymentForm({
           disabled={paying || !stripe || !elements}
           className="flex min-h-[49px] cursor-pointer items-center justify-center gap-[15px] border-0 bg-[#243c30] p-[13px_20px] text-[12px] font-medium leading-[14.85px] text-[#fffdf8] transition-colors hover:bg-[#1b2d24] disabled:cursor-not-allowed disabled:opacity-50 outline-offset-[5px]"
         >
-          {paying ? "Processing payment…" : `Pay £${totalAmount.toLocaleString()} & Confirm`}
+          {paying ? "Processing payment…" : `Pay ${currencySymbol}${totalAmount.toLocaleString()} & Confirm`}
           <svg
             viewBox="0 0 24 24"
             aria-hidden="true"
@@ -195,6 +198,14 @@ export function BookingJourneyDialog({
   });
 
   const bjSettings = siteSettings?.bookingPage?.bookingJourney;
+  const currencyCode = siteSettings?.currency || "GBP";
+  const currencySymbol = getCurrencySymbol(currencyCode);
+
+  useEffect(() => {
+    if (siteSettings?.currency) {
+      setDefaultCurrency(siteSettings.currency);
+    }
+  }, [siteSettings?.currency]);
 
   // Step state: 0=Dates, 1=Cottage, 2=Extras, 3=Details & payment, 4=Confirmation
   const [step, setStep] = useState<number>(0);
@@ -584,7 +595,7 @@ export function BookingJourneyDialog({
               <div className="grid grid-cols-2 gap-[20px]">
                 <DateField
                   id="booking-checkIn"
-                  label="Arrival"
+                  label={bjSettings?.step1CheckInLabel || "Arrival"}
                   value={checkIn}
                   min={today}
                   contentClassName="z-[120]"
@@ -600,14 +611,16 @@ export function BookingJourneyDialog({
                 />
                 <DateField
                   id="booking-checkOut"
-                  label="Departure"
+                  label={bjSettings?.step1CheckOutLabel || "Departure"}
                   value={checkOut}
                   min={checkIn || today}
                   contentClassName="z-[120]"
                   onChange={setCheckOut}
                 />
                 <label className="flex flex-col gap-[9px] text-[11px]">
-                  <span className="text-[10px] tracking-[0.6px] text-[#535b51]">ADULTS</span>
+                  <span className="text-[10px] tracking-[0.6px] text-[#535b51]">
+                    {bjSettings?.step1AdultsLabel || "ADULTS"}
+                  </span>
                   <select
                     name="booking-adults"
                     aria-label="Adults"
@@ -623,7 +636,9 @@ export function BookingJourneyDialog({
                   </select>
                 </label>
                 <label className="flex flex-col gap-[9px] text-[11px]">
-                  <span className="text-[10px] tracking-[0.6px] text-[#535b51]">CHILDREN</span>
+                  <span className="text-[10px] tracking-[0.6px] text-[#535b51]">
+                    {bjSettings?.step1ChildrenLabel || "CHILDREN"}
+                  </span>
                   <select
                     name="booking-children"
                     aria-label="Children"
@@ -662,7 +677,7 @@ export function BookingJourneyDialog({
                 type="submit"
                 className="mt-[27px] inline-flex min-h-[49px] w-full cursor-pointer items-center justify-center gap-[24px] border-0 bg-[#243c30] p-[14px_23px] text-[12px] font-medium leading-[16.2px] text-[#fffdf8] transition-colors hover:bg-[#1b2d24] outline-offset-[5px]"
               >
-                Check availability
+                {bjSettings?.step1ButtonText || "Check availability"}
                 <svg
                   viewBox="0 0 24 24"
                   aria-hidden="true"
@@ -672,9 +687,14 @@ export function BookingJourneyDialog({
                 </svg>
               </button>
 
-              <p className="m-0 mt-[13px] text-center text-[10px] leading-[17.5px] text-[#535b51]">
-                {bjSettings?.step1Note || "Design preview · example prices, no live availability."}
-              </p>
+              <div
+                className="m-0 mt-[13px] text-center text-[10px] leading-[17.5px] text-[#535b51] [&_p]:m-0 [&_a]:underline"
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeCheckoutHtml(
+                    bjSettings?.step1Note || "Design preview · example prices, no live availability.",
+                  ),
+                }}
+              />
             </form>
 
             <div className="mt-[25px] border-t border-[#d8d9cb] pt-[15px] text-center">
@@ -834,7 +854,7 @@ export function BookingJourneyDialog({
                                   <path d="M6 12 3 5l6 3m9 4 3-7-6 3M5 14a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0Zm4 0h.01M15 14h.01m-5 4 2 1 2-1" />
                                 </svg>
                                 {rt.dogPolicyTitle ||
-                                  `Dogs welcome · £${rt.dogFee ?? 70} per dog, per stay`}
+                                  `Dogs welcome · ${currencySymbol}${rt.dogFee ?? 70} per dog, per stay`}
                                 <small className="mt-[6px] block pl-[24px] text-[10px] leading-[15px] text-[#535b51]">
                                   {rt.dogPolicySubtitle ||
                                     `Up to ${rt.maxDogs ?? 1} dog · added only if you bring a dog`}
@@ -847,14 +867,14 @@ export function BookingJourneyDialog({
                                 <small className="font-['DM_Sans',Arial,sans-serif] text-[9px] text-[#535b51]">
                                   From{" "}
                                 </small>
-                                £{itemPerNightPounds}
+                                {currencySymbol}{itemPerNightPounds}
                                 <small className="font-['DM_Sans',Arial,sans-serif] text-[9px] text-[#535b51]">
                                   {" "}
                                   / night
                                 </small>
                               </strong>
                               <span className="text-[10px] text-[#535b51]">
-                                £{itemTotalPounds.toLocaleString()} cottage total · {nights} nights
+                                {currencySymbol}{itemTotalPounds.toLocaleString()} cottage total · {nights} nights
                               </span>
                             </div>
 
@@ -952,16 +972,20 @@ export function BookingJourneyDialog({
                             {bjSettings?.step3DogsTitle || "Bringing a dog?"}
                           </h4>
                           <p className="m-0 mt-[8px] text-[12px] leading-[21.6px]">
-                            {selectedCottage?.name} welcomes up to {maxDogsAllowed} dog
-                            {maxDogsAllowed === 1 ? "" : "s"}. £{unitDogFee} per dog for the whole
-                            stay.
+                            {bjSettings?.step3DogsDescription
+                              ? bjSettings.step3DogsDescription
+                                  .replace("{cottage}", selectedCottage?.name || "This cottage")
+                                  .replace("{max}", String(maxDogsAllowed))
+                                  .replace("{plural}", maxDogsAllowed === 1 ? "" : "s")
+                                  .replace("{fee}", `${currencySymbol}${unitDogFee}`)
+                              : `${selectedCottage?.name} welcomes up to ${maxDogsAllowed} dog${maxDogsAllowed === 1 ? "" : "s"}. ${currencySymbol}${unitDogFee} per dog for the whole stay.`}
                           </p>
                         </div>
                       </div>
 
                       <label className="mt-[18px] block flex-col gap-[9px] text-[11px]">
                         <span className="mb-[8px] block text-[10px] tracking-[0.8px] text-[#535b51]">
-                          DOGS JOINING YOUR STAY
+                          {bjSettings?.step3DogsSelectLabel || "DOGS JOINING YOUR STAY"}
                         </span>
                         <select
                           name="booking-dogs"
@@ -970,10 +994,10 @@ export function BookingJourneyDialog({
                           onChange={(e) => setDogsCount(Number(e.target.value))}
                           className="block h-[46px] min-h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[12px] text-[14px] text-[#243c30] outline-offset-[5px]"
                         >
-                          <option value="0">No dogs — no charge</option>
+                          <option value="0">{bjSettings?.step3DogsZeroOption || "No dogs — no charge"}</option>
                           {Array.from({ length: maxDogsAllowed }, (_, i) => i + 1).map((n) => (
                             <option key={n} value={n}>
-                              {n} dog{n === 1 ? "" : "s"} — +£{unitDogFee * n} per stay
+                              {n} dog{n === 1 ? "" : "s"} — +{currencySymbol}{unitDogFee * n} per stay
                             </option>
                           ))}
                         </select>
@@ -981,7 +1005,7 @@ export function BookingJourneyDialog({
 
                       <p role="status" className="m-0 mt-[12px] text-[11px] leading-[19.25px]">
                         {dogsCount > 0
-                          ? `£${totalDogFee} pet charge included in your total.`
+                          ? `${currencySymbol}${totalDogFee} pet charge included in your total.`
                           : "No pet charge added."}
                       </p>
                     </section>
@@ -1001,7 +1025,7 @@ export function BookingJourneyDialog({
                         onClick={() => setStep(1)}
                         className="inline-flex cursor-pointer items-center justify-between gap-[25px] border-0 border-b border-[#243c30] p-[8px_0_10px] text-[11px] leading-[17.6px] text-[#243c30] outline-offset-[5px]"
                       >
-                        See pet-friendly cottages
+                        {bjSettings?.seePetCottagesText || "See pet-friendly cottages"}
                       </button>
                     </p>
                   )}
@@ -1026,9 +1050,15 @@ export function BookingJourneyDialog({
                   />
 
                   {availableExtras.length === 0 ? (
-                    <div className="mt-[20px] rounded border border-dashed border-[#d8d9cb] p-6 text-center text-xs text-[#535b51]">
-                      No optional extras currently listed for this cottage. Admin can add extras in the Admin Panel anytime.
-                    </div>
+                    <div
+                      className="mt-[20px] rounded border border-dashed border-[#d8d9cb] p-6 text-center text-xs text-[#535b51] [&_p]:m-0 [&_a]:underline"
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeCheckoutHtml(
+                          bjSettings?.extrasEmptyMessage ||
+                            "No optional extras currently listed for this cottage. Admin can add extras in the Admin Panel anytime.",
+                        ),
+                      }}
+                    />
                   ) : (
                     <div className="mt-[24px] grid gap-[12px]">
                       {availableExtras.map((extra) => {
@@ -1039,13 +1069,11 @@ export function BookingJourneyDialog({
                         return (
                           <div
                             key={extra.id}
-                            onClick={(e) => {
-                              if ((e.target as HTMLElement).closest("a, button, input")) {
-                                return;
-                              }
-                              toggleExtra(extra.id);
-                            }}
-                            className="flex cursor-pointer items-center gap-[12px] border border-[#d8d9cb] bg-[#fffdf8] p-[12px] transition-colors hover:border-[#243c30]/50"
+                            className={`flex items-center gap-[12px] border bg-[#fffdf8] p-[12px] transition-colors ${
+                              isChecked
+                                ? "border-[#243c30] ring-1 ring-[#243c30]"
+                                : "border-[#d8d9cb] hover:border-[#243c30]/50"
+                            }`}
                           >
                             <SafeImage
                               src={getExtraImageUrl(extra)}
@@ -1054,14 +1082,14 @@ export function BookingJourneyDialog({
                             />
                             <div className="min-w-0 flex-1">
                               <div
-                                className="text-[12px] font-medium text-[#243c30] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30]"
+                                className="text-[12px] font-medium text-[#243c30] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
                                 dangerouslySetInnerHTML={{
                                   __html: sanitizeCheckoutHtml(extra.title),
                                 }}
                               />
                               {extra.description ? (
                                 <div
-                                  className="mt-[5px] text-[10px] leading-[16px] text-[#535b51] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30]"
+                                  className="mt-[5px] text-[10px] leading-[16px] text-[#535b51] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
                                   dangerouslySetInnerHTML={{
                                     __html: sanitizeCheckoutHtml(extra.description),
                                   }}
@@ -1069,22 +1097,28 @@ export function BookingJourneyDialog({
                               ) : (
                                 <span className="mt-[5px] block text-[10px] leading-[16px] text-[#535b51]">
                                   {extra.pricingType === "PER_PERSON"
-                                    ? `£${extra.price} per adult`
-                                    : `£${extra.price} per stay`}
+                                    ? `${currencySymbol}${extra.price} per adult`
+                                    : `${currencySymbol}${extra.price} per stay`}
                                 </span>
                               )}
                               <span className="mt-[4px] block font-['Instrument_Serif',Georgia,serif] text-[21px]">
-                                + £{extraPrice}
+                                + {currencySymbol}{extraPrice}
                               </span>
                             </div>
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => toggleExtra(extra.id)}
-                              onClick={(e) => e.stopPropagation()}
-                              className="ml-auto h-[17px] w-[17px] shrink-0 accent-[#243c30] cursor-pointer"
-                              aria-label={`Select ${plainTitle || "extra"}`}
-                            />
+                            <label
+                              htmlFor={`dialog-extra-${extra.id}`}
+                              className="ml-auto flex items-center justify-center p-2 cursor-pointer -mr-2"
+                              title={`Select ${plainTitle || "extra"}`}
+                            >
+                              <input
+                                id={`dialog-extra-${extra.id}`}
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => toggleExtra(extra.id)}
+                                className="h-[18px] w-[18px] shrink-0 accent-[#243c30] cursor-pointer"
+                                aria-label={`Select ${plainTitle || "extra"}`}
+                              />
+                            </label>
                           </div>
                         );
                       })}
@@ -1116,7 +1150,7 @@ export function BookingJourneyDialog({
                       onClick={() => setStep(3)}
                       className="flex min-h-[49px] cursor-pointer items-center justify-center gap-[15px] border-0 bg-[#243c30] p-[13px_17px] text-[11px] font-medium leading-[14.85px] text-[#fffdf8] transition-colors hover:bg-[#1b2d24] outline-offset-[5px]"
                     >
-                      Your details
+                      {bjSettings?.step3NextButtonText || "Your details"}
                       <svg
                         viewBox="0 0 24 24"
                         aria-hidden="true"
@@ -1136,7 +1170,7 @@ export function BookingJourneyDialog({
                     }}
                     className="mt-[18px] block cursor-pointer border-0 text-left text-[10px] text-[#243c30] underline underline-offset-4 outline-offset-[5px]"
                   >
-                    Skip activities &amp; dining →
+                    {bjSettings?.skipExtrasText || "Skip activities & dining →"}
                   </button>
                 </div>
               )}
@@ -1153,7 +1187,7 @@ export function BookingJourneyDialog({
                       >
                         <path d="M6 12 3 5l6 3m9 4 3-7-6 3M5 14a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0Zm4 0h.01M15 14h.01m-5 4 2 1 2-1" />
                       </svg>
-                      {dogsCount} dog{dogsCount === 1 ? "" : "s"} · £{totalDogFee} pet charge
+                      {dogsCount} dog{dogsCount === 1 ? "" : "s"} · {currencySymbol}{totalDogFee} pet charge
                       included.
                     </p>
                   )}
@@ -1163,7 +1197,7 @@ export function BookingJourneyDialog({
                   </h3>
                   <p className="m-0 mt-[10px] text-[12px] leading-[20.4px] text-[#535b51]">
                     {clientSecret
-                      ? "Your cottage is reserved. Complete payment securely below to confirm your stay."
+                      ? bjSettings?.step4ReservedDescription || "Your cottage is reserved. Complete payment securely below to confirm your stay."
                       : bjSettings?.step4Description ||
                         "Please provide your contact details to secure your reservation at Home Farm."}
                   </p>
@@ -1230,12 +1264,13 @@ export function BookingJourneyDialog({
                                 ...(city.trim() ? { city: city.trim() } : {}),
                                 ...(postcode.trim() ? { postcode: postcode.trim() } : {}),
                               },
+                              extras: Array.from(selectedExtraIds),
                               notes: [
                                 requests.trim(),
                                 selectedExtraIds.size > 0
                                   ? `Selected Extras: ${availableExtras
                                       .filter((x) => selectedExtraIds.has(x.id))
-                                      .map((x) => `${x.title}${x.pricingType === "PER_PERSON" ? ` (${adults} guests)` : ""}`)
+                                      .map((x) => `${(x.title || "").replace(/<[^>]*>/g, "").trim()}${x.pricingType === "PER_PERSON" ? ` (${adults} guests)` : ""}`)
                                       .join(", ")}`
                                   : "",
                               ]
@@ -1469,6 +1504,7 @@ export function BookingJourneyDialog({
                           <JourneyPaymentForm
                             totalAmount={grandTotal}
                             bookingId={bookingId!}
+                            currencySymbol={currencySymbol}
                             onSuccess={() => setStep(4)}
                             onBack={() => setClientSecret(null)}
                           />
@@ -1521,17 +1557,17 @@ export function BookingJourneyDialog({
 
               <div className="mt-[12px] flex justify-between gap-[13px] text-[11px] leading-[17.05px]">
                 <span>
-                  £{perNightPounds} × {nights} nights
+                  {currencySymbol}{perNightPounds} × {nights} nights
                 </span>
-                <span>£{cottageTotalPounds.toLocaleString()}</span>
+                <span>{currencySymbol}{cottageTotalPounds.toLocaleString()}</span>
               </div>
 
               {dogsCount > 0 && isDogFriendly && (
                 <div className="mt-[12px] flex justify-between gap-[13px] text-[11px] font-medium leading-[17.05px] text-[#243c30]">
                   <span>
-                    {dogsCount} dog × £{unitDogFee} / stay
+                    {dogsCount} dog × {currencySymbol}{unitDogFee} / stay
                   </span>
-                  <span>£{totalDogFee}</span>
+                  <span>{currencySymbol}{totalDogFee}</span>
                 </div>
               )}
 
@@ -1542,8 +1578,10 @@ export function BookingJourneyDialog({
                     key={extra.id}
                     className="mt-[8px] flex justify-between gap-[13px] text-[11px] font-medium leading-[17.05px] text-[#243c30]"
                   >
-                    <span className="truncate pr-2">{extra.title}</span>
-                    <span>£{calculateExtraAmount(extra)}</span>
+                    <span className="truncate pr-2">
+                      {(extra.title || "").replace(/<[^>]*>/g, "").trim()}
+                    </span>
+                    <span>{currencySymbol}{calculateExtraAmount(extra)}</span>
                   </div>
                 ))}
 
@@ -1553,13 +1591,19 @@ export function BookingJourneyDialog({
                   data-total={grandTotal}
                   className="font-['Instrument_Serif',Georgia,serif] text-[31px] font-normal"
                 >
-                  £{grandTotal.toLocaleString()}
+                  {currencySymbol}{grandTotal.toLocaleString()}
                 </strong>
               </div>
 
-              <p className="m-0 mt-[16px] text-[9px] leading-[15.3px] text-[#535b51]">
-                Taxes and all charges included. Secure card payment via Stripe.
-              </p>
+              <div
+                className="m-0 mt-[16px] text-[9px] leading-[15.3px] text-[#535b51] [&_p]:m-0 [&_a]:underline"
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeCheckoutHtml(
+                    bjSettings?.sidebarTaxesNotice ||
+                      "Taxes and all charges included. Secure card payment via Stripe.",
+                  ),
+                }}
+              />
             </aside>
           </div>
         )}
@@ -1580,11 +1624,17 @@ export function BookingJourneyDialog({
               BOOKING CONFIRMED
             </span>
             <h2 className="m-0 mt-2 font-['Instrument_Serif',Georgia,serif] text-[48px] font-normal leading-[50px] tracking-[-1px]">
-              Thank you, {firstName || "Guest"}.
+              {bjSettings?.step5Title || `Thank you, ${firstName || "Guest"}.`}
             </h2>
-            <p className="mx-auto mt-2 text-[14px] text-[#535b51]">
-              Your stay at <strong>{selectedCottage?.name}</strong> is confirmed.
-            </p>
+            <div
+              className="mx-auto mt-2 text-[14px] text-[#535b51] [&_p]:m-0"
+              dangerouslySetInnerHTML={{
+                __html: sanitizeCheckoutHtml(
+                  bjSettings?.step5Subtitle ||
+                    `Your stay at <strong>${selectedCottage?.name}</strong> is confirmed.`,
+                ),
+              }}
+            />
 
             {bookingNumber && (
               <div className="mx-auto my-6 inline-flex items-center gap-2 rounded border border-[#d8d9cb] bg-[#fffdf8] px-4 py-2 text-xs">
@@ -1616,13 +1666,20 @@ export function BookingJourneyDialog({
               </div>
               <div className="flex justify-between py-1.5 font-semibold text-[#243c30]">
                 <span>Total paid</span>
-                <span>£{(confirmedTotal || grandTotal).toLocaleString()}</span>
+                <span>{currencySymbol}{(confirmedTotal || grandTotal).toLocaleString()}</span>
               </div>
             </div>
 
-            <p className="mx-auto my-[20px] max-w-[480px] text-[12px] leading-[20px] text-[#535b51]">
-              A confirmation email has been sent to <strong>{email}</strong>. Directions, check-in instructions, and your welcome guide will arrive prior to your stay.
-            </p>
+            <div
+              className="mx-auto my-[20px] max-w-[480px] text-[12px] leading-[20px] text-[#535b51] [&_p]:m-0 [&_a]:underline"
+              dangerouslySetInnerHTML={{
+                __html: sanitizeCheckoutHtml(
+                  bjSettings?.step5Note
+                    ? bjSettings.step5Note.replace("{email}", email)
+                    : `A confirmation email has been sent to <strong>${email}</strong>. Directions, check-in instructions, and your welcome guide will arrive prior to your stay.`,
+                ),
+              }}
+            />
 
             <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
               {bookingId && (

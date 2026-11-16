@@ -126,6 +126,8 @@ class PublicCottageController extends Controller
             'overviewBullets' => $c->overview_bullets ?? [],
             'section_settings' => $c->section_settings ?? [],
             'sectionSettings' => $c->section_settings ?? [],
+            'home_section' => $c->home_section ?? ($c->section_settings['home_section'] ?? 'section_1'),
+            'homeSection' => $c->home_section ?? ($c->section_settings['home_section'] ?? 'section_1'),
             'max_adults' => (int) ($c->max_adults ?? 2),
             'maxAdults' => (int) ($c->max_adults ?? 2),
             'max_children' => (int) ($c->max_children ?? 0),

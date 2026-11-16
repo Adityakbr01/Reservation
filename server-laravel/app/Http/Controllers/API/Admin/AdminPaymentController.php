@@ -39,7 +39,7 @@ class AdminPaymentController extends Controller
         return [
             'id' => $p->id,
             'booking_id' => $p->booking_id,
-            'amount' => $p->amount,
+            'amount' => (int) round(((float) $p->amount) * 100),
             'currency' => $p->currency,
             'status' => $p->status,
             'provider' => $p->provider,

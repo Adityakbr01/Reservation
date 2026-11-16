@@ -163,6 +163,8 @@ class PublicAvailabilityController extends Controller
                     'dogPolicyImageUrl' => (!empty($rt->dog_policy_image_media_id) && isset($mediaMap[$rt->dog_policy_image_media_id])) ? $mediaMap[$rt->dog_policy_image_media_id]->url : null,
                     'dog_policy_image_url' => (!empty($rt->dog_policy_image_media_id) && isset($mediaMap[$rt->dog_policy_image_media_id])) ? $mediaMap[$rt->dog_policy_image_media_id]->url : null,
                     'shortDescription' => $rt->short_description,
+                    'homeSection' => $rt->home_section ?? ($rt->section_settings['home_section'] ?? 'section_1'),
+                    'home_section' => $rt->home_section ?? ($rt->section_settings['home_section'] ?? 'section_1'),
                     'amenities' => $rt->amenities ?? [],
                     'images' => $resolvedImages,
                     'media' => $resolvedMedia,

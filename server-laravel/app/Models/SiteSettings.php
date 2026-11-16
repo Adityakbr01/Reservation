@@ -19,7 +19,7 @@ class SiteSettings extends Model
         'check_in_time', 'check_out_time', 'reminder_hours_before',
         'social', 'default_seo', 'why_book_with_us',
         'header_navigation', 'footer_navigation', 'booking_acknowledgement',
-        'booking_page',
+        'booking_page', 'home_page',
     ];
 
     protected $casts = [
@@ -31,7 +31,36 @@ class SiteSettings extends Model
         'footer_navigation' => 'array',
         'booking_acknowledgement' => 'array',
         'booking_page' => 'array',
+        'home_page' => 'array',
     ];
+
+    public static function defaultHomePage(): array
+    {
+        return [
+            'hero' => [
+                'eyebrow' => 'Hamptworth Stays · Home Farm',
+                'title' => 'A little escape.',
+                'subtitle' => 'Choose your dates. Enjoy a slower pace.',
+                'showBird' => true,
+                'showLeaves' => true,
+            ],
+            'section1' => [
+                'heading' => 'Available cottages',
+                'subtitle' => 'Booking several cottages? Enquire about a group stay',
+                'enquireUrl' => 'https://hamptworthstays.com/plan-your-experience/',
+                'showEnquireLink' => true,
+            ],
+            'section2' => [
+                'isEnabled' => true,
+                'heading' => 'More Estate Cottages',
+                'subtitle' => 'Explore our additional luxury countryside retreats',
+                'enquireUrl' => 'https://hamptworthstays.com/plan-your-experience/',
+                'showEnquireLink' => true,
+            ],
+            'emptyHeading' => 'Nothing available for these dates',
+            'emptySubtitle' => 'Try different dates, fewer guests, or fewer cottages.',
+        ];
+    }
 
     public static function defaultBookingPage(): array
     {
@@ -69,21 +98,41 @@ class SiteSettings extends Model
                 'step1Title' => 'When would you like to stay?',
                 'step1Note' => 'Design preview · example prices, no live availability.',
                 'step1ExploreLinkText' => 'Explore the cottages first',
+                'step1CheckInLabel' => 'CHECK IN',
+                'step1CheckOutLabel' => 'CHECK OUT',
+                'step1AdultsLabel' => 'ADULTS',
+                'step1ChildrenLabel' => 'CHILDREN',
+                'step1ButtonText' => 'See available cottages',
                 'step2Subtitle' => 'YOUR STAY AT HOME FARM',
                 'step2Title' => 'Choose your cottage.',
                 'step2Description' => 'Take a closer look and choose your place at Home Farm.',
                 'groupStayText' => 'Bringing a larger group or planning an event? Talk to our team about taking over multiple cottages.',
                 'groupStayUrl' => 'https://hamptworthstays.com/plan-your-experience/',
+                'noCottagesMessage' => 'No cottages available for these dates and party size.',
                 'step3DogsTitle' => 'Dogs & pets',
+                'step3DogsDescription' => '{cottage} welcomes up to {max} dog{plural}. £{fee} per dog for the whole stay.',
+                'step3DogsSelectLabel' => 'DOGS JOINING YOUR STAY',
+                'step3DogsZeroOption' => 'No dogs — no charge',
                 'noPetsNotice' => 'This cottage does not accommodate pets.',
+                'seePetCottagesText' => 'See pet-friendly cottages',
                 'extrasHeading' => 'A few nice extras',
                 'extrasDescription' => 'Add rounds on the course, padel court time or dining at The Barn. You can adjust these later.',
+                'extrasEmptyMessage' => 'No optional extras currently listed for this cottage. Admin can add extras in the Admin Panel anytime.',
                 'extrasDisclaimer' => 'Activities and dining are subject to tee times, court availability and opening hours. We will confirm these with you after booking.',
+                'skipExtrasText' => 'Skip activities & dining →',
+                'step3NextButtonText' => 'Your details →',
                 'step4Title' => 'Your details',
                 'step4Description' => 'Enter your details to complete your reservation enquiry.',
+                'step4ReservedDescription' => 'Your cottage is reserved. Complete payment securely below to confirm your stay.',
+                'contactSectionTitle' => 'Contact information',
+                'specialRequestsLabel' => 'Special requests',
+                'specialRequestsPlaceholder' => 'Any notes for your stay (optional)',
                 'acknowledgementText' => 'I understand this is a booking request and dates are subject to confirmation.',
+                'payButtonText' => 'Pay with Card',
                 'step5Title' => 'Thank you for your stay request',
                 'step5Subtitle' => 'We have received your enquiry and our team will get in touch shortly.',
+                'step5Note' => 'A confirmation email has been sent with your booking details and receipt.',
+                'sidebarTaxesNotice' => 'Taxes and all charges included. Secure card payment via Stripe.',
             ],
         ];
     }

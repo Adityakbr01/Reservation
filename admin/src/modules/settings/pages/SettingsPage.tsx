@@ -12,6 +12,7 @@ import {
   Compass,
   LayoutGrid,
   ShieldCheck,
+  Home,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -233,22 +234,42 @@ export interface BookingJourneySettings {
   step1Title?: string;
   step1Note?: string;
   step1ExploreLinkText?: string;
+  step1CheckInLabel?: string;
+  step1CheckOutLabel?: string;
+  step1AdultsLabel?: string;
+  step1ChildrenLabel?: string;
+  step1ButtonText?: string;
   step2Subtitle?: string;
   step2Title?: string;
   step2Description?: string;
   groupStayText?: string;
   groupStayUrl?: string;
+  noCottagesMessage?: string;
   step3DogsTitle?: string;
+  step3DogsDescription?: string;
+  step3DogsSelectLabel?: string;
+  step3DogsZeroOption?: string;
   noPetsNotice?: string;
+  seePetCottagesText?: string;
   extrasHeading?: string;
   extrasDescription?: string;
+  extrasEmptyMessage?: string;
   extrasDisclaimer?: string;
+  skipExtrasText?: string;
+  step3NextButtonText?: string;
   step4Title?: string;
   step4Description?: string;
+  step4ReservedDescription?: string;
+  contactSectionTitle?: string;
+  specialRequestsLabel?: string;
+  specialRequestsPlaceholder?: string;
   acknowledgementText?: string;
+  payButtonText?: string;
   step5Title?: string;
   step5Subtitle?: string;
+  step5Note?: string;
   step5Disclaimer?: string;
+  sidebarTaxesNotice?: string;
 }
 
 export interface BookingPageSettings {
@@ -293,23 +314,92 @@ export const DEFAULT_BOOKING_PAGE = {
     step1Title: "When would you like to stay?",
     step1Note: "Design preview · example prices, no live availability.",
     step1ExploreLinkText: "Explore the cottages first",
+    step1CheckInLabel: "CHECK IN",
+    step1CheckOutLabel: "CHECK OUT",
+    step1AdultsLabel: "ADULTS",
+    step1ChildrenLabel: "CHILDREN",
+    step1ButtonText: "See available cottages",
     step2Subtitle: "YOUR STAY AT HOME FARM",
     step2Title: "Choose your cottage.",
     step2Description: "Take a closer look and choose your place at Home Farm.",
     groupStayText: "Booking several cottages? Plan a group stay ↗",
     groupStayUrl: "",
+    noCottagesMessage: "No cottages available for these dates and party size.",
     step3DogsTitle: "Bringing a dog?",
+    step3DogsDescription: "{cottage} welcomes up to {max} dog{plural}. £{fee} per dog for the whole stay.",
+    step3DogsSelectLabel: "DOGS JOINING YOUR STAY",
+    step3DogsZeroOption: "No dogs — no charge",
     noPetsNotice: "This cottage does not accommodate pets.",
+    seePetCottagesText: "See pet-friendly cottages",
     extrasHeading: "Make it your kind of stay.",
     extrasDescription: "A little more time outdoors, or something lovely around the table. Everything here is optional.",
+    extrasEmptyMessage: "No optional extras currently listed for this cottage. Admin can add extras in the Admin Panel anytime.",
     extrasDisclaimer: "These prices demonstrate the booking flow. Final prices, times, availability and package inclusions must be confirmed before the live site offers them.",
+    skipExtrasText: "Skip activities & dining →",
+    step3NextButtonText: "Your details →",
     step4Title: "Almost there.",
     step4Description: "A short guest checkout, with your selected dates and full total kept in view.",
+    step4ReservedDescription: "Your cottage is reserved. Complete payment securely below to confirm your stay.",
+    contactSectionTitle: "Contact information",
+    specialRequestsLabel: "Special requests",
+    specialRequestsPlaceholder: "Any notes for your stay (optional)",
     acknowledgementText: "I understand this is a design preview. No booking, enquiry or payment will be submitted.",
+    payButtonText: "Pay with Card",
     step5Title: "A clear path",
     step5Subtitle: "from cottage to checkout.",
+    step5Note: "A confirmation email has been sent with your booking details and receipt.",
     step5Disclaimer: "The live payment step needs to connect to the existing booking system and Stripe after the final price and availability are confirmed.",
+    sidebarTaxesNotice: "Taxes and all charges included. Secure card payment via Stripe.",
   } satisfies Required<BookingJourneySettings>,
+};
+
+export interface HomePageHeroSettings {
+  eyebrow?: string;
+  title?: string;
+  subtitle?: string;
+  showBird?: boolean;
+  showLeaves?: boolean;
+}
+
+export interface HomePageSectionSettings {
+  heading?: string;
+  subtitle?: string;
+  enquireUrl?: string;
+  showEnquireLink?: boolean;
+  isEnabled?: boolean;
+}
+
+export interface HomePageSettings {
+  hero?: HomePageHeroSettings;
+  section1?: HomePageSectionSettings;
+  section2?: HomePageSectionSettings;
+  emptyHeading?: string;
+  emptySubtitle?: string;
+}
+
+export const DEFAULT_HOME_PAGE: HomePageSettings = {
+  hero: {
+    eyebrow: "Hamptworth Stays · Home Farm",
+    title: "A little escape.",
+    subtitle: "Choose your dates. Enjoy a slower pace.",
+    showBird: true,
+    showLeaves: true,
+  },
+  section1: {
+    heading: "Available cottages",
+    subtitle: "Booking several cottages? Enquire about a group stay",
+    enquireUrl: "https://hamptworthstays.com/plan-your-experience/",
+    showEnquireLink: true,
+  },
+  section2: {
+    isEnabled: true,
+    heading: "More Estate Cottages",
+    subtitle: "Explore our additional luxury countryside retreats",
+    enquireUrl: "https://hamptworthstays.com/plan-your-experience/",
+    showEnquireLink: true,
+  },
+  emptyHeading: "Nothing available for these dates",
+  emptySubtitle: "Try different dates, fewer guests, or fewer cottages.",
 };
 
 interface Settings {
@@ -330,6 +420,7 @@ interface Settings {
   footerNavigation?: FooterNavigation;
   bookingAcknowledgement?: BookingAcknowledgement;
   bookingPage?: BookingPageSettings;
+  homePage?: HomePageSettings;
 }
 
 function migrateLegacyAckLinks(
@@ -450,6 +541,22 @@ function SettingsForm({ initial }: { initial: Settings }) {
           ...(initial.bookingPage?.bookingJourney ?? {}),
         },
       },
+      homePage: {
+        hero: {
+          ...DEFAULT_HOME_PAGE.hero,
+          ...(initial.homePage?.hero ?? {}),
+        },
+        section1: {
+          ...DEFAULT_HOME_PAGE.section1,
+          ...(initial.homePage?.section1 ?? {}),
+        },
+        section2: {
+          ...DEFAULT_HOME_PAGE.section2,
+          ...(initial.homePage?.section2 ?? {}),
+        },
+        emptyHeading: initial.homePage?.emptyHeading ?? DEFAULT_HOME_PAGE.emptyHeading,
+        emptySubtitle: initial.homePage?.emptySubtitle ?? DEFAULT_HOME_PAGE.emptySubtitle,
+      },
     };
   });
   const mutation = useMutation({
@@ -474,7 +581,7 @@ function SettingsForm({ initial }: { initial: Settings }) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  type SettingsTab = "property" | "benefits" | "header" | "footer" | "checkout";
+  type SettingsTab = "property" | "homepage" | "benefits" | "header" | "footer" | "checkout";
   const [activeTab, setActiveTab] = useState<SettingsTab>("property");
 
   const SETTINGS_TABS: {
@@ -488,6 +595,12 @@ function SettingsForm({ initial }: { initial: Settings }) {
       label: "Property & Profile",
       icon: Building2,
       desc: "Contacts, timings, currency & timezone",
+    },
+    {
+      id: "homepage",
+      label: "Home Page & Sections",
+      icon: Home,
+      desc: "Hero banner text, Section 1 & Section 2 cottage groups",
     },
     {
       id: "benefits",
@@ -514,6 +627,36 @@ function SettingsForm({ initial }: { initial: Settings }) {
       desc: "Enquiry block, reservation details, policies & agreements",
     },
   ];
+
+  const home = {
+    hero: {
+      ...DEFAULT_HOME_PAGE.hero,
+      ...(form.homePage?.hero ?? {}),
+    },
+    section1: {
+      ...DEFAULT_HOME_PAGE.section1,
+      ...(form.homePage?.section1 ?? {}),
+    },
+    section2: {
+      ...DEFAULT_HOME_PAGE.section2,
+      ...(form.homePage?.section2 ?? {}),
+    },
+    emptyHeading: form.homePage?.emptyHeading ?? DEFAULT_HOME_PAGE.emptyHeading,
+    emptySubtitle: form.homePage?.emptySubtitle ?? DEFAULT_HOME_PAGE.emptySubtitle,
+  };
+
+  const updateHome = <K extends keyof HomePageSettings>(
+    section: K,
+    patch: Partial<NonNullable<HomePageSettings[K]>> | string,
+  ) => {
+    set("homePage", {
+      ...home,
+      [section]:
+        typeof patch === "string"
+          ? patch
+          : { ...((home[section] as Record<string, unknown>) ?? {}), ...patch },
+    });
+  };
 
   const enquiry = {
     ...DEFAULT_BOOKING_PAGE.enquiry,
@@ -784,6 +927,252 @@ function SettingsForm({ initial }: { initial: Settings }) {
             </div>
           </CardContent>
         </Card>
+        )}
+
+        {/* Tab Panel: Home Page & Sections */}
+        {activeTab === "homepage" && (
+          <div className="space-y-6">
+            {/* 1. Hero Banner */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl">Home Page · Hero Banner</CardTitle>
+                <CardDescription>
+                  Configure the primary top banner headline, eyebrow, subtitle and animated elements seen by all guests.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="hp-eyebrow">Top Eyebrow Text</Label>
+                  <Input
+                    id="hp-eyebrow"
+                    value={home.hero.eyebrow ?? ""}
+                    onChange={(e) => updateHome("hero", { eyebrow: e.target.value })}
+                    placeholder="e.g. Hamptworth Stays · Home Farm"
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Small uppercase text shown above the main title.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="hp-title">Main Hero Title</Label>
+                  <Input
+                    id="hp-title"
+                    value={home.hero.title ?? ""}
+                    onChange={(e) => updateHome("hero", { title: e.target.value })}
+                    placeholder="e.g. A little escape."
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Large serif title on the hero photograph.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="hp-subtitle">Hero Subtitle / Tagline</Label>
+                  <Input
+                    id="hp-subtitle"
+                    value={home.hero.subtitle ?? ""}
+                    onChange={(e) => updateHome("hero", { subtitle: e.target.value })}
+                    placeholder="e.g. Choose your dates. Enjoy a slower pace."
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Italic subtitle displayed below the title.
+                  </p>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2 pt-2">
+                  <div className="flex items-center justify-between gap-4 rounded-md border p-3">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="hp-bird" className="text-sm font-medium">Decorative Bird Animation</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Show the floating countryside bird beside the title.
+                      </p>
+                    </div>
+                    <Switch
+                      id="hp-bird"
+                      checked={home.hero.showBird !== false}
+                      onCheckedChange={(checked) => updateHome("hero", { showBird: checked })}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between gap-4 rounded-md border p-3">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="hp-leaves" className="text-sm font-medium">Ambient Leaves</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Show drifting botanical leaves at the hero borders.
+                      </p>
+                    </div>
+                    <Switch
+                      id="hp-leaves"
+                      checked={home.hero.showLeaves !== false}
+                      onCheckedChange={(checked) => updateHome("hero", { showLeaves: checked })}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 2. Section 1 (Main / Home Farm Cottages) */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl">Section 1 · Main Cottages</CardTitle>
+                    <CardDescription>
+                      Displays all cottages assigned to Section 1 (e.g. Home Farm Cottages).
+                    </CardDescription>
+                  </div>
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+                    1st Section
+                  </span>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="hp-sec1-heading">Section 1 Heading</Label>
+                  <Input
+                    id="hp-sec1-heading"
+                    value={home.section1.heading ?? ""}
+                    onChange={(e) => updateHome("section1", { heading: e.target.value })}
+                    placeholder="e.g. Available cottages"
+                  />
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="hp-sec1-sub">Group Stay / Enquire Link Text</Label>
+                    <Input
+                      id="hp-sec1-sub"
+                      value={home.section1.subtitle ?? ""}
+                      onChange={(e) => updateHome("section1", { subtitle: e.target.value })}
+                      placeholder="e.g. Booking several cottages? Enquire about a group stay"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="hp-sec1-url">Group Stay Link URL</Label>
+                    <Input
+                      id="hp-sec1-url"
+                      value={home.section1.enquireUrl ?? ""}
+                      onChange={(e) => updateHome("section1", { enquireUrl: e.target.value })}
+                      placeholder="e.g. https://hamptworthstays.com/plan-your-experience/"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-4 rounded-md border p-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="hp-sec1-link-toggle" className="text-sm font-medium">Show Enquire Link</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Display group booking enquire button in Section 1 header.
+                    </p>
+                  </div>
+                  <Switch
+                    id="hp-sec1-link-toggle"
+                    checked={home.section1.showEnquireLink !== false}
+                    onCheckedChange={(checked) => updateHome("section1", { showEnquireLink: checked })}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 3. Section 2 (Estate / Other Property Cottages) */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl">Section 2 · Estate / Other Property Cottages</CardTitle>
+                    <CardDescription>
+                      Displays cottages assigned to Section 2 (e.g. Other Property / Estate Retreats).
+                    </CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="hp-sec2-enable" className="text-xs font-medium">Enable Section 2</Label>
+                    <Switch
+                      id="hp-sec2-enable"
+                      checked={home.section2.isEnabled !== false}
+                      onCheckedChange={(checked) => updateHome("section2", { isEnabled: checked })}
+                    />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="hp-sec2-heading">Section 2 Heading</Label>
+                  <Input
+                    id="hp-sec2-heading"
+                    value={home.section2.heading ?? ""}
+                    onChange={(e) => updateHome("section2", { heading: e.target.value })}
+                    placeholder="e.g. More Estate Cottages"
+                  />
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="hp-sec2-sub">Section 2 Subtitle / Link Text</Label>
+                    <Input
+                      id="hp-sec2-sub"
+                      value={home.section2.subtitle ?? ""}
+                      onChange={(e) => updateHome("section2", { subtitle: e.target.value })}
+                      placeholder="e.g. Explore our additional luxury countryside retreats"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="hp-sec2-url">Section 2 Enquire Link URL</Label>
+                    <Input
+                      id="hp-sec2-url"
+                      value={home.section2.enquireUrl ?? ""}
+                      onChange={(e) => updateHome("section2", { enquireUrl: e.target.value })}
+                      placeholder="e.g. https://hamptworthstays.com/plan-your-experience/"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-4 rounded-md border p-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="hp-sec2-link-toggle" className="text-sm font-medium">Show Enquire Link in Section 2</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Display enquire button in Section 2 header.
+                    </p>
+                  </div>
+                  <Switch
+                    id="hp-sec2-link-toggle"
+                    checked={home.section2.showEnquireLink !== false}
+                    onCheckedChange={(checked) => updateHome("section2", { showEnquireLink: checked })}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 4. Empty State Notice */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl">Empty Availability Message</CardTitle>
+                <CardDescription>
+                  Custom message shown when no cottages are available for the guest's selected dates.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="hp-empty-heading">Empty Title</Label>
+                  <Input
+                    id="hp-empty-heading"
+                    value={home.emptyHeading ?? ""}
+                    onChange={(e) => updateHome("emptyHeading", e.target.value)}
+                    placeholder="e.g. Nothing available for these dates"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="hp-empty-sub">Empty Subtitle</Label>
+                  <Input
+                    id="hp-empty-sub"
+                    value={home.emptySubtitle ?? ""}
+                    onChange={(e) => updateHome("emptySubtitle", e.target.value)}
+                    placeholder="e.g. Try different dates, fewer guests, or fewer cottages."
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {/* Tab Panel: Benefits */}
@@ -2544,155 +2933,396 @@ function SettingsForm({ initial }: { initial: Settings }) {
                     </p>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="space-y-1">
-                      <Label className="text-xs font-semibold">Header Top Notice</Label>
-                      <Input
-                        value={bj.previewNotice ?? ""}
-                        placeholder="DESIGN PREVIEW · NO BOOKINGS OR PAYMENTS TAKEN"
-                        onChange={(e) => updateBj({ previewNotice: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs font-semibold">Modal Main Title</Label>
-                      <Input
-                        value={bj.modalTitle ?? ""}
-                        placeholder="Book your stay."
-                        onChange={(e) => updateBj({ modalTitle: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <Label className="text-xs font-semibold">Step 1 Subtitle</Label>
-                      <Input
-                        value={bj.step1Subtitle ?? ""}
-                        placeholder="YOUR STAY AT HOME FARM"
-                        onChange={(e) => updateBj({ step1Subtitle: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs font-semibold">Step 1 Heading</Label>
-                      <Input
-                        value={bj.step1Title ?? ""}
-                        placeholder="When would you like to stay?"
-                        onChange={(e) => updateBj({ step1Title: e.target.value })}
-                      />
+                  <div className="space-y-6">
+                    {/* Header Top Controls */}
+                    <div className="border-b pb-4">
+                      <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                        Dialog Header Bar
+                      </h5>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Header Top Notice</Label>
+                          <Input
+                            value={bj.previewNotice ?? ""}
+                            placeholder="DESIGN PREVIEW · NO BOOKINGS OR PAYMENTS TAKEN"
+                            onChange={(e) => updateBj({ previewNotice: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Modal Main Title</Label>
+                          <Input
+                            value={bj.modalTitle ?? ""}
+                            placeholder="Book your stay."
+                            onChange={(e) => updateBj({ modalTitle: e.target.value })}
+                          />
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="space-y-1 sm:col-span-2">
-                      <Label className="text-xs font-semibold">Step 1 Subtitle Note</Label>
-                      <Input
-                        value={bj.step1Note ?? ""}
-                        placeholder="Design preview · example prices, no live availability."
-                        onChange={(e) => updateBj({ step1Note: e.target.value })}
-                      />
+                    {/* Step 1: Dates & Guests */}
+                    <div className="border-b pb-4">
+                      <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                        Step 1: Dates &amp; Guests
+                      </h5>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Step 1 Subtitle</Label>
+                          <Input
+                            value={bj.step1Subtitle ?? ""}
+                            placeholder="YOUR STAY AT HOME FARM"
+                            onChange={(e) => updateBj({ step1Subtitle: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Step 1 Heading</Label>
+                          <Input
+                            value={bj.step1Title ?? ""}
+                            placeholder="When would you like to stay?"
+                            onChange={(e) => updateBj({ step1Title: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <RichTextEditor
+                            label="Step 1 Subtitle Note"
+                            compact
+                            minHeightClass="min-h-[55px]"
+                            value={bj.step1Note ?? ""}
+                            onChange={(html) => updateBj({ step1Note: html })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Explore Link Text</Label>
+                          <Input
+                            value={bj.step1ExploreLinkText ?? ""}
+                            placeholder="Explore the cottages first"
+                            onChange={(e) => updateBj({ step1ExploreLinkText: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Button Text</Label>
+                          <Input
+                            value={bj.step1ButtonText ?? ""}
+                            placeholder="See available cottages"
+                            onChange={(e) => updateBj({ step1ButtonText: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Check-in Field Label</Label>
+                          <Input
+                            value={bj.step1CheckInLabel ?? ""}
+                            placeholder="CHECK IN"
+                            onChange={(e) => updateBj({ step1CheckInLabel: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Check-out Field Label</Label>
+                          <Input
+                            value={bj.step1CheckOutLabel ?? ""}
+                            placeholder="CHECK OUT"
+                            onChange={(e) => updateBj({ step1CheckOutLabel: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Adults Field Label</Label>
+                          <Input
+                            value={bj.step1AdultsLabel ?? ""}
+                            placeholder="ADULTS"
+                            onChange={(e) => updateBj({ step1AdultsLabel: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Children Field Label</Label>
+                          <Input
+                            value={bj.step1ChildrenLabel ?? ""}
+                            placeholder="CHILDREN"
+                            onChange={(e) => updateBj({ step1ChildrenLabel: e.target.value })}
+                          />
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <Label className="text-xs font-semibold">Step 2 Subtitle</Label>
-                      <Input
-                        value={bj.step2Subtitle ?? ""}
-                        placeholder="YOUR STAY AT HOME FARM"
-                        onChange={(e) => updateBj({ step2Subtitle: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs font-semibold">Step 2 Heading</Label>
-                      <Input
-                        value={bj.step2Title ?? ""}
-                        placeholder="Choose your cottage."
-                        onChange={(e) => updateBj({ step2Title: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="space-y-1 sm:col-span-2">
-                      <Label className="text-xs font-semibold">Step 2 Description</Label>
-                      <Input
-                        value={bj.step2Description ?? ""}
-                        placeholder="Take a closer look and choose your place at Home Farm."
-                        onChange={(e) => updateBj({ step2Description: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="space-y-1 sm:col-span-2">
-                      <RichTextEditor
-                        label="Step 3 Extras Heading / Title"
-                        compact
-                        minHeightClass="min-h-[55px]"
-                        value={bj.extrasHeading ?? ""}
-                        onChange={(html) => updateBj({ extrasHeading: html })}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs font-semibold">Step 3 Non-Pet Notice</Label>
-                      <Input
-                        value={bj.noPetsNotice ?? ""}
-                        placeholder="This cottage does not accommodate pets."
-                        onChange={(e) => updateBj({ noPetsNotice: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="space-y-1 sm:col-span-2">
-                      <RichTextEditor
-                        label="Step 3 Extras Description / Subtitle"
-                        compact
-                        minHeightClass="min-h-[75px]"
-                        value={bj.extrasDescription ?? ""}
-                        onChange={(html) => updateBj({ extrasDescription: html })}
-                      />
-                    </div>
-
-                    <div className="space-y-1 sm:col-span-2">
-                      <RichTextEditor
-                        label="Step 3 Extras Disclaimer / Footer Notice"
-                        compact
-                        minHeightClass="min-h-[55px]"
-                        value={bj.extrasDisclaimer ?? ""}
-                        onChange={(html) => updateBj({ extrasDisclaimer: html })}
-                      />
+                    {/* Step 2: Cottage Selection */}
+                    <div className="border-b pb-4">
+                      <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                        Step 2: Cottage Selection
+                      </h5>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Step 2 Subtitle</Label>
+                          <Input
+                            value={bj.step2Subtitle ?? ""}
+                            placeholder="YOUR STAY AT HOME FARM"
+                            onChange={(e) => updateBj({ step2Subtitle: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Step 2 Heading</Label>
+                          <Input
+                            value={bj.step2Title ?? ""}
+                            placeholder="Choose your cottage."
+                            onChange={(e) => updateBj({ step2Title: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <Label className="text-xs font-semibold">Step 2 Description</Label>
+                          <Input
+                            value={bj.step2Description ?? ""}
+                            placeholder="Take a closer look and choose your place at Home Farm."
+                            onChange={(e) => updateBj({ step2Description: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <RichTextEditor
+                            label="Group Stay Banner Note"
+                            compact
+                            minHeightClass="min-h-[55px]"
+                            value={bj.groupStayText ?? ""}
+                            onChange={(html) => updateBj({ groupStayText: html })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Group Stay Link URL</Label>
+                          <Input
+                            value={bj.groupStayUrl ?? ""}
+                            placeholder="https://hamptworthstays.com/plan-your-experience/"
+                            onChange={(e) => updateBj({ groupStayUrl: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">No Cottages Available Message</Label>
+                          <Input
+                            value={bj.noCottagesMessage ?? ""}
+                            placeholder="No cottages available for these dates and party size."
+                            onChange={(e) => updateBj({ noCottagesMessage: e.target.value })}
+                          />
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <Label className="text-xs font-semibold">Step 4 Heading</Label>
-                      <Input
-                        value={bj.step4Title ?? ""}
-                        placeholder="Almost there."
-                        onChange={(e) => updateBj({ step4Title: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs font-semibold">Step 4 Description</Label>
-                      <Input
-                        value={bj.step4Description ?? ""}
-                        placeholder="A short guest checkout, with your selected dates and full total kept in view."
-                        onChange={(e) => updateBj({ step4Description: e.target.value })}
-                      />
+                    {/* Step 3: Extras & Dogs */}
+                    <div className="border-b pb-4">
+                      <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                        Step 3: Optional Extras &amp; Dogs
+                      </h5>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Dogs Policy Card Title</Label>
+                          <Input
+                            value={bj.step3DogsTitle ?? ""}
+                            placeholder="Bringing a dog?"
+                            onChange={(e) => updateBj({ step3DogsTitle: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Non-Pet Notice</Label>
+                          <Input
+                            value={bj.noPetsNotice ?? ""}
+                            placeholder="This cottage does not accommodate pets."
+                            onChange={(e) => updateBj({ noPetsNotice: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <Label className="text-xs font-semibold">Dog Fee Description Format</Label>
+                          <Input
+                            value={bj.step3DogsDescription ?? ""}
+                            placeholder="{cottage} welcomes up to {max} dog{plural}. £{fee} per dog for the whole stay."
+                            onChange={(e) => updateBj({ step3DogsDescription: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Dogs Select Label</Label>
+                          <Input
+                            value={bj.step3DogsSelectLabel ?? ""}
+                            placeholder="DOGS JOINING YOUR STAY"
+                            onChange={(e) => updateBj({ step3DogsSelectLabel: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Zero Dogs Option Text</Label>
+                          <Input
+                            value={bj.step3DogsZeroOption ?? ""}
+                            placeholder="No dogs — no charge"
+                            onChange={(e) => updateBj({ step3DogsZeroOption: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">See Pet Cottages Button Text</Label>
+                          <Input
+                            value={bj.seePetCottagesText ?? ""}
+                            placeholder="See pet-friendly cottages"
+                            onChange={(e) => updateBj({ seePetCottagesText: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Skip Extras Link Text</Label>
+                          <Input
+                            value={bj.skipExtrasText ?? ""}
+                            placeholder="Skip activities & dining →"
+                            onChange={(e) => updateBj({ skipExtrasText: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <RichTextEditor
+                            label="Step 3 Extras Heading / Title"
+                            compact
+                            minHeightClass="min-h-[55px]"
+                            value={bj.extrasHeading ?? ""}
+                            onChange={(html) => updateBj({ extrasHeading: html })}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <RichTextEditor
+                            label="Step 3 Extras Description / Subtitle"
+                            compact
+                            minHeightClass="min-h-[75px]"
+                            value={bj.extrasDescription ?? ""}
+                            onChange={(html) => updateBj({ extrasDescription: html })}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <RichTextEditor
+                            label="Step 3 Extras Empty State Notice (When cottage has no add-ons)"
+                            compact
+                            minHeightClass="min-h-[55px]"
+                            value={bj.extrasEmptyMessage ?? ""}
+                            onChange={(html) => updateBj({ extrasEmptyMessage: html })}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <RichTextEditor
+                            label="Step 3 Extras Disclaimer / Footer Notice"
+                            compact
+                            minHeightClass="min-h-[55px]"
+                            value={bj.extrasDisclaimer ?? ""}
+                            onChange={(html) => updateBj({ extrasDisclaimer: html })}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <Label className="text-xs font-semibold">Next Step Button Text</Label>
+                          <Input
+                            value={bj.step3NextButtonText ?? ""}
+                            placeholder="Your details →"
+                            onChange={(e) => updateBj({ step3NextButtonText: e.target.value })}
+                          />
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="space-y-1 sm:col-span-2">
-                      <Label className="text-xs font-semibold">Step 4 Acknowledgement Checkbox Text</Label>
-                      <Input
-                        value={bj.acknowledgementText ?? ""}
-                        placeholder="I understand this is a design preview. No booking, enquiry or payment will be submitted."
-                        onChange={(e) => updateBj({ acknowledgementText: e.target.value })}
-                      />
+                    {/* Step 4: Details & Payment */}
+                    <div className="border-b pb-4">
+                      <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                        Step 4: Guest Details &amp; Payment
+                      </h5>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Step 4 Heading</Label>
+                          <Input
+                            value={bj.step4Title ?? ""}
+                            placeholder="Guest Details & Payment"
+                            onChange={(e) => updateBj({ step4Title: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Contact Section Title</Label>
+                          <Input
+                            value={bj.contactSectionTitle ?? ""}
+                            placeholder="Contact information"
+                            onChange={(e) => updateBj({ contactSectionTitle: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <Label className="text-xs font-semibold">Step 4 Description (Before Reserve)</Label>
+                          <Input
+                            value={bj.step4Description ?? ""}
+                            placeholder="Please provide your contact details to secure your reservation at Home Farm."
+                            onChange={(e) => updateBj({ step4Description: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <Label className="text-xs font-semibold">Step 4 Description (When Cottage Held)</Label>
+                          <Input
+                            value={bj.step4ReservedDescription ?? ""}
+                            placeholder="Your cottage is reserved. Complete payment securely below to confirm your stay."
+                            onChange={(e) => updateBj({ step4ReservedDescription: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Special Requests Label</Label>
+                          <Input
+                            value={bj.specialRequestsLabel ?? ""}
+                            placeholder="Special requests"
+                            onChange={(e) => updateBj({ specialRequestsLabel: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Special Requests Placeholder</Label>
+                          <Input
+                            value={bj.specialRequestsPlaceholder ?? ""}
+                            placeholder="Any notes for your stay (optional)"
+                            onChange={(e) => updateBj({ specialRequestsPlaceholder: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <RichTextEditor
+                            label="Step 4 Acknowledgement Checkbox Text"
+                            compact
+                            minHeightClass="min-h-[55px]"
+                            value={bj.acknowledgementText ?? ""}
+                            onChange={(html) => updateBj({ acknowledgementText: html })}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <Label className="text-xs font-semibold">Pay Button Text</Label>
+                          <Input
+                            value={bj.payButtonText ?? ""}
+                            placeholder="Pay with Card"
+                            onChange={(e) => updateBj({ payButtonText: e.target.value })}
+                          />
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <Label className="text-xs font-semibold">Step 5 Title</Label>
-                      <Input
-                        value={bj.step5Title ?? ""}
-                        placeholder="A clear path"
-                        onChange={(e) => updateBj({ step5Title: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs font-semibold">Step 5 Subtitle (Italic)</Label>
-                      <Input
-                        value={bj.step5Subtitle ?? ""}
-                        placeholder="from cottage to checkout."
-                        onChange={(e) => updateBj({ step5Subtitle: e.target.value })}
-                      />
+                    {/* Step 5: Confirmation */}
+                    <div className="border-b pb-4">
+                      <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                        Step 5: Confirmation &amp; Summary
+                      </h5>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Confirmation Title</Label>
+                          <Input
+                            value={bj.step5Title ?? ""}
+                            placeholder="Thank you for your stay request"
+                            onChange={(e) => updateBj({ step5Title: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold">Confirmation Subtitle</Label>
+                          <Input
+                            value={bj.step5Subtitle ?? ""}
+                            placeholder="We have received your enquiry and our team will get in touch shortly."
+                            onChange={(e) => updateBj({ step5Subtitle: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <RichTextEditor
+                            label="Confirmation Email / Next Steps Note"
+                            compact
+                            minHeightClass="min-h-[55px]"
+                            value={bj.step5Note ?? ""}
+                            onChange={(html) => updateBj({ step5Note: html })}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <RichTextEditor
+                            label="Sidebar Taxes &amp; Stripe Security Notice"
+                            compact
+                            minHeightClass="min-h-[55px]"
+                            value={bj.sidebarTaxesNotice ?? ""}
+                            onChange={(html) => updateBj({ sidebarTaxesNotice: html })}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

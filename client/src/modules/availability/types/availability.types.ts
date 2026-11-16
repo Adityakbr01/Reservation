@@ -52,6 +52,8 @@ export interface SearchResultRoomType {
   dog_policy_image_url?: string | null;
   extras?: CottageExtra[];
   shortDescription: string | null;
+  homeSection?: string;
+  home_section?: string;
   amenities: string[];
   images?: Array<{ mediaId: string; altText: string | null; sortOrder: number; url?: string }>;
   media?: Array<{ mediaId: string; kind: "image" | "video"; altText: string | null; sortOrder: number; url?: string }>;

@@ -54,6 +54,11 @@ class PublicSettingsController extends Controller
         }
 
         $bookingPage = $this->resolveBookingPage($settings->booking_page);
+        $rawHomePage = $settings->home_page;
+        if (! $rawHomePage && isset($settings->booking_page['homePage'])) {
+            $rawHomePage = $settings->booking_page['homePage'];
+        }
+        $homePage = $this->resolveHomePage($rawHomePage);
 
         return response()->json([
             'success' => true,
@@ -248,10 +253,39 @@ class PublicSettingsController extends Controller
                 ],
                 'booking_page' => $bookingPage,
                 'bookingPage' => $bookingPage,
+                'home_page' => $homePage,
+                'homePage' => $homePage,
             ],
             'booking_page' => $bookingPage,
             'bookingPage' => $bookingPage,
+            'home_page' => $homePage,
+            'homePage' => $homePage,
         ]);
+    }
+
+    private function resolveHomePage(?array $stored): array
+    {
+        $defaults = SiteSettings::defaultHomePage();
+        $stored = is_array($stored) ? $stored : [];
+
+        foreach ($defaults as $section => $values) {
+            if (is_array($values)) {
+                $snakeSection = \Illuminate\Support\Str::snake($section);
+                $incoming = is_array($stored[$section] ?? null)
+                    ? $stored[$section]
+                    : (is_array($stored[$snakeSection] ?? null) ? $stored[$snakeSection] : []);
+                $defaults[$section] = array_merge($values, $incoming);
+            } else {
+                $snakeSection = \Illuminate\Support\Str::snake($section);
+                if (array_key_exists($section, $stored)) {
+                    $defaults[$section] = $stored[$section];
+                } elseif (array_key_exists($snakeSection, $stored)) {
+                    $defaults[$section] = $stored[$snakeSection];
+                }
+            }
+        }
+
+        return $defaults;
     }
 
     private function resolveBookingPage(?array $stored): array
