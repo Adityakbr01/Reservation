@@ -20,6 +20,30 @@ export interface CottageSectionSettings {
     location?: boolean;
     reviews?: boolean;
   };
+  /** Per-cottage cottage-card element toggles (home page / search results cards). */
+  cottageCard?: CottageCardSettings;
+}
+
+export interface CottageCardSettings {
+  isEnabled?: boolean;
+  showCoverImage?: boolean;
+  showPhotoCount?: boolean;
+  showTitle?: boolean;
+  showCapacity?: boolean;
+  showPetFriendly?: boolean;
+  showDescription?: boolean;
+  showPrice?: boolean;
+  showExampleRate?: boolean;
+  showDogPolicy?: boolean;
+  showExploreLink?: boolean;
+  showCheckAvailability?: boolean;
+  /** Admin-customizable text values (no fallbacks — only show when admin provides them). */
+  cardTitle?: string;
+  cardDescription?: string;
+  cardPriceLabel?: string;
+  cardExampleRateLabel?: string;
+  cardExploreText?: string;
+  cardBookText?: string;
 }
 
 export interface CottageImage {

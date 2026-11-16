@@ -63,6 +63,30 @@ export interface SearchResultRoomType {
   amenities: string[];
   images?: Array<{ mediaId: string; altText: string | null; sortOrder: number; url?: string }>;
   media?: Array<{ mediaId: string; kind: "image" | "video"; altText: string | null; sortOrder: number; url?: string }>;
+  /** Per-cottage cottage-card element toggles (from section_settings.cottageCard). */
+  sectionSettings?: {
+    cottageCard?: {
+      isEnabled?: boolean;
+      showCoverImage?: boolean;
+      showPhotoCount?: boolean;
+      showTitle?: boolean;
+      showCapacity?: boolean;
+      showPetFriendly?: boolean;
+      showDescription?: boolean;
+      showPrice?: boolean;
+      showExampleRate?: boolean;
+      showDogPolicy?: boolean;
+      showExploreLink?: boolean;
+      showCheckAvailability?: boolean;
+      /** Admin-customizable text values (no fallbacks — only show when admin provides them). */
+      cardTitle?: string;
+      cardDescription?: string;
+      cardPriceLabel?: string;
+      cardExampleRateLabel?: string;
+      cardExploreText?: string;
+      cardBookText?: string;
+    };
+  };
 }
 
 export interface SearchResultItem {

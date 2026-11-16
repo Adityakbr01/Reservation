@@ -40,6 +40,7 @@ function toBool(val: unknown, fallback = true): boolean {
 
 function parseSettings(val: unknown): CottageSectionSettings | null {
   if (!val) return null;
+  if (Array.isArray(val) && val.length === 0) return null;
   if (typeof val === "object") return val as CottageSectionSettings;
   if (typeof val === "string") {
     try {
@@ -114,6 +115,43 @@ export function CottageForm({
       (initial as unknown as { section_settings?: unknown })?.section_settings,
     );
 
+  const handleResetDefaults = () => {
+    setSectionSettings({
+      showSubtitle: true,
+      showMiddleDescription: true,
+      showOverviewBullets: true,
+      showAboutImage: true,
+      tabs: {
+        overview: true,
+        availability: true,
+        propertyDetails: true,
+        layout: true,
+        location: true,
+        reviews: true,
+      },
+      cottageCard: {
+        isEnabled: true,
+        showCoverImage: true,
+        showPhotoCount: true,
+        showTitle: true,
+        showCapacity: true,
+        showPetFriendly: true,
+        showDescription: true,
+        showPrice: true,
+        showExampleRate: true,
+        showDogPolicy: true,
+        showExploreLink: true,
+        showCheckAvailability: true,
+        cardTitle: "",
+        cardDescription: "",
+        cardPriceLabel: "From",
+        cardExampleRateLabel: "Example rate",
+        cardExploreText: "Explore cottage",
+        cardBookText: "Check availability",
+      },
+    });
+  };
+
   const [sectionSettings, setSectionSettings] =
     useState<CottageSectionSettings>(() => ({
       showSubtitle: toBool(rawSettings?.showSubtitle, true),
@@ -132,7 +170,76 @@ export function CottageForm({
         location: toBool(rawSettings?.tabs?.location, true),
         reviews: toBool(rawSettings?.tabs?.reviews, true),
       },
+      cottageCard: {
+        isEnabled: toBool(rawSettings?.cottageCard?.isEnabled, true),
+        showCoverImage: toBool(rawSettings?.cottageCard?.showCoverImage, true),
+        showPhotoCount: toBool(rawSettings?.cottageCard?.showPhotoCount, true),
+        showTitle: toBool(rawSettings?.cottageCard?.showTitle, true),
+        showCapacity: toBool(rawSettings?.cottageCard?.showCapacity, true),
+        showPetFriendly: toBool(rawSettings?.cottageCard?.showPetFriendly, true),
+        showDescription: toBool(rawSettings?.cottageCard?.showDescription, true),
+        showPrice: toBool(rawSettings?.cottageCard?.showPrice, true),
+        showExampleRate: toBool(rawSettings?.cottageCard?.showExampleRate, true),
+        showDogPolicy: toBool(rawSettings?.cottageCard?.showDogPolicy, true),
+        showExploreLink: toBool(rawSettings?.cottageCard?.showExploreLink, true),
+        showCheckAvailability: toBool(
+          rawSettings?.cottageCard?.showCheckAvailability, true,
+        ),
+        cardTitle: rawSettings?.cottageCard?.cardTitle ?? "",
+        cardDescription: rawSettings?.cottageCard?.cardDescription ?? "",
+        cardPriceLabel: rawSettings?.cottageCard?.cardPriceLabel ?? "From",
+        cardExampleRateLabel: rawSettings?.cottageCard?.cardExampleRateLabel ?? "Example rate",
+        cardExploreText: rawSettings?.cottageCard?.cardExploreText ?? "Explore cottage",
+        cardBookText: rawSettings?.cottageCard?.cardBookText ?? "Check availability",
+      },
     }));
+
+  // Re-initialize section settings when cottage data changes (e.g. after fetch)
+  useEffect(() => {
+    const fresh =
+      parseSettings(initial?.sectionSettings) ??
+      parseSettings((initial as unknown as { section_settings?: unknown })?.section_settings);
+    if (fresh) {
+      setSectionSettings((prev) => ({
+        ...prev,
+        showSubtitle: toBool(fresh.showSubtitle, true),
+        showMiddleDescription: toBool(fresh.showMiddleDescription, true),
+        showOverviewBullets: toBool(fresh.showOverviewBullets, true),
+        showAboutImage: toBool(fresh.showAboutImage, true),
+        tabs: {
+          overview: toBool(fresh.tabs?.overview, true),
+          availability: toBool(fresh.tabs?.availability, true),
+          propertyDetails: toBool(fresh.tabs?.propertyDetails, true),
+          layout: toBool(fresh.tabs?.layout, true),
+          location: toBool(fresh.tabs?.location, true),
+          reviews: toBool(fresh.tabs?.reviews, true),
+        },
+        cottageCard: {
+          isEnabled: toBool(fresh.cottageCard?.isEnabled, true),
+          showCoverImage: toBool(fresh.cottageCard?.showCoverImage, true),
+          showPhotoCount: toBool(fresh.cottageCard?.showPhotoCount, true),
+          showTitle: toBool(fresh.cottageCard?.showTitle, true),
+          showCapacity: toBool(fresh.cottageCard?.showCapacity, true),
+          showPetFriendly: toBool(fresh.cottageCard?.showPetFriendly, true),
+          showDescription: toBool(fresh.cottageCard?.showDescription, true),
+          showPrice: toBool(fresh.cottageCard?.showPrice, true),
+          showExampleRate: toBool(fresh.cottageCard?.showExampleRate, true),
+          showDogPolicy: toBool(fresh.cottageCard?.showDogPolicy, true),
+          showExploreLink: toBool(fresh.cottageCard?.showExploreLink, true),
+          showCheckAvailability: toBool(
+            fresh.cottageCard?.showCheckAvailability,
+            true,
+          ),
+          cardTitle: fresh.cottageCard?.cardTitle ?? "",
+          cardDescription: fresh.cottageCard?.cardDescription ?? "",
+          cardPriceLabel: fresh.cottageCard?.cardPriceLabel ?? "From",
+          cardExampleRateLabel: fresh.cottageCard?.cardExampleRateLabel ?? "Example rate",
+          cardExploreText: fresh.cottageCard?.cardExploreText ?? "Explore cottage",
+          cardBookText: fresh.cottageCard?.cardBookText ?? "Check availability",
+        },
+      }));
+    }
+  }, [initial?.sectionSettings, initial?.section_settings]);
 
   const [homeSection, setHomeSection] = useState<string>(
     initial?.homeSection ??
@@ -1218,6 +1325,232 @@ export function CottageForm({
         </CardContent>
       </Card>
 
+      {/* Cottage Card Display Control (Home Page & Search Result Cards) */}
+      <Card className="border-border/80 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">Cottage Card Display Control</CardTitle>
+          <CardDescription>
+            Control which elements appear on each cottage card across the home page
+            and search results. Set per cottage.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="flex items-center justify-between gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleResetDefaults}
+            >
+              Reset all card settings to defaults
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Restores every cottage card toggle and text field to default values.
+            </p>
+          </div>
+          {/* Card Enable Toggle */}
+          <div className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="rt-card-enabled" className="font-semibold text-foreground">
+                Enable Cottage Card
+              </Label>
+              <div
+                role="button"
+                tabIndex={0}
+                className="flex items-center gap-2 text-xs font-normal text-muted-foreground cursor-pointer select-none"
+                onClick={() =>
+                  setSectionSettings((prev) => ({
+                    ...prev,
+                    cottageCard: {
+                      ...prev.cottageCard,
+                      isEnabled: !toBool(prev.cottageCard?.isEnabled, true),
+                    },
+                  }))
+                }
+              >
+                <span>Show card on home page</span>
+                <Switch
+                  checked={toBool(sectionSettings.cottageCard?.isEnabled, true)}
+                  onCheckedChange={(checked) =>
+                    setSectionSettings((prev) => ({
+                      ...prev,
+                      cottageCard: { ...prev.cottageCard, isEnabled: checked },
+                    }))
+                  }
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              When off, this cottage will not appear in home page / search result cards.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              {
+                key: "showCoverImage",
+                label: "Cover Image",
+                desc: "Hero photo at top of card",
+                input: false,
+              },
+              {
+                key: "showPhotoCount",
+                label: "Photo Count",
+                desc: "Number of photos badge",
+                input: false,
+              },
+              {
+                key: "showTitle",
+                label: "Cottage Title",
+                desc: "Custom title (leave blank to use cottage name)",
+                input: true,
+                inputKey: "cardTitle",
+                inputLabel: "Custom title",
+              },
+              {
+                key: "showCapacity",
+                label: "Capacity",
+                desc: "Sleeps, bedrooms, bathrooms",
+                input: false,
+              },
+              {
+                key: "showPetFriendly",
+                label: "Pet Friendly",
+                desc: "Dog policy indicator",
+                input: false,
+              },
+              {
+                key: "showDescription",
+                label: "Description",
+                desc: "Custom short description (leave blank to use cottage short description)",
+                input: true,
+                inputKey: "cardDescription",
+                inputLabel: "Custom description",
+              },
+              {
+                key: "showPrice",
+                label: "Price",
+                desc: "From £XXX / night",
+                input: true,
+                inputKey: "cardPriceLabel",
+                inputLabel: "Price prefix (e.g. From)",
+              },
+              {
+                key: "showExampleRate",
+                label: "Example Rate",
+                desc: "Example total for selected nights",
+                input: true,
+                inputKey: "cardExampleRateLabel",
+                inputLabel: "Example rate label",
+              },
+              {
+                key: "showDogPolicy",
+                label: "Dog Policy",
+                desc: "Dogs welcome details",
+                input: false,
+              },
+              {
+                key: "showExploreLink",
+                label: "Explore Link",
+                desc: "View cottage details link",
+                input: true,
+                inputKey: "cardExploreText",
+                inputLabel: "Link text",
+              },
+              {
+                key: "showCheckAvailability",
+                label: "Check Availability",
+                desc: "Book now button",
+                input: true,
+                inputKey: "cardBookText",
+                inputLabel: "Button text",
+              },
+            ].map(({ key, label, desc, input, inputKey, inputLabel }) => {
+              const isChecked = toBool(
+                sectionSettings.cottageCard?.[key as keyof typeof sectionSettings.cottageCard],
+                true,
+              );
+              const inputValue = sectionSettings.cottageCard?.[
+                inputKey as keyof typeof sectionSettings.cottageCard
+              ] ?? "";
+              return (
+                <div
+                  key={key}
+                  className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label
+                        htmlFor={`rt-card-${key}`}
+                        className="font-medium text-foreground"
+                      >
+                        {label}
+                      </Label>
+                      <p className="text-[10px] text-muted-foreground">{desc}</p>
+                    </div>
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      className="flex items-center gap-2 text-xs font-normal text-muted-foreground cursor-pointer select-none"
+                      onClick={() =>
+                        setSectionSettings((prev) => ({
+                          ...prev,
+                          cottageCard: {
+                            ...prev.cottageCard,
+                            [key]: !isChecked,
+                          },
+                        }))
+                      }
+                    >
+                      <span>Show on card</span>
+                      <Switch
+                        checked={isChecked}
+                        onCheckedChange={(checked) =>
+                          setSectionSettings((prev) => ({
+                            ...prev,
+                            cottageCard: {
+                              ...prev.cottageCard,
+                              [key]: checked,
+                            },
+                          }))
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  </div>
+                  {input && (
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor={`rt-card-${inputKey}`}
+                        className="text-xs font-medium text-muted-foreground"
+                      >
+                        {inputLabel}
+                      </Label>
+                      <Input
+                        id={`rt-card-${inputKey}`}
+                        value={String(inputValue ?? "")}
+                        onChange={(e) =>
+                          setSectionSettings((prev) => ({
+                            ...prev,
+                            cottageCard: {
+                              ...prev.cottageCard,
+                              [inputKey as keyof typeof sectionSettings.cottageCard]:
+                                e.target.value,
+                            },
+                          }))
+                        }
+                        className="h-7 text-xs"
+                        placeholder={label}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
       {/* <div className="space-y-3">
         <Label>Beds</Label>
         {beds.map((bed, index) => (

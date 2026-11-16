@@ -165,6 +165,8 @@ class PublicAvailabilityController extends Controller
                     'shortDescription' => $rt->short_description,
                     'homeSection' => $rt->home_section ?? ($rt->section_settings['home_section'] ?? 'section_1'),
                     'home_section' => $rt->home_section ?? ($rt->section_settings['home_section'] ?? 'section_1'),
+                    'sectionSettings' => $rt->section_settings ?? [],
+                    'section_settings' => $rt->section_settings ?? [],
                     'amenities' => $rt->amenities ?? [],
                     'images' => $resolvedImages,
                     'media' => $resolvedMedia,
