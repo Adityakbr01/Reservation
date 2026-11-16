@@ -444,11 +444,11 @@ export function BookingPage() {
 
   const [extraQtys, setExtraQtys] = useState<Record<string, number>>({});
 
-  // Seed quantities from available extras: counter on => start at min, counter off => 0.
+  // Seed quantities from available extras: nothing selected by default (qty 0).
   useEffect(() => {
     const next: Record<string, number> = {};
     for (const ex of availableExtras) {
-      next[ex.id] = ex.showCounter === true ? Math.max(0, Number(ex.min ?? 1)) : 0;
+      next[ex.id] = 0;
     }
     setExtraQtys(next);
   }, [availableExtras]);

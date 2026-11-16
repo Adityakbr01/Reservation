@@ -334,20 +334,9 @@ export function BookingJourneyDialog({
     }
   }, [isOpen, storeCottage, storeSearchParams]);
 
-  // If no cottage selected yet, default to first cottage
-  useEffect(() => {
-    if (!selectedCottageId && cottages.length > 0) {
-      setSelectedCottageId(cottages[0].roomType.id);
-    }
-  }, [selectedCottageId, cottages]);
-
-  // Find currently selected cottage
+  // Find currently selected cottage (no default selection)
   const selectedCottageItem = useMemo(() => {
-    return (
-      cottages.find((c) => c.roomType.id === selectedCottageId) ??
-      cottages[0] ??
-      null
-    );
+    return cottages.find((c) => c.roomType.id === selectedCottageId) ?? null;
   }, [cottages, selectedCottageId]);
 
   const selectedCottage = selectedCottageItem?.roomType;
@@ -439,11 +428,11 @@ export function BookingJourneyDialog({
     return extra.price * q;
   };
 
-  // Seed quantities from available extras when they load: counter on => min, counter off => 0.
+  // Seed quantities from available extras when they load: nothing selected by default (qty 0).
   useEffect(() => {
     const next: Record<string, number> = {};
     for (const ex of availableExtras) {
-      next[ex.id] = ex.showCounter === true ? Math.max(0, Number(ex.min ?? 1)) : 0;
+      next[ex.id] = 0;
     }
     setExtraQtys(next);
   }, [availableExtras]);
@@ -1581,11 +1570,11 @@ export function BookingJourneyDialog({
               )}
             </div>
 
-            {/* Aside: Sticky Price Summary */}
-            <aside
-              aria-label="Booking price summary"
-              className="sticky top-[90px] self-start border border-[#d0d6c3] bg-[#e9ecdf] p-[18px]"
-            >
+            {selectedCottage && (
+              <aside
+                aria-label="Booking price summary"
+                className="sticky top-[90px] self-start border border-[#d0d6c3] bg-[#e9ecdf] p-[18px]"
+              >
               <SafeImage
                 src={selectedCottage ? getCottageCoverUrl(selectedCottage) : null}
                 alt={selectedCottage?.name ?? "Cottage"}
@@ -1672,6 +1661,7 @@ export function BookingJourneyDialog({
                 }}
               />
             </aside>
+          )}
           </div>
         )}
 
