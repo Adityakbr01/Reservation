@@ -17,9 +17,24 @@ use Illuminate\Support\Str;
 
 class AdminCottageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $cottages = Cottage::with('property')->get();
+        $query = Cottage::with(['property', 'category']);
+
+        $catId = $request->query('category_id') ?? $request->query('categoryId');
+        if ($catId && $catId !== 'all') {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('cottages', 'category_id')) {
+                $query->where('category_id', $catId);
+            } elseif ($catId === 'cat_estate_collection') {
+                $query->where('home_section', 'section_2');
+            } elseif ($catId === 'cat_farm_cottages') {
+                $query->where(function ($q) {
+                    $q->whereNull('home_section')->orWhere('home_section', '!=', 'section_2');
+                });
+            }
+        }
+
+        $cottages = $query->get();
 
         foreach ($cottages as $cottage) {
             $this->syncCottageInventoryAndRates($cottage);
@@ -67,11 +82,21 @@ class AdminCottageController extends Controller
         $rawOcc = $request->input('max_occupancy') ?? $request->input('maxOccupancy');
         $maxOccupancy = ($rawOcc !== null && (int) $rawOcc > 0) ? (int) $rawOcc : max(1, $maxAdults + $maxChildren);
 
+        $catId = $request->input('category_id') ?? $request->input('categoryId');
+        $homeSec = $request->input('home_section') ?? $request->input('homeSection');
+        if (!$homeSec) {
+            $homeSec = ($catId === 'cat_estate_collection' || Str::contains(strtolower((string)$catId), 'estate')) ? 'section_2' : 'section_1';
+        }
+        if (!$catId) {
+            $catId = ($homeSec === 'section_2') ? 'cat_estate_collection' : 'cat_farm_cottages';
+        }
+
         $cottage = Cottage::create([
             'id' => bin2hex(random_bytes(12)),
             'property_id' => $propertyId,
             'name' => $name,
             'slug' => $slug,
+            'category_id' => $catId,
             'short_description' => $request->input('short_description') ?? $request->input('shortDescription'),
             'description' => $request->input('description'),
             'middle_description' => $request->input('middle_description') ?? $request->input('middleDescription'),
@@ -79,14 +104,14 @@ class AdminCottageController extends Controller
             'about_text' => $request->input('about_text') ?? $request->input('aboutText'),
             'about_image_media_id' => $request->input('about_image_media_id') ?? $request->input('aboutImageMediaId'),
             'overview_bullets' => $request->input('overview_bullets') ?? $request->input('overviewBullets') ?? [],
-            'section_settings' => (function() use ($request) {
+            'section_settings' => (function() use ($request, $homeSec) {
                 $ss = $request->input('section_settings') ?? $request->input('sectionSettings') ?? [];
                 if (is_array($ss)) {
-                    $ss['home_section'] = $request->input('home_section') ?? $request->input('homeSection') ?? 'section_1';
+                    $ss['home_section'] = $homeSec;
                 }
                 return $ss;
             })(),
-            'home_section' => $request->input('home_section') ?? $request->input('homeSection') ?? 'section_1',
+            'home_section' => $homeSec,
             'max_adults' => $maxAdults,
             'max_children' => $maxChildren,
             'max_occupancy' => $maxOccupancy,
@@ -97,7 +122,28 @@ class AdminCottageController extends Controller
             'dog_policy_title' => $request->input('dog_policy_title') ?? $request->input('dogPolicyTitle'),
             'dog_policy_subtitle' => $request->input('dog_policy_subtitle') ?? $request->input('dogPolicySubtitle'),
             'dog_fee' => $request->filled('dog_fee') ? (float) $request->input('dog_fee') : ($request->filled('dogFee') ? (float) $request->input('dogFee') : 70.00),
-            'dog_fees' => $request->input('dog_fees') ?? $request->input('dogFees') ?? [],
+            'dog_fees' => (function () use ($request, &$payload) {
+                $raw = $request->input('dog_fees') ?? $request->input('dogFees') ?? [];
+                if (is_string($raw)) {
+                    $raw = json_decode($raw, true) ?? [];
+                }
+                $clean = [];
+                if (is_array($raw)) {
+                    foreach ($raw as $k => $v) {
+                        $kInt = (int) $k;
+                        if ($kInt > 0 && is_numeric($v)) {
+                            $clean[(string) $kInt] = (float) $v;
+                        }
+                    }
+                }
+                if (!empty($clean)) {
+                    $highest = max(array_map('intval', array_keys($clean)));
+                    if (!isset($payload['max_dogs']) || (int) $payload['max_dogs'] < $highest) {
+                        $payload['max_dogs'] = $highest;
+                    }
+                }
+                return $clean;
+            })(),
             'dog_policy_image_media_id' => $request->input('dog_policy_image_media_id') ?? $request->input('dogPolicyImageMediaId'),
             'extras' => $request->input('extras') ?? [],
             'beds' => $request->input('beds') ?? [],
@@ -191,9 +237,26 @@ class AdminCottageController extends Controller
         if ($request->has('section_settings') || $request->has('sectionSettings')) {
             $payload['section_settings'] = $request->input('section_settings') ?? $request->input('sectionSettings') ?? [];
         }
+        if ($request->has('category_id') || $request->has('categoryId')) {
+            $catId = $request->input('category_id') ?? $request->input('categoryId');
+            $payload['category_id'] = $catId;
+            if (!$request->has('home_section') && !$request->has('homeSection')) {
+                $isEstate = ($catId === 'cat_estate_collection' || Str::contains(strtolower((string)$catId), 'estate'));
+                $homeSec = $isEstate ? 'section_2' : 'section_1';
+                $payload['home_section'] = $homeSec;
+                $curSS = $payload['section_settings'] ?? $cottage->section_settings ?? [];
+                if (is_array($curSS)) {
+                    $curSS['home_section'] = $homeSec;
+                    $payload['section_settings'] = $curSS;
+                }
+            }
+        }
         if ($request->has('home_section') || $request->has('homeSection')) {
             $homeSec = $request->input('home_section') ?? $request->input('homeSection') ?? 'section_1';
             $payload['home_section'] = $homeSec;
+            if (!$request->has('category_id') && !$request->has('categoryId')) {
+                $payload['category_id'] = ($homeSec === 'section_2') ? 'cat_estate_collection' : 'cat_farm_cottages';
+            }
             $curSS = $payload['section_settings'] ?? $cottage->section_settings ?? [];
             if (is_array($curSS)) {
                 $curSS['home_section'] = $homeSec;
@@ -238,7 +301,28 @@ class AdminCottageController extends Controller
             $payload['dog_fee'] = ($val !== null && $val !== '') ? (float) $val : 70.00;
         }
         if ($request->has('dog_fees') || $request->has('dogFees')) {
-            $payload['dog_fees'] = $request->input('dog_fees') ?? $request->input('dogFees') ?? [];
+            $rawFees = $request->input('dog_fees') ?? $request->input('dogFees') ?? [];
+            if (is_string($rawFees)) {
+                $rawFees = json_decode($rawFees, true) ?? [];
+            }
+            $cleanFees = [];
+            if (is_array($rawFees)) {
+                foreach ($rawFees as $k => $v) {
+                    $kInt = (int) $k;
+                    if ($kInt > 0 && is_numeric($v)) {
+                        $cleanFees[(string) $kInt] = (float) $v;
+                    }
+                }
+            }
+            $payload['dog_fees'] = $cleanFees;
+            if (!empty($cleanFees)) {
+                $highest = max(array_map('intval', array_keys($cleanFees)));
+                $curMax = isset($payload['max_dogs']) ? (int) $payload['max_dogs'] : (int) ($cottage->max_dogs ?? 0);
+                if ($highest > $curMax) {
+                    $payload['max_dogs'] = $highest;
+                }
+                $payload['dog_policy_enabled'] = true;
+            }
         }
         if ($request->has('dog_policy_image_media_id') || $request->has('dogPolicyImageMediaId')) {
             $payload['dog_policy_image_media_id'] = $request->input('dog_policy_image_media_id') ?? $request->input('dogPolicyImageMediaId');
@@ -460,10 +544,34 @@ class AdminCottageController extends Controller
 
         $room = Room::where('room_type_id', $c->id)->first();
 
+        $catId = $c->category_id ?? ($c->home_section === 'section_2' ? 'cat_estate_collection' : 'cat_farm_cottages');
+        $catObj = null;
+        if ($c->relationLoaded('category') && $c->category) {
+            $catObj = [
+                'id' => $c->category->id,
+                'name' => $c->category->name,
+                'slug' => $c->category->slug,
+                'allowMultiple' => (bool) $c->category->allow_multiple,
+                'description' => $c->category->description,
+            ];
+        } else {
+            $isEstate = ($catId === 'cat_estate_collection' || $c->home_section === 'section_2');
+            $catObj = [
+                'id' => $catId,
+                'name' => $isEstate ? 'The Estate Collection' : 'Farm Cottages',
+                'slug' => $isEstate ? 'the-estate-collection' : 'farm-cottages',
+                'allowMultiple' => !$isEstate,
+                'description' => $isEstate ? 'Exclusive estate properties and private retreats.' : 'Charming holiday cottages at Home Farm.',
+            ];
+        }
+
         return [
             'id' => (string) $c->id,
             'property_id' => (string) ($c->property_id ?? ''),
             'propertyId' => (string) ($c->property_id ?? ''),
+            'category_id' => $catId,
+            'categoryId' => $catId,
+            'category' => $catObj,
             'room_id' => $room?->id,
             'roomId' => $room?->id,
             'base_price' => $basePrice,

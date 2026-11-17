@@ -91,6 +91,15 @@ export interface Cottage {
   section_settings?: CottageSectionSettings;
   homeSection?: string;
   home_section?: string;
+  categoryId?: string | null;
+  category_id?: string | null;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+    allowMultiple: boolean;
+    description?: string | null;
+  } | null;
   maxAdults: number;
   maxChildren: number;
   maxOccupancy: number;
@@ -144,6 +153,8 @@ export interface CottageFilters {
   limit: number;
   q?: string;
   status?: CottageStatus;
+  category_id?: string;
+  categoryId?: string;
 }
 
 export interface CreateCottagePayload {
@@ -166,6 +177,15 @@ export interface CreateCottagePayload {
   section_settings?: CottageSectionSettings;
   homeSection?: string;
   home_section?: string;
+  categoryId?: string | null;
+  category_id?: string | null;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+    allowMultiple: boolean;
+    description?: string | null;
+  } | null;
   maxAdults: number;
   maxChildren: number;
   maxOccupancy: number;

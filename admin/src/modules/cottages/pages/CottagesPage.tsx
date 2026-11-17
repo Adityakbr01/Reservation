@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,6 +24,8 @@ import { StatusBadge } from "@/components/common/StatusBadge";
 import { formatMoney } from "@/lib/money";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useCottages } from "../hooks/use-cottages";
+import { listCategories } from "../api/categories.api";
+import { CategoryManagerDialog } from "../components/CategoryManagerDialog";
 import type { CottageStatus } from "../types/cottage.types";
 
 const STATUS_FILTERS = ["all", "DRAFT", "ACTIVE", "INACTIVE"] as const;
@@ -29,8 +33,15 @@ const STATUS_FILTERS = ["all", "DRAFT", "ACTIVE", "INACTIVE"] as const;
 export function CottagesPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<(typeof STATUS_FILTERS)[number]>("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [isCatManagerOpen, setIsCatManagerOpen] = useState(false);
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebouncedValue(search);
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ["cottage-categories"],
+    queryFn: listCategories,
+  });
 
   const filters = useMemo(
     () => ({
@@ -38,8 +49,9 @@ export function CottagesPage() {
       limit: 10,
       ...(debouncedSearch.trim() ? { q: debouncedSearch.trim() } : {}),
       ...(status !== "all" ? { status: status as CottageStatus } : {}),
+      ...(selectedCategory !== "all" ? { category_id: selectedCategory } : {}),
     }),
-    [page, debouncedSearch, status],
+    [page, debouncedSearch, status, selectedCategory],
   );
   const { data, isPending, isError, refetch } = useCottages(filters);
   const items = data?.items ?? [];
@@ -54,9 +66,19 @@ export function CottagesPage() {
             {data ? `${data.total} holiday cottages` : "Manage your holiday cottages, pricing, and details"}
           </p>
         </div>
-        <Button asChild className="h-11 rounded-full px-6">
-          <Link to="/cottages/new">New cottage</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="h-11 rounded-full px-5 gap-2"
+            onClick={() => setIsCatManagerOpen(true)}
+          >
+            <Layers className="size-4" /> Manage Categories
+          </Button>
+          <Button asChild className="h-11 rounded-full px-6">
+            <Link to="/cottages/new">New cottage</Link>
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">
@@ -70,6 +92,25 @@ export function CottagesPage() {
           className="sm:max-w-xs"
           aria-label="Search cottages"
         />
+        <Select
+          value={selectedCategory}
+          onValueChange={(value) => {
+            setSelectedCategory(value);
+            setPage(1);
+          }}
+        >
+          <SelectTrigger className="sm:w-52" aria-label="Filter by category">
+            <SelectValue placeholder="All categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All categories</SelectItem>
+            {categories.map((cat) => (
+              <SelectItem key={cat.id} value={cat.id}>
+                {cat.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select
           value={status}
           onValueChange={(value) => {
@@ -119,6 +160,7 @@ export function CottagesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Cottage</TableHead>
+                <TableHead>Collection / Category</TableHead>
                 <TableHead>Capacity</TableHead>
                 <TableHead>Rate / night</TableHead>
                 <TableHead>Status</TableHead>
@@ -135,6 +177,11 @@ export function CottagesPage() {
                       {cottage.bathrooms ? ` · ${cottage.bathrooms} bath` : ""}
                       {` · /${cottage.slug}`}
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-muted border border-border text-foreground">
+                      {cottage.category?.name ?? (cottage.homeSection === "section_2" ? "The Estate Collection" : "Farm Cottages")}
+                    </span>
                   </TableCell>
                   <TableCell>
                     {cottage.maxAdults} adults · {cottage.maxChildren} children (max {cottage.maxOccupancy})
@@ -157,6 +204,8 @@ export function CottagesPage() {
           <PaginationControls page={data?.page ?? 1} totalPages={totalPages} onPage={setPage} />
         </>
       )}
+
+      <CategoryManagerDialog open={isCatManagerOpen} onOpenChange={setIsCatManagerOpen} />
     </div>
   );
 }

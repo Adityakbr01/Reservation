@@ -299,8 +299,45 @@ class PublicSettingsController extends Controller
             $snakeSection = \Illuminate\Support\Str::snake($section);
             $incoming = is_array($stored[$section] ?? null)
                 ? $stored[$section]
-                : (is_array($stored[$snakeSection] ?? null) ? $stored[$snakeSection] : []);
-            $defaults[$section] = array_merge($values, $incoming);
+                : (is_array($stored[$snakeSection] ?? null) ? $stored[$snakeSection] : null);
+
+            if ($section === 'globalExtras' || $section === 'global_extras') {
+                if ($incoming !== null && is_array($incoming)) {
+                    $defaults['globalExtras'] = $incoming;
+                }
+            } else {
+                $defaults[$section] = array_merge($values, is_array($incoming) ? $incoming : []);
+            }
+        }
+
+        if (isset($stored['globalExtras']) && is_array($stored['globalExtras'])) {
+            $defaults['globalExtras'] = $stored['globalExtras'];
+        } elseif (isset($stored['global_extras']) && is_array($stored['global_extras'])) {
+            $defaults['globalExtras'] = $stored['global_extras'];
+        }
+
+        // Resolve media URLs for globalExtras
+        if (!empty($defaults['globalExtras']) && is_array($defaults['globalExtras'])) {
+            $midList = [];
+            foreach ($defaults['globalExtras'] as $ex) {
+                if (is_array($ex)) {
+                    $mId = $ex['imageMediaId'] ?? $ex['image_media_id'] ?? null;
+                    if ($mId) $midList[] = (string) $mId;
+                }
+            }
+            if (!empty($midList)) {
+                $mMap = \App\Models\Media::whereIn('id', array_unique($midList))->get()->keyBy('id');
+                foreach ($defaults['globalExtras'] as &$exItem) {
+                    if (is_array($exItem)) {
+                        $mId = $exItem['imageMediaId'] ?? $exItem['image_media_id'] ?? null;
+                        if ($mId && isset($mMap[(string)$mId])) {
+                            $exItem['imageUrl'] = $mMap[(string)$mId]->url;
+                            $exItem['image_url'] = $mMap[(string)$mId]->url;
+                        }
+                    }
+                }
+                unset($exItem);
+            }
         }
 
         return $defaults;

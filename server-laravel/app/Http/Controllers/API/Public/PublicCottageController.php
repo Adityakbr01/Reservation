@@ -10,7 +10,7 @@ class PublicCottageController extends Controller
 {
     public function index()
     {
-        $cottages = Cottage::where('status', 'ACTIVE')->get();
+        $cottages = Cottage::with('category')->where('status', 'ACTIVE')->get();
 
         return response()->json([
             'success' => true,
@@ -20,7 +20,7 @@ class PublicCottageController extends Controller
 
     public function showBySlug(string $slug)
     {
-        $cottage = Cottage::where(function ($query) use ($slug) {
+        $cottage = Cottage::with('category')->where(function ($query) use ($slug) {
             $query->where('slug', $slug)
                   ->orWhere('id', $slug);
         })->where('status', 'ACTIVE')->first();
@@ -106,10 +106,41 @@ class PublicCottageController extends Controller
             return $item;
         }, $c->images ?? []);
 
+        $catId = $c->category_id ?? ($c->home_section === 'section_2' ? 'cat_estate_collection' : 'cat_farm_cottages');
+        $catObj = null;
+        if ($c->relationLoaded('category') && $c->category) {
+            $catObj = [
+                'id' => $c->category->id,
+                'name' => $c->category->name,
+                'slug' => $c->category->slug,
+                'allowMultiple' => (bool) $c->category->allow_multiple,
+                'description' => $c->category->description,
+            ];
+        } else {
+            $isEstate = ($catId === 'cat_estate_collection' || $c->home_section === 'section_2');
+            $catObj = [
+                'id' => $catId,
+                'name' => $isEstate ? 'The Estate Collection' : 'Farm Cottages',
+                'slug' => $isEstate ? 'the-estate-collection' : 'farm-cottages',
+                'allowMultiple' => !$isEstate,
+                'description' => $isEstate ? 'Exclusive estate properties and private retreats.' : 'Charming holiday cottages at Home Farm.',
+            ];
+        }
+
+        $cDogFees = is_array($c->dog_fees) ? $c->dog_fees : (is_string($c->dog_fees) ? (json_decode($c->dog_fees, true) ?? []) : []);
+        $effectiveMaxDogs = $c->max_dogs !== null ? (int) $c->max_dogs : null;
+        if (!empty($cDogFees)) {
+            $maxCustom = max(array_map('intval', array_keys($cDogFees)));
+            $effectiveMaxDogs = max((int) ($c->max_dogs ?? 0), $maxCustom);
+        }
+
         return [
             'id' => (string) $c->id,
             'property_id' => (string) ($c->property_id ?? ''),
             'propertyId' => (string) ($c->property_id ?? ''),
+            'category_id' => $catId,
+            'categoryId' => $catId,
+            'category' => $catObj,
             'name' => (string) ($c->name ?? ''),
             'slug' => (string) ($c->slug ?? ''),
             'short_description' => $c->short_description,
@@ -171,18 +202,18 @@ class PublicCottageController extends Controller
             'nearbyAttractions' => $c->nearby_attractions ?? [],
             'bedrooms' => $c->bedrooms !== null ? (int) $c->bedrooms : null,
             'bathrooms' => $c->bathrooms !== null ? (int) $c->bathrooms : null,
-            'max_dogs' => $c->max_dogs !== null ? (int) $c->max_dogs : null,
-            'maxDogs' => $c->max_dogs !== null ? (int) $c->max_dogs : null,
-            'dog_policy_enabled' => (bool) ($c->dog_policy_enabled ?? ($c->max_dogs > 0)),
-            'dogPolicyEnabled' => (bool) ($c->dog_policy_enabled ?? ($c->max_dogs > 0)),
+            'max_dogs' => $effectiveMaxDogs,
+            'maxDogs' => $effectiveMaxDogs,
+            'dog_policy_enabled' => (bool) ($c->dog_policy_enabled ?? ($effectiveMaxDogs > 0)),
+            'dogPolicyEnabled' => (bool) ($c->dog_policy_enabled ?? ($effectiveMaxDogs > 0)),
             'dog_policy_title' => $c->dog_policy_title,
             'dogPolicyTitle' => $c->dog_policy_title,
             'dog_policy_subtitle' => $c->dog_policy_subtitle,
             'dogPolicySubtitle' => $c->dog_policy_subtitle,
             'dog_fee' => $c->dog_fee !== null ? (float) $c->dog_fee : 70.00,
             'dogFee' => $c->dog_fee !== null ? (float) $c->dog_fee : 70.00,
-            'dog_fees' => $c->dog_fees ?? [],
-            'dogFees' => $c->dog_fees ?? [],
+            'dog_fees' => $cDogFees,
+            'dogFees' => $cDogFees,
             'dog_policy_image_media_id' => $c->dog_policy_image_media_id,
             'dogPolicyImageMediaId' => $c->dog_policy_image_media_id,
             'dog_policy_image_url' => (!empty($c->dog_policy_image_media_id) && isset($mediaMap[$c->dog_policy_image_media_id])) ? $mediaMap[$c->dog_policy_image_media_id]->url : null,

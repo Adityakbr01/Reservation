@@ -13,6 +13,7 @@ use App\Http\Controllers\API\Admin\AdminCouponController;
 use App\Http\Controllers\API\Admin\AdminDashboardController;
 use App\Http\Controllers\API\Admin\AdminEmailTemplateController;
 use App\Http\Controllers\API\Admin\AdminCottageController;
+use App\Http\Controllers\API\Admin\AdminCottageCategoryController;
 use App\Http\Controllers\API\Admin\AdminEnquiriesController;
 use App\Http\Controllers\API\Admin\AdminMediaController;
 use App\Http\Controllers\API\Admin\AdminNewsletterController;
@@ -31,6 +32,7 @@ use App\Http\Controllers\API\Public\PublicAvailabilityController;
 use App\Http\Controllers\API\Public\PublicBookingController;
 use App\Http\Controllers\API\Public\PublicCmsController;
 use App\Http\Controllers\API\Public\PublicCottageController;
+use App\Http\Controllers\API\Public\PublicCottageCategoryController;
 use App\Http\Controllers\API\Public\PublicCouponController;
 use App\Http\Controllers\API\Public\PublicEnquiriesController;
 use App\Http\Controllers\API\Public\PublicMediaController;
@@ -132,6 +134,24 @@ foreach (['/public/cottages', '/v1/public/cottages'] as $prefix) {
         Route::get('/', [PublicCottageController::class, 'index']);
         Route::get('/{slug}', [PublicCottageController::class, 'showBySlug']);
         Route::get('/{id}/offers', [PublicCottageController::class, 'offers']);
+    });
+}
+
+// Public cottage categories
+foreach (['/public/cottage-categories', '/v1/public/cottage-categories'] as $prefix) {
+    Route::prefix($prefix)->group(function () {
+        Route::get('/', [PublicCottageCategoryController::class, 'index']);
+    });
+}
+
+// Admin cottage categories
+foreach (['/admin/cottage-categories', '/v1/admin/cottage-categories'] as $prefix) {
+    Route::prefix($prefix)->middleware('jwt.auth', 'role:admin')->group(function () {
+        Route::get('/', [AdminCottageCategoryController::class, 'index']);
+        Route::post('/', [AdminCottageCategoryController::class, 'store']);
+        Route::patch('/{id}', [AdminCottageCategoryController::class, 'update']);
+        Route::put('/{id}', [AdminCottageCategoryController::class, 'update']);
+        Route::delete('/{id}', [AdminCottageCategoryController::class, 'destroy']);
     });
 }
 

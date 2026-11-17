@@ -403,12 +403,19 @@ export function BookingPage() {
       );
       const firstWithPolicy = matched.find((m) => m.roomType.dogPolicyEnabled ?? (Number(m.roomType.maxDogs ?? 0) > 0)) || matched[0];
       const rt = firstWithPolicy.roomType as any;
-      const rawCustomFees = rt.dogFees ?? rt.dog_fees ?? null;
+      let rawCustomFees = rt.dogFees ?? rt.dog_fees ?? null;
+      if (typeof rawCustomFees === "string") {
+        try {
+          rawCustomFees = JSON.parse(rawCustomFees);
+        } catch {
+          rawCustomFees = null;
+        }
+      }
       const customFees: Record<number, number> = {};
       if (rawCustomFees && typeof rawCustomFees === "object") {
         for (const [k, v] of Object.entries(rawCustomFees)) {
           const n = Number(k);
-          if (!Number.isNaN(n)) customFees[n] = Number(v) || 0;
+          if (!Number.isNaN(n) && n > 0) customFees[n] = Number(v) || 0;
         }
       }
       const customKeys = Object.keys(customFees).map(Number);
@@ -420,7 +427,7 @@ export function BookingPage() {
       const imageUrl = rt.dogPolicyImageUrl ?? rt.dog_policy_image_url ?? null;
 
       return {
-        allowsDogs,
+        allowsDogs: allowsDogs || customKeys.length > 0,
         maxDogs: effectiveMaxDogs,
         dogFee,
         customFees,
@@ -431,17 +438,19 @@ export function BookingPage() {
     }
     if (cottageDetail) {
       const cd = cottageDetail as any;
-      const allowsDogs = Boolean(
-        cd.dogPolicyEnabled ??
-          cd.dog_policy_enabled ??
-          (cd.maxDogs != null && Number(cd.maxDogs) > 0),
-      );
-      const rawCustomFees = cd.dogFees ?? cd.dog_fees ?? null;
+      let rawCustomFees = cd.dogFees ?? cd.dog_fees ?? null;
+      if (typeof rawCustomFees === "string") {
+        try {
+          rawCustomFees = JSON.parse(rawCustomFees);
+        } catch {
+          rawCustomFees = null;
+        }
+      }
       const customFees: Record<number, number> = {};
       if (rawCustomFees && typeof rawCustomFees === "object") {
         for (const [k, v] of Object.entries(rawCustomFees)) {
           const n = Number(k);
-          if (!Number.isNaN(n)) customFees[n] = Number(v) || 0;
+          if (!Number.isNaN(n) && n > 0) customFees[n] = Number(v) || 0;
         }
       }
       const customKeys = Object.keys(customFees).map(Number);
@@ -451,6 +460,13 @@ export function BookingPage() {
       const title = cd.dogPolicyTitle ?? cd.dog_policy_title ?? null;
       const subtitle = cd.dogPolicySubtitle ?? cd.dog_policy_subtitle ?? null;
       const imageUrl = cd.dogPolicyImageUrl ?? cd.dog_policy_image_url ?? null;
+
+      const allowsDogs = Boolean(
+        (cd.dogPolicyEnabled ??
+          cd.dog_policy_enabled ??
+          (cd.maxDogs != null && Number(cd.maxDogs) > 0)) ||
+          customKeys.length > 0,
+      );
 
       return {
         allowsDogs,

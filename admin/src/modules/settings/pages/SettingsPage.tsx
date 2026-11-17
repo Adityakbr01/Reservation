@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Home,
   Calendar,
+  Gift,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,6 +48,7 @@ import { setDefaultCurrency, getCurrencySymbol } from "@/lib/money";
 import { setDefaultTimeZone, formatDateTimeWithTime } from "@/lib/date";
 import { listCottages } from "@/modules/cottages/api/cottages.api";
 import type { Cottage } from "@/modules/cottages/types/cottage.types";
+import { GlobalExtrasSection } from "../components/GlobalExtrasSection";
 
 const PRESET_CURRENCIES = [
   {
@@ -768,7 +770,8 @@ function SettingsForm({ initial }: { initial: Settings }) {
     | "header"
     | "footer"
     | "checkout"
-    | "bookingJourney";
+    | "bookingJourney"
+    | "extras";
   const [activeTab, setActiveTab] = useState<SettingsTab>("property");
 
   const SETTINGS_TABS: {
@@ -818,6 +821,12 @@ function SettingsForm({ initial }: { initial: Settings }) {
       label: "Booking Journey",
       icon: Calendar,
       desc: "Step-by-step booking dialog labels & notices",
+    },
+    {
+      id: "extras",
+      label: "Global Extras",
+      icon: Gift,
+      desc: "Property-wide add-ons (golf, padel, dining & spa)",
     },
   ];
 
@@ -4574,6 +4583,23 @@ function SettingsForm({ initial }: { initial: Settings }) {
               })()}
             </CardContent>
           </Card>
+        )}
+
+        {/* Tab Panel: Global Extras */}
+        {activeTab === "extras" && (
+          <GlobalExtrasSection
+            extras={(form.bookingPage as any)?.globalExtras ?? []}
+            onChange={(newExtras) => {
+              setForm((prev) => ({
+                ...prev,
+                bookingPage: {
+                  ...prev.bookingPage,
+                  globalExtras: newExtras,
+                },
+              }));
+            }}
+            currencySymbol={getCurrencySymbol(form.currency)}
+          />
         )}
 
         {/* Bottom Save Bar */}

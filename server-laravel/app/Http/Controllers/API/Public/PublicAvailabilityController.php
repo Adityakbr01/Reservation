@@ -56,7 +56,7 @@ class PublicAvailabilityController extends Controller
         }
 
         // 4. Bulk query: Get all active cottages with active rate plans in 1 query
-        $roomTypes = \App\Models\RoomType::with(['ratePlans' => function ($q) {
+        $roomTypes = \App\Models\RoomType::with(['category', 'ratePlans' => function ($q) {
             $q->where('status', 'ACTIVE');
         }])->where('status', 'ACTIVE')->get();
 
@@ -138,28 +138,59 @@ class PublicAvailabilityController extends Controller
                 return $item;
             }, $rt->images ?? []);
 
+            $rtDogFees = is_array($rt->dog_fees) ? $rt->dog_fees : (is_string($rt->dog_fees) ? (json_decode($rt->dog_fees, true) ?? []) : []);
+            $effectiveMaxDogs = $rt->max_dogs;
+            if (!empty($rtDogFees)) {
+                $maxCustom = max(array_map('intval', array_keys($rtDogFees)));
+                $effectiveMaxDogs = max((int) ($rt->max_dogs ?? 0), $maxCustom);
+            }
+
+            $catId = $rt->category_id ?? ($rt->home_section === 'section_2' ? 'cat_estate_collection' : 'cat_farm_cottages');
+            $catObj = null;
+            if ($rt->relationLoaded('category') && $rt->category) {
+                $catObj = [
+                    'id' => $rt->category->id,
+                    'name' => $rt->category->name,
+                    'slug' => $rt->category->slug,
+                    'allowMultiple' => (bool) $rt->category->allow_multiple,
+                    'description' => $rt->category->description,
+                ];
+            } else {
+                $isEstate = ($catId === 'cat_estate_collection' || $rt->home_section === 'section_2');
+                $catObj = [
+                    'id' => $catId,
+                    'name' => $isEstate ? 'The Estate Collection' : 'Farm Cottages',
+                    'slug' => $isEstate ? 'the-estate-collection' : 'farm-cottages',
+                    'allowMultiple' => !$isEstate,
+                    'description' => $isEstate ? 'Exclusive estate properties and private retreats.' : 'Charming holiday cottages at Home Farm.',
+                ];
+            }
+
             $results[] = [
                 'roomType' => [
                     'id' => $rt->id,
                     'name' => $rt->name,
                     'slug' => $rt->slug,
+                    'categoryId' => $catId,
+                    'category_id' => $catId,
+                    'category' => $catObj,
                     'maxAdults' => $rt->max_adults,
                     'maxChildren' => $rt->max_children,
                     'maxOccupancy' => $rt->max_occupancy,
                     'bedrooms' => $rt->bedrooms,
                     'bathrooms' => $rt->bathrooms,
-                    'maxDogs' => $rt->max_dogs,
-                    'max_dogs' => $rt->max_dogs,
-                    'dogPolicyEnabled' => (bool) ($rt->dog_policy_enabled ?? ($rt->max_dogs > 0)),
-                    'dog_policy_enabled' => (bool) ($rt->dog_policy_enabled ?? ($rt->max_dogs > 0)),
+                    'maxDogs' => $effectiveMaxDogs,
+                    'max_dogs' => $effectiveMaxDogs,
+                    'dogPolicyEnabled' => (bool) ($rt->dog_policy_enabled ?? ($effectiveMaxDogs > 0)),
+                    'dog_policy_enabled' => (bool) ($rt->dog_policy_enabled ?? ($effectiveMaxDogs > 0)),
                     'dogPolicyTitle' => $rt->dog_policy_title,
                     'dog_policy_title' => $rt->dog_policy_title,
                     'dogPolicySubtitle' => $rt->dog_policy_subtitle,
                     'dog_policy_subtitle' => $rt->dog_policy_subtitle,
                     'dogFee' => $rt->dog_fee !== null ? (float) $rt->dog_fee : 70.00,
                     'dog_fee' => $rt->dog_fee !== null ? (float) $rt->dog_fee : 70.00,
-                    'dogFees' => $rt->dog_fees ?? [],
-                    'dog_fees' => $rt->dog_fees ?? [],
+                    'dogFees' => $rtDogFees,
+                    'dog_fees' => $rtDogFees,
                     'dogPolicyImageMediaId' => $rt->dog_policy_image_media_id,
                     'dog_policy_image_media_id' => $rt->dog_policy_image_media_id,
                     'dogPolicyImageUrl' => (!empty($rt->dog_policy_image_media_id) && isset($mediaMap[$rt->dog_policy_image_media_id])) ? $mediaMap[$rt->dog_policy_image_media_id]->url : null,

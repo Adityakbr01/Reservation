@@ -382,6 +382,12 @@ function ReceiptRow({ label, value }: { label: string; value: ReactNode }) {
 function ReceiptBody({ receipt }: { receipt: BookingReceipt }) {
   const money = (minor: number, currency?: string) =>
     formatMoney(minor, currency ?? receipt.pricing?.currency ?? receipt.property?.currency ?? "GBP");
+
+  const dogDetails = receipt.dogDetails ?? receipt.pricing?.dogDetails ?? [];
+  const extrasList = receipt.extras ?? receipt.pricing?.extras ?? [];
+  const totalDogFee = receipt.pricing?.dogFee ?? 0;
+  const totalExtrasFee = receipt.pricing?.extrasFee ?? 0;
+
   return (
     <div className="space-y-5 text-sm">
       <section className="space-y-2">
@@ -409,32 +415,49 @@ function ReceiptBody({ receipt }: { receipt: BookingReceipt }) {
           <ReceiptRow label="Phone" value={receipt.guestPhone || "—"} />
           <ReceiptRow
             label="Guests"
-            value={`${receipt.guests?.adults ?? 2} adult${(receipt.guests?.adults ?? 2) === 1 ? "" : "s"}${(receipt.guests?.children ?? 0) > 0 ? ` · ${receipt.guests?.children} child${(receipt.guests?.children ?? 0) === 1 ? "" : "ren"}` : ""}`}
+            value={`${receipt.guests?.adults ?? 2} adult${(receipt.guests?.adults ?? 2) === 1 ? "" : "s"}${(receipt.guests?.children ?? 0) > 0 ? ` · ${receipt.guests?.children} child${(receipt.guests?.children ?? 0) === 1 ? "" : "ren"}` : ""}${(receipt.guests?.dogs ?? 0) > 0 ? ` · ${receipt.guests?.dogs} dog${(receipt.guests?.dogs ?? 0) === 1 ? "" : "s"}` : ""}`}
           />
         </dl>
       </section>
 
+      {/* Cottages / Accommodation details */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold">Stay details</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold">
+            {receipt.items && receipt.items.length > 1 ? `Cottages (${receipt.items.length})` : "Cottage stay"}
+          </h2>
+          {receipt.items && receipt.items.length > 0 && (
+            <span className="text-xs text-muted-foreground">
+              {formatDate(receipt.items[0].checkIn)} → {formatDate(receipt.items[0].checkOut)}
+            </span>
+          )}
+        </div>
         {receipt.items && receipt.items.length > 0 ? (
           receipt.items.map((item, i) => (
-            <div key={i} className="space-y-1 rounded-xl bg-muted/50 p-3">
-              <p className="font-medium">
-                {item.roomName}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {item.ratePlanName} · {formatDate(item.checkIn)} → {formatDate(item.checkOut)}
-              </p>
+            <div key={i} className="space-y-1.5 rounded-xl border border-border/70 bg-muted/40 p-3">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className="font-semibold text-foreground">
+                    {item.roomName}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {item.ratePlanName} · {formatDate(item.checkIn)} → {formatDate(item.checkOut)}
+                  </p>
+                </div>
+                <span className="font-semibold text-right">
+                  {money(item.total, item.currency)}
+                </span>
+              </div>
               {item.nightlyRates && item.nightlyRates.length > 0 && (
                 <details className="pt-1 text-xs">
-                  <summary className="cursor-pointer text-muted-foreground">
-                    Nightly breakup ({item.nightlyRates.length} night{item.nightlyRates.length === 1 ? "" : "s"})
+                  <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                    Nightly rate breakup ({item.nightlyRates.length} night{item.nightlyRates.length === 1 ? "" : "s"})
                   </summary>
-                  <dl className="mt-1 space-y-0.5">
+                  <dl className="mt-1.5 space-y-1 pl-2 border-l border-border/60">
                     {item.nightlyRates.map((night) => (
                       <div key={night.date} className="flex justify-between gap-4">
                         <dt className="text-muted-foreground">{formatDate(night.date)}</dt>
-                        <dd>{money(night.amount, item.currency)}</dd>
+                        <dd className="font-mono text-xs">{money(night.amount, item.currency)}</dd>
                       </div>
                     ))}
                   </dl>
@@ -452,10 +475,74 @@ function ReceiptBody({ receipt }: { receipt: BookingReceipt }) {
         )}
       </section>
 
+      {/* Dogs & Pets Breakdown */}
+      {dogDetails.length > 0 ? (
+        <section className="space-y-2">
+          <h2 className="text-sm font-semibold flex items-center gap-1.5">
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              className="size-4 stroke-current fill-none stroke-[1.5] stroke-linecap-round stroke-linejoin-round"
+            >
+              <path d="M6 12 3 5l6 3m9 4 3-7-6 3M5 14a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0Zm4 0h.01M15 14h.01m-5 4 2 1 2-1" />
+            </svg>
+            Dogs &amp; Pets
+          </h2>
+          <div className="space-y-1.5 rounded-xl border border-border/70 bg-muted/40 p-3">
+            {dogDetails.map((dog, idx) => (
+              <div key={idx} className="flex items-center justify-between text-xs py-0.5">
+                <span className="text-foreground">
+                  <strong>{dog.cottageName}</strong>: {dog.dogsCount} dog{dog.dogsCount === 1 ? "" : "s"}
+                </span>
+                <span className="font-medium">{money(dog.fee)}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : totalDogFee > 0 ? (
+        <section className="space-y-2">
+          <h2 className="text-sm font-semibold">Dogs &amp; Pets</h2>
+          <div className="flex items-center justify-between rounded-xl border border-border/70 bg-muted/40 p-3 text-xs">
+            <span>Dog charge included</span>
+            <span className="font-medium">{money(totalDogFee)}</span>
+          </div>
+        </section>
+      ) : null}
+
+      {/* Nice Extras Breakdown */}
+      {extrasList.length > 0 && (
+        <section className="space-y-2">
+          <h2 className="text-sm font-semibold">Optional extras</h2>
+          <div className="space-y-1.5 rounded-xl border border-border/70 bg-muted/40 p-3">
+            {extrasList.map((extra, idx) => (
+              <div key={idx} className="flex items-start justify-between gap-2 text-xs py-0.5">
+                <div>
+                  <span className="font-medium text-foreground">
+                    {extra.title.replace(/<[^>]*>/g, "").trim()}
+                  </span>
+                  <span className="text-muted-foreground ml-1.5">
+                    ×{extra.qty}
+                    {extra.cottageName ? ` (${extra.cottageName})` : ""}
+                  </span>
+                </div>
+                <span className="font-medium shrink-0">{money(extra.lineAmount)}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Price Details */}
       <section className="space-y-2">
         <h2 className="text-sm font-semibold">Price details</h2>
         <dl className="space-y-2">
-          <ReceiptRow label="Subtotal" value={money(receipt.pricing?.subtotal ?? 0)} />
+          <ReceiptRow label="Cottage accommodation" value={money(receipt.pricing?.subtotal ?? 0)} />
+          {totalDogFee > 0 && (
+            <ReceiptRow label="Pet charges" value={money(totalDogFee)} />
+          )}
+          {totalExtrasFee > 0 && (
+            <ReceiptRow label="Optional extras" value={money(totalExtrasFee)} />
+          )}
           {(receipt.pricing?.discount ?? 0) > 0 && (
             <ReceiptRow
               label={`Discount${receipt.pricing?.couponCode ? ` (${receipt.pricing.couponCode})` : ""}`}
@@ -469,11 +556,8 @@ function ReceiptBody({ receipt }: { receipt: BookingReceipt }) {
           {(receipt.pricing?.taxes ?? 0) > 0 && (
             <ReceiptRow label="Taxes" value={money(receipt.pricing?.taxes ?? 0)} />
           )}
-          {(receipt.pricing?.fees ?? 0) > 0 && (
-            <ReceiptRow label="Fees" value={money(receipt.pricing?.fees ?? 0)} />
-          )}
           <div className="flex items-center justify-between gap-4 border-t border-border pt-3">
-            <dt className="font-semibold">Total paid</dt>
+            <dt className="font-semibold text-base">Total paid</dt>
             <dd className="font-display text-2xl font-light">
               {money(receipt.pricing?.total ?? 0)}
             </dd>

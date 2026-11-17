@@ -35,7 +35,8 @@ export interface GuestBookingPayload {
   couponCode?: string;
   dogs?: number;
   dogsCount?: number;
-  extras?: Array<{ id: string; qty: number }>;
+  dogsByCottage?: Record<string, number>;
+  extras?: Array<{ id: string; qty: number; cottageId?: string }>;
   notes?: string | null;
   createAccount?: boolean | null;
   password?: string | null;
@@ -110,6 +111,23 @@ export interface CouponCheck {
   reason?: string;
 }
 
+export interface BookingReceiptDogItem {
+  cottageId?: string;
+  cottageName: string;
+  dogsCount: number;
+  fee: number;
+}
+
+export interface BookingReceiptExtraItem {
+  id: string;
+  title: string;
+  cottageId?: string;
+  cottageName?: string;
+  qty: number;
+  price?: number;
+  lineAmount: number;
+}
+
 /** Printable receipt — deliberate safe subset from GET /bookings/:id/receipt. */
 export interface BookingReceipt {
   bookingNumber: string;
@@ -117,7 +135,7 @@ export interface BookingReceipt {
   paymentStatus: string;
   checkIn: string;
   checkOut: string;
-  guests: { adults: number; children: number };
+  guests: { adults: number; children: number; dogs?: number };
   guestName: string;
   guestEmail: string;
   guestPhone: string;
@@ -129,7 +147,14 @@ export interface BookingReceipt {
     fees: number;
     total: number;
     couponCode: string | null;
+    dogFee?: number;
+    extrasFee?: number;
+    dogsCount?: number;
+    dogDetails?: BookingReceiptDogItem[];
+    extras?: BookingReceiptExtraItem[];
   };
+  dogDetails?: BookingReceiptDogItem[];
+  extras?: BookingReceiptExtraItem[];
   items: Array<{
     roomName: string;
     roomNumber: string | null;

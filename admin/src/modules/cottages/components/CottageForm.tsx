@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { ArrowDown, ArrowUp, Loader, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Layers, Loader, Plus, Trash2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { listCategories } from "../api/categories.api";
+import { CategoryManagerDialog } from "./CategoryManagerDialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -249,6 +252,32 @@ export function CottageForm({
       (rawSettings?.home_section as string | undefined) ??
       "section_1",
   );
+
+  const [isCatManagerOpen, setIsCatManagerOpen] = useState(false);
+  const { data: categories = [] } = useQuery({
+    queryKey: ["cottage-categories"],
+    queryFn: listCategories,
+  });
+
+  const [categoryId, setCategoryId] = useState<string>(() => {
+    const rawAny = initial as unknown as Record<string, unknown> | undefined;
+    const directCat = (rawAny?.categoryId as string | undefined) ?? (rawAny?.category_id as string | undefined);
+    if (directCat) return directCat;
+    return (
+      (initial?.homeSection ?? (initial as unknown as { home_section?: string })?.home_section) === "section_2"
+        ? "cat_estate_collection"
+        : "cat_farm_cottages"
+    );
+  });
+
+  function handleSelectCategory(catId: string) {
+    setCategoryId(catId);
+    const cat = categories.find((c) => c.id === catId);
+    if (cat) {
+      const isEstate = !cat.allowMultiple || cat.slug.includes("estate") || cat.id === "cat_estate_collection";
+      setHomeSection(isEstate ? "section_2" : "section_1");
+    }
+  }
 
   function addBullet() {
     if (!newBulletText.trim()) return;
@@ -720,6 +749,8 @@ export function CottageForm({
       section_settings: { ...sectionSettings, home_section: homeSection },
       homeSection,
       home_section: homeSection,
+      categoryId,
+      category_id: categoryId,
       maxAdults: Math.max(1, Number(maxAdults) || 2),
       max_adults: Math.max(1, Number(maxAdults) || 2),
       maxChildren: Math.max(0, Number(maxChildren) || 0),
@@ -729,26 +760,31 @@ export function CottageForm({
       ...(bedrooms.trim()
         ? { bedrooms: Math.max(0, Number(bedrooms) || 0) }
         : { bedrooms: null }),
-      ...(maxDogs.trim()
-        ? {
-            maxDogs: Math.max(0, Number(maxDogs) || 0),
-            max_dogs: Math.max(0, Number(maxDogs) || 0),
-          }
-        : { maxDogs: null, max_dogs: null }),
-      dogPolicyEnabled,
-      dog_policy_enabled: dogPolicyEnabled,
-      dogPolicyTitle: dogPolicyTitle.trim() || null,
-      dog_policy_title: dogPolicyTitle.trim() || null,
-      dogPolicySubtitle: dogPolicySubtitle.trim() || null,
-      dog_policy_subtitle: dogPolicySubtitle.trim() || null,
-      dogFee: dogFee.trim() ? Math.max(0, Number(dogFee) || 0) : 70,
-      dog_fee: dogFee.trim() ? Math.max(0, Number(dogFee) || 0) : 70,
-      dogFees: Object.fromEntries(
-        Object.entries(dogFees).filter(([, v]) => v.trim().length > 0 && Number(v) >= 0),
-      ),
-      dog_fees: Object.fromEntries(
-        Object.entries(dogFees).filter(([, v]) => v.trim().length > 0 && Number(v) >= 0),
-      ),
+      ...(() => {
+        const cleanedDogFees = Object.fromEntries(
+          Object.entries(dogFees).filter(([, v]) => String(v ?? "").trim().length > 0 && Number(v) >= 0),
+        );
+        const customDogCounts = Object.keys(cleanedDogFees).map(Number).filter((n) => !Number.isNaN(n) && n > 0);
+        const userMaxDogs = maxDogs.trim() ? Math.max(0, Number(maxDogs) || 0) : 0;
+        const effectiveMax = Math.max(userMaxDogs, ...customDogCounts);
+        const finalMaxDogs = effectiveMax > 0 ? effectiveMax : null;
+        const isDogEnabled = dogPolicyEnabled || effectiveMax > 0 || customDogCounts.length > 0;
+
+        return {
+          maxDogs: finalMaxDogs,
+          max_dogs: finalMaxDogs,
+          dogPolicyEnabled: isDogEnabled,
+          dog_policy_enabled: isDogEnabled,
+          dogPolicyTitle: dogPolicyTitle.trim() || null,
+          dog_policy_title: dogPolicyTitle.trim() || null,
+          dogPolicySubtitle: dogPolicySubtitle.trim() || null,
+          dog_policy_subtitle: dogPolicySubtitle.trim() || null,
+          dogFee: dogFee.trim() ? Math.max(0, Number(dogFee) || 0) : 70,
+          dog_fee: dogFee.trim() ? Math.max(0, Number(dogFee) || 0) : 70,
+          dogFees: cleanedDogFees,
+          dog_fees: cleanedDogFees,
+        };
+      })(),
       dogPolicyImageMediaId,
       dog_policy_image_media_id: dogPolicyImageMediaId,
       extras: extras.filter(
@@ -835,61 +871,70 @@ export function CottageForm({
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-card p-4 space-y-2">
-        <Label className="text-sm font-semibold">Home Page Placement · Section</Label>
-        <p className="text-xs text-muted-foreground">
-          Select which section on the public Home page this cottage should render in.
-        </p>
-        <div className="grid gap-3 sm:grid-cols-2 pt-1">
-          <label
-            onClick={() => setHomeSection("section_1")}
-            className={cn(
-              "flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors",
-              homeSection !== "section_2"
-                ? "border-primary bg-primary/5 shadow-sm"
-                : "border-border hover:bg-muted/50",
-            )}
+      <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label className="text-sm font-semibold flex items-center gap-2">
+              <Layers className="size-4 text-primary" /> Cottage Collection / Category *
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Link this cottage to a category. Controls group booking rules (multi-cottage booking vs single cottage only).
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsCatManagerOpen(true)}
+            className="h-8 gap-1.5 text-xs rounded-full"
           >
-            <input
-              type="radio"
-              name="homeSectionRadio"
-              value="section_1"
-              checked={homeSection !== "section_2"}
-              onChange={() => setHomeSection("section_1")}
-              className="mt-0.5 text-primary"
-            />
-            <div>
-              <div className="text-sm font-semibold text-foreground">Section 1 · Main Cottages</div>
-              <div className="text-xs text-muted-foreground mt-0.5">
-                Renders in the 1st section on the Home page (e.g. Home Farm Cottages).
-              </div>
-            </div>
-          </label>
+            <Plus className="size-3.5" /> Manage Categories
+          </Button>
+        </div>
 
-          <label
-            onClick={() => setHomeSection("section_2")}
-            className={cn(
-              "flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors",
-              homeSection === "section_2"
-                ? "border-primary bg-primary/5 shadow-sm"
-                : "border-border hover:bg-muted/50",
-            )}
-          >
-            <input
-              type="radio"
-              name="homeSectionRadio"
-              value="section_2"
-              checked={homeSection === "section_2"}
-              onChange={() => setHomeSection("section_2")}
-              className="mt-0.5 text-primary"
-            />
-            <div>
-              <div className="text-sm font-semibold text-foreground">Section 2 · Estate / Other Property</div>
-              <div className="text-xs text-muted-foreground mt-0.5">
-                Renders in the 2nd section on the Home page (e.g. Estate / Other Property Cottages).
-              </div>
-            </div>
-          </label>
+        <div className="grid gap-3 sm:grid-cols-2 pt-1">
+          {categories.map((cat) => {
+            const isSelected = categoryId === cat.id;
+            const allowsMulti = cat.allowMultiple ?? cat.allow_multiple ?? true;
+            return (
+              <label
+                key={cat.id}
+                onClick={() => handleSelectCategory(cat.id)}
+                className={cn(
+                  "flex cursor-pointer items-start gap-3 rounded-lg border p-3.5 transition-all",
+                  isSelected
+                    ? "border-primary bg-primary/5 shadow-xs ring-1 ring-primary"
+                    : "border-border hover:bg-muted/50",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="cottageCategoryRadio"
+                  value={cat.id}
+                  checked={isSelected}
+                  onChange={() => handleSelectCategory(cat.id)}
+                  className="mt-0.5 text-primary"
+                />
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-semibold text-foreground">{cat.name}</span>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                        allowsMulti
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-amber-50 text-amber-700 border border-amber-200"
+                      }`}
+                    >
+                      {allowsMulti ? "Multi-select allowed" : "Single cottage only"}
+                    </span>
+                  </div>
+                  {cat.description && (
+                    <p className="text-xs text-muted-foreground line-clamp-2">{cat.description}</p>
+                  )}
+                </div>
+              </label>
+            );
+          })}
         </div>
       </div>
 
@@ -2457,6 +2502,8 @@ export function CottageForm({
           submitLabel
         )}
       </Button>
+
+      <CategoryManagerDialog open={isCatManagerOpen} onOpenChange={setIsCatManagerOpen} />
     </form>
   );
 }

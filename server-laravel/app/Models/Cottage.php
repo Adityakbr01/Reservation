@@ -27,7 +27,7 @@ class Cottage extends Model
         'welcome_hamper_html', 'amenity_ids', 'nearby_attractions',
         'bedrooms', 'bathrooms', 'max_dogs',
         'dog_policy_enabled', 'dog_policy_title', 'dog_policy_subtitle', 'dog_fee', 'dog_fees', 'dog_policy_image_media_id',
-        'extras', 'home_section',
+        'extras', 'home_section', 'category_id',
         'status', 'seo',
     ];
 
@@ -54,6 +54,11 @@ class Cottage extends Model
     public function property(): BelongsTo
     {
         return $this->belongsTo(Property::class, 'property_id');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(CottageCategory::class, 'category_id');
     }
 
     public function rooms(): HasMany

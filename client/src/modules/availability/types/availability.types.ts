@@ -62,6 +62,16 @@ export interface SearchResultRoomType {
   shortDescription: string | null;
   homeSection?: string;
   home_section?: string;
+  categoryId?: string | null;
+  category_id?: string | null;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+    description?: string | null;
+    allowMultiple: boolean;
+    allow_multiple?: boolean;
+  } | null;
   amenities: string[];
   images?: Array<{ mediaId: string; altText: string | null; sortOrder: number; url?: string }>;
   media?: Array<{ mediaId: string; kind: "image" | "video"; altText: string | null; sortOrder: number; url?: string }>;

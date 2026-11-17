@@ -127,10 +127,10 @@ class PublicBookingController extends Controller
         // Calculate dog fee if guest opted to bring dog(s) and cottage allows dogs
         $dogFeePence = 0;
         if ($dogsCount > 0 && $cottage) {
-            $isDogFriendly = $cottage->dog_policy_enabled ?? ($cottage->max_dogs > 0);
+            $dogFees = is_array($cottage->dog_fees) ? $cottage->dog_fees : (is_string($cottage->dog_fees) ? (json_decode($cottage->dog_fees, true) ?? []) : []);
+            $isDogFriendly = (bool) ($cottage->dog_policy_enabled) || ((int) ($cottage->max_dogs ?? 0) > 0) || !empty($dogFees);
             if ($isDogFriendly) {
                 // Custom per-count dog fees take precedence over flat dog_fee * count.
-                $dogFees = is_array($cottage->dog_fees) ? $cottage->dog_fees : (is_string($cottage->dog_fees) ? (json_decode($cottage->dog_fees, true) ?? []) : []);
                 $customFee = null;
                 if (isset($dogFees[$dogsCount])) {
                     $customFee = (float) $dogFees[$dogsCount];
@@ -150,13 +150,29 @@ class PublicBookingController extends Controller
         // Calculate optional extras fee (server-authoritative qty validation).
         $extrasFeePence = 0;
         $pricedExtras = [];
-        if (!empty($normalizedExtras) && $cottage && !empty($cottage->extras)) {
-            $cotExtras = is_array($cottage->extras) ? $cottage->extras : (json_decode($cottage->extras, true) ?? []);
+        if (!empty($normalizedExtras)) {
             $extrasById = [];
-            foreach ($cotExtras as $candidate) {
-                $candId = $candidate['id'] ?? ($candidate['id'] ?? null);
-                if ($candId !== null && $candId !== '') {
-                    $extrasById[(string) $candId] = $candidate;
+
+            // 1. Check Global Extras from SiteSettings
+            $siteSettings = \App\Models\SiteSettings::first();
+            $globalExtras = $siteSettings?->booking_page['globalExtras'] ?? $siteSettings?->booking_page['global_extras'] ?? [];
+            if (is_array($globalExtras)) {
+                foreach ($globalExtras as $candidate) {
+                    $candId = is_array($candidate) ? ($candidate['id'] ?? null) : ($candidate->id ?? null);
+                    if ($candId) {
+                        $extrasById[(string) $candId] = (array) $candidate;
+                    }
+                }
+            }
+
+            // 2. Check Cottage-specific extras
+            if ($cottage && !empty($cottage->extras)) {
+                $cotExtras = is_array($cottage->extras) ? $cottage->extras : (json_decode($cottage->extras, true) ?? []);
+                foreach ($cotExtras as $candidate) {
+                    $candId = is_array($candidate) ? ($candidate['id'] ?? null) : ($candidate->id ?? null);
+                    if ($candId && !isset($extrasById[(string) $candId])) {
+                        $extrasById[(string) $candId] = (array) $candidate;
+                    }
                 }
             }
             $validationErrors = [];
@@ -418,28 +434,74 @@ class PublicBookingController extends Controller
         $total = max(0, $subtotal - $discount);
 
         $dogsCount = (int) ($request->input('dogs') ?? $request->input('dogsCount') ?? ($guests['dogs'] ?? 0));
+        $dogsByCottageInput = $request->input('dogsByCottage') ?? [];
+        if (!is_array($dogsByCottageInput)) {
+            $dogsByCottageInput = [];
+        }
+
         $dogFeePence = 0;
-        if ($dogsCount > 0) {
+        $dogDetails = [];
+
+        if (!empty($dogsByCottageInput)) {
+            // Precise per-cottage dog distribution
+            foreach ($bookingItemsData as $itemData) {
+                $cot = $itemData['cottage'];
+                if (!$cot) continue;
+                $cotDogs = (int) ($dogsByCottageInput[$cot->id] ?? $dogsByCottageInput[(string) $cot->id] ?? 0);
+                if ($cotDogs <= 0) continue;
+
+                $dogFees = is_array($cot->dog_fees) ? $cot->dog_fees : (is_string($cot->dog_fees) ? (json_decode($cot->dog_fees, true) ?? []) : []);
+                $isDogFriendly = (bool) ($cot->dog_policy_enabled) || ((int) ($cot->max_dogs ?? 0) > 0) || !empty($dogFees);
+                if (!$isDogFriendly) continue;
+
+                $customFee = null;
+                if (isset($dogFees[$cotDogs])) {
+                    $customFee = (float) $dogFees[$cotDogs];
+                } elseif (isset($dogFees[(string) $cotDogs])) {
+                    $customFee = (float) $dogFees[(string) $cotDogs];
+                }
+
+                $cotFeePence = 0;
+                if ($customFee !== null && $customFee >= 0) {
+                    $cotFeePence = (int) round($customFee * 100);
+                } else {
+                    $unitDogFee = $cot->dog_fee !== null ? (float) $cot->dog_fee : 70.00;
+                    $cotFeePence = (int) round($unitDogFee * 100) * $cotDogs;
+                }
+
+                $dogFeePence += $cotFeePence;
+                $dogDetails[] = [
+                    'cottageId' => $cot->id,
+                    'cottageName' => $cot->name,
+                    'dogsCount' => $cotDogs,
+                    'fee' => $cotFeePence,
+                ];
+            }
+        } elseif ($dogsCount > 0) {
             foreach ($bookingItemsData as $itemData) {
                 $cot = $itemData['cottage'];
                 if ($cot) {
-                    $isDogFriendly = $cot->dog_policy_enabled ?? ($cot->max_dogs > 0);
+                    $dogFees = is_array($cot->dog_fees) ? $cot->dog_fees : (is_string($cot->dog_fees) ? (json_decode($cot->dog_fees, true) ?? []) : []);
+                    $isDogFriendly = (bool) ($cot->dog_policy_enabled) || ((int) ($cot->max_dogs ?? 0) > 0) || !empty($dogFees);
                     if ($isDogFriendly) {
-                        // Custom per-count dog fees take precedence over flat dog_fee * count.
-                        // dog_fees stored as JSON: {"1": 90, "2": 120, "3": 170} (in currency units).
-                        $dogFees = is_array($cot->dog_fees) ? $cot->dog_fees : (is_string($cot->dog_fees) ? (json_decode($cot->dog_fees, true) ?? []) : []);
                         $customFee = null;
                         if (isset($dogFees[$dogsCount])) {
                             $customFee = (float) $dogFees[$dogsCount];
                         } elseif (isset($dogFees[(string) $dogsCount])) {
                             $customFee = (float) $dogFees[(string) $dogsCount];
                         }
-                        if ($customFee !== null && $customFee > 0) {
+                        if ($customFee !== null && $customFee >= 0) {
                             $dogFeePence = (int) round($customFee * 100);
                         } else {
                             $unitDogFee = $cot->dog_fee !== null ? (float) $cot->dog_fee : 70.00;
                             $dogFeePence = (int) round($unitDogFee * 100) * $dogsCount;
                         }
+                        $dogDetails[] = [
+                            'cottageId' => $cot->id,
+                            'cottageName' => $cot->name,
+                            'dogsCount' => $dogsCount,
+                            'fee' => $dogFeePence,
+                        ];
                         break;
                     }
                 }
@@ -457,72 +519,92 @@ class PublicBookingController extends Controller
         $normalizedExtras = [];
         foreach ($extrasRaw as $ex) {
             if (!is_array($ex)) {
-                $normalizedExtras[] = ['id' => (string) $ex, 'qty' => 1];
+                $normalizedExtras[] = ['id' => (string) $ex, 'qty' => 1, 'cottageId' => null];
                 continue;
             }
             $normalizedExtras[] = [
                 'id' => (string) ($ex['id'] ?? ''),
                 'qty' => (int) ($ex['qty'] ?? 1),
+                'cottageId' => isset($ex['cottageId']) ? (string) $ex['cottageId'] : null,
             ];
         }
         $extrasFeePence = 0;
         $pricedExtras = [];
         if (!empty($normalizedExtras)) {
             $adultsCount = (int) ($guests['adults'] ?? 2);
+
+            // Pool all available extras: Global Settings + Selected Cottages
+            $extrasById = [];
+            $extrasCottageName = [];
+            $siteSettings = \App\Models\SiteSettings::first();
+            $globalExtras = $siteSettings?->booking_page['globalExtras'] ?? $siteSettings?->booking_page['global_extras'] ?? [];
+            if (is_array($globalExtras)) {
+                foreach ($globalExtras as $candidate) {
+                    $candId = is_array($candidate) ? ($candidate['id'] ?? null) : ($candidate->id ?? null);
+                    if ($candId) {
+                        $extrasById[(string) $candId] = (array) $candidate;
+                        $extrasCottageName[(string) $candId] = null;
+                    }
+                }
+            }
             foreach ($bookingItemsData as $itemData) {
                 $cot = $itemData['cottage'];
                 if ($cot && !empty($cot->extras)) {
                     $cotExtras = is_array($cot->extras) ? $cot->extras : (json_decode($cot->extras, true) ?? []);
-                    $extrasById = [];
                     foreach ($cotExtras as $candidate) {
-                        $candId = $candidate['id'] ?? ($candidate['id'] ?? null);
-                        if ($candId !== null && $candId !== '') {
-                            $extrasById[(string) $candId] = $candidate;
+                        $candId = is_array($candidate) ? ($candidate['id'] ?? null) : ($candidate->id ?? null);
+                        if ($candId && !isset($extrasById[(string) $candId])) {
+                            $extrasById[(string) $candId] = (array) $candidate;
+                            $extrasCottageName[(string) $candId] = $cot->name;
                         }
-                    }
-                    $validationErrors = [];
-                    foreach ($normalizedExtras as $item) {
-                        $id = $item['id'] ?? '';
-                        $qty = (int) ($item['qty'] ?? 1);
-                        if ($qty <= 0) {
-                            continue;
-                        }
-                        if (!isset($extrasById[$id])) {
-                            continue;
-                        }
-                        $ex = $extrasById[$id];
-                        $showCounter = $ex['showCounter'] ?? true;
-                        $min = (int) ($ex['min'] ?? ($showCounter ? 1 : 0));
-                        $maxRaw = $ex['max'] ?? null;
-                        $max = ($maxRaw === null || $maxRaw === '') ? null : (int) $maxRaw;
-                        if ($showCounter && $max !== null && $qty > $max) {
-                            $extraTitle = $ex['title'] ?? $id;
-                            $validationErrors[] = "Extra \"{$extraTitle}\" quantity exceeds maximum of {$max}.";
-                            $qty = $max;
-                        }
-                        if ($showCounter && $qty < $min) {
-                            $qty = $min;
-                        }
-                        if ($qty <= 0) {
-                            continue;
-                        }
-                        $p = (float) ($ex['price'] ?? 0);
-                        $unitAmount = ($ex['pricingType'] ?? '') === 'PER_PERSON' ? ($p * max(1, $adultsCount)) : $p;
-                        $itemAmount = $unitAmount * $qty;
-                        $extrasFeePence += (int) round($itemAmount * 100);
-                        $pricedExtras[] = [
-                            'id' => $id,
-                            'title' => $ex['title'] ?? '',
-                            'qty' => $qty,
-                            'lineAmount' => (int) round($itemAmount * 100),
-                        ];
-                    }
-                    if (!empty($validationErrors)) {
-                        throw ValidationException::withMessages([
-                            'extras' => $validationErrors,
-                        ]);
                     }
                 }
+            }
+
+            $validationErrors = [];
+            foreach ($normalizedExtras as $item) {
+                $id = $item['id'] ?? '';
+                $qty = (int) ($item['qty'] ?? 1);
+                if ($qty <= 0) continue;
+                if (!isset($extrasById[$id])) continue;
+
+                $ex = $extrasById[$id];
+                $showCounter = $ex['showCounter'] ?? true;
+                $min = (int) ($ex['min'] ?? ($showCounter ? 1 : 0));
+                $maxRaw = $ex['max'] ?? null;
+                $max = ($maxRaw === null || $maxRaw === '') ? null : (int) $maxRaw;
+                if ($showCounter && $max !== null && $qty > $max) {
+                    $extraTitle = $ex['title'] ?? $id;
+                    $validationErrors[] = "Extra \"{$extraTitle}\" quantity exceeds maximum of {$max}.";
+                    $qty = $max;
+                }
+                if ($showCounter && $qty < $min) {
+                    $qty = $min;
+                }
+                if ($qty <= 0) continue;
+
+                $p = (float) ($ex['price'] ?? 0);
+                $pricingType = $ex['pricingType'] ?? 'PER_STAY';
+                $unitAmount = $pricingType === 'PER_PERSON' ? ($p * max(1, $adultsCount)) : $p;
+                $itemAmount = $unitAmount * $qty;
+                $linePence = (int) round($itemAmount * 100);
+                $extrasFeePence += $linePence;
+
+                $pricedExtras[] = [
+                    'id' => $id,
+                    'title' => $ex['title'] ?? '',
+                    'cottageId' => $item['cottageId'] ?? null,
+                    'cottageName' => $item['cottageId'] ? ($extrasCottageName[$id] ?? null) : null,
+                    'qty' => $qty,
+                    'price' => (int) round($p * 100),
+                    'pricingType' => $pricingType,
+                    'lineAmount' => $linePence,
+                ];
+            }
+            if (!empty($validationErrors)) {
+                throw ValidationException::withMessages([
+                    'extras' => $validationErrors,
+                ]);
             }
         }
 
@@ -546,6 +628,7 @@ class PublicBookingController extends Controller
             'dogFee' => $dogFeePence,
             'dog_fee' => $dogFeePence,
             'dogsCount' => $dogsCount,
+            'dogDetails' => $dogDetails,
             'extrasFee' => $extrasFeePence,
             'extras_fee' => $extrasFeePence,
             'selectedExtras' => array_column($pricedExtras, 'id'),
@@ -747,12 +830,22 @@ class PublicBookingController extends Controller
         })->values();
 
         $pricing = is_array($booking->pricing) ? $booking->pricing : [];
+        $dogDetails = $pricing['dogDetails'] ?? [];
+        $extrasList = $pricing['extras'] ?? [];
+
         $pricingFormatted = [
             'currency' => $pricing['currency'] ?? 'GBP',
             'subtotal' => (int) ($pricing['subtotal'] ?? 0),
             'discount' => (int) ($pricing['discount'] ?? 0),
             'taxes' => (int) ($pricing['taxes'] ?? 0),
             'fees' => (int) ($pricing['fees'] ?? 0),
+            'dogFee' => (int) ($pricing['dogFee'] ?? $pricing['dog_fee'] ?? 0),
+            'dog_fee' => (int) ($pricing['dogFee'] ?? $pricing['dog_fee'] ?? 0),
+            'dogsCount' => (int) ($pricing['dogsCount'] ?? ($booking->guests['dogs'] ?? 0)),
+            'dogDetails' => $dogDetails,
+            'extrasFee' => (int) ($pricing['extrasFee'] ?? $pricing['extras_fee'] ?? 0),
+            'extras_fee' => (int) ($pricing['extrasFee'] ?? $pricing['extras_fee'] ?? 0),
+            'extras' => $extrasList,
             'total' => (int) ($pricing['total'] ?? 0),
             'couponCode' => $pricing['couponCode'] ?? null,
         ];
@@ -791,6 +884,8 @@ class PublicBookingController extends Controller
                 'property' => $propertyPayload,
                 'pricing' => $pricingFormatted,
                 'items' => $items,
+                'dogDetails' => $dogDetails,
+                'extras' => $extrasList,
                 'payments' => $payments,
                 'bookedAt' => $formatDateIso($booking->created_at),
             ],

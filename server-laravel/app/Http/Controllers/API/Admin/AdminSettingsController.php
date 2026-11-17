@@ -56,8 +56,10 @@ class AdminSettingsController extends Controller
             $data['check_out_time'] = $input['checkOutTime'] ?? $input['check_out_time'] ?? null;
         }
         if (array_key_exists('minimumStayNights', $input) || array_key_exists('minimum_stay_nights', $input)) {
-            $minStay = $input['minimumStayNights'] ?? $input['minimum_stay_nights'];
-            $data['minimum_stay_nights'] = $minStay !== null ? max(1, (int) $minStay) : 2;
+            if (\Illuminate\Support\Facades\Schema::hasColumn('site_settings', 'minimum_stay_nights')) {
+                $minStay = $input['minimumStayNights'] ?? $input['minimum_stay_nights'];
+                $data['minimum_stay_nights'] = $minStay !== null ? max(1, (int) $minStay) : 2;
+            }
         }
         if (array_key_exists('reminderHoursBefore', $input) || array_key_exists('reminder_hours_before', $input)) {
             $val = $input['reminderHoursBefore'] ?? $input['reminder_hours_before'];
@@ -177,8 +179,45 @@ class AdminSettingsController extends Controller
             $snakeSection = \Illuminate\Support\Str::snake($section);
             $incoming = is_array($stored[$section] ?? null)
                 ? $stored[$section]
-                : (is_array($stored[$snakeSection] ?? null) ? $stored[$snakeSection] : []);
-            $defaults[$section] = array_merge($values, $incoming);
+                : (is_array($stored[$snakeSection] ?? null) ? $stored[$snakeSection] : null);
+
+            if ($section === 'globalExtras' || $section === 'global_extras') {
+                if ($incoming !== null && is_array($incoming)) {
+                    $defaults['globalExtras'] = $incoming;
+                }
+            } else {
+                $defaults[$section] = array_merge($values, is_array($incoming) ? $incoming : []);
+            }
+        }
+
+        if (isset($stored['globalExtras']) && is_array($stored['globalExtras'])) {
+            $defaults['globalExtras'] = $stored['globalExtras'];
+        } elseif (isset($stored['global_extras']) && is_array($stored['global_extras'])) {
+            $defaults['globalExtras'] = $stored['global_extras'];
+        }
+
+        // Resolve media URLs for globalExtras
+        if (!empty($defaults['globalExtras']) && is_array($defaults['globalExtras'])) {
+            $midList = [];
+            foreach ($defaults['globalExtras'] as $ex) {
+                if (is_array($ex)) {
+                    $mid = $ex['imageMediaId'] ?? $ex['image_media_id'] ?? null;
+                    if ($mid) $midList[] = (string) $mid;
+                }
+            }
+            if (!empty($midList)) {
+                $mMap = \App\Models\Media::whereIn('id', array_unique($midList))->get()->keyBy('id');
+                foreach ($defaults['globalExtras'] as &$ex) {
+                    if (is_array($ex)) {
+                        $mid = $ex['imageMediaId'] ?? $ex['image_media_id'] ?? null;
+                        if ($mid && isset($mMap[$mid])) {
+                            $ex['imageUrl'] = $mMap[$mid]->url;
+                            $ex['image_url'] = $mMap[$mid]->url;
+                        }
+                    }
+                }
+                unset($ex);
+            }
         }
 
         // Migrate legacy flat-string bookingJourney values to { isEnabled, value } objects
@@ -199,7 +238,36 @@ class AdminSettingsController extends Controller
     {
         $resolved = $this->resolveBookingPage($current);
 
+        // Special handling for globalExtras (list of extra objects)
+        if (array_key_exists('globalExtras', $raw) || array_key_exists('global_extras', $raw)) {
+            $rawExtras = $raw['globalExtras'] ?? $raw['global_extras'];
+            if (is_array($rawExtras)) {
+                $cleanedExtras = [];
+                foreach ($rawExtras as $ex) {
+                    if (!is_array($ex)) continue;
+                    $cleanedExtras[] = [
+                        'id' => (string) ($ex['id'] ?? ('extra_' . uniqid())),
+                        'title' => (string) ($ex['title'] ?? ''),
+                        'description' => isset($ex['description']) ? (string) $ex['description'] : null,
+                        'price' => isset($ex['price']) ? (float) $ex['price'] : 0.0,
+                        'pricingType' => ($ex['pricingType'] ?? $ex['pricing_type'] ?? 'PER_STAY') === 'PER_PERSON' ? 'PER_PERSON' : 'PER_STAY',
+                        'imageMediaId' => $ex['imageMediaId'] ?? $ex['image_media_id'] ?? null,
+                        'imageUrl' => $ex['imageUrl'] ?? $ex['image_url'] ?? null,
+                        'showCounter' => filter_var($ex['showCounter'] ?? $ex['show_counter'] ?? true, FILTER_VALIDATE_BOOLEAN),
+                        'min' => isset($ex['min']) ? max(0, (int) $ex['min']) : 1,
+                        'max' => (isset($ex['max']) && $ex['max'] !== '' && $ex['max'] !== null) ? max(1, (int) $ex['max']) : null,
+                    ];
+                }
+                $resolved['globalExtras'] = $cleanedExtras;
+            }
+        }
+
         foreach ($resolved as $section => $defaults) {
+            // Skip globalExtras as it is handled specifically above
+            if ($section === 'globalExtras' || $section === 'global_extras') {
+                continue;
+            }
+
             $snakeSection = \Illuminate\Support\Str::snake($section);
             $incoming = is_array($raw[$section] ?? null)
                 ? $raw[$section]
@@ -233,8 +301,10 @@ class AdminSettingsController extends Controller
                     $resolved[$section][$key] = (bool) $value;
                 } elseif (is_int($default)) {
                     $resolved[$section][$key] = max(1, (int) $value);
+                } elseif (is_array($default)) {
+                    $resolved[$section][$key] = is_array($value) ? $value : $default;
                 } else {
-                    $resolved[$section][$key] = is_string($value) ? $value : (string) $default;
+                    $resolved[$section][$key] = is_string($value) ? $value : (is_scalar($default) ? (string) $default : '');
                 }
             }
         }
@@ -312,15 +382,17 @@ class AdminSettingsController extends Controller
                     $value = array_key_exists($key, $incoming) ? $incoming[$key] : $incoming[$snakeKey];
                     if (is_bool($default)) {
                         $resolved[$section][$key] = (bool) $value;
+                    } elseif (is_array($default)) {
+                        $resolved[$section][$key] = is_array($value) ? $value : $default;
                     } else {
-                        $resolved[$section][$key] = is_string($value) ? $value : (string) $default;
+                        $resolved[$section][$key] = is_string($value) ? $value : (is_scalar($default) ? (string) $default : '');
                     }
                 }
             } else {
                 if (array_key_exists($section, $raw)) {
-                    $resolved[$section] = is_string($raw[$section]) ? $raw[$section] : (string) $defaults;
+                    $resolved[$section] = is_string($raw[$section]) ? $raw[$section] : (is_scalar($defaults) ? (string) $defaults : $defaults);
                 } elseif (array_key_exists($snakeSection, $raw)) {
-                    $resolved[$section] = is_string($raw[$snakeSection]) ? $raw[$snakeSection] : (string) $defaults;
+                    $resolved[$section] = is_string($raw[$snakeSection]) ? $raw[$snakeSection] : (is_scalar($defaults) ? (string) $defaults : $defaults);
                 }
             }
         }
