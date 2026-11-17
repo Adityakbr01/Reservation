@@ -34,4 +34,18 @@ class SearchAvailabilityRequest extends FormRequest
             'rooms' => ['nullable', 'integer', 'min:1', 'max:10'],
         ];
     }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $in = $this->input('check_in');
+            $out = $this->input('check_out');
+            if ($in && $out) {
+                $days = (strtotime($out) - strtotime($in)) / 86400;
+                if ($days < 2) {
+                    $validator->errors()->add('check_out', 'A minimum stay of 2 nights is required.');
+                }
+            }
+        });
+    }
 }

@@ -821,6 +821,11 @@ export function BookingJourneyDialog({
                   toast.error("Check-out date must be after check-in date.");
                   return;
                 }
+                const n = countNights(checkIn, checkOut);
+                if (n < 2) {
+                  toast.error("A minimum stay of 2 nights is required.");
+                  return;
+                }
                 setStep(1);
               }}
               className="mt-[27px]"
@@ -834,9 +839,10 @@ export function BookingJourneyDialog({
                   contentClassName="z-[120]"
                   onChange={(value) => {
                     setCheckIn(value);
-                    if (!checkOut || checkOut <= value) {
-                      const inDate = new Date(`${value}T00:00:00`);
-                      if (!Number.isNaN(inDate.getTime())) {
+                    const inDate = new Date(`${value}T00:00:00`);
+                    if (!Number.isNaN(inDate.getTime())) {
+                      const minOut = toDayKey(addDays(inDate, 2));
+                      if (!checkOut || checkOut < minOut) {
                         setCheckOut(toDayKey(addDays(inDate, 3)));
                       }
                     }
@@ -846,9 +852,18 @@ export function BookingJourneyDialog({
                   id="booking-checkOut"
                   label={bjValue("step1CheckOutLabel")}
                   value={checkOut}
-                  min={checkIn || today}
+                  min={checkIn ? toDayKey(addDays(new Date(`${checkIn}T00:00:00`), 2)) : today}
                   contentClassName="z-[120]"
-                  onChange={setCheckOut}
+                  onChange={(val) => {
+                    if (checkIn) {
+                      const n = countNights(checkIn, val);
+                      if (n < 2) {
+                        toast.error("A minimum stay of 2 nights is required.");
+                        return;
+                      }
+                    }
+                    setCheckOut(val);
+                  }}
                 />
                 <label className="flex flex-col gap-[9px] text-[11px]">
                   <span className="text-[10px] tracking-[0.6px] text-[#535b51]">

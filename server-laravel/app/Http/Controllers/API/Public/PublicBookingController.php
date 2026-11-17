@@ -45,6 +45,17 @@ class PublicBookingController extends Controller
         $ratePlanId = $request->input('ratePlanId') ?? $request->input('rate_plan_id');
         $checkIn = $request->input('checkIn') ?? $request->input('check_in') ?? date('Y-m-d');
         $checkOut = $request->input('checkOut') ?? $request->input('check_out') ?? date('Y-m-d', strtotime('+2 days'));
+        
+        $requestedNights = (int) round((strtotime($checkOut) - strtotime($checkIn)) / 86400);
+        if ($requestedNights < 2) {
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'MIN_STAY_NOT_MET',
+                    'message' => 'A minimum stay of 2 nights is required.',
+                ],
+            ], 422);
+        }
         $quantity = (int) ($request->input('quantity', 1) ?: 1);
         $couponCode = trim((string) ($request->input('couponCode') ?? $request->input('coupon_code') ?? ''));
         $dogsCount = (int) ($request->input('dogs') ?? $request->input('dogsCount') ?? 0);
@@ -292,6 +303,18 @@ class PublicBookingController extends Controller
 
         $checkIn = $request->input('checkIn') ?? $request->input('check_in') ?? date('Y-m-d');
         $checkOut = $request->input('checkOut') ?? $request->input('check_out') ?? date('Y-m-d', strtotime('+2 days'));
+
+        $requestedNights = (int) round((strtotime($checkOut) - strtotime($checkIn)) / 86400);
+        if ($requestedNights < 2) {
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'MIN_STAY_NOT_MET',
+                    'message' => 'A minimum stay of 2 nights is required.',
+                ],
+            ], 422);
+        }
+
         $guests = $request->input('guests', ['adults' => 2, 'children' => 0]);
         $defaultProp = Property::defaultProperty();
 

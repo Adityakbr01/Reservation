@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { ArrowRight, ChevronDown, Loader } from "lucide-react";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DateField } from "@/components/common/DateField";
@@ -112,16 +113,18 @@ export function SearchForm({
     setCheckIn(val);
     setRangeError(null);
     let nextCheckOut = checkOut;
-    // If checkOut is empty or before/equal to new checkIn, automatically push it forward by 3 nights
-    if (!nextCheckOut || nextCheckOut <= val) {
-      try {
-        const inDate = new Date(`${val}T00:00:00`);
-        if (!isNaN(inDate.getTime())) {
+    // Minimum 2 nights: if checkOut is empty or less than 2 nights after new checkIn, automatically push it forward
+    try {
+      const inDate = new Date(`${val}T00:00:00`);
+      if (!isNaN(inDate.getTime())) {
+        const minOut = toDayKey(addDays(inDate, 2));
+        if (!nextCheckOut || nextCheckOut < minOut) {
           nextCheckOut = toDayKey(addDays(inDate, 3));
           setCheckOut(nextCheckOut);
         }
-      } catch {}
-    }
+      }
+    } catch {}
+
     if (nextCheckOut && nextCheckOut > val && val >= today) {
       emitSearch(val, nextCheckOut, adults, children, rooms);
     }
@@ -131,7 +134,18 @@ export function SearchForm({
     setCheckOut(val);
     if (val <= checkIn) {
       setRangeError("Check-out must be after check-in.");
+      toast.error("Check-out must be after check-in.");
       return;
+    }
+    if (checkIn) {
+      const inDate = new Date(`${checkIn}T00:00:00Z`);
+      const outDate = new Date(`${val}T00:00:00Z`);
+      const diffNights = Math.round((outDate.getTime() - inDate.getTime()) / 86400000);
+      if (diffNights < 2) {
+        setRangeError("A minimum stay of 2 nights is required.");
+        toast.error("A minimum stay of 2 nights is required.");
+        return;
+      }
     }
     setRangeError(null);
     if (checkIn && val > checkIn && checkIn >= today) {
@@ -222,7 +236,7 @@ export function SearchForm({
               id="search-checkout"
               label={checkOutLabel ?? ""}
               value={checkOut}
-              min={checkIn || today}
+              min={checkIn ? toDayKey(addDays(new Date(`${checkIn}T00:00:00`), 2)) : today}
               onChange={handleCheckOutChange}
             />
           </div>

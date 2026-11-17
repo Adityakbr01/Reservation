@@ -290,6 +290,7 @@ class PublicAvailabilityController extends Controller
                     'available' => $availableCount,
                     'booked' => $bookedCount,
                     'blocked' => $blockedCount,
+                    'minNights' => 2,
                 ];
 
                 $cursor->addDay();

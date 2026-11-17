@@ -108,7 +108,8 @@ export function AvailabilityCalendar({
     const price = formatPrice(day.price, day.currency);
     if (state === "past") return day.date;
     if (state === "full") return `${prettyDay(day.date)}: fully booked night`;
-    const stay = day.minNights != null && day.minNights > 1 ? ` · ${day.minNights}-night minimum stay` : "";
+    const minStayCount = Math.max(2, day.minNights ?? 2);
+    const stay = ` · ${minStayCount}-night minimum stay`;
     return `${prettyDay(day.date)}${price ? `: ${price}` : ""} · ${day.available} of ${day.total} free${stay}`;
   }
 
@@ -170,10 +171,18 @@ export function AvailabilityCalendar({
               const isPastBlockedWall = Boolean(
                 selectedCheckIn && !selectedCheckOut && firstBlockedNight && day.date >= firstBlockedNight
               );
+              const minReqStay = 2;
+              const isViolatingMinStay = Boolean(
+                selectedCheckIn &&
+                  !selectedCheckOut &&
+                  day.date > selectedCheckIn &&
+                  Math.round((new Date(`${day.date}T00:00:00Z`).getTime() - new Date(`${selectedCheckIn}T00:00:00Z`).getTime()) / 86400000) < minReqStay
+              );
               const clickable =
                 onPickDate !== undefined &&
                 (state === "free" || state === "few") &&
-                !isPastBlockedWall;
+                !isPastBlockedWall &&
+                !isViolatingMinStay;
               const price = state === "full" ? null : formatPrice(day.price, day.currency);
               return (
                 <button
@@ -183,16 +192,17 @@ export function AvailabilityCalendar({
                   onClick={() => onPickDate?.(day.date)}
                   onMouseEnter={() => setHoverDate(day.date)}
                   onFocus={() => setHoverDate(day.date)}
-                  title={tooltipFor(day, state)}
-                  aria-label={`${prettyDay(day.date)}: ${state === "free" || state === "few" ? `${day.available} of ${day.total} free${price ? `, ${price}` : ""}${day.minNights != null && day.minNights > 1 ? `, ${day.minNights}-night minimum stay` : ""}` : state === "full" ? "fully booked" : state}${isCheckIn ? ", check-in" : ""}${isCheckOut ? ", check-out" : ""}`}
+                  title={isViolatingMinStay ? `${prettyDay(day.date)}: Minimum 2 nights required (earliest check-out is 2 nights after check-in)` : tooltipFor(day, state)}
+                  aria-label={`${prettyDay(day.date)}: ${state === "free" || state === "few" ? `${day.available} of ${day.total} free${price ? `, ${price}` : ""}, ${Math.max(2, day.minNights ?? 2)}-night minimum stay` : state === "full" ? "fully booked" : state}${isCheckIn ? ", check-in" : ""}${isCheckOut ? ", check-out" : ""}`}
                   className={cn(
                     "group relative flex min-h-12 flex-col items-center justify-center rounded-lg px-1 py-1 text-[13px] font-medium transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     state === "past" && "text-muted-foreground/30",
                     state === "full" && !isEndpoint && "bg-destructive/[0.07] text-destructive/70 cursor-not-allowed opacity-60",
                     isPastBlockedWall && !isEndpoint && "cursor-not-allowed opacity-40",
-                    state === "few" && !isEndpoint && !ranged && !preview && "bg-amber-400/15 text-amber-800 hover:bg-amber-400/25 dark:text-amber-200",
-                    state === "free" && !isEndpoint && !ranged && !preview && "bg-emerald-500/[0.08] text-emerald-800 hover:bg-emerald-500/20 dark:text-emerald-200",
+                    isViolatingMinStay && !isEndpoint && "cursor-not-allowed opacity-40 bg-muted/30 text-muted-foreground",
+                    state === "few" && !isEndpoint && !ranged && !preview && !isViolatingMinStay && "bg-amber-400/15 text-amber-800 hover:bg-amber-400/25 dark:text-amber-200",
+                    state === "free" && !isEndpoint && !ranged && !preview && !isViolatingMinStay && "bg-emerald-500/[0.08] text-emerald-800 hover:bg-emerald-500/20 dark:text-emerald-200",
                     (ranged || preview) && !isEndpoint && !blockedDates.has(day.date) && "rounded-none bg-brand/20 font-semibold text-brand-900 dark:bg-brand/30 dark:text-brand-100",
                     preview && !blockedDates.has(day.date) && "border-y border-dashed border-brand/60",
                     isCheckIn && !isCheckOut && "rounded-l-lg rounded-r-none bg-brand font-semibold text-white hover:bg-brand",
@@ -237,8 +247,8 @@ export function AvailabilityCalendar({
                           ? "Fully booked night"
                           : `${day.available} of ${day.total} free`}
                       </span>
-                      {state !== "full" && day.minNights != null && day.minNights > 1 && (
-                        <span className="block opacity-90">{day.minNights}-night minimum stay</span>
+                      {state !== "full" && (
+                        <span className="block opacity-90">{Math.max(2, day.minNights ?? 2)}-night minimum stay</span>
                       )}
                     </span>
                   )}

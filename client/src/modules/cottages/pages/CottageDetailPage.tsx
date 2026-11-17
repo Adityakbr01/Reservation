@@ -447,6 +447,15 @@ export function CottageDetailPage() {
     }
     if (picked.length === 1) {
       const [checkIn, checkOut] = [picked[0], date];
+      const nightsCount = Math.round(
+        (new Date(`${checkOut}T00:00:00Z`).getTime() -
+          new Date(`${checkIn}T00:00:00Z`).getTime()) /
+          86400000,
+      );
+      if (nightsCount < 2) {
+        toast.error("A minimum stay of 2 nights is required.");
+        return;
+      }
       setPicked([]);
       const next = new URLSearchParams(params);
       next.set("checkIn", checkIn as string);

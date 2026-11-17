@@ -11,6 +11,10 @@ export function parseAvailabilitySearchParams(
   const rooms = Number(params.get("rooms") ?? "1");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(checkIn) || !/^\d{4}-\d{2}-\d{2}$/.test(checkOut)) return null;
   if (checkOut <= checkIn) return null;
+  const inD = new Date(`${checkIn}T00:00:00Z`);
+  const outD = new Date(`${checkOut}T00:00:00Z`);
+  const nights = Math.round((outD.getTime() - inD.getTime()) / 86400000);
+  if (nights < 2) return null;
   if (![adults, children, rooms].every((n) => Number.isFinite(n))) return null;
   if (adults < 1 || children < 0 || rooms < 1) return null;
   return { checkIn, checkOut, adults, children, rooms };
