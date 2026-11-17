@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import {
   Bold,
@@ -32,6 +30,7 @@ interface RichTextEditorProps {
   minHeightClass?: string;
   /** Minimal toolbar (bold, italic, underline, link) for inline labels. */
   compact?: boolean;
+  disabled?: boolean;
 }
 
 function ToolButton({
@@ -68,18 +67,20 @@ function ToolButton({
  * WYSIWYG editor for CMS HTML fields (blog content, page sections).
  * Emits sanitized-on-server HTML — the API scrubs scripts/handlers on save.
  */
-export function RichTextEditor({ value, onChange, label, minHeightClass, compact = false }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, label, minHeightClass, compact = false, disabled = false }: RichTextEditorProps) {
   const [urlMode, setUrlMode] = useState<"link" | "image" | null>(null);
   const [urlValue, setUrlValue] = useState("");
 
   const editor = useEditor({
+    editable: !disabled,
     extensions: [
-      StarterKit.configure({ heading: { levels: [2, 3] } }),
-      Underline,
-      Link.configure({
-        openOnClick: false,
-        autolink: true,
-        HTMLAttributes: { target: "_blank", rel: "noopener noreferrer" },
+      StarterKit.configure({
+        heading: { levels: [2, 3] },
+        link: {
+          openOnClick: false,
+          autolink: true,
+          HTMLAttributes: { target: "_blank", rel: "noopener noreferrer" },
+        },
       }),
       Image.configure({ inline: false }),
     ],
@@ -93,6 +94,11 @@ export function RichTextEditor({ value, onChange, label, minHeightClass, compact
   });
 
   // Keep editor in sync when the form loads/resets externally.
+  useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    editor.setEditable(!disabled);
+  }, [editor, disabled]);
+
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
     try {
@@ -123,7 +129,7 @@ export function RichTextEditor({ value, onChange, label, minHeightClass, compact
   }
 
   return (
-    <div className="space-y-2">
+    <div className={cn("space-y-2", disabled && "opacity-50 pointer-events-none")}>
       {label && <Label>{label}</Label>}
       <div className="rounded-md border border-input bg-background ring-offset-background focus-within:ring-1 focus-within:ring-ring">
         <div

@@ -20,7 +20,10 @@ class PublicCottageController extends Controller
 
     public function showBySlug(string $slug)
     {
-        $cottage = Cottage::where('slug', $slug)->where('status', 'ACTIVE')->first();
+        $cottage = Cottage::where(function ($query) use ($slug) {
+            $query->where('slug', $slug)
+                  ->orWhere('id', $slug);
+        })->where('status', 'ACTIVE')->first();
 
         if (! $cottage) {
             return response()->json([
@@ -178,6 +181,8 @@ class PublicCottageController extends Controller
             'dogPolicySubtitle' => $c->dog_policy_subtitle,
             'dog_fee' => $c->dog_fee !== null ? (float) $c->dog_fee : 70.00,
             'dogFee' => $c->dog_fee !== null ? (float) $c->dog_fee : 70.00,
+            'dog_fees' => $c->dog_fees ?? [],
+            'dogFees' => $c->dog_fees ?? [],
             'dog_policy_image_media_id' => $c->dog_policy_image_media_id,
             'dogPolicyImageMediaId' => $c->dog_policy_image_media_id,
             'dog_policy_image_url' => (!empty($c->dog_policy_image_media_id) && isset($mediaMap[$c->dog_policy_image_media_id])) ? $mediaMap[$c->dog_policy_image_media_id]->url : null,

@@ -158,6 +158,8 @@ class PublicAvailabilityController extends Controller
                     'dog_policy_subtitle' => $rt->dog_policy_subtitle,
                     'dogFee' => $rt->dog_fee !== null ? (float) $rt->dog_fee : 70.00,
                     'dog_fee' => $rt->dog_fee !== null ? (float) $rt->dog_fee : 70.00,
+                    'dogFees' => $rt->dog_fees ?? [],
+                    'dog_fees' => $rt->dog_fees ?? [],
                     'dogPolicyImageMediaId' => $rt->dog_policy_image_media_id,
                     'dog_policy_image_media_id' => $rt->dog_policy_image_media_id,
                     'dogPolicyImageUrl' => (!empty($rt->dog_policy_image_media_id) && isset($mediaMap[$rt->dog_policy_image_media_id])) ? $mediaMap[$rt->dog_policy_image_media_id]->url : null,

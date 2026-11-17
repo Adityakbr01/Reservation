@@ -44,7 +44,7 @@ export function MediaPicker({ open, onClose, onSelect, title = "Choose image" }:
       >
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-xl">{title}</CardTitle>
-          <Button variant="ghost" size="sm" className="rounded-full" onClick={onClose}>
+          <Button variant="ghost" size="sm" className="rounded-full" type="button" onClick={onClose}>
             Close
           </Button>
         </CardHeader>
@@ -96,15 +96,16 @@ export function MediaPicker({ open, onClose, onSelect, title = "Choose image" }:
           )}
           {(data?.totalPages ?? 0) > 1 && (
             <div className="flex items-center justify-between">
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                Previous
-              </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-full"
+            disabled={page <= 1}
+            type="button"
+            onClick={() => setPage((p) => p - 1)}
+          >
+            Previous
+          </Button>
               <span className="text-sm text-muted-foreground">
                 Page {page} of {data?.totalPages}
               </span>
@@ -113,6 +114,7 @@ export function MediaPicker({ open, onClose, onSelect, title = "Choose image" }:
                 size="sm"
                 className="rounded-full"
                 disabled={page >= (data?.totalPages ?? 1)}
+                type="button"
                 onClick={() => setPage((p) => p + 1)}
               >
                 Next

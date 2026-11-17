@@ -8,6 +8,7 @@ export interface BookingSelection {
   /** Display-only names from search results; price always comes from quote. */
   roomName: string;
   rateName: string;
+  cottageSlug?: string;
 }
 
 export interface GuestDetails {

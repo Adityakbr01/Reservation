@@ -91,7 +91,9 @@ export function CottageForm({
   const [shortDescription, setShortDescription] = useState(
     initial?.shortDescription ?? (initAny?.short_description as string | undefined) ?? "",
   );
-  const [description, setDescription] = useState(initial?.description ?? "");
+  const [description, setDescription] = useState(
+    initial?.description ?? (initAny?.description as string | undefined) ?? "",
+  );
   const [middleDescription, setMiddleDescription] = useState(
     initial?.middleDescription ?? (initAny?.middle_description as string | undefined) ?? "",
   );
@@ -349,46 +351,57 @@ export function CottageForm({
   >([]);
   const [propertyDetailsHtml, setPropertyDetailsHtml] = useState(
     (initial as unknown as Record<string, string | null>)
-      ?.propertyDetailsHtml ?? "",
+      ?.propertyDetailsHtml ??
+      (initial as unknown as Record<string, string | null>)
+        ?.property_details_html ??
+      "",
   );
   const [layoutHtml, setLayoutHtml] = useState(
-    (initial as unknown as Record<string, string | null>)?.layoutHtml ?? "",
+    (initial as unknown as Record<string, string | null>)?.layoutHtml ??
+      (initial as unknown as Record<string, string | null>)?.layout_html ??
+      "",
   );
   const [locationText, setLocationText] = useState(
-    (initial as unknown as Record<string, string | null>)?.locationText ?? "",
+    (initial as unknown as Record<string, string | null>)?.locationText ??
+      (initial as unknown as Record<string, string | null>)?.location_text ??
+      "",
   );
   const [surroundingsHtml, setSurroundingsHtml] = useState(
     (initial as unknown as Record<string, string | null>)?.surroundingsHtml ??
+      (initial as unknown as Record<string, string | null>)
+        ?.surroundings_html ??
       "",
   );
-  const [mapLat, setMapLat] = useState(
-    (initial as unknown as Record<string, number | null>)?.mapLat != null
-      ? String((initial as unknown as Record<string, number | null>)?.mapLat)
-      : "",
-  );
-  const [mapLng, setMapLng] = useState(
-    (initial as unknown as Record<string, number | null>)?.mapLng != null
-      ? String((initial as unknown as Record<string, number | null>)?.mapLng)
-      : "",
-  );
-  const [mapEmbedUrl, setMapEmbedUrl] = useState(
-    (initial as unknown as Record<string, string | null>)?.mapEmbedUrl ?? "",
-  );
+  const [mapLat, setMapLat] = useState(() => {
+    const rawAny = initial as unknown as Record<string, unknown> | undefined;
+    const v = rawAny?.mapLat ?? rawAny?.map_lat;
+    return v != null ? String(v) : "";
+  });
+  const [mapLng, setMapLng] = useState(() => {
+    const rawAny = initial as unknown as Record<string, unknown> | undefined;
+    const v = rawAny?.mapLng ?? rawAny?.map_lng;
+    return v != null ? String(v) : "";
+  });
+  const [mapEmbedUrl, setMapEmbedUrl] = useState(() => {
+    const rawAny = initial as unknown as Record<string, unknown> | undefined;
+    const v = rawAny?.mapEmbedUrl ?? rawAny?.map_embed_url;
+    return v != null ? String(v) : "";
+  });
   const [floorplanIds, setFloorplanIds] = useState(
     (
       (initial as unknown as Record<string, string[]>)?.floorplanMediaIds ?? []
     ).join(","),
   );
-  const [bedrooms, setBedrooms] = useState(
-    (initial as unknown as Record<string, number | null>)?.bedrooms != null
-      ? String((initial as unknown as Record<string, number | null>)?.bedrooms)
-      : "",
-  );
-  const [maxDogs, setMaxDogs] = useState(
-    (initial as unknown as Record<string, number | null>)?.maxDogs != null
-      ? String((initial as unknown as Record<string, number | null>)?.maxDogs)
-      : "",
-  );
+  const [bedrooms, setBedrooms] = useState(() => {
+    const rawAny = initial as unknown as Record<string, unknown> | undefined;
+    const v = rawAny?.bedrooms;
+    return v != null ? String(v) : "";
+  });
+  const [maxDogs, setMaxDogs] = useState(() => {
+    const rawAny = initial as unknown as Record<string, unknown> | undefined;
+    const v = rawAny?.maxDogs ?? rawAny?.max_dogs;
+    return v != null ? String(v) : "";
+  });
   const [dogPolicyEnabled, setDogPolicyEnabled] = useState<boolean>(() => {
     const rawAny = initial as unknown as Record<string, unknown> | undefined;
     if (rawAny?.dogPolicyEnabled !== undefined) return Boolean(rawAny.dogPolicyEnabled);
@@ -396,20 +409,18 @@ export function CottageForm({
     const d = rawAny?.maxDogs ?? rawAny?.max_dogs;
     return d != null && Number(d) > 0;
   });
-  const [dogPolicyTitle, setDogPolicyTitle] = useState(
-    (initial as unknown as Record<string, string | null>)?.dogPolicyTitle ??
-      (initial as unknown as Record<string, string | null>)?.dog_policy_title ??
-      "",
-  );
-  const [dogPolicySubtitle, setDogPolicySubtitle] = useState(
-    (initial as unknown as Record<string, string | null>)?.dogPolicySubtitle ??
-      (initial as unknown as Record<string, string | null>)?.dog_policy_subtitle ??
-      "",
-  );
+  const [dogPolicyTitle, setDogPolicyTitle] = useState(() => {
+    const rawAny = initial as unknown as Record<string, unknown> | undefined;
+    return String(rawAny?.dogPolicyTitle ?? rawAny?.dog_policy_title ?? "");
+  });
+  const [dogPolicySubtitle, setDogPolicySubtitle] = useState(() => {
+    const rawAny = initial as unknown as Record<string, unknown> | undefined;
+    return String(rawAny?.dogPolicySubtitle ?? rawAny?.dog_policy_subtitle ?? "");
+  });
   const [dogFee, setDogFee] = useState(() => {
-    const rawAny = initial as unknown as Record<string, number | null> | undefined;
-    if (rawAny?.dogFee != null) return String(rawAny.dogFee);
-    if (rawAny?.dog_fee != null) return String(rawAny.dog_fee);
+    const rawAny = initial as unknown as Record<string, unknown> | undefined;
+    const df = rawAny?.dogFee ?? rawAny?.dog_fee;
+    if (df != null) return String(df);
     return "70";
   });
   const [dogFees, setDogFees] = useState<Record<string, string>>(() => {
@@ -422,25 +433,23 @@ export function CottageForm({
     }
     return out;
   });
-  const [dogPolicyImageMediaId, setDogPolicyImageMediaId] = useState<string | null>(
-    (initial as unknown as Record<string, string | null>)?.dogPolicyImageMediaId ??
-      (initial as unknown as Record<string, string | null>)?.dog_policy_image_media_id ??
-      null,
-  );
-  const [bathrooms, setBathrooms] = useState(
-    (initial as unknown as Record<string, number | null>)?.bathrooms != null
-      ? String((initial as unknown as Record<string, number | null>)?.bathrooms)
-      : "",
-  );
-  const [hamperOn, setHamperOn] = useState(
-    Boolean(
-      (initial as unknown as Record<string, boolean>)?.welcomeHamperIncluded,
-    ),
-  );
-  const [hamperHtml, setHamperHtml] = useState(
-    (initial as unknown as Record<string, string | null>)?.welcomeHamperHtml ??
-      "",
-  );
+  const [dogPolicyImageMediaId, setDogPolicyImageMediaId] = useState<string | null>(() => {
+    const rawAny = initial as unknown as Record<string, unknown> | undefined;
+    return (rawAny?.dogPolicyImageMediaId ?? rawAny?.dog_policy_image_media_id ?? null) as string | null;
+  });
+  const [bathrooms, setBathrooms] = useState(() => {
+    const rawAny = initial as unknown as Record<string, unknown> | undefined;
+    const v = rawAny?.bathrooms;
+    return v != null ? String(v) : "";
+  });
+  const [hamperOn, setHamperOn] = useState(() => {
+    const rawAny = initial as unknown as Record<string, unknown> | undefined;
+    return Boolean(rawAny?.welcomeHamperIncluded ?? rawAny?.welcome_hamper_included);
+  });
+  const [hamperHtml, setHamperHtml] = useState(() => {
+    const rawAny = initial as unknown as Record<string, unknown> | undefined;
+    return String(rawAny?.welcomeHamperHtml ?? rawAny?.welcome_hamper_html ?? "");
+  });
   const [amenityIds, setAmenityIds] = useState<string[]>(
     (initial as unknown as Record<string, string[]>)?.amenityIds ?? [],
   );
@@ -844,6 +853,7 @@ export function CottageForm({
             <input
               type="radio"
               name="homeSectionRadio"
+              value="section_1"
               checked={homeSection !== "section_2"}
               onChange={() => setHomeSection("section_1")}
               className="mt-0.5 text-primary"
@@ -868,6 +878,7 @@ export function CottageForm({
             <input
               type="radio"
               name="homeSectionRadio"
+              value="section_2"
               checked={homeSection === "section_2"}
               onChange={() => setHomeSection("section_2")}
               className="mt-0.5 text-primary"
@@ -2095,7 +2106,7 @@ export function CottageForm({
                     <div key={count} className="flex items-center gap-3 rounded-md border border-[#d8d9cb] p-[10px_12px]">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-medium text-[#243c30]">{count}</span>
-                        <span className="text-[10px] text-muted-foreground">dog{count === 1 ? "" : "s"}</span>
+                        <span className="text-[10px] text-muted-foreground">dog{Number(count) === 1 ? "" : "s"}</span>
                       </div>
                       <Input
                         id={`rt-dog-fee-${count}`}

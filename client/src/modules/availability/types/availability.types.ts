@@ -52,6 +52,8 @@ export interface SearchResultRoomType {
   dog_policy_subtitle?: string | null;
   dogFee?: number | null;
   dog_fee?: number | null;
+  dogFees?: Record<string | number, number> | null;
+  dog_fees?: Record<string | number, number> | null;
   dogPolicyImageMediaId?: string | null;
   dog_policy_image_media_id?: string | null;
   dogPolicyImageUrl?: string | null;

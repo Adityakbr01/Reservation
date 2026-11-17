@@ -117,70 +117,103 @@ export function HomePage() {
   useGSAP(
     () => {
       if (reduceMotion) return;
+      const root = rootRef.current;
+      if (!root) return;
+
+      const has = (selector: string) => root.querySelector(selector) !== null;
+      const getAll = (selector: string) => root.querySelectorAll(selector);
+
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-      tl.from(".hero-banner", { scale: 1.12, duration: 2, ease: "expo.out" }, 0)
-        .from(".hero-eyebrow", { y: 24, opacity: 0, duration: 0.7 }, 0.15)
-        .from(".hero-title", { y: 56, opacity: 0, duration: 1.1 }, 0.25)
-        .from(".hero-sub", { y: 28, opacity: 0, duration: 0.9 }, 0.5)
-        .from(".search-card", { y: 48, opacity: 0, duration: 1 }, 0.8)
-        .from(
-          ".hero-leaf-wrap-a, .hero-leaf-wrap-b, .hero-leaf-wrap-c",
-          { opacity: 0, duration: 1.4 },
-          0.5,
-        )
-        .from(".hero-bird", { opacity: 0, x: 24, duration: 1 }, 0.6);
+
+      if (has(".hero-banner")) {
+        tl.from(".hero-banner", { scale: 1.12, duration: 2, ease: "expo.out" }, 0);
+      }
+      if (has(".hero-eyebrow")) {
+        tl.from(".hero-eyebrow", { y: 24, opacity: 0, duration: 0.7 }, 0.15);
+      }
+      if (has(".hero-title")) {
+        tl.from(".hero-title", { y: 56, opacity: 0, duration: 1.1 }, 0.25);
+      }
+      if (has(".hero-sub")) {
+        tl.from(".hero-sub", { y: 28, opacity: 0, duration: 0.9 }, 0.5);
+      }
+      if (has(".search-card")) {
+        tl.from(".search-card", { y: 48, opacity: 0, duration: 1 }, 0.8);
+      }
+
+      const leafWraps = getAll(".hero-leaf-wrap-a, .hero-leaf-wrap-b, .hero-leaf-wrap-c");
+      if (leafWraps.length > 0) {
+        tl.from(leafWraps, { opacity: 0, duration: 1.4 }, 0.5);
+      }
+
+      if (has(".hero-bird")) {
+        tl.from(".hero-bird", { opacity: 0, x: 24, duration: 1 }, 0.6);
+      }
+
       // Ambient leaf drift (transforms live on inner imgs; parallax on wrappers).
-      gsap.to(".hero-leaf-a", {
-        y: 18,
-        rotation: 5,
-        duration: 5,
-        yoyo: true,
-        repeat: -1,
-        ease: "sine.inOut",
-      });
-      gsap.to(".hero-leaf-b", {
-        y: -14,
-        rotation: -6,
-        duration: 6.5,
-        yoyo: true,
-        repeat: -1,
-        ease: "sine.inOut",
-      });
-      gsap.to(".hero-leaf-c", {
-        y: 12,
-        rotation: 7,
-        duration: 7,
-        yoyo: true,
-        repeat: -1,
-        ease: "sine.inOut",
-      });
-      gsap.to(".hero-bird", {
-        y: -10,
-        duration: 4.5,
-        yoyo: true,
-        repeat: -1,
-        ease: "sine.inOut",
-      });
-      gsap.to(".hero-banner", {
-        yPercent: 10,
-        ease: "none",
-        scrollTrigger: {
-          trigger: ".hero",
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
-      gsap.to(".hero-leaf-wrap-a", {
-        yPercent: -30,
-        ease: "none",
-        scrollTrigger: {
-          trigger: ".hero",
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
+      if (has(".hero-leaf-a")) {
+        gsap.to(".hero-leaf-a", {
+          y: 18,
+          rotation: 5,
+          duration: 5,
+          yoyo: true,
+          repeat: -1,
+          ease: "sine.inOut",
+        });
+      }
+      if (has(".hero-leaf-b")) {
+        gsap.to(".hero-leaf-b", {
+          y: -14,
+          rotation: -6,
+          duration: 6.5,
+          yoyo: true,
+          repeat: -1,
+          ease: "sine.inOut",
+        });
+      }
+      if (has(".hero-leaf-c")) {
+        gsap.to(".hero-leaf-c", {
+          y: 12,
+          rotation: 7,
+          duration: 7,
+          yoyo: true,
+          repeat: -1,
+          ease: "sine.inOut",
+        });
+      }
+      if (has(".hero-bird")) {
+        gsap.to(".hero-bird", {
+          y: -10,
+          duration: 4.5,
+          yoyo: true,
+          repeat: -1,
+          ease: "sine.inOut",
+        });
+      }
+      if (has(".hero-banner") && has(".hero")) {
+        gsap.to(".hero-banner", {
+          yPercent: 10,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".hero",
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+      }
+      if (has(".hero-leaf-wrap-a") && has(".hero")) {
+        gsap.to(".hero-leaf-wrap-a", {
+          yPercent: -30,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".hero",
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+      }
     },
     { scope: rootRef },
   );
@@ -189,8 +222,13 @@ export function HomePage() {
   useGSAP(
     () => {
       if (reduceMotion) return;
+      const root = rootRef.current;
+      if (!root) return;
+      const targets = root.querySelectorAll(".results-head");
+      if (targets.length === 0) return;
+
       gsap.fromTo(
-        ".results-head",
+        targets,
         { y: 24, opacity: 0 },
         {
           y: 0,

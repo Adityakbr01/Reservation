@@ -19,6 +19,15 @@ import type {
   SearchResultRoomType,
   CottageExtra,
 } from "@/modules/availability/types/availability.types";
+import type { CheckoutSection, AcknowledgementItem } from "@/modules/cms/api/cms.api";
+
+function formatTimeLabel(value: string | null | undefined, fallback: string): string {
+  const match = /^(\d{1,2}):(\d{2})/.exec(value ?? "");
+  if (!match) return fallback;
+  const hours = Number(match[1]);
+  const suffix = hours >= 12 ? "pm" : "am";
+  return `${hours % 12 || 12}:${match[2]} ${suffix}`;
+}
 
 function sanitizeCheckoutHtml(html: string): string {
   if (!html) return "";
@@ -254,12 +263,103 @@ export function BookingJourneyDialog({
   const [title, setTitle] = useState("Mr");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address1, setAddress1] = useState("");
-  const [city, setCity] = useState("");
   const [postcode, setPostcode] = useState("");
-  const [requests, setRequests] = useState("");
+  const [country, setCountry] = useState("");
+  const [address1, setAddress1] = useState("");
+  const [address2, setAddress2] = useState("");
+  const [city, setCity] = useState("");
+  const [county, setCounty] = useState("");
+  const [specialRequests, setSpecialRequests] = useState("");
+
+  // Acknowledgements & Policies state
+  const [acceptedAckItems, setAcceptedAckItems] = useState<Record<string, boolean>>({});
+
+  const ack = siteSettings?.bookingAcknowledgement;
+  const bookingPage = siteSettings?.bookingPage;
+  const reservationConfig = bookingPage?.reservationDetails;
+  const showReservationDetails = reservationConfig?.isEnabled !== false;
+  const reservationTitle = reservationConfig?.title?.trim() || "Reservation details";
+  const specialRequestsLabel = reservationConfig?.specialRequestsLabel?.trim() || "Special Requests";
+  const specialRequestsPlaceholder =
+    reservationConfig?.specialRequestsPlaceholder?.trim() || "Special Requests";
+  const specialRequestsMaxLength =
+    reservationConfig?.maxLength && reservationConfig.maxLength > 0
+      ? reservationConfig.maxLength
+      : 1000;
+
+  const policiesConfig = bookingPage?.policies;
+  const showPolicies = ack?.showPoliciesSection !== false && policiesConfig?.isEnabled !== false;
+  const policiesTitle = policiesConfig?.title?.trim() || "Policies";
+  const checkInLabel = policiesConfig?.checkInLabel?.trim() || "Check-in";
+  const checkOutLabel = policiesConfig?.checkOutLabel?.trim() || "Check-out";
+  const policiesCheckInText =
+    policiesConfig?.checkInText?.trim() ||
+    `after ${formatTimeLabel(siteSettings?.checkInTime, "4:00 pm")}`;
+  const policiesCheckOutText =
+    policiesConfig?.checkOutText?.trim() ||
+    `before ${formatTimeLabel(siteSettings?.checkOutTime, "10:00 am")}`;
+
+  const checkoutSections: CheckoutSection[] = useMemo(() => {
+    if (ack?.sections && ack.sections.length > 0) {
+      return ack.sections;
+    }
+    return [
+      {
+        id: "sec-acknowledgement",
+        title: ack?.title || "Acknowledgement",
+        introText: ack?.introText || "",
+        isEnabled: ack?.isEnabled !== false && ack?.showAcknowledgementSection !== false,
+        items: (ack?.items && ack.items.length > 0)
+          ? ack.items
+          : [
+              {
+                id: "ack-privacy",
+                text: ack?.privacyCheckboxText || "* I agree with the Privacy Terms.",
+                linkLabel: ack?.privacyLinkLabel || "Privacy Notice",
+                linkUrl: ack?.privacyLinkUrl || "/policies/PRIVACY",
+                isRequired: true,
+                openInNewTab: true,
+                isEnabled: true,
+              },
+              {
+                id: "ack-terms",
+                text: ack?.termsCheckboxText || "I agree with the Booking Conditions.",
+                linkLabel: ack?.termsLinkLabel || "Booking Conditions",
+                linkUrl: ack?.termsLinkUrl || "/policies/TERMS",
+                isRequired: true,
+                openInNewTab: true,
+                isEnabled: true,
+              },
+            ],
+      },
+    ];
+  }, [ack]);
+
+  const activeCheckoutSections = useMemo(() => {
+    return checkoutSections.filter((s) => s.isEnabled !== false);
+  }, [checkoutSections]);
+
+  const allRequiredItems = useMemo(() => {
+    const list: AcknowledgementItem[] = [];
+    for (const sec of activeCheckoutSections) {
+      for (const it of (sec.items ?? [])) {
+        if (it.isEnabled !== false && it.isRequired !== false) {
+          list.push(it);
+        }
+      }
+    }
+    return list;
+  }, [activeCheckoutSections]);
+
+  const allRequiredAcksAccepted = useMemo(() => {
+    return allRequiredItems.every((it) => !!acceptedAckItems[it.id]);
+  }, [allRequiredItems, acceptedAckItems]);
+
+  const toggleAckItem = (id: string, checked: boolean) => {
+    setAcceptedAckItems((prev) => ({ ...prev, [id]: checked }));
+  };
 
   // Live Booking & Stripe Payment State
   const [isCreatingHold, setIsCreatingHold] = useState(false);
@@ -397,15 +497,9 @@ export function BookingJourneyDialog({
 
   // Per-cottage dog fee: each cottage uses its own dogFees/dog_fee.
   const cottageDogFee = useMemo(() => {
-    const map: Record<string, { custom: Record<number, number>; unit: number }> = {};
+    const map: Record<string, { custom: Record<number, number>; unit: number; maxDogs: number; title?: string | null; subtitle?: string | null; imageUrl?: string | null }> = {};
     for (const c of selectedCottages) {
       const rawDogs = c.maxDogs ?? c.max_dogs;
-      const isFriendly = Boolean(
-        c.dogPolicyEnabled ??
-          c.dog_policy_enabled ??
-          (rawDogs != null && Number(rawDogs) > 0),
-      );
-      if (!isFriendly) continue;
       const cc = c as any;
       const df = cc.dogFees ?? cc.dog_fees ?? null;
       const custom: Record<number, number> = {};
@@ -415,7 +509,24 @@ export function BookingJourneyDialog({
           if (!Number.isNaN(n)) custom[n] = Number(v) || 0;
         }
       }
-      map[c.id] = { custom, unit: c.dogFee ?? c.dog_fee ?? 70 };
+      const customKeys = Object.keys(custom).map(Number);
+      const configuredMax = rawDogs != null ? Number(rawDogs) : 0;
+      const effectiveMaxDogs = Math.max(configuredMax, ...customKeys, 1);
+
+      const isFriendly = Boolean(
+        (c.dogPolicyEnabled ?? c.dog_policy_enabled ?? (rawDogs != null && Number(rawDogs) > 0)) ||
+          customKeys.length > 0,
+      );
+      if (!isFriendly) continue;
+
+      map[c.id] = {
+        custom,
+        unit: c.dogFee ?? c.dog_fee ?? 70,
+        maxDogs: effectiveMaxDogs,
+        title: c.dogPolicyTitle ?? (c as any).dog_policy_title ?? null,
+        subtitle: c.dogPolicySubtitle ?? (c as any).dog_policy_subtitle ?? null,
+        imageUrl: c.dogPolicyImageUrl ?? (c as any).dog_policy_image_url ?? null,
+      };
     }
     return map;
   }, [selectedCottages]);
@@ -428,7 +539,7 @@ export function BookingJourneyDialog({
       const count = dogsByCottage[cottage.id] ?? 0;
       if (count <= 0) continue;
       const custom = feeInfo.custom[count];
-      if (custom != null && custom > 0) {
+      if (custom != null && custom >= 0) {
         sum += custom;
       } else {
         sum += feeInfo.unit * count;
@@ -441,8 +552,8 @@ export function BookingJourneyDialog({
     const feeInfo = cottageDogFee[cottageId];
     if (!feeInfo) return "";
     const custom = feeInfo.custom[count];
-    const lineFee = custom != null && custom > 0 ? custom : feeInfo.unit * count;
-    return `${currencySymbol}${lineFee} × ${count} dog${count === 1 ? "" : "s"} = ${currencySymbol}${lineFee}`;
+    const lineFee = custom != null && custom >= 0 ? custom : feeInfo.unit * count;
+    return `${currencySymbol}${lineFee} per stay (${count} dog${count === 1 ? "" : "s"})`;
   };
 
   // Extras — union across all selected cottages, deduplicated by id
@@ -1078,23 +1189,57 @@ export function BookingJourneyDialog({
                   {/* Dogs Policy Box */}
                   {isDogFriendly ? (
                     <section className="mb-[28px] border border-[#b8c3ac] bg-[#e9ecdf] p-[22px]">
-                      <div className="flex items-start gap-[13px]">
-                        <svg
-                          viewBox="0 0 24 24"
-                          aria-hidden="true"
-                          className="h-[28px] w-[28px] shrink-0 fill-none stroke-[#243c30] stroke-[1.5] stroke-linecap-round stroke-linejoin-round"
-                        >
-                          <path d="M6 12 3 5l6 3m9 4 3-7-6 3M5 14a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0Zm4 0h.01M15 14h.01m-5 4 2 1 2-1" />
-                        </svg>
-                        <div>
-                          <h4 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[32px] font-normal leading-[35.2px]">
-                            {bjValue("step3DogsTitle")}
-                          </h4>
-                          <p className="m-0 mt-[8px] text-[12px] leading-[21.6px]">
-                            {bjValue("step3DogsDescription")}
-                          </p>
-                        </div>
-                      </div>
+                      {(() => {
+                        // Display the first dog-friendly cottage's custom dog icon, title and subtitle if available
+                        const firstFriendly = selectedCottages.find((c) => !!cottageDogFee[c.id]);
+                        const friendlyInfo = firstFriendly ? cottageDogFee[firstFriendly.id] : null;
+                        const customIconUrl = friendlyInfo?.imageUrl;
+                        const customTitle = friendlyInfo?.title;
+                        const customSubtitle = friendlyInfo?.subtitle;
+
+                        return (
+                          <div className="flex items-start gap-[13px]">
+                            {customIconUrl ? (
+                              <img
+                                src={customIconUrl}
+                                alt="Dog policy"
+                                className="h-[28px] w-[28px] shrink-0 object-contain"
+                              />
+                            ) : (
+                              <svg
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                                className="h-[28px] w-[28px] shrink-0 fill-none stroke-[#243c30] stroke-[1.5] stroke-linecap-round stroke-linejoin-round"
+                              >
+                                <path d="M6 12 3 5l6 3m9 4 3-7-6 3M5 14a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0Zm4 0h.01M15 14h.01m-5 4 2 1 2-1" />
+                              </svg>
+                            )}
+                            <div>
+                              {customTitle ? (
+                                <div
+                                  className="font-['Instrument_Serif',Georgia,serif] text-[32px] font-normal leading-[35.2px] [&_p]:m-0"
+                                  dangerouslySetInnerHTML={{ __html: customTitle }}
+                                />
+                              ) : (
+                                <h4 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[32px] font-normal leading-[35.2px]">
+                                  {bjValue("step3DogsTitle")}
+                                </h4>
+                              )}
+
+                              {customSubtitle ? (
+                                <div
+                                  className="mt-[8px] text-[12px] leading-[21.6px] [&_p]:m-0"
+                                  dangerouslySetInnerHTML={{ __html: customSubtitle }}
+                                />
+                              ) : (
+                                <p className="m-0 mt-[8px] text-[12px] leading-[21.6px]">
+                                  {bjValue("step3DogsDescription")}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       {/* Per-cottage dog selectors */}
                       <label className="mt-[18px] block flex-col gap-[9px] text-[11px]">
@@ -1105,6 +1250,7 @@ export function BookingJourneyDialog({
                           const feeInfo = cottageDogFee[cottage.id];
                           if (!feeInfo) return null;
                           const count = dogsByCottage[cottage.id] ?? 0;
+                          const maxDogsForThis = feeInfo.maxDogs;
                           return (
                             <div key={cottage.id} className="mt-[4px] space-y-1">
                               <span className="text-[10px] text-[#535b51]">
@@ -1123,9 +1269,9 @@ export function BookingJourneyDialog({
                                 className="block h-[46px] min-h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[12px] text-[14px] text-[#243c30] outline-offset-[5px]"
                               >
                                 <option value="0">{bjValue("step3DogsZeroOption")}</option>
-                                {Array.from({ length: cottage.maxDogs ?? cottage.max_dogs ?? 1 }, (_, i) => i + 1).map((n) => {
+                                {Array.from({ length: maxDogsForThis }, (_, i) => i + 1).map((n) => {
                                   const custom = feeInfo.custom[n];
-                                  const lineFee = custom != null && custom > 0 ? custom : feeInfo.unit * n;
+                                  const lineFee = custom != null && custom >= 0 ? custom : feeInfo.unit * n;
                                   return (
                                     <option key={n} value={n}>
                                       {n} dog{n === 1 ? "" : "s"} — +{currencySymbol}{lineFee} per stay
@@ -1216,73 +1362,70 @@ export function BookingJourneyDialog({
                                 return (
                                   <div
                                     key={extra.id}
-                                    className={`flex items-center gap-[12px] border bg-[#fffdf8] p-[12px] transition-colors ${
+                                    className={`flex items-center gap-[14px] rounded-lg border p-[14px] transition-all ${
                                       isSelected
-                                        ? "border-[#243c30] ring-1 ring-[#243c30]"
-                                        : "border-[#d8d9cb] hover:border-[#243c30]/50"
+                                        ? "border-[#243c30] bg-[#f5f7f2] shadow-sm ring-1 ring-[#243c30]"
+                                        : "border-[#d8d9cb] bg-[#fffdf8] hover:border-[#243c30]/40"
                                     }`}
                                   >
                                     <SafeImage
                                       src={getExtraImageUrl(extra)}
                                       alt={plainTitle}
-                                      className="h-[65px] w-[65px] shrink-0 object-cover"
+                                      className="h-[68px] w-[68px] shrink-0 rounded-md object-cover border border-[#d8d9cb]/50 shadow-xs"
                                     />
                                     <div className="min-w-0 flex-1">
                                       <div
-                                        className="text-[12px] font-medium text-[#243c30] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
+                                        className="text-[13px] font-semibold text-[#243c30] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
                                         dangerouslySetInnerHTML={{
                                           __html: sanitizeCheckoutHtml(extra.title),
                                         }}
                                       />
                                       {extra.description ? (
                                         <div
-                                          className="mt-[5px] text-[10px] leading-[16px] text-[#535b51] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
+                                          className="mt-[3px] text-[11px] leading-[17px] text-[#535b51] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
                                           dangerouslySetInnerHTML={{
                                             __html: sanitizeCheckoutHtml(extra.description),
                                           }}
                                         />
                                       ) : (
-                                        <span className="mt-[5px] block text-[10px] leading-[16px] text-[#535b51]">
+                                        <span className="mt-[3px] block text-[11px] leading-[17px] text-[#535b51]">
                                           {extra.pricingType === "PER_PERSON"
                                             ? `${currencySymbol}${extra.price} per adult`
                                             : `${currencySymbol}${extra.price} per stay`}
                                         </span>
                                       )}
-                                      <span className="mt-[4px] block font-['Instrument_Serif',Georgia,serif] text-[21px]">
+                                      <span className="mt-[4px] block font-['Instrument_Serif',Georgia,serif] text-[22px] font-normal text-[#243c30]">
                                         {isSelected ? `+ ${currencySymbol}${extraPrice}` : `+ ${currencySymbol}${extra.price}`}
                                       </span>
                                     </div>
-                                    <div className="flex items-center gap-[6px] shrink-0 ml-[12px]">
+                                    <div className="flex items-center gap-[4px] shrink-0 ml-[8px]">
                                       {counterOn ? (
-                                        <>
+                                        <div className="inline-flex items-center rounded-md border border-[#d8d9cb] bg-[#fbfcf9] p-0.5 shadow-2xs">
                                           <button
                                             type="button"
                                             onClick={() => changeExtraQty(cottage.id, extra.id, -1)}
                                             disabled={qty <= 0 || qty <= min}
-                                            className="flex h-[22px] w-[22px] items-center justify-center rounded-[4px] border border-[#d8d9cb] bg-[#eef2ed] text-[10px] font-medium text-[#243c30] disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="flex h-7 w-7 items-center justify-center rounded-sm bg-transparent text-[13px] font-medium text-[#243c30] transition-colors hover:bg-[#e9ecdf] disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
                                             aria-label={`Decrease ${plainTitle}`}
                                           >
                                             −
                                           </button>
-                                          <input
-                                            type="number"
-                                            value={qty}
-                                            readOnly
-                                            className="flex h-[22px] w-[28px] items-center justify-center rounded-[4px] border border-[#d8d9cb] bg-white text-[10px] font-medium text-center text-[#243c30] px-0 py-[1px] appearance-none"
-                                          />
+                                          <span
+                                            aria-label={`Current quantity: ${qty}`}
+                                            className="flex h-7 min-w-[28px] items-center justify-center px-1 text-[12px] font-semibold text-[#243c30] tabular-nums select-none"
+                                          >
+                                            {qty}
+                                          </span>
                                           <button
                                             type="button"
                                             onClick={() => changeExtraQty(cottage.id, extra.id, 1)}
                                             disabled={max !== Infinity && qty >= max}
-                                            className="flex h-[22px] w-[22px] items-center justify-center rounded-[4px] border border-[#d8d9cb] bg-[#eef2ed] text-[10px] font-medium text-[#243c30] disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="flex h-7 w-7 items-center justify-center rounded-sm bg-transparent text-[13px] font-medium text-[#243c30] transition-colors hover:bg-[#e9ecdf] disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
                                             aria-label={`Increase ${plainTitle}`}
                                           >
                                             +
                                           </button>
-                                          <span className="ml-[6px] text-[9px] text-[#655b3e]">
-                                            {max !== Infinity ? `max ${max}` : ""}
-                                          </span>
-                                        </>
+                                        </div>
                                       ) : (
                                         <label
                                           htmlFor={`dialog-extra-${cottage.id}-${extra.id}`}
@@ -1299,6 +1442,11 @@ export function BookingJourneyDialog({
                                           />
                                         </label>
                                       )}
+                                      {counterOn && max !== Infinity && (
+                                        <span className="ml-[4px] text-[10px] text-[#655b3e]">
+                                          max {max}
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
                                 );
@@ -1310,12 +1458,14 @@ export function BookingJourneyDialog({
                     </>
                   )}
 
-                  <div
-                    className="m-0 mt-[18px] bg-[#e9e2cf] p-[11px_13px] text-[10px] leading-[17px] text-[#655b3e] [&_p]:m-0 [&_a]:underline"
-                    dangerouslySetInnerHTML={{
-                      __html: sanitizeCheckoutHtml(bjValue("extrasDisclaimer")),
-                    }}
-                  />
+                  {bjValue("extrasDisclaimer") && (
+                    <div
+                      className="m-0 mt-[18px] bg-[#e9e2cf] p-[11px_13px] text-[10px] leading-[17px] text-[#655b3e] [&_p]:m-0 [&_a]:underline"
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeCheckoutHtml(bjValue("extrasDisclaimer")),
+                      }}
+                    />
+                  )}
 
                   <div className="mt-[25px] flex items-center justify-between gap-[15px]">
                     <button
@@ -1347,7 +1497,7 @@ export function BookingJourneyDialog({
                     type="button"
                     data-action="skip-extras"
                       onClick={() => {
-                        setExtraQtys({});
+                        setExtraQtysByCottage({});
                         setStep(3);
                       }}
                     className="mt-[18px] block cursor-pointer border-0 text-left text-[10px] text-[#243c30] underline underline-offset-4 outline-offset-[5px]"
@@ -1407,12 +1557,17 @@ export function BookingJourneyDialog({
                           toast.error("Please enter your first and last name.");
                           return;
                         }
+                        if (mobile.trim().length < 4) {
+                          toast.error("Please enter a valid mobile phone number.");
+                          return;
+                        }
                         if (!/.+@.+\..+/.test(email.trim())) {
                           toast.error("Please enter a valid email address.");
                           return;
                         }
-                        if (phone.trim().length < 4) {
-                          toast.error("Please enter a valid phone number.");
+
+                        if (!allRequiredAcksAccepted) {
+                          toast.error("Please accept all required agreements to continue.");
                           return;
                         }
 
@@ -1443,15 +1598,18 @@ export function BookingJourneyDialog({
                                   : {}),
                               },
                               contact: {
-                                title,
+                                title: title || undefined,
                                 firstName: firstName.trim(),
                                 lastName: lastName.trim(),
                                 email: email.trim(),
-                                phone: phone.trim(),
-                                mobile: phone.trim(),
-                                ...(address1.trim() ? { address1: address1.trim() } : {}),
-                                ...(city.trim() ? { city: city.trim() } : {}),
+                                phone: mobile.trim(),
+                                mobile: mobile.trim(),
                                 ...(postcode.trim() ? { postcode: postcode.trim() } : {}),
+                                ...(country.trim() ? { country: country.trim() } : {}),
+                                ...(address1.trim() ? { address1: address1.trim() } : {}),
+                                ...(address2.trim() ? { address2: address2.trim() } : {}),
+                                ...(city.trim() ? { city: city.trim() } : {}),
+                                ...(county.trim() ? { county: county.trim() } : {}),
                               },
                               extras: Object.entries(extraQtysByCottage)
                                 .flatMap(([cottageId, qtys]) =>
@@ -1460,7 +1618,7 @@ export function BookingJourneyDialog({
                                     .map(([id, q]) => ({ cottageId, id, qty: q })),
                                 ),
                               notes: [
-                                requests.trim(),
+                                specialRequests.trim(),
                                 Object.values(extraQtysByCottage).some((qtys) =>
                                   Object.values(qtys).some((q) => q > 0),
                                 )
@@ -1515,7 +1673,8 @@ export function BookingJourneyDialog({
                         }
                       }}
                     >
-                      <div className="mt-[24px] grid grid-cols-1 gap-[17px_14px] md:grid-cols-2">
+                      <div className="mt-[24px] grid grid-cols-1 gap-[17px_14px] sm:grid-cols-2">
+                        {/* Title */}
                         <label className="flex flex-col gap-[9px] text-[11px]">
                           <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
                             TITLE
@@ -1526,15 +1685,18 @@ export function BookingJourneyDialog({
                             onChange={(e) => setTitle(e.target.value)}
                             className="h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[10px_12px] text-[13px] text-[#243c30] outline-offset-[5px]"
                           >
+                            <option value="">Title</option>
                             <option value="Mr">Mr</option>
                             <option value="Mrs">Mrs</option>
                             <option value="Ms">Ms</option>
                             <option value="Miss">Miss</option>
                             <option value="Dr">Dr</option>
+                            <option value="Other">Other</option>
                           </select>
                         </label>
-                        <div className="hidden md:block" />
+                        <div className="hidden sm:block" />
 
+                        {/* First Name */}
                         <label className="flex flex-col gap-[9px] text-[11px]">
                           <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
                             FIRST NAME *
@@ -1544,13 +1706,15 @@ export function BookingJourneyDialog({
                             aria-label="First name"
                             autoComplete="given-name"
                             required
+                            maxLength={80}
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
-                            placeholder="First name"
+                            placeholder="First Name"
                             className="h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[10px_12px] text-[13px] text-[#243c30] outline-offset-[5px]"
                           />
                         </label>
 
+                        {/* Last Name */}
                         <label className="flex flex-col gap-[9px] text-[11px]">
                           <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
                             LAST NAME *
@@ -1560,14 +1724,35 @@ export function BookingJourneyDialog({
                             aria-label="Last name"
                             autoComplete="family-name"
                             required
+                            maxLength={80}
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
-                            placeholder="Last name"
+                            placeholder="Last Name"
                             className="h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[10px_12px] text-[13px] text-[#243c30] outline-offset-[5px]"
                           />
                         </label>
 
-                        <label className="col-span-full flex flex-col gap-[9px] text-[11px]">
+                        {/* Mobile Phone */}
+                        <label className="sm:col-span-2 flex flex-col gap-[9px] text-[11px]">
+                          <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
+                            MOBILE PHONE *
+                          </span>
+                          <input
+                            type="tel"
+                            name="mobile"
+                            aria-label="Mobile phone"
+                            autoComplete="tel"
+                            required
+                            maxLength={40}
+                            value={mobile}
+                            onChange={(e) => setMobile(e.target.value)}
+                            placeholder="Mobile phone"
+                            className="h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[10px_12px] text-[13px] text-[#243c30] outline-offset-[5px]"
+                          />
+                        </label>
+
+                        {/* Email Address */}
+                        <label className="sm:col-span-2 flex flex-col gap-[9px] text-[11px]">
                           <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
                             EMAIL ADDRESS *
                           </span>
@@ -1577,53 +1762,95 @@ export function BookingJourneyDialog({
                             aria-label="Email address"
                             autoComplete="email"
                             required
+                            maxLength={160}
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="you@example.com"
+                            placeholder="Email Address"
                             className="h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[10px_12px] text-[13px] text-[#243c30] outline-offset-[5px]"
                           />
+                          <p className="m-0 text-[11px] text-[#535b51]">
+                            This is the email we will send your confirmation to.
+                          </p>
                         </label>
 
-                        <label className="col-span-full flex flex-col gap-[9px] text-[11px]">
+                        {/* Post Code */}
+                        <label className="flex flex-col gap-[9px] text-[11px]">
                           <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
-                            PHONE NUMBER *
+                            POST CODE
                           </span>
                           <input
-                            type="tel"
-                            name="phone"
-                            aria-label="Phone number"
-                            autoComplete="tel"
-                            required
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            placeholder="Your contact number"
+                            name="postcode"
+                            aria-label="Post code"
+                            autoComplete="postal-code"
+                            maxLength={20}
+                            value={postcode}
+                            onChange={(e) => setPostcode(e.target.value)}
+                            placeholder="Post Code"
                             className="h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[10px_12px] text-[13px] text-[#243c30] outline-offset-[5px]"
                           />
                         </label>
 
-                        <label className="col-span-full flex flex-col gap-[9px] text-[11px]">
+                        {/* Country */}
+                        <label className="flex flex-col gap-[9px] text-[11px]">
                           <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
-                            ADDRESS LINE 1
+                            COUNTRY
+                          </span>
+                          <input
+                            name="country"
+                            aria-label="Country"
+                            autoComplete="country-name"
+                            maxLength={80}
+                            value={country}
+                            onChange={(e) => setCountry(e.target.value)}
+                            placeholder="Country"
+                            className="h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[10px_12px] text-[13px] text-[#243c30] outline-offset-[5px]"
+                          />
+                        </label>
+
+                        {/* Address 1 */}
+                        <label className="sm:col-span-2 flex flex-col gap-[9px] text-[11px]">
+                          <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
+                            ADDRESS 1
                           </span>
                           <input
                             name="address1"
-                            aria-label="Address"
-                            autoComplete="street-address"
+                            aria-label="Address 1"
+                            autoComplete="address-line1"
+                            maxLength={200}
                             value={address1}
                             onChange={(e) => setAddress1(e.target.value)}
-                            placeholder="House number & street name"
+                            placeholder="Address 1"
                             className="h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[10px_12px] text-[13px] text-[#243c30] outline-offset-[5px]"
                           />
                         </label>
 
+                        {/* Address 2 */}
+                        <label className="sm:col-span-2 flex flex-col gap-[9px] text-[11px]">
+                          <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
+                            ADDRESS 2
+                          </span>
+                          <input
+                            name="address2"
+                            aria-label="Address 2"
+                            autoComplete="address-line2"
+                            maxLength={200}
+                            value={address2}
+                            onChange={(e) => setAddress2(e.target.value)}
+                            placeholder="Address 2"
+                            className="h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[10px_12px] text-[13px] text-[#243c30] outline-offset-[5px]"
+                          />
+                        </label>
+
+                        {/* City / Town */}
                         <label className="flex flex-col gap-[9px] text-[11px]">
                           <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
                             CITY / TOWN
                           </span>
                           <input
                             name="city"
-                            aria-label="City"
+                            aria-label="City / Town"
                             autoComplete="address-level2"
+                            maxLength={80}
                             value={city}
                             onChange={(e) => setCity(e.target.value)}
                             placeholder="City / Town"
@@ -1631,35 +1858,109 @@ export function BookingJourneyDialog({
                           />
                         </label>
 
+                        {/* County / Region / State */}
                         <label className="flex flex-col gap-[9px] text-[11px]">
                           <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
-                            POSTCODE
+                            COUNTY / REGION / STATE
                           </span>
                           <input
-                            name="postcode"
-                            aria-label="Postcode"
-                            autoComplete="postal-code"
-                            value={postcode}
-                            onChange={(e) => setPostcode(e.target.value)}
-                            placeholder="e.g. SP5 2DU"
+                            name="county"
+                            aria-label="County / Region / State"
+                            autoComplete="address-level1"
+                            maxLength={80}
+                            value={county}
+                            onChange={(e) => setCounty(e.target.value)}
+                            placeholder="County / Region / State"
                             className="h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[10px_12px] text-[13px] text-[#243c30] outline-offset-[5px]"
                           />
                         </label>
-
-                        <label className="col-span-full flex flex-col gap-[9px] text-[11px]">
-                          <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
-                            ANYTHING WE SHOULD KNOW? (OPTIONAL)
-                          </span>
-                          <textarea
-                            name="requests"
-                            aria-label="Special requests"
-                            value={requests}
-                            onChange={(e) => setRequests(e.target.value)}
-                            placeholder="A question or a little detail about your stay"
-                            className="h-[80px] w-full resize-y rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[10px_12px] text-[13px] text-[#243c30] outline-offset-[5px]"
-                          />
-                        </label>
                       </div>
+
+                      {/* Reservation Details / Special Requests */}
+                      {showReservationDetails && (
+                        <div className="mt-6 border border-[#d8d9cb] bg-[#fffdf8] p-4 text-[12px]">
+                          <span className="block text-[10px] font-semibold uppercase tracking-[1px] text-[#243c30]">
+                            {reservationTitle}
+                          </span>
+                          <label className="mt-3 flex flex-col gap-[9px] text-[11px]">
+                            <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
+                              {specialRequestsLabel.toUpperCase()}
+                            </span>
+                            <textarea
+                              name="specialRequests"
+                              aria-label={specialRequestsLabel}
+                              value={specialRequests}
+                              onChange={(e) => setSpecialRequests(e.target.value)}
+                              maxLength={specialRequestsMaxLength}
+                              placeholder={specialRequestsPlaceholder}
+                              className="h-[80px] w-full resize-y rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[10px_12px] text-[13px] text-[#243c30] outline-offset-[5px]"
+                            />
+                          </label>
+                        </div>
+                      )}
+
+                      {/* Admin-configured Policies */}
+                      {showPolicies && (
+                        <div className="mt-6 border border-[#d8d9cb] bg-[#f7f8f3] p-4 text-[12px]">
+                          <span className="block text-[10px] font-semibold uppercase tracking-[1px] text-[#243c30]">
+                            {policiesTitle}
+                          </span>
+                          <div className="mt-2 flex flex-wrap gap-x-8 gap-y-2 text-[#535b51]">
+                            <p className="m-0">
+                              <span className="font-semibold text-[#243c30]">{checkInLabel}:</span> {policiesCheckInText}
+                            </p>
+                            <p className="m-0">
+                              <span className="font-semibold text-[#243c30]">{checkOutLabel}:</span> {policiesCheckOutText}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Admin-configured Acknowledgements / Checkout Sections */}
+                      {activeCheckoutSections.map((sec) => (
+                        <div key={sec.id} className="mt-4 border border-[#d8d9cb] bg-[#fffdf8] p-4 text-[12px]">
+                          <span className="block text-[10px] font-semibold uppercase tracking-[1px] text-[#243c30]">
+                            {sec.title}
+                          </span>
+                          {sec.introText && (
+                            <div
+                              className="mt-1 pb-1 text-[11px] text-[#535b51] [&_a]:font-medium [&_a]:underline [&_a]:hover:text-[#243c30] [&_p]:m-0"
+                              dangerouslySetInnerHTML={{ __html: sanitizeCheckoutHtml(sec.introText) }}
+                            />
+                          )}
+                          <div className="mt-2 space-y-2">
+                            {(sec.items ?? [])
+                              .filter((item) => item.isEnabled !== false)
+                              .map((item) => (
+                                <label key={item.id} className="flex items-start gap-2 cursor-pointer select-none">
+                                  <input
+                                    type="checkbox"
+                                    checked={!!acceptedAckItems[item.id]}
+                                    onChange={(e) => toggleAckItem(item.id, e.target.checked)}
+                                    className="mt-0.5 size-4 shrink-0 accent-[#243c30] cursor-pointer"
+                                  />
+                                  <span className="text-[11px] leading-[17px] text-[#243c30]">
+                                    <span
+                                      className="[&_a]:font-medium [&_a]:underline [&_a]:hover:text-[#243c30] [&_p]:m-0 [&_p]:inline"
+                                      dangerouslySetInnerHTML={{ __html: sanitizeCheckoutHtml(item.text) }}
+                                    />{" "}
+                                    {!/<a\s/i.test(item.text) && item.linkUrl && item.linkLabel && (
+                                      <Link
+                                        to={item.linkUrl}
+                                        target={item.openInNewTab !== false ? "_blank" : undefined}
+                                        rel={item.openInNewTab !== false ? "noopener noreferrer" : undefined}
+                                        className="font-medium underline hover:text-[#1b2d24]"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        {item.linkLabel}
+                                      </Link>
+                                    )}
+                                  </span>
+                                </label>
+                              ))}
+                          </div>
+                        </div>
+                      ))}
 
                       <div className="mt-[25px] flex items-center justify-between gap-[15px]">
                         <button
@@ -1685,14 +1986,14 @@ export function BookingJourneyDialog({
                       <div className="flex items-center justify-between border border-[#d8d9cb] bg-[#fffdf8] p-4 text-[12px]">
                         <div>
                           <p className="font-semibold text-[#243c30]">
-                            {title} {firstName} {lastName}
+                            {title ? `${title} ` : ""}{firstName} {lastName}
                           </p>
                           <p className="text-[11px] text-[#535b51]">
-                            {email} · {phone}
+                            {email} · {mobile}
                           </p>
-                          {postcode && (
+                          {(address1 || city || county || postcode || country) && (
                             <p className="text-[10px] text-[#535b51]">
-                              {address1 ? `${address1}, ` : ""}{city ? `${city}, ` : ""}{postcode}
+                              {[address1, address2, city, county, postcode, country].filter(Boolean).join(", ")}
                             </p>
                           )}
                         </div>

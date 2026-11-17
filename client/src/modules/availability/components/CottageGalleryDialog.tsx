@@ -1,8 +1,10 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Dialog } from "@/components/ui/dialog";
 import { CottageImage } from "@/components/common/CottageImage";
 import { useMediaUrls } from "@/modules/media";
+import { fetchSiteSettings } from "@/modules/cms/api/cms.api";
 import { cn } from "@/lib/utils";
 import type { AvailabilitySearchParams, SearchResultRoomType } from "../types/availability.types";
 import { toSearchRecord } from "../utils/search-params";
@@ -32,6 +34,23 @@ export function CottageGalleryDialog({
 }: CottageGalleryDialogProps) {
   const titleId = useId();
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const { data: siteSettings } = useQuery({
+    queryKey: ["site-settings"],
+    queryFn: fetchSiteSettings,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const sectionSubtitle = useMemo(() => {
+    const isSection2 = (roomType.homeSection ?? roomType.home_section) === "section_2";
+    const sec = isSection2 ? siteSettings?.homePage?.section2 : siteSettings?.homePage?.section1;
+    const secHeading = sec?.heading?.trim();
+    if (secHeading) {
+      return `A closer look at ${secHeading}`;
+    }
+    const propertyName = siteSettings?.propertyName?.trim() || "Home Farm";
+    return `A closer look at ${propertyName}`;
+  }, [roomType.homeSection, roomType.home_section, siteSettings]);
 
   const isDogFriendly = Boolean(
     roomType.dogPolicyEnabled ??
@@ -108,7 +127,7 @@ export function CottageGalleryDialog({
       <header className="flex items-center justify-between gap-[25px] border-b-[0.8px] border-white/[0.125] px-[18px] py-[16px] sm:px-[25px] sm:py-[19px]">
         <div className="min-w-0">
           <span className="mb-[8px] block text-[9px] font-semibold uppercase leading-[14.4px] tracking-[1.8px] text-[#c4b27d]">
-            A closer look at Home Farm
+            {sectionSubtitle}
           </span>
           <h2
             id={titleId}

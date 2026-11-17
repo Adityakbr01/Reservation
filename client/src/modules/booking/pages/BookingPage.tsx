@@ -91,6 +91,7 @@ function parseSelection(params: URLSearchParams): BookingSelection | null {
     children,
     roomName: params.get("roomName") ?? "Selected room",
     rateName: params.get("rateName") ?? "Selected rate",
+    cottageSlug: params.get("cottageSlug") ?? undefined,
   };
 }
 
@@ -379,10 +380,11 @@ export function BookingPage() {
     return map;
   }, [availabilityQuery.data]);
 
+  const cottageLookupKey = selection?.cottageSlug || selection?.roomTypeId;
   const { data: cottageDetail } = useQuery({
-    queryKey: ["cottage-detail", selection?.roomTypeId],
-    queryFn: () => getCottageBySlug(selection?.roomTypeId as string),
-    enabled: !!selection?.roomTypeId,
+    queryKey: ["cottage-detail", cottageLookupKey],
+    queryFn: () => getCottageBySlug(cottageLookupKey as string),
+    enabled: !!cottageLookupKey,
     staleTime: 300_000,
   });
 
@@ -399,22 +401,76 @@ export function BookingPage() {
               (m.roomType.maxDogs != null && Number(m.roomType.maxDogs) > 0),
           ),
       );
-      const maxDogs = matched.reduce((acc, m) => Math.max(acc, Number(m.roomType.maxDogs ?? 1)), 1);
-      const dogFee = matched.find((m) => m.roomType.dogFee != null)?.roomType.dogFee ?? 70;
-      const subtitle = matched.find((m) => m.roomType.dogPolicySubtitle)?.roomType.dogPolicySubtitle ?? null;
-      return { allowsDogs, maxDogs: Math.max(1, maxDogs), dogFee, subtitle };
+      const firstWithPolicy = matched.find((m) => m.roomType.dogPolicyEnabled ?? (Number(m.roomType.maxDogs ?? 0) > 0)) || matched[0];
+      const rt = firstWithPolicy.roomType as any;
+      const rawCustomFees = rt.dogFees ?? rt.dog_fees ?? null;
+      const customFees: Record<number, number> = {};
+      if (rawCustomFees && typeof rawCustomFees === "object") {
+        for (const [k, v] of Object.entries(rawCustomFees)) {
+          const n = Number(k);
+          if (!Number.isNaN(n)) customFees[n] = Number(v) || 0;
+        }
+      }
+      const customKeys = Object.keys(customFees).map(Number);
+      const configuredMax = Number(rt.maxDogs ?? rt.max_dogs ?? 1);
+      const effectiveMaxDogs = Math.max(configuredMax, ...customKeys, 1);
+      const dogFee = rt.dogFee ?? rt.dog_fee ?? 70;
+      const title = rt.dogPolicyTitle ?? rt.dog_policy_title ?? null;
+      const subtitle = rt.dogPolicySubtitle ?? rt.dog_policy_subtitle ?? null;
+      const imageUrl = rt.dogPolicyImageUrl ?? rt.dog_policy_image_url ?? null;
+
+      return {
+        allowsDogs,
+        maxDogs: effectiveMaxDogs,
+        dogFee,
+        customFees,
+        title,
+        subtitle,
+        imageUrl,
+      };
     }
     if (cottageDetail) {
+      const cd = cottageDetail as any;
       const allowsDogs = Boolean(
-        cottageDetail.dogPolicyEnabled ??
-          (cottageDetail.maxDogs != null && Number(cottageDetail.maxDogs) > 0),
+        cd.dogPolicyEnabled ??
+          cd.dog_policy_enabled ??
+          (cd.maxDogs != null && Number(cd.maxDogs) > 0),
       );
-      const maxDogs = Math.max(1, Number(cottageDetail.maxDogs ?? 1));
-      const dogFee = cottageDetail.dogFee != null ? Number(cottageDetail.dogFee) : 70;
-      const subtitle = cottageDetail.dogPolicySubtitle ?? null;
-      return { allowsDogs, maxDogs, dogFee, subtitle };
+      const rawCustomFees = cd.dogFees ?? cd.dog_fees ?? null;
+      const customFees: Record<number, number> = {};
+      if (rawCustomFees && typeof rawCustomFees === "object") {
+        for (const [k, v] of Object.entries(rawCustomFees)) {
+          const n = Number(k);
+          if (!Number.isNaN(n)) customFees[n] = Number(v) || 0;
+        }
+      }
+      const customKeys = Object.keys(customFees).map(Number);
+      const configuredMax = Number(cd.maxDogs ?? cd.max_dogs ?? 1);
+      const effectiveMaxDogs = Math.max(configuredMax, ...customKeys, 1);
+      const dogFee = cd.dogFee ?? cd.dog_fee ?? 70;
+      const title = cd.dogPolicyTitle ?? cd.dog_policy_title ?? null;
+      const subtitle = cd.dogPolicySubtitle ?? cd.dog_policy_subtitle ?? null;
+      const imageUrl = cd.dogPolicyImageUrl ?? cd.dog_policy_image_url ?? null;
+
+      return {
+        allowsDogs,
+        maxDogs: effectiveMaxDogs,
+        dogFee,
+        customFees,
+        title,
+        subtitle,
+        imageUrl,
+      };
     }
-    return { allowsDogs: false, maxDogs: 1, dogFee: 70, subtitle: null };
+    return {
+      allowsDogs: false,
+      maxDogs: 1,
+      dogFee: 70,
+      customFees: {} as Record<number, number>,
+      title: null,
+      subtitle: null,
+      imageUrl: null,
+    };
   }, [availabilityQuery.data, rooms, cottageDetail]);
 
   // Extras available for the cottage(s) in this booking
@@ -622,6 +678,10 @@ export function BookingPage() {
   });
 
   const bjSettings = siteSettings?.bookingPage?.bookingJourney;
+  const bjValue = (setting?: { isEnabled?: boolean; value?: string }, fallback = "") => {
+    if (!setting) return fallback;
+    return setting.isEnabled !== false ? setting.value || fallback : "";
+  };
   const currencyCode = siteSettings?.currency || "GBP";
   const currencySymbol = getCurrencySymbol(currencyCode);
 
@@ -1339,36 +1399,64 @@ export function BookingPage() {
             <Card className="border-[#d8d9cb] bg-[#fffdf8]">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base tracking-wide flex items-center gap-2">
-                  <svg
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                    className="h-5 w-5 stroke-[#243c30] fill-none stroke-[1.5] stroke-linecap-round stroke-linejoin-round"
-                  >
-                    <path d="M6 12 3 5l6 3m9 4 3-7-6 3M5 14a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0Zm4 0h.01M15 14h.01m-5 4 2 1 2-1" />
-                  </svg>
-                  Dogs &amp; Pets
+                  {cottageDogPolicy.imageUrl ? (
+                    <img
+                      src={cottageDogPolicy.imageUrl}
+                      alt="Dog policy"
+                      className="h-5 w-5 object-contain shrink-0"
+                    />
+                  ) : (
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      className="h-5 w-5 stroke-[#243c30] fill-none stroke-[1.5] stroke-linecap-round stroke-linejoin-round"
+                    >
+                      <path d="M6 12 3 5l6 3m9 4 3-7-6 3M5 14a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0Zm4 0h.01M15 14h.01m-5 4 2 1 2-1" />
+                    </svg>
+                  )}
+                  {cottageDogPolicy.title ? (
+                    <span
+                      className="[&_p]:m-0"
+                      dangerouslySetInnerHTML={{ __html: cottageDogPolicy.title }}
+                    />
+                  ) : (
+                    "Dogs & Pets"
+                  )}
                 </CardTitle>
                 <CardDescription>
-                  {cottageDogPolicy.subtitle || `Up to ${cottageDogPolicy.maxDogs} dog${cottageDogPolicy.maxDogs === 1 ? "" : "s"} · added only if you bring a dog`}
+                  {cottageDogPolicy.subtitle ? (
+                    <span
+                      className="[&_p]:m-0 text-xs"
+                      dangerouslySetInnerHTML={{ __html: cottageDogPolicy.subtitle }}
+                    />
+                  ) : (
+                    `Up to ${cottageDogPolicy.maxDogs} dog${cottageDogPolicy.maxDogs === 1 ? "" : "s"} · added only if you bring a dog`
+                  )}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={bringingDog}
-                    onChange={(e) => setBringingDog(e.target.checked)}
-                    className="mt-1 size-4 shrink-0 accent-[#243c30]"
-                  />
-                  <div className="text-sm">
-                    <span className="font-medium text-[#243c30]">
-                      I am bringing a dog (+{currencySymbol}{cottageDogPolicy.dogFee} per stay)
-                    </span>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Dogs are warmly welcomed. Dog fee includes dog bed, towel and welcome treats.
-                    </p>
-                  </div>
-                </label>
+                {(() => {
+                  const custom = cottageDogPolicy.customFees[1];
+                  const fee1 = custom != null && custom >= 0 ? custom : cottageDogPolicy.dogFee;
+                  return (
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={bringingDog}
+                        onChange={(e) => setBringingDog(e.target.checked)}
+                        className="mt-1 size-4 shrink-0 accent-[#243c30]"
+                      />
+                      <div className="text-sm">
+                        <span className="font-medium text-[#243c30]">
+                          I am bringing a dog (+{currencySymbol}{fee1} per stay)
+                        </span>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Dogs are warmly welcomed. Dog fee includes dog bed, towel and welcome treats.
+                        </p>
+                      </div>
+                    </label>
+                  );
+                })()}
                 {bringingDog && cottageDogPolicy.maxDogs > 1 && (
                   <div className="pt-2 pl-7 flex items-center gap-3">
                     <Label htmlFor="co-dogs-count" className="text-xs">Number of dogs:</Label>
@@ -1378,9 +1466,15 @@ export function BookingPage() {
                       onChange={(e) => setDogsCount(Number(e.target.value))}
                       className="h-8 rounded-md border border-input bg-background px-2 text-xs"
                     >
-                      {Array.from({ length: cottageDogPolicy.maxDogs }, (_, i) => i + 1).map((n) => (
-                        <option key={n} value={n}>{n} dog{n > 1 ? "s" : ""}</option>
-                      ))}
+                      {Array.from({ length: cottageDogPolicy.maxDogs }, (_, i) => i + 1).map((n) => {
+                        const custom = cottageDogPolicy.customFees[n];
+                        const lineFee = custom != null && custom >= 0 ? custom : cottageDogPolicy.dogFee * n;
+                        return (
+                          <option key={n} value={n}>
+                            {n} dog{n > 1 ? "s" : ""} (+{currencySymbol}{lineFee})
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 )}
@@ -1404,7 +1498,7 @@ export function BookingPage() {
                       className="[&_p]:m-0"
                       dangerouslySetInnerHTML={{
                         __html: sanitizeCheckoutHtml(
-                          bjSettings?.extrasHeading || "Optional Extras & Activities",
+                          bjValue(bjSettings?.extrasHeading, "Optional Extras & Activities"),
                         ),
                       }}
                     />
@@ -1419,8 +1513,10 @@ export function BookingPage() {
                   className="text-xs text-[#535b51] mt-1 [&_p]:m-0 [&_a]:underline"
                   dangerouslySetInnerHTML={{
                     __html: sanitizeCheckoutHtml(
-                      bjSettings?.extrasDescription ||
+                      bjValue(
+                        bjSettings?.extrasDescription,
                         "A little more time outdoors, or something lovely around the table. Everything here is optional.",
+                      ),
                     ),
                   }}
                 />
@@ -1478,35 +1574,32 @@ export function BookingPage() {
                         </div>
                         <div className="flex items-center gap-2 shrink-0 ml-2">
                           {counterOn ? (
-                            <>
+                            <div className="inline-flex items-center rounded-md border border-[#d8d9cb] bg-[#fbfcf9] p-0.5 shadow-2xs">
                               <button
                                 type="button"
                                 onClick={() => changeExtraQty(extra.id, -1)}
                                 disabled={qty <= 0 || qty <= min}
-                                className="flex h-6 w-6 items-center justify-center rounded-md border border-[#d8d9cb] bg-[#f4f6f0] text-[11px] font-medium text-[#243c30] disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex h-7 w-7 items-center justify-center rounded-sm bg-transparent text-[13px] font-medium text-[#243c30] transition-colors hover:bg-[#e9ecdf] disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
                                 aria-label={`Decrease ${plainTitle}`}
                               >
                                 −
                               </button>
-                              <input
-                                type="number"
-                                value={qty}
-                                readOnly
-                                className="flex h-6 w-8 items-center justify-center rounded-md border border-[#d8d9cb] bg-white text-[11px] font-medium text-center text-[#243c30]"
-                              />
+                              <span
+                                aria-label={`Current quantity: ${qty}`}
+                                className="flex h-7 min-w-[28px] items-center justify-center px-1 text-[12px] font-semibold text-[#243c30] tabular-nums select-none"
+                              >
+                                {qty}
+                              </span>
                               <button
                                 type="button"
                                 onClick={() => changeExtraQty(extra.id, 1)}
                                 disabled={max !== Infinity && qty >= max}
-                                className="flex h-6 w-6 items-center justify-center rounded-md border border-[#d8d9cb] bg-[#f4f6f0] text-[11px] font-medium text-[#243c30] disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex h-7 w-7 items-center justify-center rounded-sm bg-transparent text-[13px] font-medium text-[#243c30] transition-colors hover:bg-[#e9ecdf] disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
                                 aria-label={`Increase ${plainTitle}`}
                               >
                                 +
                               </button>
-                              <span className="ml-1 text-[10px] text-muted-foreground">
-                                {max !== Infinity ? `max ${max}` : ""}
-                              </span>
-                            </>
+                            </div>
                           ) : (
                             <label
                               htmlFor={`checkout-extra-${extra.id}`}
@@ -1533,8 +1626,10 @@ export function BookingPage() {
                   className="pt-2 text-[10px] leading-relaxed text-[#757c72] border-t border-[#d8d9cb]/50 [&_p]:m-0 [&_a]:underline"
                   dangerouslySetInnerHTML={{
                     __html: sanitizeCheckoutHtml(
-                      bjSettings?.extrasDisclaimer ||
+                      bjValue(
+                        bjSettings?.extrasDisclaimer,
                         "These prices demonstrate the booking flow. Final prices, times, availability and package inclusions must be confirmed before your arrival.",
+                      ),
                     ),
                   }}
                 />
@@ -1923,7 +2018,7 @@ export function BookingPage() {
                   </div>
                 </div>
               )}
-              {/* <div className="flex gap-2">
+              <div className="flex gap-2">
                 <Input
                   value={couponInput}
                   onChange={(e) => setCouponInput(e.target.value)}
@@ -1938,7 +2033,7 @@ export function BookingPage() {
                 >
                   Apply
                 </Button>
-              </div> */}
+              </div>
               {autoCoupon && appliedCoupon === autoCoupon && (
                 <p className="text-xs text-success">{autoCoupon} auto-applied from this cottage&apos;s offer.</p>
               )}

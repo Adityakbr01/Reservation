@@ -166,7 +166,7 @@ export function RootLayout() {
   const { data: siteSettings } = useSiteSettings();
 
   const defaultHeaderLinks = [
-    { id: "local-area", label: "The Local Area", url: SITE_LINKS.localArea, openInNewTab: true, isEnabled: true },
+    { id: "local-area", label: "The Estate", url: SITE_LINKS.localArea, openInNewTab: true, isEnabled: true },
     { id: "the-estate", label: "The estate", url: SITE_LINKS.theEstate, openInNewTab: true, isEnabled: true },
     { id: "bespoke", label: "Bespoke", url: SITE_LINKS.bespoke, openInNewTab: true, isEnabled: true },
   ];
@@ -365,9 +365,6 @@ export function RootLayout() {
             </Button>
           </div>
           <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-5 py-5">
-            <NavLink to="/" end className={mobileLinkClass} onClick={closeMenu}>
-              Find a cottage
-            </NavLink>
             {headerLinks.map((lnk, idx) => (
               <DynamicLink
                 key={lnk.id ?? idx}
