@@ -97,6 +97,7 @@ class AdminCottageController extends Controller
             'dog_policy_title' => $request->input('dog_policy_title') ?? $request->input('dogPolicyTitle'),
             'dog_policy_subtitle' => $request->input('dog_policy_subtitle') ?? $request->input('dogPolicySubtitle'),
             'dog_fee' => $request->filled('dog_fee') ? (float) $request->input('dog_fee') : ($request->filled('dogFee') ? (float) $request->input('dogFee') : 70.00),
+            'dog_fees' => $request->input('dog_fees') ?? $request->input('dogFees') ?? [],
             'dog_policy_image_media_id' => $request->input('dog_policy_image_media_id') ?? $request->input('dogPolicyImageMediaId'),
             'extras' => $request->input('extras') ?? [],
             'beds' => $request->input('beds') ?? [],
@@ -235,6 +236,9 @@ class AdminCottageController extends Controller
         if ($request->has('dog_fee') || $request->has('dogFee')) {
             $val = $request->input('dog_fee') ?? $request->input('dogFee');
             $payload['dog_fee'] = ($val !== null && $val !== '') ? (float) $val : 70.00;
+        }
+        if ($request->has('dog_fees') || $request->has('dogFees')) {
+            $payload['dog_fees'] = $request->input('dog_fees') ?? $request->input('dogFees') ?? [];
         }
         if ($request->has('dog_policy_image_media_id') || $request->has('dogPolicyImageMediaId')) {
             $payload['dog_policy_image_media_id'] = $request->input('dog_policy_image_media_id') ?? $request->input('dogPolicyImageMediaId');
@@ -535,6 +539,8 @@ class AdminCottageController extends Controller
             'dogPolicySubtitle' => $c->dog_policy_subtitle,
             'dog_fee' => $c->dog_fee !== null ? (float) $c->dog_fee : 70.00,
             'dogFee' => $c->dog_fee !== null ? (float) $c->dog_fee : 70.00,
+            'dog_fees' => $c->dog_fees ?? [],
+            'dogFees' => $c->dog_fees ?? [],
             'dog_policy_image_media_id' => $c->dog_policy_image_media_id,
             'dogPolicyImageMediaId' => $c->dog_policy_image_media_id,
             'dog_policy_image_url' => $c->dog_policy_image_media_id ? \App\Models\Media::find($c->dog_policy_image_media_id)?->url : null,

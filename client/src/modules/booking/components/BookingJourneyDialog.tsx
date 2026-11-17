@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -190,6 +190,14 @@ export function BookingJourneyDialog({
     closeBookingJourney,
   } = useBookingJourneyStore();
 
+  // Extract primitives so effect deps are stable (store returns whole state object,
+  // so cottage/searchParams would be new references every render without selectors).
+  const storeCottageId = storeCottage?.id ?? null;
+  const storeCheckIn = storeSearchParams?.checkIn ?? "";
+  const storeCheckOut = storeSearchParams?.checkOut ?? "";
+  const storeAdults = storeSearchParams?.adults ?? "";
+  const storeChildren = storeSearchParams?.children ?? undefined;
+
   // Load Admin Configured Site Settings
   const { data: siteSettings } = useQuery({
     queryKey: ["site-settings-public"],
@@ -207,7 +215,10 @@ export function BookingJourneyDialog({
     const f = (bjSettings as Record<string, { isEnabled?: boolean; value?: string }> | undefined)?.[key];
     return { isEnabled: f?.isEnabled !== false, value: f?.value ?? "" };
   };
-  const bjValue = (key: string) => bjField(key).value;
+  const bjValue = (key: string) => {
+    const field = bjField(key);
+    return field.isEnabled ? field.value : "";
+  };
 
   useEffect(() => {
     if (siteSettings?.currency) {
@@ -227,17 +238,17 @@ export function BookingJourneyDialog({
   const [adults, setAdults] = useState<number>(2);
   const [children, setChildren] = useState<number>(0);
 
-  // Selected Cottage
-  const [selectedCottageId, setSelectedCottageId] = useState<string>("");
+  // Selected Cottages (multi-select supported)
+  const [selectedCottageIds, setSelectedCottageIds] = useState<string[]>([]);
 
-  // Cottage whose photo gallery is open (selection stays on the Choose button/radio)
+  // Cottage whose photo gallery is open (selection stays on the Choose button/checkbox)
   const [galleryCottageId, setGalleryCottageId] = useState<string | null>(null);
 
-  // Selected Extras (qty by id; qty > 0 means selected)
-  const [extraQtys, setExtraQtys] = useState<Record<string, number>>({});
+  // Selected Extras (qty by cottageId -> extraId; qty > 0 means selected)
+  const [extraQtysByCottage, setExtraQtysByCottage] = useState<Record<string, Record<string, number>>>({});
 
-  // Dogs selection (count: 0 or 1+)
-  const [dogsCount, setDogsCount] = useState<number>(0);
+  // Dogs selection (count per cottageId)
+  const [dogsByCottage, setDogsByCottage] = useState<Record<string, number>>({});
 
   // Guest Details & Billing
   const [title, setTitle] = useState("Mr");
@@ -306,26 +317,28 @@ export function BookingJourneyDialog({
   // already selected, in which case jump straight to step 2 (Extras)
   useEffect(() => {
     if (isOpen) {
-      if (storeCottage?.id) {
-        setSelectedCottageId(storeCottage.id);
+      if (storeCottageId) {
+        setSelectedCottageIds([storeCottageId]);
+      } else {
+        setSelectedCottageIds([]);
       }
-      if (storeSearchParams?.checkIn) {
-        setCheckIn(storeSearchParams.checkIn);
+      if (storeCheckIn) {
+        setCheckIn(storeCheckIn);
       } else {
         setCheckIn("");
       }
-      if (storeSearchParams?.checkOut) {
-        setCheckOut(storeSearchParams.checkOut);
+      if (storeCheckOut) {
+        setCheckOut(storeCheckOut);
       } else {
         setCheckOut("");
       }
-      if (storeSearchParams?.adults) {
-        setAdults(storeSearchParams.adults);
+      if (storeAdults) {
+        setAdults(storeAdults);
       }
-      if (storeSearchParams?.children !== undefined) {
-        setChildren(storeSearchParams.children);
+      if (storeChildren !== undefined) {
+        setChildren(storeChildren);
       }
-      if (storeSearchParams?.checkIn && storeSearchParams?.checkOut) {
+      if (storeCheckIn && storeCheckOut) {
         setStep(1); // Dates already picked — go straight to extras
       } else {
         setStep(0);
@@ -335,19 +348,20 @@ export function BookingJourneyDialog({
       setBookingNumber(null);
       setHoldError(null);
     } else {
-      setExtraQtys({});
-      setDogsCount(0);
+      setExtraQtysByCottage({});
+      setDogsByCottage({});
+      setSelectedCottageIds([]);
       setClientSecret(null);
       setGalleryCottageId(null);
     }
-  }, [isOpen, storeCottage, storeSearchParams]);
+  }, [isOpen, storeCottageId, storeCheckIn, storeCheckOut, storeAdults, storeChildren, closeBookingJourney]);
 
-  // Find currently selected cottage (no default selection)
-  const selectedCottageItem = useMemo(() => {
-    return cottages.find((c) => c.roomType.id === selectedCottageId) ?? null;
-  }, [cottages, selectedCottageId]);
+  // Find currently selected cottages (multi-select supported)
+  const selectedCottageItems = useMemo(() => {
+    return cottages.filter((c) => selectedCottageIds.includes(c.roomType.id));
+  }, [cottages, selectedCottageIds]);
 
-  const selectedCottage = selectedCottageItem?.roomType;
+  const selectedCottages = selectedCottageItems.map((c) => c.roomType);
 
   const galleryRoomType = useMemo(
     () => cottages.find((c) => c.roomType.id === galleryCottageId)?.roomType ?? null,
@@ -361,35 +375,104 @@ export function BookingJourneyDialog({
     return n > 0 ? n : 7;
   }, [checkIn, checkOut]);
 
-  // Pricing calculations
-  const perNightPence = useMemo(() => {
-    if (!selectedCottageItem?.rates || selectedCottageItem.rates.length === 0) return 26000;
-    return Math.min(...selectedCottageItem.rates.map((r) => r.perNight));
-  }, [selectedCottageItem]);
+  const cottageTotalPounds = useMemo(() => {
+    return selectedCottageItems.reduce((sum, item) => {
+      const rates = item.rates;
+      const perNight = rates && rates.length > 0 ? Math.min(...rates.map((r) => r.perNight)) : 26000;
+      return sum + Math.round(perNight / 100) * nights;
+    }, 0);
+  }, [selectedCottageItems, nights]);
 
-  const perNightPounds = Math.round(perNightPence / 100);
-  const cottageTotalPounds = perNightPounds * nights;
-
-  // Dog Policy on selected cottage
+  // Dog Policy — true if any selected cottage is dog friendly
   const isDogFriendly = useMemo(() => {
-    if (!selectedCottage) return false;
-    const rawDogs = selectedCottage.maxDogs ?? selectedCottage.max_dogs;
-    return Boolean(
-      selectedCottage.dogPolicyEnabled ??
-        selectedCottage.dog_policy_enabled ??
-        (rawDogs != null && Number(rawDogs) > 0),
-    );
-  }, [selectedCottage]);
+    return selectedCottages.some((c) => {
+      const rawDogs = c.maxDogs ?? c.max_dogs;
+      return Boolean(
+        c.dogPolicyEnabled ??
+          c.dog_policy_enabled ??
+          (rawDogs != null && Number(rawDogs) > 0),
+      );
+    });
+  }, [selectedCottages]);
 
-  const maxDogsAllowed = selectedCottage?.maxDogs ?? selectedCottage?.max_dogs ?? 1;
-  const unitDogFee = selectedCottage?.dogFee ?? selectedCottage?.dog_fee ?? 70;
-  const totalDogFee = isDogFriendly ? unitDogFee * dogsCount : 0;
+  // Per-cottage dog fee: each cottage uses its own dogFees/dog_fee.
+  const cottageDogFee = useMemo(() => {
+    const map: Record<string, { custom: Record<number, number>; unit: number }> = {};
+    for (const c of selectedCottages) {
+      const rawDogs = c.maxDogs ?? c.max_dogs;
+      const isFriendly = Boolean(
+        c.dogPolicyEnabled ??
+          c.dog_policy_enabled ??
+          (rawDogs != null && Number(rawDogs) > 0),
+      );
+      if (!isFriendly) continue;
+      const cc = c as any;
+      const df = cc.dogFees ?? cc.dog_fees ?? null;
+      const custom: Record<number, number> = {};
+      if (df && typeof df === "object") {
+        for (const [k, v] of Object.entries(df)) {
+          const n = Number(k);
+          if (!Number.isNaN(n)) custom[n] = Number(v) || 0;
+        }
+      }
+      map[c.id] = { custom, unit: c.dogFee ?? c.dog_fee ?? 70 };
+    }
+    return map;
+  }, [selectedCottages]);
 
-  // Extras available for the selected cottage (managed in Admin)
+  const totalDogFee = useMemo(() => {
+    let sum = 0;
+    for (const cottage of selectedCottages) {
+      const feeInfo = cottageDogFee[cottage.id];
+      if (!feeInfo) continue;
+      const count = dogsByCottage[cottage.id] ?? 0;
+      if (count <= 0) continue;
+      const custom = feeInfo.custom[count];
+      if (custom != null && custom > 0) {
+        sum += custom;
+      } else {
+        sum += feeInfo.unit * count;
+      }
+    }
+    return sum;
+  }, [selectedCottages, cottageDogFee, dogsByCottage]);
+
+  const customDogFeeForCottage = (cottageId: string, count: number): string => {
+    const feeInfo = cottageDogFee[cottageId];
+    if (!feeInfo) return "";
+    const custom = feeInfo.custom[count];
+    const lineFee = custom != null && custom > 0 ? custom : feeInfo.unit * count;
+    return `${currencySymbol}${lineFee} × ${count} dog${count === 1 ? "" : "s"} = ${currencySymbol}${lineFee}`;
+  };
+
+  // Extras — union across all selected cottages, deduplicated by id
   const availableExtras: CottageExtra[] = useMemo(() => {
-    const raw = selectedCottage?.extras ?? storeCottage?.extras ?? [];
-    return Array.isArray(raw) ? raw : [];
-  }, [selectedCottage, storeCottage]);
+    const seen = new Set<string>();
+    const extras: CottageExtra[] = [];
+    for (const cottage of selectedCottages) {
+      const raw = cottage.extras ?? [];
+      if (!Array.isArray(raw)) continue;
+      for (const ex of raw) {
+        if (ex.id && !seen.has(ex.id)) {
+          seen.add(ex.id);
+          extras.push(ex);
+        }
+      }
+    }
+    // Fallback to storeCottage extras when no cottages selected yet
+    if (extras.length === 0) {
+      const raw = storeCottage?.extras ?? [];
+      if (Array.isArray(raw)) {
+        for (const ex of raw) {
+          if (ex.id && !seen.has(ex.id)) {
+            seen.add(ex.id);
+            extras.push(ex);
+          }
+        }
+      }
+    }
+    return extras;
+  }, [selectedCottages, storeCottage?.extras]);
 
   // Dynamic media resolution for extras: resolves any imageMediaId / image_media_id
   const extraMediaIds = useMemo(() => {
@@ -427,45 +510,62 @@ export function BookingJourneyDialog({
     return null;
   };
 
-  const calculateExtraAmount = (extra: CottageExtra, qty?: number): number => {
-    const q = qty ?? (extraQtys[extra.id] ?? 0);
-    if (q <= 0) return 0;
-    if (extra.pricingType === "PER_PERSON") {
-      return extra.price * Math.max(1, adults) * q;
-    }
-    return extra.price * q;
-  };
+  const calculateExtraAmount = useCallback(
+    (
+      extra: CottageExtra,
+      cottageId: string,
+      qty?: number,
+    ): number => {
+      const q = qty ?? (extraQtysByCottage[cottageId]?.[extra.id] ?? 0);
+      if (q <= 0) return 0;
+      if (extra.pricingType === "PER_PERSON") {
+        return extra.price * Math.max(1, adults) * q;
+      }
+      return extra.price * q;
+    },
+    [adults, extraQtysByCottage],
+  );
 
   // Seed quantities from available extras when they load: nothing selected by default (qty 0).
   useEffect(() => {
-    const next: Record<string, number> = {};
-    for (const ex of availableExtras) {
-      next[ex.id] = 0;
+    const next: Record<string, Record<string, number>> = {};
+    for (const cottage of selectedCottageItems) {
+      next[cottage.roomType.id] = {};
+      for (const ex of cottage.roomType.extras ?? []) {
+        next[cottage.roomType.id][ex.id] = 0;
+      }
     }
-    setExtraQtys(next);
-  }, [availableExtras]);
+    setExtraQtysByCottage(next);
+  }, [selectedCottageItems]);
 
   const totalExtrasPounds = useMemo(() => {
     let sum = 0;
-    for (const extra of availableExtras) {
-      const q = extraQtys[extra.id] ?? 0;
-      if (q > 0) sum += calculateExtraAmount(extra, q);
+    for (const cottage of selectedCottageItems) {
+      const qtys = extraQtysByCottage[cottage.roomType.id] ?? {};
+      for (const ex of cottage.roomType.extras ?? []) {
+        const q = qtys[ex.id] ?? 0;
+        if (q > 0) sum += calculateExtraAmount(ex, cottage.roomType.id, q);
+      }
     }
     return sum;
-  }, [availableExtras, extraQtys, adults]);
+  }, [selectedCottageItems, extraQtysByCottage, calculateExtraAmount]);
 
   const grandTotal = cottageTotalPounds + totalDogFee + totalExtrasPounds;
 
   if (!isOpen) return null;
 
-  function changeExtraQty(id: string, delta: number) {
-    setExtraQtys((prev) => {
-      const ex = availableExtras.find((e) => e.id === id);
+  function changeExtraQty(cottageId: string, id: string, delta: number) {
+    setExtraQtysByCottage((prev) => {
+      const cottageQtys = prev[cottageId] ?? {};
+      const ex = selectedCottageItems
+        .map((c) => c.roomType.extras ?? [])
+        .flat()
+        .find((e) => e.id === id);
       if (!ex) return prev;
       const counterOn = ex.showCounter === true;
       const min = Math.max(0, Number(ex.min ?? 1));
       const max = ex.max == null ? Infinity : Math.max(0, Number(ex.max));
-      const current = prev[id] ?? 0;
+      const current = cottageQtys[id] ?? 0;
       let next: number;
       if (!counterOn) {
         // Checkbox: only 0 or 1, toggles on each click.
@@ -475,7 +575,10 @@ export function BookingJourneyDialog({
         if (next < 1) next = 0;
         else next = Math.max(min, Math.min(max, next));
       }
-      return { ...prev, [id]: next };
+      return {
+        ...prev,
+        [cottageId]: { ...cottageQtys, [id]: next },
+      };
     });
   }
 
@@ -674,24 +777,6 @@ export function BookingJourneyDialog({
                 </label>
               </div>
 
-              <label className="mt-[20px] flex flex-col gap-[9px] text-[11px]">
-                <span className="text-[10px] tracking-[0.6px] text-[#535b51]">COTTAGE</span>
-                <select
-                  name="booking-preferred"
-                  aria-label="Preferred cottage"
-                  value={selectedCottageId}
-                  onChange={(e) => setSelectedCottageId(e.target.value)}
-                  className="h-[48px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[11px_13px] text-[13px] text-[#243c30] outline-offset-[5px]"
-                >
-                  <option value="">Explore all cottages</option>
-                  {cottages.map((item) => (
-                    <option key={item.roomType.id} value={item.roomType.id}>
-                      {item.roomType.name} · sleeps {item.roomType.maxOccupancy}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
               <button
                 type="submit"
                 className="mt-[27px] inline-flex min-h-[49px] w-full cursor-pointer items-center justify-center gap-[24px] border-0 bg-[#243c30] p-[14px_23px] text-[12px] font-medium leading-[16.2px] text-[#fffdf8] transition-colors hover:bg-[#1b2d24] outline-offset-[5px]"
@@ -721,13 +806,15 @@ export function BookingJourneyDialog({
                 className="inline-flex cursor-pointer items-center justify-between gap-[25px] border-0 border-b border-[#243c30] p-[8px_0_10px] text-[11px] leading-[17.6px] text-[#243c30] outline-offset-[5px]"
               >
                 {bjValue("step1ExploreLinkText")}
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                  className="pointer-events-none h-[20px] w-[20px] shrink-0 fill-none stroke-[#243c30] stroke-[1.5] stroke-linecap-round stroke-linejoin-round"
-                >
-                  <path d="M4 12h15m-6-6 6 6-6 6" />
-                </svg>
+                {bjValue("step1ExploreArrow") === "true" && (
+                  <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    className="pointer-events-none h-[20px] w-[20px] shrink-0 fill-none stroke-[#243c30] stroke-[1.5] stroke-linecap-round stroke-linejoin-round"
+                  >
+                    <path d="M4 12h15m-6-6 6 6-6 6" />
+                  </svg>
+                )}
               </button>
             </div>
           </div>
@@ -781,14 +868,16 @@ export function BookingJourneyDialog({
                     <h4 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[28px] font-normal tracking-[-0.56px]">
                       {cottages.length} cottages to explore
                     </h4>
-                    <span className="text-[10px] text-[#535b51]">1 cottage selected</span>
+                    <span className="text-[10px] text-[#535b51]">
+                      {selectedCottageIds.length} cottage{selectedCottageIds.length === 1 ? "" : "s"} selected
+                    </span>
                   </div>
 
                   {/* Cottage cards grid */}
                   <div className="mt-[17px] grid grid-cols-1 gap-[18px] md:grid-cols-2">
                     {cottages.map((item) => {
                       const rt = item.roomType;
-                      const isSelected = rt.id === selectedCottageId;
+                      const isSelected = selectedCottageIds.includes(rt.id);
                       const cover = getCottageCoverUrl(rt);
                       const photoCnt = getCottagePhotoCount(rt);
                       const petOk = Boolean(
@@ -804,7 +893,11 @@ export function BookingJourneyDialog({
                         <article
                           key={rt.id}
                           aria-label={`${rt.name} booking option`}
-                          onClick={() => setSelectedCottageId(rt.id)}
+                          onClick={() => {
+                            setSelectedCottageIds((prev) =>
+                              prev.includes(rt.id) ? prev.filter((id) => id !== rt.id) : [...prev, rt.id],
+                            );
+                          }}
                           className={`flex cursor-pointer flex-col overflow-hidden border bg-[#fffdf8] transition-all ${
                             isSelected
                               ? "border-[#243c30] ring-1 ring-[#243c30]"
@@ -922,11 +1015,17 @@ export function BookingJourneyDialog({
                                 }`}
                               >
                                 <input
-                                  type="radio"
+                                  type="checkbox"
                                   name="booking-cottage"
                                   value={rt.id}
                                   checked={isSelected}
-                                  onChange={() => setSelectedCottageId(rt.id)}
+                                  onChange={() => {
+                                    setSelectedCottageIds((prev) =>
+                                      prev.includes(rt.id)
+                                        ? prev.filter((id) => id !== rt.id)
+                                        : [...prev, rt.id],
+                                    );
+                                  }}
                                   className="m-0 h-[14px] w-[14px] shrink-0 accent-[#243c30]"
                                 />
                                 <span>{isSelected ? "Selected" : "Choose"}</span>
@@ -953,8 +1052,12 @@ export function BookingJourneyDialog({
                     <button
                       type="button"
                       data-action="booking-next"
-                      onClick={() => setStep(2)}
-                      className="ml-auto flex min-h-[49px] cursor-pointer items-center justify-center gap-[15px] border-0 bg-[#243c30] p-[13px_17px] text-[11px] font-medium leading-[14.85px] text-[#fffdf8] transition-colors hover:bg-[#1b2d24] outline-offset-[5px]"
+                      onClick={() => {
+                        if (selectedCottageIds.length === 0) return;
+                        setStep(2);
+                      }}
+                      disabled={selectedCottageIds.length === 0}
+                      className="ml-auto flex min-h-[49px] cursor-pointer items-center justify-center gap-[15px] border-0 bg-[#243c30] p-[13px_17px] text-[11px] font-medium leading-[14.85px] text-[#fffdf8] transition-colors hover:bg-[#1b2d24] disabled:opacity-50 disabled:cursor-not-allowed outline-offset-[5px]"
                     >
                       Continue to extras
                       <svg
@@ -993,29 +1096,56 @@ export function BookingJourneyDialog({
                         </div>
                       </div>
 
+                      {/* Per-cottage dog selectors */}
                       <label className="mt-[18px] block flex-col gap-[9px] text-[11px]">
                         <span className="mb-[8px] block text-[10px] tracking-[0.8px] text-[#535b51]">
                           {bjValue("step3DogsSelectLabel")}
                         </span>
-                        <select
-                          name="booking-dogs"
-                          aria-label="Dogs joining your stay"
-                          value={dogsCount}
-                          onChange={(e) => setDogsCount(Number(e.target.value))}
-                          className="block h-[46px] min-h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[12px] text-[14px] text-[#243c30] outline-offset-[5px]"
-                        >
-                          <option value="0">{bjValue("step3DogsZeroOption")}</option>
-                          {Array.from({ length: maxDogsAllowed }, (_, i) => i + 1).map((n) => (
-                            <option key={n} value={n}>
-                              {n} dog{n === 1 ? "" : "s"} — +{currencySymbol}{unitDogFee * n} per stay
-                            </option>
-                          ))}
-                        </select>
+                        {selectedCottages.map((cottage) => {
+                          const feeInfo = cottageDogFee[cottage.id];
+                          if (!feeInfo) return null;
+                          const count = dogsByCottage[cottage.id] ?? 0;
+                          return (
+                            <div key={cottage.id} className="mt-[4px] space-y-1">
+                              <span className="text-[10px] text-[#535b51]">
+                                {cottage.name}
+                              </span>
+                              <select
+                                name={`booking-dogs-${cottage.id}`}
+                                aria-label={`Dogs for ${cottage.name}`}
+                                value={count}
+                                onChange={(e) => {
+                                  setDogsByCottage((prev) => ({
+                                    ...prev,
+                                    [cottage.id]: Number(e.target.value),
+                                  }));
+                                }}
+                                className="block h-[46px] min-h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[12px] text-[14px] text-[#243c30] outline-offset-[5px]"
+                              >
+                                <option value="0">{bjValue("step3DogsZeroOption")}</option>
+                                {Array.from({ length: cottage.maxDogs ?? cottage.max_dogs ?? 1 }, (_, i) => i + 1).map((n) => {
+                                  const custom = feeInfo.custom[n];
+                                  const lineFee = custom != null && custom > 0 ? custom : feeInfo.unit * n;
+                                  return (
+                                    <option key={n} value={n}>
+                                      {n} dog{n === 1 ? "" : "s"} — +{currencySymbol}{lineFee} per stay
+                                    </option>
+                                  );
+                                })}
+                              </select>
+                              {count > 0 && (
+                                <p className="m-0 text-[10px] text-[#243c30] font-medium">
+                                  {customDogFeeForCottage(cottage.id, count)}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })}
                       </label>
 
                       <p role="status" className="m-0 mt-[12px] text-[11px] leading-[19.25px]">
-                        {dogsCount > 0
-                          ? `${currencySymbol}${totalDogFee} pet charge included in your total.`
+                        {Object.values(dogsByCottage).some((c) => c > 0)
+                          ? `${currencySymbol}${totalDogFee} total pet charge included.`
                           : "No pet charge added."}
                       </p>
                     </section>
@@ -1054,115 +1184,130 @@ export function BookingJourneyDialog({
                     }}
                   />
 
-                  {availableExtras.length === 0 ? (
+                  {selectedCottageItems.length === 0 ? (
                     <div
                       className="mt-[20px] rounded border border-dashed border-[#d8d9cb] p-6 text-center text-xs text-[#535b51] [&_p]:m-0 [&_a]:underline"
-                    dangerouslySetInnerHTML={{
-                      __html: sanitizeCheckoutHtml(bjValue("extrasEmptyMessage")),
-                    }}
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeCheckoutHtml(bjValue("extrasEmptyMessage")),
+                      }}
                     />
                   ) : (
-                    <div className="mt-[24px] grid gap-[12px]">
-                      {availableExtras.map((extra) => {
-                        const qty = extraQtys[extra.id] ?? 0;
-                        const isSelected = qty > 0;
-                        const extraPrice = calculateExtraAmount(extra, qty);
-                        const plainTitle = (extra.title || "").replace(/<[^>]*>/g, "").trim();
-                        const counterOn = extra.showCounter === true;
-                        const min = Math.max(0, Number(extra.min ?? 1));
-                        const max = extra.max == null ? Infinity : Math.max(0, Number(extra.max));
-
+                    <>
+                      {selectedCottageItems.map((cottageItem) => {
+                        const cottage = cottageItem.roomType;
+                        const cottageExtras = Array.isArray(cottage.extras) ? cottage.extras : [];
+                        if (cottageExtras.length === 0) return null;
                         return (
-                          <div
-                            key={extra.id}
-                            className={`flex items-center gap-[12px] border bg-[#fffdf8] p-[12px] transition-colors ${
-                              isSelected
-                                ? "border-[#243c30] ring-1 ring-[#243c30]"
-                                : "border-[#d8d9cb] hover:border-[#243c30]/50"
-                            }`}
-                          >
-                            <SafeImage
-                              src={getExtraImageUrl(extra)}
-                              alt={plainTitle}
-                              className="h-[65px] w-[65px] shrink-0 object-cover"
-                            />
-                            <div className="min-w-0 flex-1">
-                              <div
-                                className="text-[12px] font-medium text-[#243c30] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
-                                dangerouslySetInnerHTML={{
-                                  __html: sanitizeCheckoutHtml(extra.title),
-                                }}
-                              />
-                              {extra.description ? (
-                                <div
-                                  className="mt-[5px] text-[10px] leading-[16px] text-[#535b51] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
-                                  dangerouslySetInnerHTML={{
-                                    __html: sanitizeCheckoutHtml(extra.description),
-                                  }}
-                                />
-                              ) : (
-                                <span className="mt-[5px] block text-[10px] leading-[16px] text-[#535b51]">
-                                  {extra.pricingType === "PER_PERSON"
-                                    ? `${currencySymbol}${extra.price} per adult`
-                                    : `${currencySymbol}${extra.price} per stay`}
-                                </span>
-                              )}
-                              <span className="mt-[4px] block font-['Instrument_Serif',Georgia,serif] text-[21px]">
-                                {isSelected ? `+ ${currencySymbol}${extraPrice}` : `+ ${currencySymbol}${extra.price}`}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-[6px] shrink-0 ml-[12px]">
-                              {counterOn ? (
-                                <>
-                                  <button
-                                    type="button"
-                                    onClick={() => changeExtraQty(extra.id, -1)}
-                                    disabled={qty <= 0 || qty <= min}
-                                    className="flex h-[22px] w-[22px] items-center justify-center rounded-[4px] border border-[#d8d9cb] bg-[#eef2ed] text-[10px] font-medium text-[#243c30] disabled:opacity-50 disabled:cursor-not-allowed"
-                                    aria-label={`Decrease ${plainTitle}`}
+                          <div key={cottage.id} className="mt-[20px]">
+                            <h4 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[20px] font-normal leading-[24px] text-[#243c30]">
+                              {cottage.name}
+                            </h4>
+                            <div className="mt-[12px] grid gap-[12px]">
+                              {cottageExtras.map((extra) => {
+                                const qtys = extraQtysByCottage[cottage.id] ?? {};
+                                const qty = qtys[extra.id] ?? 0;
+                                const isSelected = qty > 0;
+                                const extraPrice = calculateExtraAmount(extra, cottage.id, qty);
+                                const plainTitle = (extra.title || "").replace(/<[^>]*>/g, "").trim();
+                                const counterOn = extra.showCounter === true;
+                                const min = Math.max(0, Number(extra.min ?? 1));
+                                const max = extra.max == null ? Infinity : Math.max(0, Number(extra.max));
+
+                                return (
+                                  <div
+                                    key={extra.id}
+                                    className={`flex items-center gap-[12px] border bg-[#fffdf8] p-[12px] transition-colors ${
+                                      isSelected
+                                        ? "border-[#243c30] ring-1 ring-[#243c30]"
+                                        : "border-[#d8d9cb] hover:border-[#243c30]/50"
+                                    }`}
                                   >
-                                    −
-                                  </button>
-                                  <input
-                                    type="number"
-                                    value={qty}
-                                    readOnly
-                                    className="flex h-[22px] w-[24px] items-center justify-center rounded-[4px] border border-[#d8d9cb] bg-white text-[10px] font-medium text-center text-[#243c30]"
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() => changeExtraQty(extra.id, 1)}
-                                    disabled={max !== Infinity && qty >= max}
-                                    className="flex h-[22px] w-[22px] items-center justify-center rounded-[4px] border border-[#d8d9cb] bg-[#eef2ed] text-[10px] font-medium text-[#243c30] disabled:opacity-50 disabled:cursor-not-allowed"
-                                    aria-label={`Increase ${plainTitle}`}
-                                  >
-                                    +
-                                  </button>
-                                  <span className="ml-[6px] text-[9px] text-[#655b3e]">
-                                    {max !== Infinity ? `max ${max}` : ""}
-                                  </span>
-                                </>
-                              ) : (
-                                <label
-                                  htmlFor={`dialog-extra-${extra.id}`}
-                                  className="flex items-center justify-center p-2 cursor-pointer -mr-2"
-                                  title={`Select ${plainTitle || "extra"}`}
-                                >
-                                  <input
-                                    id={`dialog-extra-${extra.id}`}
-                                    type="checkbox"
-                                    checked={isSelected}
-                                    onChange={() => changeExtraQty(extra.id, (qty > 0 ? 0 : 1))}
-                                    className="h-[18px] w-[18px] shrink-0 accent-[#243c30] cursor-pointer"
-                                    aria-label={`Select ${plainTitle || "extra"}`}
-                                  />
-                                </label>
-                              )}
+                                    <SafeImage
+                                      src={getExtraImageUrl(extra)}
+                                      alt={plainTitle}
+                                      className="h-[65px] w-[65px] shrink-0 object-cover"
+                                    />
+                                    <div className="min-w-0 flex-1">
+                                      <div
+                                        className="text-[12px] font-medium text-[#243c30] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
+                                        dangerouslySetInnerHTML={{
+                                          __html: sanitizeCheckoutHtml(extra.title),
+                                        }}
+                                      />
+                                      {extra.description ? (
+                                        <div
+                                          className="mt-[5px] text-[10px] leading-[16px] text-[#535b51] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
+                                          dangerouslySetInnerHTML={{
+                                            __html: sanitizeCheckoutHtml(extra.description),
+                                          }}
+                                        />
+                                      ) : (
+                                        <span className="mt-[5px] block text-[10px] leading-[16px] text-[#535b51]">
+                                          {extra.pricingType === "PER_PERSON"
+                                            ? `${currencySymbol}${extra.price} per adult`
+                                            : `${currencySymbol}${extra.price} per stay`}
+                                        </span>
+                                      )}
+                                      <span className="mt-[4px] block font-['Instrument_Serif',Georgia,serif] text-[21px]">
+                                        {isSelected ? `+ ${currencySymbol}${extraPrice}` : `+ ${currencySymbol}${extra.price}`}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-[6px] shrink-0 ml-[12px]">
+                                      {counterOn ? (
+                                        <>
+                                          <button
+                                            type="button"
+                                            onClick={() => changeExtraQty(cottage.id, extra.id, -1)}
+                                            disabled={qty <= 0 || qty <= min}
+                                            className="flex h-[22px] w-[22px] items-center justify-center rounded-[4px] border border-[#d8d9cb] bg-[#eef2ed] text-[10px] font-medium text-[#243c30] disabled:opacity-50 disabled:cursor-not-allowed"
+                                            aria-label={`Decrease ${plainTitle}`}
+                                          >
+                                            −
+                                          </button>
+                                          <input
+                                            type="number"
+                                            value={qty}
+                                            readOnly
+                                            className="flex h-[22px] w-[28px] items-center justify-center rounded-[4px] border border-[#d8d9cb] bg-white text-[10px] font-medium text-center text-[#243c30] px-0 py-[1px] appearance-none"
+                                          />
+                                          <button
+                                            type="button"
+                                            onClick={() => changeExtraQty(cottage.id, extra.id, 1)}
+                                            disabled={max !== Infinity && qty >= max}
+                                            className="flex h-[22px] w-[22px] items-center justify-center rounded-[4px] border border-[#d8d9cb] bg-[#eef2ed] text-[10px] font-medium text-[#243c30] disabled:opacity-50 disabled:cursor-not-allowed"
+                                            aria-label={`Increase ${plainTitle}`}
+                                          >
+                                            +
+                                          </button>
+                                          <span className="ml-[6px] text-[9px] text-[#655b3e]">
+                                            {max !== Infinity ? `max ${max}` : ""}
+                                          </span>
+                                        </>
+                                      ) : (
+                                        <label
+                                          htmlFor={`dialog-extra-${cottage.id}-${extra.id}`}
+                                          className="flex items-center justify-center p-2 cursor-pointer -mr-2"
+                                          title={`Select ${plainTitle || "extra"}`}
+                                        >
+                                          <input
+                                            id={`dialog-extra-${cottage.id}-${extra.id}`}
+                                            type="checkbox"
+                                            checked={isSelected}
+                                            onChange={() => changeExtraQty(cottage.id, extra.id, (qty > 0 ? 0 : 1))}
+                                            className="h-[18px] w-[18px] shrink-0 accent-[#243c30] cursor-pointer"
+                                            aria-label={`Select ${plainTitle || "extra"}`}
+                                          />
+                                        </label>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
                         );
                       })}
-                    </div>
+                    </>
                   )}
 
                   <div
@@ -1215,7 +1360,7 @@ export function BookingJourneyDialog({
               {/* STEP 3: Details & payment */}
               {step === 3 && (
                 <div>
-                  {dogsCount > 0 && isDogFriendly && (
+                  {Object.values(dogsByCottage).some((c) => c > 0) && isDogFriendly && (
                     <p className="mb-[25px] border border-[#d8d9cb] bg-[#e9ecdf] p-[16px] text-[12px] leading-[21.6px]">
                       <svg
                         viewBox="0 0 24 24"
@@ -1224,8 +1369,18 @@ export function BookingJourneyDialog({
                       >
                         <path d="M6 12 3 5l6 3m9 4 3-7-6 3M5 14a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0Zm4 0h.01M15 14h.01m-5 4 2 1 2-1" />
                       </svg>
-                      {dogsCount} dog{dogsCount === 1 ? "" : "s"} · {currencySymbol}{totalDogFee} pet charge
-                      included.
+                      {selectedCottages
+                        .map((c) => {
+                          const count = dogsByCottage[c.id] ?? 0;
+                          if (count <= 0) return null;
+                          const feeInfo = cottageDogFee[c.id];
+                          const custom = feeInfo?.custom[count];
+                          const lineFee = custom != null && custom > 0 ? custom : feeInfo?.unit * count;
+                          return `${count} dog${count === 1 ? "" : "s"} for ${c.name} (+${currencySymbol}${lineFee})`;
+                        })
+                        .filter(Boolean)
+                        .join(" · ")}
+                      · {currencySymbol}{totalDogFee} pet charge included.
                     </p>
                   )}
 
@@ -1261,8 +1416,8 @@ export function BookingJourneyDialog({
                           return;
                         }
 
-                        if (!selectedCottage) {
-                          toast.error("Please choose a cottage first.");
+                        if (selectedCottages.length === 0) {
+                          toast.error("Please choose at least one cottage.");
                           setStep(1);
                           return;
                         }
@@ -1273,20 +1428,18 @@ export function BookingJourneyDialog({
                         try {
                           const res = await createGuestBooking(
                             {
-                              rooms: [
-                                {
-                                  roomTypeId: selectedCottage.id,
-                                  ratePlanId: selectedCottageItem?.rates[0]?.ratePlanId ?? "",
-                                  quantity: 1,
-                                },
-                              ],
+                              rooms: selectedCottageItems.map((item) => ({
+                                roomTypeId: item.roomType.id,
+                                ratePlanId: item.rates[0]?.ratePlanId ?? "",
+                                quantity: 1,
+                              })),
                               checkIn,
                               checkOut,
                               guests: {
                                 adults,
                                 children,
-                                ...(dogsCount > 0 && isDogFriendly
-                                  ? { dogs: dogsCount, dogsCount }
+                                ...(Object.values(dogsByCottage).some((c) => c > 0) && isDogFriendly
+                                  ? { dogs: Object.values(dogsByCottage).reduce((a, b) => a + b, 0) }
                                   : {}),
                               },
                               contact: {
@@ -1300,19 +1453,32 @@ export function BookingJourneyDialog({
                                 ...(city.trim() ? { city: city.trim() } : {}),
                                 ...(postcode.trim() ? { postcode: postcode.trim() } : {}),
                               },
-                              extras: Object.entries(extraQtys)
-                                .filter(([, q]) => q > 0)
-                                .map(([id, q]) => ({ id, qty: q })),
+                              extras: Object.entries(extraQtysByCottage)
+                                .flatMap(([cottageId, qtys]) =>
+                                  Object.entries(qtys)
+                                    .filter(([, q]) => q > 0)
+                                    .map(([id, q]) => ({ cottageId, id, qty: q })),
+                                ),
                               notes: [
                                 requests.trim(),
-                                Object.values(extraQtys).some((q) => q > 0)
-                                  ? `Selected Extras: ${availableExtras
-                                      .filter((x) => (extraQtys[x.id] ?? 0) > 0)
-                                      .map(
-                                        (x) =>
-                                          `${(x.title || "").replace(/<[^>]*>/g, "").trim()} ×${extraQtys[x.id]}`,
-                                      )
-                                      .join(", ")}`
+                                Object.values(extraQtysByCottage).some((qtys) =>
+                                  Object.values(qtys).some((q) => q > 0),
+                                )
+                                  ? `Selected Extras: ${selectedCottageItems
+                                      .map((cottageItem) => {
+                                        const cottage = cottageItem.roomType;
+                                        const qtys = extraQtysByCottage[cottage.id] ?? {};
+                                        const selectedExtras = (cottage.extras ?? [])
+                                          .filter((x) => (qtys[x.id] ?? 0) > 0)
+                                          .map(
+                                            (x) =>
+                                              `${(x.title || "").replace(/<[^>]*>/g, "").trim()} ×${qtys[x.id]}`,
+                                          )
+                                          .join(", ");
+                                        return selectedExtras ? `${cottage.name}: ${selectedExtras}` : null;
+                                      })
+                                      .filter(Boolean)
+                                      .join("; ")}`
                                   : "",
                               ]
                                 .filter(Boolean)
@@ -1557,95 +1723,145 @@ export function BookingJourneyDialog({
               )}
             </div>
 
-            {selectedCottage && (
+            {selectedCottages.length > 0 && (
               <aside
                 aria-label="Booking price summary"
                 className="sticky top-[90px] self-start border border-[#d0d6c3] bg-[#e9ecdf] p-[18px]"
               >
-              <SafeImage
-                src={selectedCottage ? getCottageCoverUrl(selectedCottage) : null}
-                alt={selectedCottage?.name ?? "Cottage"}
-                className="mb-[17px] h-[110px] w-full object-cover"
-              />
-              <span className="block text-[10px] font-semibold uppercase leading-[16px] tracking-[2px]">
-                YOUR LITTLE ESCAPE
-              </span>
-              <h3 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[27px] font-normal leading-[27.54px] tracking-[-0.675px]">
-                {selectedCottage?.name}
-              </h3>
-              <p className="m-0 mt-[12px] text-[11px] leading-[19.8px] text-[#535b51]">
-                {formatDisplayDate(checkIn)} – {formatDisplayDate(checkOut)}
-                <br />
-                {nights} nights · {adults} adult{adults === 1 ? "" : "s"}
-                {children > 0 && `, ${children} child${children === 1 ? "" : "ren"}`}
-              </p>
-
-              <button
-                type="button"
-                data-action="edit-booking-dates"
-                onClick={() => setStep(0)}
-                className="flex cursor-pointer items-center gap-[10px] border-0 p-[8px_0] text-[10px] text-[#243c30] underline underline-offset-4 outline-offset-[5px]"
-              >
-                Change dates &amp; guests
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                  className="pointer-events-none h-[13px] w-[13px] shrink-0 fill-none stroke-[#243c30] stroke-[1.5] stroke-linecap-round stroke-linejoin-round"
-                >
-                  <path d="M5 5h14v15H5ZM8 3v4m8-4v4M5 10h14" />
-                </svg>
-              </button>
-
-              <div className="mt-[12px] flex justify-between gap-[13px] text-[11px] leading-[17.05px]">
-                <span>
-                  {currencySymbol}{perNightPounds} × {nights} nights
+                <span className="block text-[10px] font-semibold uppercase leading-[16px] tracking-[2px]">
+                  YOUR LITTLE ESCAPE
                 </span>
-                <span>{currencySymbol}{cottageTotalPounds.toLocaleString()}</span>
-              </div>
+                <h3 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[27px] font-normal leading-[27.54px] tracking-[-0.675px]">
+                  {selectedCottages.length} cottage{selectedCottages.length === 1 ? "" : "s"} selected
+                </h3>
+                <p className="m-0 mt-[12px] text-[11px] leading-[19.8px] text-[#535b51]">
+                  {formatDisplayDate(checkIn)} – {formatDisplayDate(checkOut)}
+                  <br />
+                  {nights} nights · {adults} adult{adults === 1 ? "" : "s"}
+                  {children > 0 && `, ${children} child${children === 1 ? "" : "ren"}`}
+                </p>
 
-              {dogsCount > 0 && isDogFriendly && (
-                <div className="mt-[12px] flex justify-between gap-[13px] text-[11px] font-medium leading-[17.05px] text-[#243c30]">
-                  <span>
-                    {dogsCount} dog × {currencySymbol}{unitDogFee} / stay
-                  </span>
-                  <span>{currencySymbol}{totalDogFee}</span>
-                </div>
-              )}
-
-              {availableExtras
-                .filter((ex) => (extraQtys[ex.id] ?? 0) > 0)
-                .map((extra) => (
-                  <div
-                    key={extra.id}
-                    className="mt-[8px] flex justify-between gap-[13px] text-[11px] font-medium leading-[17.05px] text-[#243c30]"
-                  >
-                    <span className="truncate pr-2">
-                      {(extra.title || "").replace(/<[^>]*>/g, "").trim()}
-                    </span>
-                    <span>
-                      {currencySymbol}{calculateExtraAmount(extra, extraQtys[extra.id])}
-                    </span>
-                  </div>
-                ))}
-
-              <div className="mt-[18px] flex items-center justify-between gap-[13px] border-t border-[#bdc4ae] pt-[16px] text-[12px] leading-[18.6px]">
-                <span>Total amount</span>
-                <strong
-                  data-total={grandTotal}
-                  className="font-['Instrument_Serif',Georgia,serif] text-[31px] font-normal"
+                <button
+                  type="button"
+                  data-action="edit-booking-dates"
+                  onClick={() => setStep(0)}
+                  className="flex cursor-pointer items-center gap-[10px] border-0 p-[8px_0] text-[10px] text-[#243c30] underline underline-offset-4 outline-offset-[5px]"
                 >
-                  {currencySymbol}{grandTotal.toLocaleString()}
-                </strong>
-              </div>
+                  Change dates &amp; guests
+                  <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    className="pointer-events-none h-[13px] w-[13px] shrink-0 fill-none stroke-[#243c30] stroke-[1.5] stroke-linecap-round stroke-linejoin-round"
+                  >
+                    <path d="M5 5h14v15H5ZM8 3v4m8-4v4M5 10h14" />
+                  </svg>
+                </button>
 
-              <div
-                className="m-0 mt-[16px] text-[9px] leading-[15.3px] text-[#535b51] [&_p]:m-0 [&_a]:underline"
+                {/* Per-cottage price rows */}
+                <div className="mt-[12px] space-y-6">
+                  {selectedCottageItems.map((item) => {
+                    const rt = item.roomType;
+                    const rates = item.rates;
+                    const perNight = rates && rates.length > 0 ? Math.min(...rates.map((r) => r.perNight)) : 26000;
+                    const perNightPounds = Math.round(perNight / 100);
+                    const cottageTotal = perNightPounds * nights;
+                    return (
+                      <div
+                        key={rt.id}
+                        className="border-b border-[#d8d9cb]/40 pb-[8px]"
+                      >
+                        <SafeImage
+                          src={getCottageCoverUrl(rt)}
+                          alt={rt.name}
+                          className="mb-[8px] h-[60px] w-full object-cover"
+                        />
+                        <h4 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[18px] font-normal leading-[21px]">
+                          {rt.name}
+                        </h4>
+                        <div className="mt-[4px] flex justify-between gap-[13px] text-[10px] leading-[16px]">
+                          <span>
+                            {currencySymbol}{perNightPounds} × {nights} nights
+                          </span>
+                          <span>{currencySymbol}{cottageTotal.toLocaleString()}</span>
+                        </div>
+                        <p className="mt-[4px] text-[9px] text-[#535b51]">
+                          Sleeps {rt.maxOccupancy}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {Object.values(dogsByCottage).some((c) => c > 0) && isDogFriendly && (
+                  <div className="mt-[12px] flex justify-between gap-[13px] text-[11px] font-medium leading-[17.05px] text-[#243c30]">
+                    <span>
+                      {selectedCottages
+                        .map((c) => {
+                          const count = dogsByCottage[c.id] ?? 0;
+                          if (count <= 0) return null;
+                          const feeInfo = cottageDogFee[c.id];
+                          const custom = feeInfo?.custom[count];
+                          const lineFee = custom != null && custom > 0 ? custom : feeInfo?.unit * count;
+                          return `${count} dog${count === 1 ? "" : "s"} × ${currencySymbol}${lineFee}`;
+                        })
+                        .filter(Boolean)
+                        .join(" + ")}
+                    </span>
+                    <span>{currencySymbol}{totalDogFee}</span>
+                  </div>
+                )}
+
+                {selectedCottageItems.some((cottageItem) => {
+                  const qtys = extraQtysByCottage[cottageItem.roomType.id] ?? {};
+                  return Object.values(qtys).some((q) => q > 0);
+                }) && (
+                  <>
+                    {selectedCottageItems.map((cottageItem) => {
+                      const cottage = cottageItem.roomType;
+                      const qtys = extraQtysByCottage[cottage.id] ?? {};
+                      const selectedExtras = (cottage.extras ?? [])
+                        .filter((ex) => (qtys[ex.id] ?? 0) > 0);
+                      if (selectedExtras.length === 0) return null;
+                      return (
+                        <div key={cottage.id} className="mt-[8px]">
+                          <span className="text-[10px] text-[#535b51] font-medium">{cottage.name}</span>
+                          {selectedExtras.map((extra) => (
+                            <div
+                              key={extra.id}
+                              className="mt-[2px] flex justify-between gap-[13px] text-[10px] font-medium leading-[16px] text-[#243c30]"
+                            >
+                              <span className="truncate pr-2">
+                                {(extra.title || "").replace(/<[^>]*>/g, "").trim()}
+                              </span>
+                              <span>
+                                {currencySymbol}{calculateExtraAmount(extra, cottage.id, qtys[extra.id])}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+
+                <div className="mt-[18px] flex items-center justify-between gap-[13px] border-t border-[#bdc4ae] pt-[16px] text-[12px] leading-[18.6px]">
+                  <span>Total amount</span>
+                  <strong
+                    data-total={grandTotal}
+                    className="font-['Instrument_Serif',Georgia,serif] text-[31px] font-normal"
+                  >
+                    {currencySymbol}{grandTotal.toLocaleString()}
+                  </strong>
+                </div>
+
+                <div
+                  className="m-0 mt-[16px] text-[9px] leading-[15.3px] text-[#535b51] [&_p]:m-0 [&_a]:underline"
                   dangerouslySetInnerHTML={{
                     __html: sanitizeCheckoutHtml(bjValue("sidebarTaxesNotice")),
                   }}
-              />
-            </aside>
-          )}
+                />
+              </aside>
+            )}
           </div>
         )}
 
@@ -1685,8 +1901,12 @@ export function BookingJourneyDialog({
 
             <div className="mx-auto my-4 max-w-[480px] rounded border border-[#d8d9cb] bg-[#fffdf8] p-4 text-left text-xs leading-relaxed text-[#535b51]">
               <div className="flex justify-between py-1 border-b border-[#eee]">
-                <span>Cottage</span>
-                <span className="font-medium text-[#243c30]">{selectedCottage?.name}</span>
+                <span>
+                  Cottage{selectedCottages.length > 1 ? "s" : ""}
+                </span>
+                <span className="font-medium text-[#243c30]">
+                  {selectedCottages.map((c) => c.name).join(", ")}
+                </span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#eee]">
                 <span>Dates</span>
@@ -1699,7 +1919,7 @@ export function BookingJourneyDialog({
                 <span className="font-medium text-[#243c30]">
                   {adults} adult{adults > 1 ? "s" : ""}
                   {children > 0 ? `, ${children} child${children > 1 ? "ren" : ""}` : ""}
-                  {dogsCount > 0 && isDogFriendly ? `, ${dogsCount} dog` : ""}
+                  {Object.values(dogsByCottage).some((c) => c > 0) && isDogFriendly ? `, ${Object.values(dogsByCottage).reduce((a, b) => a + b, 0)} dog${Object.values(dogsByCottage).reduce((a, b) => a + b, 0) === 1 ? "" : "s"}` : ""}
                 </span>
               </div>
               <div className="flex justify-between py-1.5 font-semibold text-[#243c30]">

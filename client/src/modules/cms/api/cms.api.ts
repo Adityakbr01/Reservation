@@ -231,6 +231,7 @@ export interface BookingJourneySettings {
   step1ButtonText?: BookingJourneySetting;
   step1Note?: BookingJourneySetting;
   step1ExploreLinkText?: BookingJourneySetting;
+  step1ExploreArrow?: BookingJourneySetting;
   noCottagesMessage?: BookingJourneySetting;
   step2Subtitle?: BookingJourneySetting;
   step2Title?: BookingJourneySetting;
@@ -290,8 +291,26 @@ export interface HomePageSettings {
   hero?: HomePageHeroSettings;
   section1?: HomePageSectionSettings;
   section2?: HomePageSectionSettings;
+  searchForm?: HomePageSearchFormSettings;
   emptyHeading?: string;
   emptySubtitle?: string;
+}
+
+export interface HomePageSearchField {
+  isEnabled?: boolean;
+  label?: string;
+  text?: string;
+}
+
+export interface HomePageSearchFormSettings {
+  checkIn?: HomePageSearchField;
+  checkOut?: HomePageSearchField;
+  adults?: HomePageSearchField;
+  children?: HomePageSearchField;
+  cottages?: HomePageSearchField;
+  findCottagesButton?: HomePageSearchField;
+  resetButton?: HomePageSearchField;
+  showArrow?: HomePageSearchField;
 }
 
 export interface BookingPageSettings {

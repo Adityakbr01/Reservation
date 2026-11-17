@@ -69,6 +69,15 @@ class SiteSettings extends Model
             ],
             'emptyHeading' => 'Nothing available for these dates',
             'emptySubtitle' => 'Try different dates, fewer guests, or fewer cottages.',
+            'searchForm' => [
+                'checkIn' => ['isEnabled' => true, 'label' => 'Check-in'],
+                'checkOut' => ['isEnabled' => true, 'label' => 'Check-out'],
+                'adults' => ['isEnabled' => true, 'label' => 'Adults'],
+                'children' => ['isEnabled' => true, 'label' => 'Children'],
+                'cottages' => ['isEnabled' => true, 'label' => 'Cottages'],
+                'findCottagesButton' => ['isEnabled' => true, 'text' => 'Find cottages'],
+                'resetButton' => ['isEnabled' => true, 'text' => 'Reset'],
+            ],
         ];
     }
 

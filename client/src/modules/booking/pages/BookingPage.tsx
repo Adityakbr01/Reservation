@@ -734,10 +734,6 @@ export function BookingPage() {
     }
   }, [quoteQuery.isError, appliedCoupon]);
 
-  if (!selection) {
-    return <Navigate to="/" replace />;
-  }
-
   const quote = quoteQuery.data ?? null;
   const nights = quote?.nights ?? quote?.nightly?.length ?? 0;
   const busy = createBooking.isPending || paymentIntent.isPending || guestBooking.isPending;
@@ -1157,6 +1153,10 @@ export function BookingPage() {
     } else {
       navigate("/");
     }
+  }
+
+  if (!selection) {
+    return <Navigate to="/" replace />;
   }
 
   return (
@@ -1923,7 +1923,7 @@ export function BookingPage() {
                   </div>
                 </div>
               )}
-              <div className="flex gap-2">
+              {/* <div className="flex gap-2">
                 <Input
                   value={couponInput}
                   onChange={(e) => setCouponInput(e.target.value)}
@@ -1938,7 +1938,7 @@ export function BookingPage() {
                 >
                   Apply
                 </Button>
-              </div>
+              </div> */}
               {autoCoupon && appliedCoupon === autoCoupon && (
                 <p className="text-xs text-success">{autoCoupon} auto-applied from this cottage&apos;s offer.</p>
               )}

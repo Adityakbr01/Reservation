@@ -341,6 +341,21 @@ export function HomePage() {
             isPending={isInitialLoading}
             onSearch={handleSearch}
             onFindCottages={handleFindCottages}
+            checkInLabel={hp?.searchForm?.checkIn?.label ?? ""}
+            checkOutLabel={hp?.searchForm?.checkOut?.label ?? ""}
+            adultsLabel={hp?.searchForm?.adults?.label ?? ""}
+            childrenLabel={hp?.searchForm?.children?.label ?? ""}
+            cottagesLabel={hp?.searchForm?.cottages?.label ?? ""}
+            findCottagesText={hp?.searchForm?.findCottagesButton?.text ?? ""}
+            resetText={hp?.searchForm?.resetButton?.text ?? ""}
+            showCheckIn={hp?.searchForm?.checkIn?.isEnabled !== false}
+            showCheckOut={hp?.searchForm?.checkOut?.isEnabled !== false}
+            showAdults={hp?.searchForm?.adults?.isEnabled !== false}
+            showChildren={hp?.searchForm?.children?.isEnabled !== false}
+            showCottages={hp?.searchForm?.cottages?.isEnabled !== false}
+            showFindCottagesButton={hp?.searchForm?.findCottagesButton?.isEnabled !== false}
+            showResetButton={hp?.searchForm?.resetButton?.isEnabled !== false}
+            showArrow={hp?.searchForm?.showArrow?.isEnabled !== false}
           />
         </div>
 

@@ -127,6 +127,9 @@ export interface Cottage {
   dog_policy_image_media_id?: string | null;
   dogPolicyImageUrl?: string | null;
   dog_policy_image_url?: string | null;
+  /** Custom per-count dog fees: { "1": 90, "2": 120, "3": 170 } in currency units. Overrides flat dog_fee * count. */
+  dogFees?: Record<number, number> | null;
+  dog_fees?: Record<number, number> | null;
   extras?: CottageExtra[];
   basePrice?: number | null;
   base_price?: number | null;
@@ -198,6 +201,9 @@ export interface CreateCottagePayload {
   dog_policy_image_media_id?: string | null;
   dogPolicyImageUrl?: string | null;
   dog_policy_image_url?: string | null;
+  /** Custom per-count dog fees: { "1": 90, "2": 120, "3": 170 } in currency units. */
+  dogFees?: Record<number, number> | null;
+  dog_fees?: Record<number, number> | null;
   extras?: CottageExtra[];
   basePrice?: number | null;
   base_price?: number | null;

@@ -54,6 +54,8 @@ function normalizeCottage(raw: any): Cottage {
     dog_policy_subtitle: raw?.dogPolicySubtitle ?? raw?.dog_policy_subtitle ?? null,
     dogFee: raw?.dogFee !== undefined ? raw?.dogFee : (raw?.dog_fee !== undefined ? raw?.dog_fee : 70),
     dog_fee: raw?.dogFee !== undefined ? raw?.dogFee : (raw?.dog_fee !== undefined ? raw?.dog_fee : 70),
+    dogFees: raw?.dogFees ?? raw?.dog_fees ?? null,
+    dog_fees: raw?.dogFees ?? raw?.dog_fees ?? null,
     dogPolicyImageMediaId: raw?.dogPolicyImageMediaId ?? raw?.dog_policy_image_media_id ?? null,
     dog_policy_image_media_id: raw?.dogPolicyImageMediaId ?? raw?.dog_policy_image_media_id ?? null,
     dogPolicyImageUrl: raw?.dogPolicyImageUrl ?? raw?.dog_policy_image_url ?? null,

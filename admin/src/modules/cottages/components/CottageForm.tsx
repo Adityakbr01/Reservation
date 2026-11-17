@@ -412,6 +412,16 @@ export function CottageForm({
     if (rawAny?.dog_fee != null) return String(rawAny.dog_fee);
     return "70";
   });
+  const [dogFees, setDogFees] = useState<Record<string, string>>(() => {
+    const rawAny = initial as unknown as Record<string, unknown> | undefined;
+    const df = rawAny?.dogFees ?? rawAny?.dog_fees ?? null;
+    if (!df || typeof df !== "object") return {};
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(df)) {
+      out[k] = String(v ?? "");
+    }
+    return out;
+  });
   const [dogPolicyImageMediaId, setDogPolicyImageMediaId] = useState<string | null>(
     (initial as unknown as Record<string, string | null>)?.dogPolicyImageMediaId ??
       (initial as unknown as Record<string, string | null>)?.dog_policy_image_media_id ??
@@ -724,6 +734,12 @@ export function CottageForm({
       dog_policy_subtitle: dogPolicySubtitle.trim() || null,
       dogFee: dogFee.trim() ? Math.max(0, Number(dogFee) || 0) : 70,
       dog_fee: dogFee.trim() ? Math.max(0, Number(dogFee) || 0) : 70,
+      dogFees: Object.fromEntries(
+        Object.entries(dogFees).filter(([, v]) => v.trim().length > 0 && Number(v) >= 0),
+      ),
+      dog_fees: Object.fromEntries(
+        Object.entries(dogFees).filter(([, v]) => v.trim().length > 0 && Number(v) >= 0),
+      ),
       dogPolicyImageMediaId,
       dog_policy_image_media_id: dogPolicyImageMediaId,
       extras: extras.filter(
@@ -2067,10 +2083,76 @@ export function CottageForm({
                   placeholder="70"
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="rt-dog-fees-custom">Custom Dog Fees by Count (overrides flat fee)</Label>
+                <p className="text-[11px] text-muted-foreground">
+                  Set a different total dog fee for each number of dogs (e.g. 1 dog = £10, 2 dogs = £90, 6 dogs = £200).
+                  Leave blank to use the flat fee above × count.
+                </p>
+                <div className="space-y-2">
+                  {Object.entries(dogFees).map(([count, fee]) => (
+                    <div key={count} className="flex items-center gap-3 rounded-md border border-[#d8d9cb] p-[10px_12px]">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-[#243c30]">{count}</span>
+                        <span className="text-[10px] text-muted-foreground">dog{count === 1 ? "" : "s"}</span>
+                      </div>
+                      <Input
+                        id={`rt-dog-fee-${count}`}
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={fee}
+                        onChange={(e) => {
+                          const val = e.target.value.trim();
+                          setDogFees((prev) => {
+                            if (val === "" || val === null) {
+                              const next = { ...prev };
+                              delete next[count];
+                              return next;
+                            }
+                            return { ...prev, [count]: val };
+                          });
+                        }}
+                        placeholder="e.g. 90"
+                        className="w-[120px]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDogFees((prev) => {
+                            const next = { ...prev };
+                            delete next[count];
+                            return next;
+                          });
+                        }}
+                        className="flex h-[32px] w-[32px] items-center justify-center rounded-[4px] border border-[#d8d9cb] bg-[#eef2ed] text-[10px] text-[#243c30] hover:bg-[#f5f7f0] disabled:opacity-50 disabled:cursor-not-allowed"
+                        aria-label={`Remove ${count} dog fee`}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDogFees((prev) => {
+                        const next = { ...prev };
+                        const newCount = String(Math.max(1, ...Object.keys(next).map(Number), 1) + 1);
+                        next[newCount] = "";
+                        return next;
+                      });
+                    }}
+                    className="flex items-center gap-2 border-0 bg-transparent p-0 text-[11px] font-medium text-[#243c30] underline underline-offset-4 hover:text-[#1b2d24]"
+                  >
+                    <Plus className="size-3.5" /> Add another dog count
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="rt-dog-title">Policy Title (Display on Card)</Label>
+              
               <CkEditorField
                 label="Policy Title (Display on Card)"
                 value={dogPolicyTitle}
@@ -2083,7 +2165,7 @@ export function CottageForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="rt-dog-subtitle">Policy Subtitle / Note (Display on Card)</Label>
+            
               <CkEditorField
                 label="Policy Subtitle / Note (Display on Card)"
                 value={dogPolicySubtitle}

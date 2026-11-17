@@ -26,7 +26,7 @@ class Cottage extends Model
         'welcome_hamper_description', 'welcome_hamper_image_media_id',
         'welcome_hamper_html', 'amenity_ids', 'nearby_attractions',
         'bedrooms', 'bathrooms', 'max_dogs',
-        'dog_policy_enabled', 'dog_policy_title', 'dog_policy_subtitle', 'dog_fee', 'dog_policy_image_media_id',
+        'dog_policy_enabled', 'dog_policy_title', 'dog_policy_subtitle', 'dog_fee', 'dog_fees', 'dog_policy_image_media_id',
         'extras', 'home_section',
         'status', 'seo',
     ];
@@ -42,6 +42,7 @@ class Cottage extends Model
         'welcome_hamper_included' => 'boolean',
         'dog_policy_enabled' => 'boolean',
         'dog_fee' => 'float',
+        'dog_fees' => 'array',
         'extras' => 'array',
         'amenity_ids' => 'array',
         'nearby_attractions' => 'array',

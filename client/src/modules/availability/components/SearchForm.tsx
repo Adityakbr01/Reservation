@@ -33,9 +33,44 @@ interface SearchFormProps {
   isPending: boolean;
   onSearch: (params: AvailabilitySearchParams) => void;
   onFindCottages?: (params: AvailabilitySearchParams) => void;
+  checkInLabel?: string;
+  checkOutLabel?: string;
+  adultsLabel?: string;
+  childrenLabel?: string;
+  cottagesLabel?: string;
+  findCottagesText?: string;
+  resetText?: string;
+  showCheckIn?: boolean;
+  showCheckOut?: boolean;
+  showAdults?: boolean;
+  showChildren?: boolean;
+  showCottages?: boolean;
+  showFindCottagesButton?: boolean;
+  showResetButton?: boolean;
+  showArrow?: boolean;
 }
 
-export function SearchForm({ initial, isPending, onSearch, onFindCottages }: SearchFormProps) {
+export function SearchForm({
+  initial,
+  isPending,
+  onSearch,
+  onFindCottages,
+  checkInLabel,
+  checkOutLabel,
+  adultsLabel,
+  childrenLabel,
+  cottagesLabel,
+  findCottagesText,
+  resetText,
+  showCheckIn = true,
+  showCheckOut = true,
+  showAdults = true,
+  showChildren = true,
+  showCottages = true,
+  showFindCottagesButton = true,
+  showResetButton = true,
+  showArrow = true,
+}: SearchFormProps) {
   const [checkIn, setCheckIn] = useState(initial.checkIn);
   const [checkOut, setCheckOut] = useState(initial.checkOut);
   const [adults, setAdults] = useState(String(initial.adults));
@@ -170,113 +205,123 @@ export function SearchForm({ initial, isPending, onSearch, onFindCottages }: Sea
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div className="grid grid-cols-6 gap-3 sm:gap-[14px] lg:grid-cols-[1.4fr_1.4fr_0.7fr_0.7fr_0.7fr_auto_auto] lg:items-end">
-        <div className="col-span-3 lg:col-span-1">
-          <DateField
-            id="search-checkin"
-            label="Check-in"
-            value={checkIn}
-            min={today}
-            onChange={handleCheckInChange}
-          />
-        </div>
-        <div className="col-span-3 lg:col-span-1">
-          <DateField
-            id="search-checkout"
-            label="Check-out"
-            value={checkOut}
-            min={checkIn || today}
-            onChange={handleCheckOutChange}
-          />
-        </div>
-
-        <div className="col-span-2 min-w-0 relative lg:col-span-1">
-          <Label htmlFor="search-adults" className={fieldLabelClass}>
-            Adults
-          </Label>
-          <div className="relative">
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-            <select
-              id="search-adults"
-              value={adults}
-              onChange={(e) => handleAdultsChange(e.target.value)}
-              className={selectClass}
-            >
-            {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
+        {showCheckIn && (
+          <div className="col-span-3 lg:col-span-1">
+            <DateField
+              id="search-checkin"
+              label={checkInLabel ?? ""}
+              value={checkIn}
+              min={today}
+              onChange={handleCheckInChange}
+            />
           </div>
-        </div>
-
-        <div className="col-span-2 min-w-0 relative lg:col-span-1">
-          <Label htmlFor="search-children" className={fieldLabelClass}>
-            Children
-          </Label>
-          <div className="relative">
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-            <select
-              id="search-children"
-              value={children}
-              onChange={(e) => handleChildrenChange(e.target.value)}
-              className={selectClass}
-            >
-            {Array.from({ length: 21 }, (_, i) => i).map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
+        )}
+        {showCheckOut && (
+          <div className="col-span-3 lg:col-span-1">
+            <DateField
+              id="search-checkout"
+              label={checkOutLabel ?? ""}
+              value={checkOut}
+              min={checkIn || today}
+              onChange={handleCheckOutChange}
+            />
           </div>
-        </div>
-
-        <div className="col-span-2 min-w-0 relative lg:col-span-1">
-          <Label htmlFor="search-cottages" className={fieldLabelClass}>
-            Cottages
-          </Label>
-          <div className="relative">
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-            <select
-              id="search-cottages"
-              value={rooms}
-              onChange={(e) => handleRoomsChange(e.target.value)}
-              className={selectClass}
-            >
-            {Array.from({ length: 5 }, (_, i) => i + 1).map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
+        )}
+        {showAdults && (
+          <div className="col-span-2 min-w-0 relative lg:col-span-1">
+            <Label htmlFor="search-adults" className={fieldLabelClass}>
+              {adultsLabel ?? ""}
+            </Label>
+            <div className="relative">
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+              <select
+                id="search-adults"
+                value={adults}
+                onChange={(e) => handleAdultsChange(e.target.value)}
+                className={selectClass}
+              >
+              {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+            </div>
           </div>
-        </div>
-
-        <Button
-          type="submit"
-          className="btn-arrow btn-shine col-span-6 h-12 w-full shrink-0 rounded-none bg-primary px-6 text-[12px] font-medium text-primary-foreground hover:bg-brand-dark lg:col-span-1"
-          disabled={isPending}
-        >
-          {isPending ? (
-            <>
-              <Loader className="size-4 animate-spin" aria-hidden />
-              <span className="sr-only">Searching…</span>
-            </>
-          ) : (
-            <>
-              <span className="whitespace-nowrap">Find cottages</span>
-              <ArrowRight aria-hidden className="arrow-icon size-4" />
-            </>
-          )}
-        </Button>
-        <button
-          type="button"
-          onClick={handleReset}
-          title="Reset search to show all cottages"
-          className="col-span-6 hidden h-12 shrink-0 px-1 text-[12px] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:block lg:col-span-1"
-        >
-          Reset
-        </button>
+        )}
+        {showChildren && (
+          <div className="col-span-2 min-w-0 relative lg:col-span-1">
+            <Label htmlFor="search-children" className={fieldLabelClass}>
+              {childrenLabel ?? ""}
+            </Label>
+            <div className="relative">
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+              <select
+                id="search-children"
+                value={children}
+                onChange={(e) => handleChildrenChange(e.target.value)}
+                className={selectClass}
+              >
+              {Array.from({ length: 21 }, (_, i) => i).map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+            </div>
+          </div>
+        )}
+        {showCottages && (
+          <div className="col-span-2 min-w-0 relative lg:col-span-1">
+            <Label htmlFor="search-cottages" className={fieldLabelClass}>
+              {cottagesLabel ?? ""}
+            </Label>
+            <div className="relative">
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+              <select
+                id="search-cottages"
+                value={rooms}
+                onChange={(e) => handleRoomsChange(e.target.value)}
+                className={selectClass}
+              >
+              {Array.from({ length: 5 }, (_, i) => i + 1).map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+            </div>
+          </div>
+        )}
+        {showFindCottagesButton && (
+          <Button
+            type="submit"
+            className="btn-arrow btn-shine col-span-6 h-12 w-full shrink-0 rounded-none bg-primary px-6 text-[12px] font-medium text-primary-foreground hover:bg-brand-dark lg:col-span-1"
+            disabled={isPending}
+          >
+            {isPending ? (
+              <>
+                <Loader className="size-4 animate-spin" aria-hidden />
+                <span className="sr-only">Searching…</span>
+              </>
+            ) : (
+              <>
+                <span className="whitespace-nowrap">{findCottagesText ?? ""}</span>
+                {showArrow && <ArrowRight aria-hidden className="arrow-icon size-4" />}
+              </>
+            )}
+          </Button>
+        )}
+        {showResetButton && (
+          <button
+            type="button"
+            onClick={handleReset}
+            title="Reset search to show all cottages"
+            className="col-span-6 hidden h-12 shrink-0 px-1 text-[12px] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:block lg:col-span-1"
+          >
+            {resetText ?? ""}
+          </button>
+        )}
       </div>
       {rangeError && <p className="text-xs text-error">{rangeError}</p>}
     </form>

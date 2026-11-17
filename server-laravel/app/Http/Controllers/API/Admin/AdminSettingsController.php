@@ -208,12 +208,15 @@ class AdminSettingsController extends Controller
 
                 // Nested togglable field: { isEnabled, value }
                 if (is_array($default) && isset($default['isEnabled']) && isset($default['value'])) {
-                    $incomingIsEnabled = array_key_exists('isEnabled', $incoming)
-                        ? $incoming['isEnabled']
-                        : (array_key_exists('is_enabled', $incoming) ? $incoming['is_enabled'] : null);
-                    $incomingValue = array_key_exists('value', $incoming)
-                        ? $incoming['value']
-                        : (array_key_exists('value', $incoming) ? $incoming['value'] : null);
+                    $fieldIncoming = is_array($incoming[$key] ?? null)
+                        ? $incoming[$key]
+                        : (is_array($incoming[$snakeKey] ?? null) ? $incoming[$snakeKey] : []);
+                    $incomingIsEnabled = array_key_exists('isEnabled', $fieldIncoming)
+                        ? $fieldIncoming['isEnabled']
+                        : (array_key_exists('is_enabled', $fieldIncoming) ? $fieldIncoming['is_enabled'] : null);
+                    $incomingValue = array_key_exists('value', $fieldIncoming)
+                        ? $fieldIncoming['value']
+                        : null;
                     $resolved[$section][$key] = [
                         'isEnabled' => $incomingIsEnabled !== null ? (bool) $incomingIsEnabled : (bool) ($default['isEnabled'] ?? true),
                         'value' => $incomingValue !== null ? (string) $incomingValue : (string) ($default['value'] ?? ''),
@@ -264,7 +267,34 @@ class AdminSettingsController extends Controller
     {
         $resolved = $this->resolveHomePage($current);
 
+        // Nested togglable home page search form fields: { isEnabled, label/text }
+        $searchDefaults = SiteSettings::defaultHomePage()['searchForm'] ?? [];
+        if (is_array($searchDefaults)) {
+            $rawSearch = is_array($raw['searchForm'] ?? null)
+                ? $raw['searchForm']
+                : (is_array($raw['search_form'] ?? null) ? $raw['search_form'] : []);
+            foreach ($searchDefaults as $field => $default) {
+                $val = is_array($rawSearch[$field] ?? null)
+                    ? $rawSearch[$field]
+                    : (is_array($rawSearch[\Illuminate\Support\Str::snake($field)] ?? null)
+                        ? $rawSearch[\Illuminate\Support\Str::snake($field)]
+                        : []);
+                if (empty($val)) {
+                    continue;
+                }
+                $valueKey = isset($default['label']) ? 'label' : 'text';
+                $resolved['searchForm'][$field] = [
+                    'isEnabled' => isset($val['isEnabled']) ? (bool) $val['isEnabled'] : (bool) ($default['isEnabled'] ?? true),
+                    $valueKey => isset($val[$valueKey]) ? (string) $val[$valueKey] : (string) ($default[$valueKey] ?? ''),
+                ];
+            }
+        }
+
         foreach ($resolved as $section => $defaults) {
+            // searchForm fields are handled by the dedicated block above
+            if ($section === 'searchForm') {
+                continue;
+            }
             $snakeSection = \Illuminate\Support\Str::snake($section);
             if (is_array($defaults)) {
                 $incoming = is_array($raw[$section] ?? null)
