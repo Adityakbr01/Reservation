@@ -55,6 +55,10 @@ class AdminSettingsController extends Controller
         if (array_key_exists('checkOutTime', $input) || array_key_exists('check_out_time', $input)) {
             $data['check_out_time'] = $input['checkOutTime'] ?? $input['check_out_time'] ?? null;
         }
+        if (array_key_exists('minimumStayNights', $input) || array_key_exists('minimum_stay_nights', $input)) {
+            $minStay = $input['minimumStayNights'] ?? $input['minimum_stay_nights'];
+            $data['minimum_stay_nights'] = $minStay !== null ? max(1, (int) $minStay) : 2;
+        }
         if (array_key_exists('reminderHoursBefore', $input) || array_key_exists('reminder_hours_before', $input)) {
             $val = $input['reminderHoursBefore'] ?? $input['reminder_hours_before'];
             $data['reminder_hours_before'] = $val !== null ? (int) $val : 24;
@@ -393,6 +397,8 @@ class AdminSettingsController extends Controller
             'checkInTime' => $settings->check_in_time ?? '16:00',
             'check_out_time' => $settings->check_out_time ?? '10:00',
             'checkOutTime' => $settings->check_out_time ?? '10:00',
+            'minimum_stay_nights' => (int) ($settings->minimum_stay_nights ?? 2),
+            'minimumStayNights' => (int) ($settings->minimum_stay_nights ?? 2),
             'reminder_hours_before' => (int) ($settings->reminder_hours_before ?? 24),
             'reminderHoursBefore' => (int) ($settings->reminder_hours_before ?? 24),
             'why_book_with_us' => $resolvedWhyItems,

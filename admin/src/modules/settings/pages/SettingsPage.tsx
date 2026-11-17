@@ -569,6 +569,7 @@ interface Settings {
   currency: string;
   checkInTime: string | null;
   checkOutTime: string | null;
+  minimumStayNights?: number;
   reminderHoursBefore: number;
   whyBookWithUsHeading?: string | null;
   whyBookWithUs?: WhyBookItem[];
@@ -1113,6 +1114,30 @@ function SettingsForm({ initial }: { initial: Settings }) {
                   onChange={(e) => set("checkOutTime", e.target.value || null)}
                   placeholder="11:00"
                 />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="set-min-stay">Minimum stay (nights)</Label>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                    {form.minimumStayNights ?? 2} night{form.minimumStayNights === 1 ? "" : "s"} min
+                  </span>
+                </div>
+                <Input
+                  id="set-min-stay"
+                  type="number"
+                  min={1}
+                  max={30}
+                  value={form.minimumStayNights ?? 2}
+                  onChange={(e) =>
+                    set(
+                      "minimumStayNights",
+                      Math.min(30, Math.max(1, Number(e.target.value) || 1)),
+                    )
+                  }
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Minimum consecutive nights required globally for bookings, calendar selections, and availability search.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="set-reminder">

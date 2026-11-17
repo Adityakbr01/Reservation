@@ -42,8 +42,12 @@ class SearchAvailabilityRequest extends FormRequest
             $out = $this->input('check_out');
             if ($in && $out) {
                 $days = (strtotime($out) - strtotime($in)) / 86400;
-                if ($days < 2) {
-                    $validator->errors()->add('check_out', 'A minimum stay of 2 nights is required.');
+                $minStay = (int) (\App\Models\SiteSettings::first()?->minimum_stay_nights ?? 2);
+                if ($minStay < 1) {
+                    $minStay = 2;
+                }
+                if ($days < $minStay) {
+                    $validator->errors()->add('check_out', "A minimum stay of {$minStay} nights is required.");
                 }
             }
         });

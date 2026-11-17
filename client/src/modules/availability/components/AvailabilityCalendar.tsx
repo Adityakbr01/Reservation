@@ -108,7 +108,7 @@ export function AvailabilityCalendar({
     const price = formatPrice(day.price, day.currency);
     if (state === "past") return day.date;
     if (state === "full") return `${prettyDay(day.date)}: fully booked night`;
-    const minStayCount = Math.max(2, day.minNights ?? 2);
+    const minStayCount = Math.max(1, day.minNights ?? 2);
     const stay = ` · ${minStayCount}-night minimum stay`;
     return `${prettyDay(day.date)}${price ? `: ${price}` : ""} · ${day.available} of ${day.total} free${stay}`;
   }
@@ -171,7 +171,7 @@ export function AvailabilityCalendar({
               const isPastBlockedWall = Boolean(
                 selectedCheckIn && !selectedCheckOut && firstBlockedNight && day.date >= firstBlockedNight
               );
-              const minReqStay = 2;
+              const minReqStay = Math.max(1, day.minNights ?? 2);
               const isViolatingMinStay = Boolean(
                 selectedCheckIn &&
                   !selectedCheckOut &&
@@ -192,8 +192,8 @@ export function AvailabilityCalendar({
                   onClick={() => onPickDate?.(day.date)}
                   onMouseEnter={() => setHoverDate(day.date)}
                   onFocus={() => setHoverDate(day.date)}
-                  title={isViolatingMinStay ? `${prettyDay(day.date)}: Minimum 2 nights required (earliest check-out is 2 nights after check-in)` : tooltipFor(day, state)}
-                  aria-label={`${prettyDay(day.date)}: ${state === "free" || state === "few" ? `${day.available} of ${day.total} free${price ? `, ${price}` : ""}, ${Math.max(2, day.minNights ?? 2)}-night minimum stay` : state === "full" ? "fully booked" : state}${isCheckIn ? ", check-in" : ""}${isCheckOut ? ", check-out" : ""}`}
+                  title={isViolatingMinStay ? `${prettyDay(day.date)}: Minimum ${minReqStay} nights required (earliest check-out is ${minReqStay} nights after check-in)` : tooltipFor(day, state)}
+                  aria-label={`${prettyDay(day.date)}: ${state === "free" || state === "few" ? `${day.available} of ${day.total} free${price ? `, ${price}` : ""}, ${minReqStay}-night minimum stay` : state === "full" ? "fully booked" : state}${isCheckIn ? ", check-in" : ""}${isCheckOut ? ", check-out" : ""}`}
                   className={cn(
                     "group relative flex min-h-12 flex-col items-center justify-center rounded-lg px-1 py-1 text-[13px] font-medium transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
@@ -248,7 +248,7 @@ export function AvailabilityCalendar({
                           : `${day.available} of ${day.total} free`}
                       </span>
                       {state !== "full" && (
-                        <span className="block opacity-90">{Math.max(2, day.minNights ?? 2)}-night minimum stay</span>
+                        <span className="block opacity-90">{Math.max(1, day.minNights ?? 2)}-night minimum stay</span>
                       )}
                     </span>
                   )}

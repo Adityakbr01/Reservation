@@ -326,6 +326,7 @@ export interface SiteSettings {
   timezone: string | null;
   checkInTime: string | null;
   checkOutTime: string | null;
+  minimumStayNights?: number | null;
   address: string | null;
   phone: string | null;
   supportEmail: string | null;

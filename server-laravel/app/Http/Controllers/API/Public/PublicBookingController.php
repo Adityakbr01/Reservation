@@ -46,13 +46,18 @@ class PublicBookingController extends Controller
         $checkIn = $request->input('checkIn') ?? $request->input('check_in') ?? date('Y-m-d');
         $checkOut = $request->input('checkOut') ?? $request->input('check_out') ?? date('Y-m-d', strtotime('+2 days'));
         
+        $minStay = (int) (\App\Models\SiteSettings::first()?->minimum_stay_nights ?? 2);
+        if ($minStay < 1) {
+            $minStay = 2;
+        }
+
         $requestedNights = (int) round((strtotime($checkOut) - strtotime($checkIn)) / 86400);
-        if ($requestedNights < 2) {
+        if ($requestedNights < $minStay) {
             return response()->json([
                 'success' => false,
                 'error' => [
                     'code' => 'MIN_STAY_NOT_MET',
-                    'message' => 'A minimum stay of 2 nights is required.',
+                    'message' => "A minimum stay of {$minStay} nights is required.",
                 ],
             ], 422);
         }
@@ -304,13 +309,18 @@ class PublicBookingController extends Controller
         $checkIn = $request->input('checkIn') ?? $request->input('check_in') ?? date('Y-m-d');
         $checkOut = $request->input('checkOut') ?? $request->input('check_out') ?? date('Y-m-d', strtotime('+2 days'));
 
+        $minStay = (int) (\App\Models\SiteSettings::first()?->minimum_stay_nights ?? 2);
+        if ($minStay < 1) {
+            $minStay = 2;
+        }
+
         $requestedNights = (int) round((strtotime($checkOut) - strtotime($checkIn)) / 86400);
-        if ($requestedNights < 2) {
+        if ($requestedNights < $minStay) {
             return response()->json([
                 'success' => false,
                 'error' => [
                     'code' => 'MIN_STAY_NOT_MET',
-                    'message' => 'A minimum stay of 2 nights is required.',
+                    'message' => "A minimum stay of {$minStay} nights is required.",
                 ],
             ], 422);
         }

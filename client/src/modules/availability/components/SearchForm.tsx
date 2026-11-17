@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { ArrowRight, ChevronDown, Loader } from "lucide-react";
 import toast from "react-hot-toast";
+import { useQuery } from "@tanstack/react-query";
+import { publicApiClient, unwrapResponse } from "@/lib/api-client";
+import type { ApiEnvelope } from "@/lib/api-client";
+import type { SiteSettings } from "@/modules/cms/api/cms.api";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DateField } from "@/components/common/DateField";
@@ -80,6 +84,17 @@ export function SearchForm({
   const [rangeError, setRangeError] = useState<string | null>(null);
   const [today] = useState(() => toDayKey(new Date()));
 
+  const { data: settings } = useQuery({
+    queryKey: ["site-settings-public"],
+    queryFn: async () => {
+      const r = await publicApiClient.get<ApiEnvelope<SiteSettings>>("/public/cms/site-settings");
+      return unwrapResponse(r);
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const minStayNights = Math.max(1, settings?.minimumStayNights ?? 2);
+
   // Keep form inputs synced whenever initial changes (e.g. from restored state or URL)
   useEffect(() => {
     setCheckIn(initial.checkIn);
@@ -113,13 +128,13 @@ export function SearchForm({
     setCheckIn(val);
     setRangeError(null);
     let nextCheckOut = checkOut;
-    // Minimum 2 nights: if checkOut is empty or less than 2 nights after new checkIn, automatically push it forward
+    // Minimum stay: if checkOut is empty or less than minStayNights after new checkIn, automatically push it forward
     try {
       const inDate = new Date(`${val}T00:00:00`);
       if (!isNaN(inDate.getTime())) {
-        const minOut = toDayKey(addDays(inDate, 2));
+        const minOut = toDayKey(addDays(inDate, minStayNights));
         if (!nextCheckOut || nextCheckOut < minOut) {
-          nextCheckOut = toDayKey(addDays(inDate, 3));
+          nextCheckOut = toDayKey(addDays(inDate, Math.max(3, minStayNights)));
           setCheckOut(nextCheckOut);
         }
       }
@@ -141,9 +156,10 @@ export function SearchForm({
       const inDate = new Date(`${checkIn}T00:00:00Z`);
       const outDate = new Date(`${val}T00:00:00Z`);
       const diffNights = Math.round((outDate.getTime() - inDate.getTime()) / 86400000);
-      if (diffNights < 2) {
-        setRangeError("A minimum stay of 2 nights is required.");
-        toast.error("A minimum stay of 2 nights is required.");
+      if (diffNights < minStayNights) {
+        const msg = `A minimum stay of ${minStayNights} night${minStayNights === 1 ? "" : "s"} is required.`;
+        setRangeError(msg);
+        toast.error(msg);
         return;
       }
     }
@@ -236,7 +252,7 @@ export function SearchForm({
               id="search-checkout"
               label={checkOutLabel ?? ""}
               value={checkOut}
-              min={checkIn ? toDayKey(addDays(new Date(`${checkIn}T00:00:00`), 2)) : today}
+              min={checkIn ? toDayKey(addDays(new Date(`${checkIn}T00:00:00`), minStayNights)) : today}
               onChange={handleCheckOutChange}
             />
           </div>

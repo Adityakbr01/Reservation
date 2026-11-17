@@ -217,6 +217,7 @@ export function BookingJourneyDialog({
   const bjSettings = siteSettings?.bookingPage?.bookingJourney;
   const currencyCode = siteSettings?.currency || "GBP";
   const currencySymbol = getCurrencySymbol(currencyCode);
+  const minStayNights = Math.max(1, siteSettings?.minimumStayNights ?? 2);
 
   // Resolve a single booking journey field: { isEnabled, value }
   // Disabled or missing fields yield an empty value and are not rendered.
@@ -822,8 +823,8 @@ export function BookingJourneyDialog({
                   return;
                 }
                 const n = countNights(checkIn, checkOut);
-                if (n < 2) {
-                  toast.error("A minimum stay of 2 nights is required.");
+                if (n < minStayNights) {
+                  toast.error(`A minimum stay of ${minStayNights} night${minStayNights === 1 ? "" : "s"} is required.`);
                   return;
                 }
                 setStep(1);
@@ -841,9 +842,9 @@ export function BookingJourneyDialog({
                     setCheckIn(value);
                     const inDate = new Date(`${value}T00:00:00`);
                     if (!Number.isNaN(inDate.getTime())) {
-                      const minOut = toDayKey(addDays(inDate, 2));
+                      const minOut = toDayKey(addDays(inDate, minStayNights));
                       if (!checkOut || checkOut < minOut) {
-                        setCheckOut(toDayKey(addDays(inDate, 3)));
+                        setCheckOut(toDayKey(addDays(inDate, Math.max(3, minStayNights))));
                       }
                     }
                   }}
@@ -852,13 +853,13 @@ export function BookingJourneyDialog({
                   id="booking-checkOut"
                   label={bjValue("step1CheckOutLabel")}
                   value={checkOut}
-                  min={checkIn ? toDayKey(addDays(new Date(`${checkIn}T00:00:00`), 2)) : today}
+                  min={checkIn ? toDayKey(addDays(new Date(`${checkIn}T00:00:00`), minStayNights)) : today}
                   contentClassName="z-[120]"
                   onChange={(val) => {
                     if (checkIn) {
                       const n = countNights(checkIn, val);
-                      if (n < 2) {
-                        toast.error("A minimum stay of 2 nights is required.");
+                      if (n < minStayNights) {
+                        toast.error(`A minimum stay of ${minStayNights} night${minStayNights === 1 ? "" : "s"} is required.`);
                         return;
                       }
                     }

@@ -447,13 +447,14 @@ export function CottageDetailPage() {
     }
     if (picked.length === 1) {
       const [checkIn, checkOut] = [picked[0], date];
+      const minNightsReq = Math.max(1, settings?.minimumStayNights ?? 2);
       const nightsCount = Math.round(
         (new Date(`${checkOut}T00:00:00Z`).getTime() -
           new Date(`${checkIn}T00:00:00Z`).getTime()) /
           86400000,
       );
-      if (nightsCount < 2) {
-        toast.error("A minimum stay of 2 nights is required.");
+      if (nightsCount < minNightsReq) {
+        toast.error(`A minimum stay of ${minNightsReq} night${minNightsReq === 1 ? "" : "s"} is required.`);
         return;
       }
       setPicked([]);

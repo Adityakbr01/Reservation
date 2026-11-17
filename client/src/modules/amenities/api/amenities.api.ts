@@ -16,9 +16,9 @@ export async function fetchAmenities(): Promise<Amenity[]> {
   return unwrapResponse(r);
 }
 
-import type { WhyBookWithUsItem } from "@/modules/cms/api/cms.api";
+import type { SiteSettings } from "@/modules/cms/api/cms.api";
 
-export async function fetchSettings(): Promise<{ whyBookWithUs?: WhyBookWithUsItem[]; whyBookWithUsHeading?: string | null }> {
-  const r = await publicApiClient.get<ApiEnvelope<{ whyBookWithUs?: WhyBookWithUsItem[]; whyBookWithUsHeading?: string | null }>>("/public/cms/site-settings");
+export async function fetchSettings(): Promise<SiteSettings> {
+  const r = await publicApiClient.get<ApiEnvelope<SiteSettings>>("/public/cms/site-settings");
   return unwrapResponse(r);
 }

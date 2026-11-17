@@ -80,6 +80,8 @@ class PublicSettingsController extends Controller
                 'checkInTime' => $settings->check_in_time,
                 'check_out_time' => $settings->check_out_time,
                 'checkOutTime' => $settings->check_out_time,
+                'minimum_stay_nights' => (int) ($settings->minimum_stay_nights ?? 2),
+                'minimumStayNights' => (int) ($settings->minimum_stay_nights ?? 2),
                 'reminder_hours_before' => (int) ($settings->reminder_hours_before ?? 24),
                 'reminderHoursBefore' => (int) ($settings->reminder_hours_before ?? 24),
                 'why_book_with_us' => $resolvedWhyItems,

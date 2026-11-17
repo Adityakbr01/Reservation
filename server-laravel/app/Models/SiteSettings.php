@@ -16,13 +16,14 @@ class SiteSettings extends Model
     protected $fillable = [
         'key', 'property_name', 'logo_media_id', 'favicon_media_id',
         'phone', 'support_email', 'address', 'timezone', 'currency',
-        'check_in_time', 'check_out_time', 'reminder_hours_before',
+        'check_in_time', 'check_out_time', 'minimum_stay_nights', 'reminder_hours_before',
         'social', 'default_seo', 'why_book_with_us',
         'header_navigation', 'footer_navigation', 'booking_acknowledgement',
         'booking_page', 'home_page',
     ];
 
     protected $casts = [
+        'minimum_stay_nights' => 'integer',
         'social' => 'array',
         'default_seo' => 'array',
         'why_book_with_us' => 'array',

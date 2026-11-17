@@ -238,6 +238,11 @@ class PublicAvailabilityController extends Controller
         }
         $roomTypes = $query->get();
 
+        $minStayConfig = (int) (\App\Models\SiteSettings::first()?->minimum_stay_nights ?? 2);
+        if ($minStayConfig < 1) {
+            $minStayConfig = 2;
+        }
+
         $typesData = [];
         foreach ($roomTypes as $rt) {
             $rooms = Room::where('room_type_id', $rt->id)->where('status', 'ACTIVE')->get();
@@ -290,7 +295,7 @@ class PublicAvailabilityController extends Controller
                     'available' => $availableCount,
                     'booked' => $bookedCount,
                     'blocked' => $blockedCount,
-                    'minNights' => 2,
+                    'minNights' => $minStayConfig,
                 ];
 
                 $cursor->addDay();
