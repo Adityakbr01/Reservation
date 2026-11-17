@@ -201,6 +201,14 @@ export function BookingJourneyDialog({
   const currencyCode = siteSettings?.currency || "GBP";
   const currencySymbol = getCurrencySymbol(currencyCode);
 
+  // Resolve a single booking journey field: { isEnabled, value }
+  // Disabled or missing fields yield an empty value and are not rendered.
+  const bjField = (key: string) => {
+    const f = (bjSettings as Record<string, { isEnabled?: boolean; value?: string }> | undefined)?.[key];
+    return { isEnabled: f?.isEnabled !== false, value: f?.value ?? "" };
+  };
+  const bjValue = (key: string) => bjField(key).value;
+
   useEffect(() => {
     if (siteSettings?.currency) {
       setDefaultCurrency(siteSettings.currency);
@@ -509,10 +517,10 @@ export function BookingJourneyDialog({
         <div className="sticky top-0 z-10 flex items-center justify-between gap-[25px] border-b border-[#d8d9cb] bg-[#f7f4ec] px-[30px] py-[23px]">
           <div>
             <span className="mb-[8px] block text-[9px] font-semibold uppercase leading-[14.4px] tracking-[1.8px]">
-              {bjSettings?.previewNotice || "DESIGN PREVIEW · NO BOOKINGS OR PAYMENTS TAKEN"}
+              {bjValue("previewNotice")}
             </span>
             <h2 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[35px] font-normal leading-[35.7px] tracking-[-0.875px]">
-              {bjSettings?.modalTitle || "Book your stay."}
+              {bjValue("modalTitle")}
             </h2>
           </div>
           <button
@@ -583,10 +591,10 @@ export function BookingJourneyDialog({
         {step === 0 && (
           <div className="p-[31px_40px_27px] max-w-[650px] mx-auto">
             <span className="block text-[9px] font-semibold uppercase leading-[14.4px] tracking-[1.8px] text-[#ac812a]">
-              {bjSettings?.step1Subtitle || "YOUR STAY AT HOME FARM"}
+              {bjValue("step1Subtitle")}
             </span>
             <h3 className="m-0 mt-[11px] font-['Instrument_Serif',Georgia,serif] text-[38px] font-normal leading-[41.8px] tracking-[-0.95px]">
-              {bjSettings?.step1Title || "When would you like to stay?"}
+              {bjValue("step1Title")}
             </h3>
             <form
               onSubmit={(e) => {
@@ -606,7 +614,7 @@ export function BookingJourneyDialog({
               <div className="grid grid-cols-2 gap-[20px]">
                 <DateField
                   id="booking-checkIn"
-                  label={bjSettings?.step1CheckInLabel || "Arrival"}
+                  label={bjValue("step1CheckInLabel")}
                   value={checkIn}
                   min={today}
                   contentClassName="z-[120]"
@@ -622,7 +630,7 @@ export function BookingJourneyDialog({
                 />
                 <DateField
                   id="booking-checkOut"
-                  label={bjSettings?.step1CheckOutLabel || "Departure"}
+                  label={bjValue("step1CheckOutLabel")}
                   value={checkOut}
                   min={checkIn || today}
                   contentClassName="z-[120]"
@@ -630,7 +638,7 @@ export function BookingJourneyDialog({
                 />
                 <label className="flex flex-col gap-[9px] text-[11px]">
                   <span className="text-[10px] tracking-[0.6px] text-[#535b51]">
-                    {bjSettings?.step1AdultsLabel || "ADULTS"}
+                    {bjValue("step1AdultsLabel")}
                   </span>
                   <select
                     name="booking-adults"
@@ -648,7 +656,7 @@ export function BookingJourneyDialog({
                 </label>
                 <label className="flex flex-col gap-[9px] text-[11px]">
                   <span className="text-[10px] tracking-[0.6px] text-[#535b51]">
-                    {bjSettings?.step1ChildrenLabel || "CHILDREN"}
+                    {bjValue("step1ChildrenLabel")}
                   </span>
                   <select
                     name="booking-children"
@@ -688,7 +696,7 @@ export function BookingJourneyDialog({
                 type="submit"
                 className="mt-[27px] inline-flex min-h-[49px] w-full cursor-pointer items-center justify-center gap-[24px] border-0 bg-[#243c30] p-[14px_23px] text-[12px] font-medium leading-[16.2px] text-[#fffdf8] transition-colors hover:bg-[#1b2d24] outline-offset-[5px]"
               >
-                {bjSettings?.step1ButtonText || "Check availability"}
+                {bjValue("step1ButtonText")}
                 <svg
                   viewBox="0 0 24 24"
                   aria-hidden="true"
@@ -701,9 +709,7 @@ export function BookingJourneyDialog({
               <div
                 className="m-0 mt-[13px] text-center text-[10px] leading-[17.5px] text-[#535b51] [&_p]:m-0 [&_a]:underline"
                 dangerouslySetInnerHTML={{
-                  __html: sanitizeCheckoutHtml(
-                    bjSettings?.step1Note || "Design preview · example prices, no live availability.",
-                  ),
+                    __html: sanitizeCheckoutHtml(bjValue("step1Note")),
                 }}
               />
             </form>
@@ -714,7 +720,7 @@ export function BookingJourneyDialog({
                 onClick={closeBookingJourney}
                 className="inline-flex cursor-pointer items-center justify-between gap-[25px] border-0 border-b border-[#243c30] p-[8px_0_10px] text-[11px] leading-[17.6px] text-[#243c30] outline-offset-[5px]"
               >
-                {bjSettings?.step1ExploreLinkText || "Explore the cottages first"}
+                {bjValue("step1ExploreLinkText")}
                 <svg
                   viewBox="0 0 24 24"
                   aria-hidden="true"
@@ -737,14 +743,13 @@ export function BookingJourneyDialog({
                 <div>
                   <div>
                     <span className="mb-[10px] block text-[9px] font-semibold uppercase leading-[14.4px] tracking-[1.8px] text-[#ac812a]">
-                      {bjSettings?.step2Subtitle || "YOUR STAY AT HOME FARM"}
+                      {bjValue("step2Subtitle")}
                     </span>
                     <h3 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[39px] font-normal leading-[39.78px] tracking-[-0.975px]">
-                      {bjSettings?.step2Title || "Choose your cottage."}
+                      {bjValue("step2Title")}
                     </h3>
                     <p className="m-0 mt-[10px] max-w-[510px] text-[13px] leading-[22.1px] text-[#535b51]">
-                      {bjSettings?.step2Description ||
-                        "Take a closer look and choose your place at Home Farm."}
+                      {bjValue("step2Description")}
                     </p>
                   </div>
 
@@ -941,7 +946,7 @@ export function BookingJourneyDialog({
                     }}
                     className="mt-[18px] block cursor-pointer border-0 text-left text-[10px] text-[#243c30] underline underline-offset-4 outline-offset-[5px]"
                   >
-                    {bjSettings?.groupStayText || "Booking several cottages? Plan a group stay ↗"}
+                    {bjValue("groupStayText")}
                   </button>
 
                   <div className="mt-[25px] flex items-center justify-between gap-[15px]">
@@ -980,23 +985,17 @@ export function BookingJourneyDialog({
                         </svg>
                         <div>
                           <h4 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[32px] font-normal leading-[35.2px]">
-                            {bjSettings?.step3DogsTitle || "Bringing a dog?"}
+                            {bjValue("step3DogsTitle")}
                           </h4>
                           <p className="m-0 mt-[8px] text-[12px] leading-[21.6px]">
-                            {bjSettings?.step3DogsDescription
-                              ? bjSettings.step3DogsDescription
-                                  .replace("{cottage}", selectedCottage?.name || "This cottage")
-                                  .replace("{max}", String(maxDogsAllowed))
-                                  .replace("{plural}", maxDogsAllowed === 1 ? "" : "s")
-                                  .replace("{fee}", `${currencySymbol}${unitDogFee}`)
-                              : `${selectedCottage?.name} welcomes up to ${maxDogsAllowed} dog${maxDogsAllowed === 1 ? "" : "s"}. ${currencySymbol}${unitDogFee} per dog for the whole stay.`}
+                            {bjValue("step3DogsDescription")}
                           </p>
                         </div>
                       </div>
 
                       <label className="mt-[18px] block flex-col gap-[9px] text-[11px]">
                         <span className="mb-[8px] block text-[10px] tracking-[0.8px] text-[#535b51]">
-                          {bjSettings?.step3DogsSelectLabel || "DOGS JOINING YOUR STAY"}
+                          {bjValue("step3DogsSelectLabel")}
                         </span>
                         <select
                           name="booking-dogs"
@@ -1005,7 +1004,7 @@ export function BookingJourneyDialog({
                           onChange={(e) => setDogsCount(Number(e.target.value))}
                           className="block h-[46px] min-h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[12px] text-[14px] text-[#243c30] outline-offset-[5px]"
                         >
-                          <option value="0">{bjSettings?.step3DogsZeroOption || "No dogs — no charge"}</option>
+                          <option value="0">{bjValue("step3DogsZeroOption")}</option>
                           {Array.from({ length: maxDogsAllowed }, (_, i) => i + 1).map((n) => (
                             <option key={n} value={n}>
                               {n} dog{n === 1 ? "" : "s"} — +{currencySymbol}{unitDogFee * n} per stay
@@ -1029,14 +1028,14 @@ export function BookingJourneyDialog({
                       >
                         <path d="M6 12 3 5l6 3m9 4 3-7-6 3M5 14a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0Zm4 0h.01M15 14h.01m-5 4 2 1 2-1" />
                       </svg>
-                      {bjSettings?.noPetsNotice || "This cottage does not accommodate pets."}{" "}
+                      {bjValue("noPetsNotice")}{" "}
                       <button
                         type="button"
                         data-action="pet-cottages"
                         onClick={() => setStep(1)}
                         className="inline-flex cursor-pointer items-center justify-between gap-[25px] border-0 border-b border-[#243c30] p-[8px_0_10px] text-[11px] leading-[17.6px] text-[#243c30] outline-offset-[5px]"
                       >
-                        {bjSettings?.seePetCottagesText || "See pet-friendly cottages"}
+                        {bjValue("seePetCottagesText")}
                       </button>
                     </p>
                   )}
@@ -1045,30 +1044,22 @@ export function BookingJourneyDialog({
                   <h3
                     className="m-0 font-['Instrument_Serif',Georgia,serif] text-[32px] font-normal leading-[32.64px] tracking-[-0.8px] [&_p]:m-0"
                     dangerouslySetInnerHTML={{
-                      __html: sanitizeCheckoutHtml(
-                        bjSettings?.extrasHeading || "Make it your kind of stay.",
-                      ),
+                      __html: sanitizeCheckoutHtml(bjValue("extrasHeading")),
                     }}
                   />
                   <div
                     className="m-0 mt-[10px] text-[12px] leading-[20.4px] text-[#535b51] [&_p]:m-0 [&_a]:underline"
                     dangerouslySetInnerHTML={{
-                      __html: sanitizeCheckoutHtml(
-                        bjSettings?.extrasDescription ||
-                          "A little more time outdoors, or something lovely around the table. Everything here is optional.",
-                      ),
+                      __html: sanitizeCheckoutHtml(bjValue("extrasDescription")),
                     }}
                   />
 
                   {availableExtras.length === 0 ? (
                     <div
                       className="mt-[20px] rounded border border-dashed border-[#d8d9cb] p-6 text-center text-xs text-[#535b51] [&_p]:m-0 [&_a]:underline"
-                      dangerouslySetInnerHTML={{
-                        __html: sanitizeCheckoutHtml(
-                          bjSettings?.extrasEmptyMessage ||
-                            "No optional extras currently listed for this cottage. Admin can add extras in the Admin Panel anytime.",
-                        ),
-                      }}
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeCheckoutHtml(bjValue("extrasEmptyMessage")),
+                    }}
                     />
                   ) : (
                     <div className="mt-[24px] grid gap-[12px]">
@@ -1177,10 +1168,7 @@ export function BookingJourneyDialog({
                   <div
                     className="m-0 mt-[18px] bg-[#e9e2cf] p-[11px_13px] text-[10px] leading-[17px] text-[#655b3e] [&_p]:m-0 [&_a]:underline"
                     dangerouslySetInnerHTML={{
-                      __html: sanitizeCheckoutHtml(
-                        bjSettings?.extrasDisclaimer ||
-                          "These prices demonstrate the booking flow. Final prices, times, availability and package inclusions must be confirmed before the live site offers them.",
-                      ),
+                      __html: sanitizeCheckoutHtml(bjValue("extrasDisclaimer")),
                     }}
                   />
 
@@ -1199,7 +1187,7 @@ export function BookingJourneyDialog({
                       onClick={() => setStep(3)}
                       className="flex min-h-[49px] cursor-pointer items-center justify-center gap-[15px] border-0 bg-[#243c30] p-[13px_17px] text-[11px] font-medium leading-[14.85px] text-[#fffdf8] transition-colors hover:bg-[#1b2d24] outline-offset-[5px]"
                     >
-                      {bjSettings?.step3NextButtonText || "Your details"}
+                      {bjValue("step3NextButtonText")}
                       <svg
                         viewBox="0 0 24 24"
                         aria-hidden="true"
@@ -1219,7 +1207,7 @@ export function BookingJourneyDialog({
                       }}
                     className="mt-[18px] block cursor-pointer border-0 text-left text-[10px] text-[#243c30] underline underline-offset-4 outline-offset-[5px]"
                   >
-                    {bjSettings?.skipExtrasText || "Skip activities & dining →"}
+                    {bjValue("skipExtrasText")}
                   </button>
                 </div>
               )}
@@ -1242,13 +1230,12 @@ export function BookingJourneyDialog({
                   )}
 
                   <h3 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[32px] font-normal leading-[32.64px] tracking-[-0.8px]">
-                    {bjSettings?.step4Title || "Guest Details & Payment"}
+                    {bjValue("step4Title")}
                   </h3>
                   <p className="m-0 mt-[10px] text-[12px] leading-[20.4px] text-[#535b51]">
                     {clientSecret
-                      ? bjSettings?.step4ReservedDescription || "Your cottage is reserved. Complete payment securely below to confirm your stay."
-                      : bjSettings?.step4Description ||
-                        "Please provide your contact details to secure your reservation at Home Farm."}
+                      ? bjValue("step4ReservedDescription")
+                      : bjValue("step4Description")}
                   </p>
 
                   {holdError && (
@@ -1653,12 +1640,9 @@ export function BookingJourneyDialog({
 
               <div
                 className="m-0 mt-[16px] text-[9px] leading-[15.3px] text-[#535b51] [&_p]:m-0 [&_a]:underline"
-                dangerouslySetInnerHTML={{
-                  __html: sanitizeCheckoutHtml(
-                    bjSettings?.sidebarTaxesNotice ||
-                      "Taxes and all charges included. Secure card payment via Stripe.",
-                  ),
-                }}
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeCheckoutHtml(bjValue("sidebarTaxesNotice")),
+                  }}
               />
             </aside>
           )}
@@ -1681,15 +1665,12 @@ export function BookingJourneyDialog({
               BOOKING CONFIRMED
             </span>
             <h2 className="m-0 mt-2 font-['Instrument_Serif',Georgia,serif] text-[48px] font-normal leading-[50px] tracking-[-1px]">
-              {bjSettings?.step5Title || `Thank you, ${firstName || "Guest"}.`}
+              {bjValue("step5Title")}
             </h2>
             <div
               className="mx-auto mt-2 text-[14px] text-[#535b51] [&_p]:m-0"
               dangerouslySetInnerHTML={{
-                __html: sanitizeCheckoutHtml(
-                  bjSettings?.step5Subtitle ||
-                    `Your stay at <strong>${selectedCottage?.name}</strong> is confirmed.`,
-                ),
+                __html: sanitizeCheckoutHtml(bjValue("step5Subtitle")),
               }}
             />
 
@@ -1731,8 +1712,8 @@ export function BookingJourneyDialog({
               className="mx-auto my-[20px] max-w-[480px] text-[12px] leading-[20px] text-[#535b51] [&_p]:m-0 [&_a]:underline"
               dangerouslySetInnerHTML={{
                 __html: sanitizeCheckoutHtml(
-                  bjSettings?.step5Note
-                    ? bjSettings.step5Note.replace("{email}", email)
+                  bjValue("step5Note")
+                    ? bjValue("step5Note").replace("{email}", email)
                     : `A confirmation email has been sent to <strong>${email}</strong>. Directions, check-in instructions, and your welcome guide will arrive prior to your stay.`,
                 ),
               }}

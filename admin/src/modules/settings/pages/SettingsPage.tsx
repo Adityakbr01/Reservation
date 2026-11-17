@@ -13,6 +13,7 @@ import {
   LayoutGrid,
   ShieldCheck,
   Home,
+  Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,6 +39,8 @@ import type { ApiEnvelope } from "@/lib/api-client";
 import { settingsKeys } from "@/lib/query-keys";
 import { setDefaultCurrency, getCurrencySymbol } from "@/lib/money";
 import { setDefaultTimeZone, formatDateTimeWithTime } from "@/lib/date";
+import { listCottages } from "@/modules/cottages/api/cottages.api";
+import type { Cottage } from "@/modules/cottages/types/cottage.types";
 
 const PRESET_CURRENCIES = [
   { code: "GBP", symbol: "£", name: "British Pound (£)", country: "United Kingdom" },
@@ -308,48 +311,47 @@ export const DEFAULT_BOOKING_PAGE = {
     checkOutText: "before 10:00 am",
   } satisfies Required<BookingPagePoliciesSettings>,
   bookingJourney: {
-    previewNotice: "DESIGN PREVIEW · NO BOOKINGS OR PAYMENTS TAKEN",
-    modalTitle: "Book your stay.",
-    step1Subtitle: "YOUR STAY AT HOME FARM",
-    step1Title: "When would you like to stay?",
-    step1Note: "Design preview · example prices, no live availability.",
-    step1ExploreLinkText: "Explore the cottages first",
-    step1CheckInLabel: "CHECK IN",
-    step1CheckOutLabel: "CHECK OUT",
-    step1AdultsLabel: "ADULTS",
-    step1ChildrenLabel: "CHILDREN",
-    step1ButtonText: "See available cottages",
-    step2Subtitle: "YOUR STAY AT HOME FARM",
-    step2Title: "Choose your cottage.",
-    step2Description: "Take a closer look and choose your place at Home Farm.",
-    groupStayText: "Booking several cottages? Plan a group stay ↗",
-    groupStayUrl: "",
-    noCottagesMessage: "No cottages available for these dates and party size.",
-    step3DogsTitle: "Bringing a dog?",
-    step3DogsDescription: "{cottage} welcomes up to {max} dog{plural}. £{fee} per dog for the whole stay.",
-    step3DogsSelectLabel: "DOGS JOINING YOUR STAY",
-    step3DogsZeroOption: "No dogs — no charge",
-    noPetsNotice: "This cottage does not accommodate pets.",
-    seePetCottagesText: "See pet-friendly cottages",
-    extrasHeading: "Make it your kind of stay.",
-    extrasDescription: "A little more time outdoors, or something lovely around the table. Everything here is optional.",
-    extrasEmptyMessage: "No optional extras currently listed for this cottage. Admin can add extras in the Admin Panel anytime.",
-    extrasDisclaimer: "These prices demonstrate the booking flow. Final prices, times, availability and package inclusions must be confirmed before the live site offers them.",
-    skipExtrasText: "Skip activities & dining →",
-    step3NextButtonText: "Your details →",
-    step4Title: "Almost there.",
-    step4Description: "A short guest checkout, with your selected dates and full total kept in view.",
-    step4ReservedDescription: "Your cottage is reserved. Complete payment securely below to confirm your stay.",
-    contactSectionTitle: "Contact information",
-    specialRequestsLabel: "Special requests",
-    specialRequestsPlaceholder: "Any notes for your stay (optional)",
-    acknowledgementText: "I understand this is a design preview. No booking, enquiry or payment will be submitted.",
-    payButtonText: "Pay with Card",
-    step5Title: "A clear path",
-    step5Subtitle: "from cottage to checkout.",
-    step5Note: "A confirmation email has been sent with your booking details and receipt.",
-    step5Disclaimer: "The live payment step needs to connect to the existing booking system and Stripe after the final price and availability are confirmed.",
-    sidebarTaxesNotice: "Taxes and all charges included. Secure card payment via Stripe.",
+    previewNotice: { isEnabled: true, value: "DESIGN PREVIEW · NO BOOKINGS OR PAYMENTS TAKEN" },
+    modalTitle: { isEnabled: true, value: "Book your stay." },
+    step1Subtitle: { isEnabled: true, value: "YOUR STAY AT HOME FARM" },
+    step1Title: { isEnabled: true, value: "When would you like to stay?" },
+    step1Note: { isEnabled: true, value: "Design preview · example prices, no live availability." },
+    step1ExploreLinkText: { isEnabled: true, value: "Explore the cottages first" },
+    step1CheckInLabel: { isEnabled: true, value: "CHECK IN" },
+    step1CheckOutLabel: { isEnabled: true, value: "CHECK OUT" },
+    step1AdultsLabel: { isEnabled: true, value: "ADULTS" },
+    step1ChildrenLabel: { isEnabled: true, value: "CHILDREN" },
+    step1ButtonText: { isEnabled: true, value: "See available cottages" },
+    step2Subtitle: { isEnabled: true, value: "YOUR STAY AT HOME FARM" },
+    step2Title: { isEnabled: true, value: "Choose your cottage." },
+    step2Description: { isEnabled: true, value: "Take a closer look and choose your place at Home Farm." },
+    groupStayText: { isEnabled: true, value: "Bringing a larger group or planning an event? Talk to our team about taking over multiple cottages." },
+    groupStayUrl: { isEnabled: true, value: "https://hamptworthstays.com/plan-your-experience/" },
+    noCottagesMessage: { isEnabled: true, value: "No cottages available for these dates and party size." },
+    step3DogsTitle: { isEnabled: true, value: "Dogs & pets" },
+    step3DogsDescription: { isEnabled: true, value: "This cottage welcomes up to 1 dog. £70 per dog for the whole stay." },
+    step3DogsSelectLabel: { isEnabled: true, value: "DOGS JOINING YOUR STAY" },
+    step3DogsZeroOption: { isEnabled: true, value: "No dogs — no charge" },
+    noPetsNotice: { isEnabled: true, value: "This cottage does not accommodate pets." },
+    seePetCottagesText: { isEnabled: true, value: "See pet-friendly cottages" },
+    extrasHeading: { isEnabled: true, value: "A few nice extras" },
+    extrasDescription: { isEnabled: true, value: "Add rounds on the course, padel court time or dining at The Barn. You can adjust these later." },
+    extrasEmptyMessage: { isEnabled: true, value: "No optional extras currently listed for this cottage. Admin can add extras in the Admin Panel anytime." },
+    extrasDisclaimer: { isEnabled: true, value: "Activities and dining are subject to tee times, court availability and opening hours. We will confirm these with you after booking." },
+    skipExtrasText: { isEnabled: true, value: "Skip activities & dining →" },
+    step3NextButtonText: { isEnabled: true, value: "Your details →" },
+    step4Title: { isEnabled: true, value: "Your details" },
+    step4Description: { isEnabled: true, value: "Enter your details to complete your reservation enquiry." },
+    step4ReservedDescription: { isEnabled: true, value: "Your cottage is reserved. Complete payment securely below to confirm your stay." },
+    contactSectionTitle: { isEnabled: true, value: "Contact information" },
+    specialRequestsLabel: { isEnabled: true, value: "Special requests" },
+    specialRequestsPlaceholder: { isEnabled: true, value: "Any notes for your stay (optional)" },
+    acknowledgementText: { isEnabled: true, value: "I understand this is a booking request and dates are subject to confirmation." },
+    payButtonText: { isEnabled: true, value: "Pay with Card" },
+    step5Title: { isEnabled: true, value: "Thank you for your stay request" },
+    step5Subtitle: { isEnabled: true, value: "We have received your enquiry and our team will get in touch shortly." },
+    step5Note: { isEnabled: true, value: "A confirmation email has been sent with your booking details and receipt." },
+    sidebarTaxesNotice: { isEnabled: true, value: "Taxes and all charges included. Secure card payment via Stripe." },
   } satisfies Required<BookingJourneySettings>,
 };
 
@@ -565,6 +567,21 @@ function SettingsForm({ initial }: { initial: Settings }) {
       },
     };
   });
+
+  const { data: cottagesData } = useQuery({
+    queryKey: ["cottages", "list"],
+    queryFn: () => listCottages({ page: 1, limit: 100 }),
+  });
+  const cottages: Cottage[] = cottagesData?.items ?? [];
+  const [dogsBuilder, setDogsBuilder] = useState<{
+    cottageId: string;
+    maxDogs: number;
+    dogFee: number;
+  }>({
+    cottageId: cottages[0]?.id ?? "",
+    maxDogs: 1,
+    dogFee: 70,
+  });
   const mutation = useMutation({
     mutationFn: async (payload: Partial<Settings>) => {
       const r = await apiClient.patch<ApiEnvelope<Settings>>(
@@ -587,7 +604,7 @@ function SettingsForm({ initial }: { initial: Settings }) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  type SettingsTab = "property" | "homepage" | "benefits" | "header" | "footer" | "checkout";
+  type SettingsTab = "property" | "homepage" | "benefits" | "header" | "footer" | "checkout" | "bookingJourney";
   const [activeTab, setActiveTab] = useState<SettingsTab>("property");
 
   const SETTINGS_TABS: {
@@ -631,6 +648,12 @@ function SettingsForm({ initial }: { initial: Settings }) {
       label: "Bookings & Checkout",
       icon: ShieldCheck,
       desc: "Enquiry block, reservation details, policies & agreements",
+    },
+    {
+      id: "bookingJourney",
+      label: "Booking Journey",
+      icon: Calendar,
+      desc: "Step-by-step booking dialog labels & notices",
     },
   ];
 
@@ -3017,415 +3040,331 @@ function SettingsForm({ initial }: { initial: Settings }) {
               </div>
             </div>
 
-            {/* Booking Journey Preview Modal Content */}
+          </CardContent>
+        </Card>
+        )}
+
+        {/* Tab Panel: Booking Journey */}
+        {activeTab === "bookingJourney" && (
+        <Card>
+          <CardHeader>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <CardTitle className="text-xl">Booking Journey</CardTitle>
+                <CardDescription className="mt-1">
+                  Step-by-step booking preview dialog labels and notices. Each field can be toggled
+                  on/off; disabled fields are not rendered on the client side.
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
             {(() => {
               const bj = form.bookingPage?.bookingJourney ?? DEFAULT_BOOKING_PAGE.bookingJourney;
-              const updateBj = (patch: Partial<BookingJourneySettings>) => {
+              const updateBjField = (key: string, patch: Partial<{ isEnabled?: boolean; value?: string }>) => {
+                const cur = (bj as Record<string, { isEnabled?: boolean; value?: string }>)[key] ?? {
+                  isEnabled: true,
+                  value: "",
+                };
                 set("bookingPage", {
                   ...(form.bookingPage ?? {}),
-                  bookingJourney: { ...bj, ...patch },
+                  bookingJourney: {
+                    ...bj,
+                    [key]: { ...cur, ...patch },
+                  },
                 });
               };
 
+              const bjField = (key: string) =>
+                (bj as Record<string, { isEnabled?: boolean; value?: string }>)[key] ?? {
+                  isEnabled: true,
+                  value: "",
+                };
+
+              const selectedDogCottage = cottages.find((c) => c.id === dogsBuilder.cottageId);
+              const dogCottageName = selectedDogCottage?.name || "This cottage";
+              const dogMax = Math.max(0, dogsBuilder.maxDogs);
+              const dogFee = Math.max(0, dogsBuilder.dogFee);
+              const dogPlural = dogMax === 1 ? "" : "s";
+              const composedDogDescription = `${dogCottageName} welcomes up to ${dogMax} dog${dogPlural}. £${dogFee} per dog for the whole stay.`;
+
+              const buildDogDescription = (cottageId: string, maxDogs: number, dogFee: number) => {
+                const c = cottages.find((x) => x.id === cottageId);
+                const name = c?.name || "This cottage";
+                const max = Math.max(0, maxDogs);
+                const fee = Math.max(0, dogFee);
+                const plural = max === 1 ? "" : "s";
+                return `${name} welcomes up to ${max} dog${plural}. £${fee} per dog for the whole stay.`;
+              };
+
+              const fieldRow = (
+                key: string,
+                label: string,
+                placeholder: string,
+                opts?: { multiline?: boolean; rows?: number }
+              ) => {
+                const f = bjField(key);
+                return (
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <Label className="text-xs font-semibold">{label}</Label>
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={f.isEnabled !== false}
+                          onCheckedChange={(val) => updateBjField(key, { isEnabled: val })}
+                        />
+                        <span className="text-[10px] text-muted-foreground">Enabled</span>
+                      </div>
+                    </div>
+                    {opts?.multiline ? (
+                      <textarea
+                        value={f.value ?? ""}
+                        disabled={f.isEnabled === false}
+                        rows={opts.rows ?? 2}
+                        placeholder={placeholder}
+                        onChange={(e) => updateBjField(key, { value: e.target.value })}
+                        className="flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+                    ) : (
+                      <Input
+                        value={f.value ?? ""}
+                        disabled={f.isEnabled === false}
+                        placeholder={placeholder}
+                        onChange={(e) => updateBjField(key, { value: e.target.value })}
+                      />
+                    )}
+                  </div>
+                );
+              };
+
+              const richField = (
+                key: string,
+                label: string,
+              ) => {
+                const f = bjField(key);
+                return (
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <Label className="text-xs font-semibold">{label}</Label>
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={f.isEnabled !== false}
+                          onCheckedChange={(val) => updateBjField(key, { isEnabled: val })}
+                        />
+                        <span className="text-[10px] text-muted-foreground">Enabled</span>
+                      </div>
+                    </div>
+                    <RichTextEditor
+                      label={label}
+                      compact
+                      minHeightClass="min-h-[55px]"
+                      value={f.value ?? ""}
+                      disabled={f.isEnabled === false}
+                      onChange={(html) => updateBjField(key, { value: html })}
+                    />
+                  </div>
+                );
+              };
+
               return (
-                <div className="rounded-lg border p-4 space-y-4 bg-muted/10">
-                  <div className="border-b pb-3">
-                    <h4 className="text-sm font-semibold">Booking Journey Preview Modal Content</h4>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Configure text, titles, subtitles, notices, and disclaimers displayed inside the 5-step interactive booking preview dialog.
-                    </p>
+                <div className="space-y-6">
+                  {/* Dialog Header */}
+                  <div className="rounded-lg border p-4 space-y-4 bg-muted/10">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <h4 className="text-sm font-semibold">Dialog Header Bar</h4>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Top notice and main title shown in the booking preview dialog header.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {fieldRow("previewNotice", "Header Top Notice", "DESIGN PREVIEW · NO BOOKINGS OR PAYMENTS TAKEN")}
+                      {fieldRow("modalTitle", "Modal Main Title", "Book your stay.")}
+                    </div>
                   </div>
 
-                  <div className="space-y-6">
-                    {/* Header Top Controls */}
-                    <div className="border-b pb-4">
-                      <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                        Dialog Header Bar
-                      </h5>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Header Top Notice</Label>
-                          <Input
-                            value={bj.previewNotice ?? ""}
-                            placeholder="DESIGN PREVIEW · NO BOOKINGS OR PAYMENTS TAKEN"
-                            onChange={(e) => updateBj({ previewNotice: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Modal Main Title</Label>
-                          <Input
-                            value={bj.modalTitle ?? ""}
-                            placeholder="Book your stay."
-                            onChange={(e) => updateBj({ modalTitle: e.target.value })}
-                          />
-                        </div>
+                  {/* Step 1 */}
+                  <div className="rounded-lg border p-4 space-y-4 bg-muted/10">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <h4 className="text-sm font-semibold">Step 1: Dates &amp; Guests</h4>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Dates, guest counts, and the primary call-to-action labels.
+                        </p>
                       </div>
                     </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {fieldRow("step1Subtitle", "Step 1 Subtitle", "YOUR STAY AT HOME FARM")}
+                      {fieldRow("step1Title", "Step 1 Heading", "When would you like to stay?")}
+                      {richField("step1Note", "Step 1 Note")}
+                      {fieldRow("step1ExploreLinkText", "Explore Link Text", "Explore the cottages first")}
+                      {fieldRow("step1ButtonText", "Button Text", "See available cottages")}
+                      {fieldRow("step1CheckInLabel", "Check-in Field Label", "CHECK IN")}
+                      {fieldRow("step1CheckOutLabel", "Check-out Field Label", "CHECK OUT")}
+                      {fieldRow("step1AdultsLabel", "Adults Field Label", "ADULTS")}
+                      {fieldRow("step1ChildrenLabel", "Children Field Label", "CHILDREN")}
+                      {fieldRow("noCottagesMessage", "No Cottages Message", "No cottages available for these dates and party size.")}
+                    </div>
+                  </div>
 
-                    {/* Step 1: Dates & Guests */}
-                    <div className="border-b pb-4">
-                      <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                        Step 1: Dates &amp; Guests
-                      </h5>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Step 1 Subtitle</Label>
-                          <Input
-                            value={bj.step1Subtitle ?? ""}
-                            placeholder="YOUR STAY AT HOME FARM"
-                            onChange={(e) => updateBj({ step1Subtitle: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Step 1 Heading</Label>
-                          <Input
-                            value={bj.step1Title ?? ""}
-                            placeholder="When would you like to stay?"
-                            onChange={(e) => updateBj({ step1Title: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <RichTextEditor
-                            label="Step 1 Subtitle Note"
-                            compact
-                            minHeightClass="min-h-[55px]"
-                            value={bj.step1Note ?? ""}
-                            onChange={(html) => updateBj({ step1Note: html })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Explore Link Text</Label>
-                          <Input
-                            value={bj.step1ExploreLinkText ?? ""}
-                            placeholder="Explore the cottages first"
-                            onChange={(e) => updateBj({ step1ExploreLinkText: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Button Text</Label>
-                          <Input
-                            value={bj.step1ButtonText ?? ""}
-                            placeholder="See available cottages"
-                            onChange={(e) => updateBj({ step1ButtonText: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Check-in Field Label</Label>
-                          <Input
-                            value={bj.step1CheckInLabel ?? ""}
-                            placeholder="CHECK IN"
-                            onChange={(e) => updateBj({ step1CheckInLabel: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Check-out Field Label</Label>
-                          <Input
-                            value={bj.step1CheckOutLabel ?? ""}
-                            placeholder="CHECK OUT"
-                            onChange={(e) => updateBj({ step1CheckOutLabel: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Adults Field Label</Label>
-                          <Input
-                            value={bj.step1AdultsLabel ?? ""}
-                            placeholder="ADULTS"
-                            onChange={(e) => updateBj({ step1AdultsLabel: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Children Field Label</Label>
-                          <Input
-                            value={bj.step1ChildrenLabel ?? ""}
-                            placeholder="CHILDREN"
-                            onChange={(e) => updateBj({ step1ChildrenLabel: e.target.value })}
-                          />
-                        </div>
+                  {/* Step 2 */}
+                  <div className="rounded-lg border p-4 space-y-4 bg-muted/10">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <h4 className="text-sm font-semibold">Step 2: Cottage Selection</h4>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Cottage choice, group stay banner, and availability messaging.
+                        </p>
                       </div>
                     </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {fieldRow("step2Subtitle", "Step 2 Subtitle", "YOUR STAY AT HOME FARM")}
+                      {fieldRow("step2Title", "Step 2 Heading", "Choose your cottage.")}
+                      {fieldRow("step2Description", "Step 2 Description", "Take a closer look and choose your place at Home Farm.", { multiline: true, rows: 2 })}
+                      {richField("groupStayText", "Group Stay Banner Note")}
+                      {fieldRow("groupStayUrl", "Group Stay Link URL", "https://hamptworthstays.com/plan-your-experience/")}
+                    </div>
+                  </div>
 
-                    {/* Step 2: Cottage Selection */}
-                    <div className="border-b pb-4">
-                      <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                        Step 2: Cottage Selection
-                      </h5>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Step 2 Subtitle</Label>
-                          <Input
-                            value={bj.step2Subtitle ?? ""}
-                            placeholder="YOUR STAY AT HOME FARM"
-                            onChange={(e) => updateBj({ step2Subtitle: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Step 2 Heading</Label>
-                          <Input
-                            value={bj.step2Title ?? ""}
-                            placeholder="Choose your cottage."
-                            onChange={(e) => updateBj({ step2Title: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <Label className="text-xs font-semibold">Step 2 Description</Label>
-                          <Input
-                            value={bj.step2Description ?? ""}
-                            placeholder="Take a closer look and choose your place at Home Farm."
-                            onChange={(e) => updateBj({ step2Description: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <RichTextEditor
-                            label="Group Stay Banner Note"
-                            compact
-                            minHeightClass="min-h-[55px]"
-                            value={bj.groupStayText ?? ""}
-                            onChange={(html) => updateBj({ groupStayText: html })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Group Stay Link URL</Label>
-                          <Input
-                            value={bj.groupStayUrl ?? ""}
-                            placeholder="https://hamptworthstays.com/plan-your-experience/"
-                            onChange={(e) => updateBj({ groupStayUrl: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">No Cottages Available Message</Label>
-                          <Input
-                            value={bj.noCottagesMessage ?? ""}
-                            placeholder="No cottages available for these dates and party size."
-                            onChange={(e) => updateBj({ noCottagesMessage: e.target.value })}
-                          />
-                        </div>
+                  {/* Step 3 */}
+                  <div className="rounded-lg border p-4 space-y-4 bg-muted/10">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <h4 className="text-sm font-semibold">Step 3: Extras &amp; Dogs</h4>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Pet policy, extras headings, and the next-step button text.
+                        </p>
                       </div>
                     </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {fieldRow("step3DogsTitle", "Dogs Policy Card Title", "Dogs & pets")}
+                      {fieldRow("noPetsNotice", "Non-Pet Notice", "This cottage does not accommodate pets.")}
+                      <div className="space-y-1 sm:col-span-2">
+                        <Label className="text-xs font-semibold">Dog Fee Description</Label>
+                        <p className="text-[10px] text-muted-foreground">
+                          Choose a cottage, max dogs, and fee — the description is composed for you.
+                        </p>
+                        <div className="grid gap-3 sm:grid-cols-3 mt-2">
+                          <div className="space-y-1">
+                            <Label className="text-xs font-semibold">Cottage</Label>
+                            <Select
+                              value={dogsBuilder.cottageId}
+                              onValueChange={(id) => {
+                                const newCottageId = id ?? "";
+                                setDogsBuilder({
+                                  ...dogsBuilder,
+                                  cottageId: newCottageId,
+                                });
+                                updateBjField("step3DogsDescription", {
+                                  value: buildDogDescription(newCottageId, dogsBuilder.maxDogs, dogsBuilder.dogFee),
+                                });
+                              }}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a cottage" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {cottages.map((c) => (
+                                  <SelectItem key={c.id} value={c.id}>
+                                    {c.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs font-semibold">Max Dogs</Label>
+                            <Input
+                              type="number"
+                              min={0}
+                              value={dogMax}
+                              onChange={(e) => {
+                                const v = Math.max(0, Number(e.target.value) || 0);
+                                setDogsBuilder({ ...dogsBuilder, maxDogs: v });
+                                updateBjField("step3DogsDescription", {
+                                  value: buildDogDescription(dogsBuilder.cottageId, v, dogsBuilder.dogFee),
+                                });
+                              }}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs font-semibold">Dog Fee (£)</Label>
+                            <Input
+                              type="number"
+                              min={0}
+                              step={0.01}
+                              value={dogFee}
+                              onChange={(e) => {
+                                const v = Math.max(0, Number(e.target.value) || 0);
+                                setDogsBuilder({ ...dogsBuilder, dogFee: v });
+                                updateBjField("step3DogsDescription", {
+                                  value: buildDogDescription(dogsBuilder.cottageId, dogsBuilder.maxDogs, v),
+                                });
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div className="mt-2 space-y-1">
+                          <Label className="text-xs font-semibold">Preview</Label>
+                          <p className="text-sm text-[#243c30] font-medium">{composedDogDescription}</p>
+                        </div>
+                        <input
+                          type="hidden"
+                          name="step3DogsDescription-value"
+                          defaultValue={composedDogDescription}
+                          readOnly
+                        />
+                      </div>
+                      {fieldRow("step3DogsSelectLabel", "Dogs Select Label", "DOGS JOINING YOUR STAY")}
+                      {fieldRow("step3DogsZeroOption", "Zero Dogs Option Text", "No dogs — no charge")}
+                      {fieldRow("seePetCottagesText", "See Pet Cottages Button Text", "See pet-friendly cottages")}
+                      {fieldRow("skipExtrasText", "Skip Extras Link Text", "Skip activities & dining →")}
+                      {richField("extrasHeading", "Step 3 Extras Heading")}
+                      {richField("extrasDescription", "Step 3 Extras Description")}
+                      {richField("extrasEmptyMessage", "Extras Empty Message")}
+                      {richField("extrasDisclaimer", "Extras Disclaimer")}
+                      {fieldRow("step3NextButtonText", "Next Step Button Text", "Your details →")}
+                    </div>
+                  </div>
 
-                    {/* Step 3: Extras & Dogs */}
-                    <div className="border-b pb-4">
-                      <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                        Step 3: Optional Extras &amp; Dogs
-                      </h5>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Dogs Policy Card Title</Label>
-                          <Input
-                            value={bj.step3DogsTitle ?? ""}
-                            placeholder="Bringing a dog?"
-                            onChange={(e) => updateBj({ step3DogsTitle: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Non-Pet Notice</Label>
-                          <Input
-                            value={bj.noPetsNotice ?? ""}
-                            placeholder="This cottage does not accommodate pets."
-                            onChange={(e) => updateBj({ noPetsNotice: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <Label className="text-xs font-semibold">Dog Fee Description Format</Label>
-                          <Input
-                            value={bj.step3DogsDescription ?? ""}
-                            placeholder="{cottage} welcomes up to {max} dog{plural}. £{fee} per dog for the whole stay."
-                            onChange={(e) => updateBj({ step3DogsDescription: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Dogs Select Label</Label>
-                          <Input
-                            value={bj.step3DogsSelectLabel ?? ""}
-                            placeholder="DOGS JOINING YOUR STAY"
-                            onChange={(e) => updateBj({ step3DogsSelectLabel: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Zero Dogs Option Text</Label>
-                          <Input
-                            value={bj.step3DogsZeroOption ?? ""}
-                            placeholder="No dogs — no charge"
-                            onChange={(e) => updateBj({ step3DogsZeroOption: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">See Pet Cottages Button Text</Label>
-                          <Input
-                            value={bj.seePetCottagesText ?? ""}
-                            placeholder="See pet-friendly cottages"
-                            onChange={(e) => updateBj({ seePetCottagesText: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Skip Extras Link Text</Label>
-                          <Input
-                            value={bj.skipExtrasText ?? ""}
-                            placeholder="Skip activities & dining →"
-                            onChange={(e) => updateBj({ skipExtrasText: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <RichTextEditor
-                            label="Step 3 Extras Heading / Title"
-                            compact
-                            minHeightClass="min-h-[55px]"
-                            value={bj.extrasHeading ?? ""}
-                            onChange={(html) => updateBj({ extrasHeading: html })}
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <RichTextEditor
-                            label="Step 3 Extras Description / Subtitle"
-                            compact
-                            minHeightClass="min-h-[75px]"
-                            value={bj.extrasDescription ?? ""}
-                            onChange={(html) => updateBj({ extrasDescription: html })}
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <RichTextEditor
-                            label="Step 3 Extras Empty State Notice (When cottage has no add-ons)"
-                            compact
-                            minHeightClass="min-h-[55px]"
-                            value={bj.extrasEmptyMessage ?? ""}
-                            onChange={(html) => updateBj({ extrasEmptyMessage: html })}
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <RichTextEditor
-                            label="Step 3 Extras Disclaimer / Footer Notice"
-                            compact
-                            minHeightClass="min-h-[55px]"
-                            value={bj.extrasDisclaimer ?? ""}
-                            onChange={(html) => updateBj({ extrasDisclaimer: html })}
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <Label className="text-xs font-semibold">Next Step Button Text</Label>
-                          <Input
-                            value={bj.step3NextButtonText ?? ""}
-                            placeholder="Your details →"
-                            onChange={(e) => updateBj({ step3NextButtonText: e.target.value })}
-                          />
-                        </div>
+                  {/* Step 4 */}
+                  <div className="rounded-lg border p-4 space-y-4 bg-muted/10">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <h4 className="text-sm font-semibold">Step 4: Guest Details &amp; Payment</h4>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Contact form fields, acknowledgement, and pay button.
+                        </p>
                       </div>
                     </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {fieldRow("step4Title", "Step 4 Heading", "Your details")}
+                      {fieldRow("contactSectionTitle", "Contact Section Title", "Contact information")}
+                      {fieldRow("step4Description", "Step 4 Description (Before Reserve)", "Enter your details to complete your reservation enquiry.", { multiline: true, rows: 2 })}
+                      {fieldRow("step4ReservedDescription", "Step 4 Description (When Held)", "Your cottage is reserved. Complete payment securely below to confirm your stay.", { multiline: true, rows: 2 })}
+                      {fieldRow("specialRequestsLabel", "Special Requests Label", "Special requests")}
+                      {fieldRow("specialRequestsPlaceholder", "Special Requests Placeholder", "Any notes for your stay (optional)")}
+                      {richField("acknowledgementText", "Acknowledgement Checkbox Text")}
+                      {fieldRow("payButtonText", "Pay Button Text", "Pay with Card")}
+                    </div>
+                  </div>
 
-                    {/* Step 4: Details & Payment */}
-                    <div className="border-b pb-4">
-                      <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                        Step 4: Guest Details &amp; Payment
-                      </h5>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Step 4 Heading</Label>
-                          <Input
-                            value={bj.step4Title ?? ""}
-                            placeholder="Guest Details & Payment"
-                            onChange={(e) => updateBj({ step4Title: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Contact Section Title</Label>
-                          <Input
-                            value={bj.contactSectionTitle ?? ""}
-                            placeholder="Contact information"
-                            onChange={(e) => updateBj({ contactSectionTitle: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <Label className="text-xs font-semibold">Step 4 Description (Before Reserve)</Label>
-                          <Input
-                            value={bj.step4Description ?? ""}
-                            placeholder="Please provide your contact details to secure your reservation at Home Farm."
-                            onChange={(e) => updateBj({ step4Description: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <Label className="text-xs font-semibold">Step 4 Description (When Cottage Held)</Label>
-                          <Input
-                            value={bj.step4ReservedDescription ?? ""}
-                            placeholder="Your cottage is reserved. Complete payment securely below to confirm your stay."
-                            onChange={(e) => updateBj({ step4ReservedDescription: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Special Requests Label</Label>
-                          <Input
-                            value={bj.specialRequestsLabel ?? ""}
-                            placeholder="Special requests"
-                            onChange={(e) => updateBj({ specialRequestsLabel: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Special Requests Placeholder</Label>
-                          <Input
-                            value={bj.specialRequestsPlaceholder ?? ""}
-                            placeholder="Any notes for your stay (optional)"
-                            onChange={(e) => updateBj({ specialRequestsPlaceholder: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <RichTextEditor
-                            label="Step 4 Acknowledgement Checkbox Text"
-                            compact
-                            minHeightClass="min-h-[55px]"
-                            value={bj.acknowledgementText ?? ""}
-                            onChange={(html) => updateBj({ acknowledgementText: html })}
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <Label className="text-xs font-semibold">Pay Button Text</Label>
-                          <Input
-                            value={bj.payButtonText ?? ""}
-                            placeholder="Pay with Card"
-                            onChange={(e) => updateBj({ payButtonText: e.target.value })}
-                          />
-                        </div>
+                  {/* Step 5 */}
+                  <div className="rounded-lg border p-4 space-y-4 bg-muted/10">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <h4 className="text-sm font-semibold">Step 5: Confirmation &amp; Summary</h4>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Confirmation titles, subtitles, note, and sidebar taxes notice.
+                        </p>
                       </div>
                     </div>
-
-                    {/* Step 5: Confirmation */}
-                    <div className="border-b pb-4">
-                      <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                        Step 5: Confirmation &amp; Summary
-                      </h5>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Confirmation Title</Label>
-                          <Input
-                            value={bj.step5Title ?? ""}
-                            placeholder="Thank you for your stay request"
-                            onChange={(e) => updateBj({ step5Title: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-semibold">Confirmation Subtitle</Label>
-                          <Input
-                            value={bj.step5Subtitle ?? ""}
-                            placeholder="We have received your enquiry and our team will get in touch shortly."
-                            onChange={(e) => updateBj({ step5Subtitle: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <RichTextEditor
-                            label="Confirmation Email / Next Steps Note"
-                            compact
-                            minHeightClass="min-h-[55px]"
-                            value={bj.step5Note ?? ""}
-                            onChange={(html) => updateBj({ step5Note: html })}
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <RichTextEditor
-                            label="Sidebar Taxes &amp; Stripe Security Notice"
-                            compact
-                            minHeightClass="min-h-[55px]"
-                            value={bj.sidebarTaxesNotice ?? ""}
-                            onChange={(html) => updateBj({ sidebarTaxesNotice: html })}
-                          />
-                        </div>
-                      </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {fieldRow("step5Title", "Confirmation Title", "Thank you for your stay request")}
+                      {fieldRow("step5Subtitle", "Confirmation Subtitle", "We have received your enquiry and our team will get in touch shortly.")}
+                      {richField("step5Note", "Confirmation Note")}
+                      {richField("sidebarTaxesNotice", "Sidebar Taxes &amp; Stripe Notice")}
                     </div>
                   </div>
                 </div>

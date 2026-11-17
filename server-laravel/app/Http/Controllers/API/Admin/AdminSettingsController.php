@@ -177,6 +177,17 @@ class AdminSettingsController extends Controller
             $defaults[$section] = array_merge($values, $incoming);
         }
 
+        // Migrate legacy flat-string bookingJourney values to { isEnabled, value } objects
+        if (isset($defaults['bookingJourney']) && is_array($defaults['bookingJourney'])) {
+            foreach ($defaults['bookingJourney'] as $key => $val) {
+                if (is_string($val)) {
+                    $defaults['bookingJourney'][$key] = ['isEnabled' => true, 'value' => $val];
+                } elseif (! is_array($val) || ! isset($val['isEnabled'], $val['value'])) {
+                    $defaults['bookingJourney'][$key] = ['isEnabled' => true, 'value' => ''];
+                }
+            }
+        }
+
         return $defaults;
     }
 
@@ -194,6 +205,22 @@ class AdminSettingsController extends Controller
                 if (! array_key_exists($key, $incoming) && ! array_key_exists($snakeKey, $incoming)) {
                     continue;
                 }
+
+                // Nested togglable field: { isEnabled, value }
+                if (is_array($default) && isset($default['isEnabled']) && isset($default['value'])) {
+                    $incomingIsEnabled = array_key_exists('isEnabled', $incoming)
+                        ? $incoming['isEnabled']
+                        : (array_key_exists('is_enabled', $incoming) ? $incoming['is_enabled'] : null);
+                    $incomingValue = array_key_exists('value', $incoming)
+                        ? $incoming['value']
+                        : (array_key_exists('value', $incoming) ? $incoming['value'] : null);
+                    $resolved[$section][$key] = [
+                        'isEnabled' => $incomingIsEnabled !== null ? (bool) $incomingIsEnabled : (bool) ($default['isEnabled'] ?? true),
+                        'value' => $incomingValue !== null ? (string) $incomingValue : (string) ($default['value'] ?? ''),
+                    ];
+                    continue;
+                }
+
                 $value = array_key_exists($key, $incoming) ? $incoming[$key] : $incoming[$snakeKey];
                 if (is_bool($default)) {
                     $resolved[$section][$key] = (bool) $value;

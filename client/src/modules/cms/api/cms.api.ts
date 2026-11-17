@@ -214,49 +214,54 @@ export interface BookingPagePoliciesSettings {
   checkOutText?: string;
 }
 
+export interface BookingJourneySetting {
+  isEnabled?: boolean;
+  value?: string;
+}
+
 export interface BookingJourneySettings {
-  previewNotice?: string;
-  modalTitle?: string;
-  step1Subtitle?: string;
-  step1Title?: string;
-  step1CheckInLabel?: string;
-  step1CheckOutLabel?: string;
-  step1AdultsLabel?: string;
-  step1ChildrenLabel?: string;
-  step1ButtonText?: string;
-  step1Note?: string;
-  step1ExploreLinkText?: string;
-  noCottagesMessage?: string;
-  step2Subtitle?: string;
-  step2Title?: string;
-  step2Description?: string;
-  groupStayText?: string;
-  groupStayUrl?: string;
-  step3DogsTitle?: string;
-  step3DogsDescription?: string;
-  step3DogsSelectLabel?: string;
-  step3DogsZeroOption?: string;
-  noPetsNotice?: string;
-  seePetCottagesText?: string;
-  extrasHeading?: string;
-  extrasDescription?: string;
-  extrasEmptyMessage?: string;
-  extrasDisclaimer?: string;
-  skipExtrasText?: string;
-  step3NextButtonText?: string;
-  step4Title?: string;
-  step4Description?: string;
-  step4ReservedDescription?: string;
-  contactSectionTitle?: string;
-  specialRequestsLabel?: string;
-  specialRequestsPlaceholder?: string;
-  payButtonText?: string;
-  acknowledgementText?: string;
-  step5Title?: string;
-  step5Subtitle?: string;
-  step5Note?: string;
-  step5Disclaimer?: string;
-  sidebarTaxesNotice?: string;
+  previewNotice?: BookingJourneySetting;
+  modalTitle?: BookingJourneySetting;
+  step1Subtitle?: BookingJourneySetting;
+  step1Title?: BookingJourneySetting;
+  step1CheckInLabel?: BookingJourneySetting;
+  step1CheckOutLabel?: BookingJourneySetting;
+  step1AdultsLabel?: BookingJourneySetting;
+  step1ChildrenLabel?: BookingJourneySetting;
+  step1ButtonText?: BookingJourneySetting;
+  step1Note?: BookingJourneySetting;
+  step1ExploreLinkText?: BookingJourneySetting;
+  noCottagesMessage?: BookingJourneySetting;
+  step2Subtitle?: BookingJourneySetting;
+  step2Title?: BookingJourneySetting;
+  step2Description?: BookingJourneySetting;
+  groupStayText?: BookingJourneySetting;
+  groupStayUrl?: BookingJourneySetting;
+  step3DogsTitle?: BookingJourneySetting;
+  step3DogsDescription?: BookingJourneySetting;
+  step3DogsSelectLabel?: BookingJourneySetting;
+  step3DogsZeroOption?: BookingJourneySetting;
+  noPetsNotice?: BookingJourneySetting;
+  seePetCottagesText?: BookingJourneySetting;
+  extrasHeading?: BookingJourneySetting;
+  extrasDescription?: BookingJourneySetting;
+  extrasEmptyMessage?: BookingJourneySetting;
+  extrasDisclaimer?: BookingJourneySetting;
+  skipExtrasText?: BookingJourneySetting;
+  step3NextButtonText?: BookingJourneySetting;
+  step4Title?: BookingJourneySetting;
+  step4Description?: BookingJourneySetting;
+  step4ReservedDescription?: BookingJourneySetting;
+  contactSectionTitle?: BookingJourneySetting;
+  specialRequestsLabel?: BookingJourneySetting;
+  specialRequestsPlaceholder?: BookingJourneySetting;
+  payButtonText?: BookingJourneySetting;
+  acknowledgementText?: BookingJourneySetting;
+  step5Title?: BookingJourneySetting;
+  step5Subtitle?: BookingJourneySetting;
+  step5Note?: BookingJourneySetting;
+  step5Disclaimer?: BookingJourneySetting;
+  sidebarTaxesNotice?: BookingJourneySetting;
 }
 
 export interface HomePageHeroSettings {
