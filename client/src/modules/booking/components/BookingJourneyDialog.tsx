@@ -239,10 +239,79 @@ export function BookingJourneyDialog({
   // Step state: 0=Dates, 1=Cottage, 2=Extras, 3=Details & payment, 4=Confirmation
   const [step, setStep] = useState<number>(0);
 
-  // Mobile/browser back button handling: keep the user inside the journey and
-  // step backwards instead of leaving the page/dialog.
-  const historyGuardRef = useRef(false);
-  const ignorePopUntilRef = useRef(0);
+  // Scroll containers & backdrop click protection
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const backdropPointerDownRef = useRef(false);
+
+  // Always land at the very top of dialog content when switching steps or opening dialog
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const resetScroll = () => {
+      if (dialogRef.current) {
+        dialogRef.current.scrollTop = 0;
+        dialogRef.current.scrollTo?.({ top: 0, left: 0, behavior: "instant" });
+      }
+      if (overlayRef.current) {
+        overlayRef.current.scrollTop = 0;
+        overlayRef.current.scrollTo?.({ top: 0, left: 0, behavior: "instant" });
+      }
+      if (typeof window !== "undefined") {
+        window.scrollTo?.({ top: 0, left: 0, behavior: "instant" });
+      }
+    };
+
+    resetScroll();
+    const rafId = requestAnimationFrame(resetScroll);
+    const t1 = setTimeout(resetScroll, 50);
+    const t2 = setTimeout(resetScroll, 150);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [step, isOpen]);
+
+  // Native Browser History Depth & Step tracking (iPhone Safari < / > buttons & edge swipe support)
+  const historyDepthRef = useRef(0);
+  const initialStepRef = useRef(0);
+  const wasOpenRef = useRef(false);
+
+  // Helper for explicit close (X button, Escape, or backdrop click)
+  const handleExplicitClose = useCallback(() => {
+    closeBookingJourney();
+    if (typeof window !== "undefined" && window.history.state?.__bj === true) {
+      const depth = historyDepthRef.current;
+      historyDepthRef.current = 0;
+      if (depth > 0) {
+        window.history.go(-depth);
+      }
+    }
+  }, [closeBookingJourney]);
+
+  // Helper to step forward with native browser history entry
+  const goToStep = useCallback((nextStep: number) => {
+    setStep(nextStep);
+    if (typeof window !== "undefined") {
+      const nextDepth = historyDepthRef.current + 1;
+      historyDepthRef.current = nextDepth;
+      window.history.pushState(
+        { ...(window.history.state ?? {}), __bj: true, __bjStep: nextStep, __bjDepth: nextDepth },
+        "",
+      );
+    }
+  }, []);
+
+  // Helper to step backward (used by in-app UI Back buttons)
+  const goBackStep = useCallback(() => {
+    if (typeof window !== "undefined" && historyDepthRef.current > 1) {
+      window.history.back();
+    } else {
+      handleExplicitClose();
+    }
+  }, [handleExplicitClose]);
 
   // Dates & Guests — no default dates; filled from the home search when the
   // guest has already picked them, otherwise chosen in this step.
@@ -415,7 +484,7 @@ export function BookingJourneyDialog({
     document.documentElement.style.overflow = "hidden";
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !galleryCottageId) closeBookingJourney();
+      if (e.key === "Escape" && !galleryCottageId) handleExplicitClose();
     };
     window.addEventListener("keydown", handleKeyDown);
 
@@ -425,99 +494,91 @@ export function BookingJourneyDialog({
       document.documentElement.style.overflow = previousHtmlOverflow;
       lenis?.start();
     };
-  }, [isOpen, closeBookingJourney, galleryCottageId]);
+  }, [isOpen, handleExplicitClose, galleryCottageId]);
 
   // When store triggers open - start at step 0 (Dates) unless dates are
-  // already selected, in which case jump straight to step 2 (Extras)
+  // already selected, in which case jump straight to step 1 (Cottages)
   useEffect(() => {
     if (isOpen) {
-      if (storeCottageId) {
-        setSelectedCottageIds([storeCottageId]);
-      } else {
-        setSelectedCottageIds([]);
+      if (!wasOpenRef.current) {
+        wasOpenRef.current = true;
+        if (storeCottageId) {
+          setSelectedCottageIds([storeCottageId]);
+        } else {
+          setSelectedCottageIds([]);
+        }
+        if (storeCheckIn) {
+          setCheckIn(storeCheckIn);
+        } else {
+          setCheckIn("");
+        }
+        if (storeCheckOut) {
+          setCheckOut(storeCheckOut);
+        } else {
+          setCheckOut("");
+        }
+        if (storeAdults) {
+          setAdults(storeAdults);
+        }
+        if (storeChildren !== undefined) {
+          setChildren(storeChildren);
+        }
+        const initial = storeCheckIn && storeCheckOut ? 1 : 0;
+        setStep(initial);
+        initialStepRef.current = initial;
+        historyDepthRef.current = 1;
+
+        // Push initial dialog history entry
+        if (typeof window !== "undefined" && window.history.state?.__bj !== true) {
+          window.history.pushState(
+            { ...(window.history.state ?? {}), __bj: true, __bjStep: initial, __bjDepth: 1 },
+            "",
+          );
+        }
+        setClientSecret(null);
+        setBookingId(null);
+        setBookingNumber(null);
+        setHoldError(null);
       }
-      if (storeCheckIn) {
-        setCheckIn(storeCheckIn);
-      } else {
-        setCheckIn("");
-      }
-      if (storeCheckOut) {
-        setCheckOut(storeCheckOut);
-      } else {
-        setCheckOut("");
-      }
-      if (storeAdults) {
-        setAdults(storeAdults);
-      }
-      if (storeChildren !== undefined) {
-        setChildren(storeChildren);
-      }
-      if (storeCheckIn && storeCheckOut) {
-        setStep(1); // Dates already picked — go straight to extras
-      } else {
-        setStep(0);
-      }
-      setClientSecret(null);
-      setBookingId(null);
-      setBookingNumber(null);
-      setHoldError(null);
     } else {
+      wasOpenRef.current = false;
       setExtraQtys({});
       setDogsByCottage({});
       setSelectedCottageIds([]);
       setClientSecret(null);
       setGalleryCottageId(null);
+      historyDepthRef.current = 0;
     }
-  }, [isOpen, storeCottageId, storeCheckIn, storeCheckOut, storeAdults, storeChildren, closeBookingJourney]);
+  }, [isOpen, storeCottageId, storeCheckIn, storeCheckOut, storeAdults, storeChildren]);
 
-  // Push a guard history entry while the dialog is open so the hardware/browser
-  // back button doesn't navigate away from the booking journey.
-  useEffect(() => {
-    if (!isOpen || typeof window === "undefined") return;
-    if (window.history.state?.__bookingJourney !== true) {
-      window.history.pushState(
-        { ...(window.history.state ?? {}), __bookingJourney: true },
-        "",
-      );
-    }
-    historyGuardRef.current = true;
-
-    return () => {
-      if (!historyGuardRef.current) return;
-      historyGuardRef.current = false;
-      // Remove our guard entry only when the user is still on it (not when a
-      // navigation, e.g. "View Full Receipt", already replaced the entry).
-      if (window.history.state?.__bookingJourney === true) {
-        ignorePopUntilRef.current = Date.now() + 400;
-        window.history.back();
-      }
-    };
-  }, [isOpen]);
-
-  // Back button: step backwards through the journey. At the first step the
-  // guard is re-armed so the dialog is never dismissed by the back button.
+  // Native Browser History Synchronization (supports iPhone Safari < and > buttons, edge swipe, and desktop)
   useEffect(() => {
     if (!isOpen || typeof window === "undefined") return;
 
-    const handlePopState = () => {
-      if (Date.now() < ignorePopUntilRef.current) return;
-      if (!historyGuardRef.current) return;
-
-      window.history.pushState(
-        { ...(window.history.state ?? {}), __bookingJourney: true },
-        "",
-      );
-
+    const handlePopState = (e: PopStateEvent) => {
       if (galleryCottageId) {
         setGalleryCottageId(null);
-        return;
       }
-      setStep((prev) => (prev > 0 ? prev - 1 : prev));
+
+      const state = e.state;
+      if (state && state.__bj === true && typeof state.__bjStep === "number") {
+        // User navigated between steps using browser back/forward or swipe
+        setStep(state.__bjStep);
+        if (typeof state.__bjDepth === "number") {
+          historyDepthRef.current = state.__bjDepth;
+        } else if (historyDepthRef.current > 1) {
+          historyDepthRef.current -= 1;
+        }
+      } else {
+        // User backed out of the booking journey onto HomePage
+        historyDepthRef.current = 0;
+        closeBookingJourney();
+      }
     };
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [isOpen, galleryCottageId]);
+  }, [isOpen, galleryCottageId, closeBookingJourney]);
 
   // Find currently selected cottages (multi-select supported)
   const selectedCottageItems = useMemo(() => {
@@ -876,18 +937,26 @@ export function BookingJourneyDialog({
 
   return createPortal(
     <div
+      ref={overlayRef}
       data-lenis-prevent
-      onClick={(e) => {
-        if (e.target === e.currentTarget) closeBookingJourney();
+      onPointerDown={(e) => {
+        backdropPointerDownRef.current = e.target === e.currentTarget;
       }}
-      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto overscroll-contain bg-black/60 p-2 sm:p-4 backdrop-blur-xs"
+      onClick={(e) => {
+        if (backdropPointerDownRef.current && e.target === e.currentTarget) {
+          handleExplicitClose();
+        }
+        backdropPointerDownRef.current = false;
+      }}
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto overscroll-contain bg-black/60 p-0 sm:p-4 backdrop-blur-xs"
     >
       <div
+        ref={dialogRef}
         data-lenis-prevent
         role="dialog"
         aria-label="Preview booking journey"
         aria-modal="true"
-        className="relative my-auto flex max-h-[92vh] w-full max-w-[1140px] flex-col overflow-y-auto overscroll-contain border-0 bg-[#f7f4ec] text-[#243c30] shadow-[0_20px_90px_rgba(0,0,0,0.267)]"
+        className="relative my-auto flex h-full sm:h-auto sm:max-h-[92vh] w-full max-w-[1140px] flex-col overflow-y-auto overscroll-contain border-0 bg-[#f7f4ec] text-[#243c30] shadow-[0_20px_90px_rgba(0,0,0,0.267)]"
       >
         {/* Sticky Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#d8d9cb] bg-[#f7f4ec] px-4 py-3 sm:px-[30px] sm:py-[23px]">
@@ -903,7 +972,7 @@ export function BookingJourneyDialog({
             type="button"
             data-action="close"
             aria-label="Close booking preview"
-            onClick={closeBookingJourney}
+            onClick={handleExplicitClose}
             className="flex h-[36px] w-[36px] shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#243c30] text-[#243c30] opacity-85 transition-opacity hover:opacity-100 outline-offset-[5px]"
           >
             <svg
@@ -958,7 +1027,7 @@ export function BookingJourneyDialog({
                     aria-current={isActive ? "step" : undefined}
                     aria-label={`Step ${index + 1}: ${label}`}
                     disabled={!isClickable}
-                    onClick={() => setStep(index)}
+                    onClick={() => goToStep(index)}
                     className={`relative z-10 flex h-[34px] w-[34px] -m-[3px] items-center justify-center rounded-full transition-all ${
                       isActive
                         ? "cursor-default"
@@ -1009,15 +1078,13 @@ export function BookingJourneyDialog({
                   ][step]}
                 </span>
               </div>
-              {step > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setStep(step - 1)}
-                  className="text-[11px] font-medium text-[#243c30] underline underline-offset-2 shrink-0 ml-2 hover:opacity-75"
-                >
-                  ← Back
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={goBackStep}
+                className="text-[11px] font-medium text-[#243c30] underline underline-offset-2 shrink-0 ml-2 hover:opacity-75"
+              >
+                {step <= initialStepRef.current || step === 0 ? "← Home" : "← Back"}
+              </button>
             </div>
           </div>
 
@@ -1040,7 +1107,7 @@ export function BookingJourneyDialog({
                   aria-current={isActive ? "step" : undefined}
                   aria-label={label}
                   disabled={step < index}
-                  onClick={() => setStep(index)}
+                  onClick={() => goToStep(index)}
                   className={`flex min-w-0 flex-row items-center justify-start gap-[8px] text-[10px] leading-[15px] outline-offset-[5px] transition-colors ${
                     isActive
                       ? "cursor-pointer font-medium text-[#243c30]"
@@ -1105,7 +1172,7 @@ export function BookingJourneyDialog({
                   toast.error(`A minimum stay of ${minStayNights} night${minStayNights === 1 ? "" : "s"} is required.`);
                   return;
                 }
-                setStep(1);
+                goToStep(1);
               }}
               className="mt-[27px]"
             >
@@ -1207,7 +1274,7 @@ export function BookingJourneyDialog({
             <div className="mt-[25px] border-t border-[#d8d9cb] pt-[15px] text-center">
               <button
                 type="button"
-                onClick={closeBookingJourney}
+                onClick={handleExplicitClose}
                 className="inline-flex cursor-pointer items-center justify-between gap-[25px] border-0 border-b border-[#243c30] p-[8px_0_10px] text-[11px] leading-[17.6px] text-[#243c30] outline-offset-[5px]"
               >
                 {bjValue("step1ExploreLinkText")}
@@ -1261,24 +1328,32 @@ export function BookingJourneyDialog({
                     <button
                       type="button"
                       data-action="edit-booking-dates"
-                      onClick={() => setStep(0)}
+                      onClick={() => goToStep(0)}
                       className="cursor-pointer border-0 text-[11px] text-[#243c30] underline underline-offset-4 outline-offset-[5px]"
                     >
                       Change
                     </button>
                   </div>
 
-                  {/* Header action bar with top Continue button (avoids having to scroll on mobile/desktop) */}
-                  <div className="mt-[22px] flex justify-end border-b border-[#d8d9cb] pb-4">
+                  {/* Header action bar with top buttons */}
+                  <div className="mt-[22px] flex items-center justify-between border-b border-[#d8d9cb] pb-4">
+                    <button
+                      type="button"
+                      data-action="top-back-home"
+                      onClick={handleExplicitClose}
+                      className="cursor-pointer border-0 text-[11px] text-[#243c30] underline underline-offset-4 hover:opacity-75 outline-offset-[5px]"
+                    >
+                      ← Back to Home
+                    </button>
                     <button
                       type="button"
                       data-action="top-continue-extras"
                       onClick={() => {
                         if (selectedCottageIds.length === 0) return;
-                        setStep(2);
+                        goToStep(2);
                       }}
                       disabled={selectedCottageIds.length === 0}
-                      className="flex min-h-[46px] w-full sm:w-auto cursor-pointer items-center justify-center gap-2.5 border-0 bg-[#243c30] px-6 py-3 text-[12px] font-medium leading-none text-[#fffdf8] transition-all hover:bg-[#1b2d24] disabled:cursor-not-allowed disabled:opacity-40 outline-offset-[5px] shadow-sm"
+                      className="flex min-h-[46px] w-auto cursor-pointer items-center justify-center gap-2.5 border-0 bg-[#243c30] px-6 py-3 text-[12px] font-medium leading-none text-[#fffdf8] transition-all hover:bg-[#1b2d24] disabled:cursor-not-allowed disabled:opacity-40 outline-offset-[5px] shadow-sm"
                     >
                       <span>Continue to extras</span>
                       <svg
@@ -1498,13 +1573,21 @@ export function BookingJourneyDialog({
                   <div className="mt-[25px] flex items-center justify-between gap-[15px]">
                     <button
                       type="button"
+                      data-action="booking-back-home"
+                      onClick={handleExplicitClose}
+                      className="cursor-pointer border-0 p-[10px_0] text-[11px] text-[#243c30] underline underline-offset-4 hover:opacity-75 outline-offset-[5px]"
+                    >
+                      ← Back to Home
+                    </button>
+                    <button
+                      type="button"
                       data-action="booking-next"
                       onClick={() => {
                         if (selectedCottageIds.length === 0) return;
-                        setStep(2);
+                        goToStep(2);
                       }}
                       disabled={selectedCottageIds.length === 0}
-                      className="ml-auto flex min-h-[49px] cursor-pointer items-center justify-center gap-[15px] border-0 bg-[#243c30] p-[13px_17px] text-[11px] font-medium leading-[14.85px] text-[#fffdf8] transition-colors hover:bg-[#1b2d24] disabled:opacity-50 disabled:cursor-not-allowed outline-offset-[5px]"
+                      className="flex min-h-[49px] cursor-pointer items-center justify-center gap-[15px] border-0 bg-[#243c30] p-[13px_17px] text-[11px] font-medium leading-[14.85px] text-[#fffdf8] transition-colors hover:bg-[#1b2d24] disabled:opacity-50 disabled:cursor-not-allowed outline-offset-[5px]"
                     >
                       Continue to extras
                       <svg
@@ -1646,7 +1729,7 @@ export function BookingJourneyDialog({
                       <button
                         type="button"
                         data-action="pet-cottages"
-                        onClick={() => setStep(1)}
+                        onClick={goBackStep}
                         className="inline-flex cursor-pointer items-center justify-between gap-[25px] border-0 border-b border-[#243c30] p-[8px_0_10px] text-[11px] leading-[17.6px] text-[#243c30] outline-offset-[5px]"
                       >
                         {bjValue("seePetCottagesText")}
@@ -1667,6 +1750,25 @@ export function BookingJourneyDialog({
                       __html: sanitizeCheckoutHtml(bjValue("extrasDescription")),
                     }}
                   />
+
+                  {/* Top continue action bar */}
+                  <div className="mt-[20px] flex justify-end border-b border-[#d8d9cb] pb-3.5">
+                    <button
+                      type="button"
+                      data-action="top-continue-details"
+                      onClick={() => goToStep(3)}
+                      className="flex min-h-[44px] w-full sm:w-auto cursor-pointer items-center justify-center gap-2.5 border-0 bg-[#243c30] px-6 py-2.5 text-[12px] font-medium leading-none text-[#fffdf8] transition-all hover:bg-[#1b2d24] outline-offset-[5px] shadow-sm"
+                    >
+                      <span>{bjValue("step3NextButtonText")}</span>
+                      <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        className="pointer-events-none h-4 w-4 shrink-0 fill-none stroke-[#fffdf8] stroke-[1.5] stroke-linecap-round stroke-linejoin-round"
+                      >
+                        <path d="M4 12h15m-6-6 6 6-6 6" />
+                      </svg>
+                    </button>
+                  </div>
 
                   {/* Unified Stay-Level Extras */}
                   {availableExtras.length === 0 ? (
@@ -1840,7 +1942,7 @@ export function BookingJourneyDialog({
                     <button
                       type="button"
                       data-action="booking-back"
-                      onClick={() => setStep(1)}
+                      onClick={goBackStep}
                       className="cursor-pointer border-0 p-[10px_0] text-[11px] text-[#243c30] outline-offset-[5px]"
                     >
                       ← Back
@@ -1848,7 +1950,7 @@ export function BookingJourneyDialog({
                     <button
                       type="button"
                       data-action="booking-next"
-                      onClick={() => setStep(3)}
+                      onClick={() => goToStep(3)}
                       className="flex min-h-[49px] cursor-pointer items-center justify-center gap-[15px] border-0 bg-[#243c30] p-[13px_17px] text-[11px] font-medium leading-[14.85px] text-[#fffdf8] transition-colors hover:bg-[#1b2d24] outline-offset-[5px]"
                     >
                       {bjValue("step3NextButtonText")}
@@ -1867,7 +1969,7 @@ export function BookingJourneyDialog({
                     data-action="skip-extras"
                       onClick={() => {
                         setExtraQtys({});
-                        setStep(3);
+                        goToStep(3);
                       }}
                     className="mt-[18px] block cursor-pointer border-0 text-left text-[10px] text-[#243c30] underline underline-offset-4 outline-offset-[5px]"
                   >
@@ -1942,7 +2044,7 @@ export function BookingJourneyDialog({
 
                         if (selectedCottages.length === 0) {
                           toast.error("Please choose at least one cottage.");
-                          setStep(1);
+                          goToStep(1);
                           return;
                         }
 
@@ -2017,7 +2119,7 @@ export function BookingJourneyDialog({
                             toast.error(res.paymentError);
                           } else {
                             // If payment not required (e.g. manual / external confirmation)
-                            setStep(4);
+                            goToStep(4);
                           }
                         } catch (err: any) {
                           const msg =
@@ -2332,7 +2434,7 @@ export function BookingJourneyDialog({
                         <button
                           type="button"
                           data-action="booking-back"
-                          onClick={() => setStep(2)}
+                          onClick={goBackStep}
                           className="cursor-pointer border-0 p-[10px_0] text-[11px] text-[#243c30] underline underline-offset-4 outline-offset-[5px]"
                         >
                           ← Back to extras
@@ -2379,7 +2481,7 @@ export function BookingJourneyDialog({
                             totalAmount={grandTotal}
                             bookingId={bookingId!}
                             currencySymbol={currencySymbol}
-                            onSuccess={() => setStep(4)}
+                            onSuccess={() => goToStep(4)}
                             onBack={() => setClientSecret(null)}
                           />
                         </Elements>
@@ -2411,7 +2513,7 @@ export function BookingJourneyDialog({
                 <button
                   type="button"
                   data-action="edit-booking-dates"
-                  onClick={() => setStep(0)}
+                  onClick={() => goToStep(0)}
                   className="flex cursor-pointer items-center gap-[10px] border-0 p-[8px_0] text-[10px] text-[#243c30] underline underline-offset-4 outline-offset-[5px]"
                 >
                   Change dates &amp; guests
@@ -2604,7 +2706,7 @@ export function BookingJourneyDialog({
               {bookingId && (
                 <Link
                   to={`/booking/confirmation/${bookingId}/`}
-                  onClick={closeBookingJourney}
+                  onClick={handleExplicitClose}
                   className="inline-flex min-h-[46px] items-center justify-center gap-[12px] border border-[#243c30] bg-transparent px-[22px] py-[12px] text-[12px] font-medium text-[#243c30] no-underline transition-colors hover:bg-[#243c30] hover:text-[#fffdf8]"
                 >
                   View Full Receipt &amp; Details
@@ -2613,7 +2715,7 @@ export function BookingJourneyDialog({
               <button
                 type="button"
                 data-action="back-home"
-                onClick={closeBookingJourney}
+                onClick={handleExplicitClose}
                 className="inline-flex min-h-[46px] cursor-pointer items-center justify-center gap-[16px] border-0 bg-[#243c30] px-[24px] py-[12px] text-[12px] font-medium text-[#fffdf8] transition-colors hover:bg-[#1b2d24] outline-offset-[5px]"
               >
                 Done
