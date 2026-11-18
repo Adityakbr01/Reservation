@@ -20,17 +20,20 @@ class PublicAvailabilityController extends Controller
         $checkOut = \Carbon\Carbon::parse($checkOutDate);
         $nights = max(1, $checkIn->diffInDays($checkOut));
 
+        $checkInStart = $checkIn->copy()->startOfDay()->format('Y-m-d H:i:s');
+        $checkOutStart = $checkOut->copy()->startOfDay()->format('Y-m-d H:i:s');
+
         // Auto-unhold any expired holds older than 20 minutes
         \App\Models\Booking::unholdExpired();
 
-        // 1. Bulk query: Get all blocked room IDs in date range with 1 query
-        $blockedRoomIds = AvailabilityBlock::where('start_date', '<', $checkOutDate)
-            ->where('end_date', '>', $checkInDate)
+        // 1. Bulk query: Get all blocked room/room_type IDs in date range with 1 query
+        $blockedRoomIds = AvailabilityBlock::where('start_date', '<', $checkOutStart)
+            ->where('end_date', '>', $checkInStart)
             ->pluck('room_id')
             ->filter()
             ->all();
 
-        // 2. Bulk query: Get all active booked/held room IDs in date range with 1 query
+        // 2. Bulk query: Get all active booked/held room & room_type IDs in date range with 1 query
         $bookedRoomIds = BookingItem::activeBookings()
             ->where('check_in', '<', $checkOutDate)
             ->where('check_out', '>', $checkInDate)
@@ -38,9 +41,36 @@ class PublicAvailabilityController extends Controller
             ->filter()
             ->all();
 
-        $unavailableRoomIds = array_flip(array_merge($blockedRoomIds, $bookedRoomIds));
+        $bookedRoomTypeIds = BookingItem::activeBookings()
+            ->where('check_in', '<', $checkOutDate)
+            ->where('check_out', '>', $checkInDate)
+            ->pluck('room_type_id')
+            ->filter()
+            ->all();
 
-        // 3. Bulk query: Active rooms
+        $unavailableIds = array_flip(array_merge($blockedRoomIds, $bookedRoomIds, $bookedRoomTypeIds));
+
+        // 3. Bulk query: Get all active cottages with active rate plans in 1 query
+        $roomTypes = \App\Models\RoomType::with(['category', 'ratePlans' => function ($q) {
+            $q->where('status', 'ACTIVE');
+        }])->where('status', 'ACTIVE')->get();
+
+        // Ensure every active room type has at least one physical room record
+        $defaultProp = \App\Models\Property::defaultProperty();
+        foreach ($roomTypes as $rt) {
+            Room::firstOrCreate(
+                ['room_type_id' => $rt->id],
+                [
+                    'id' => bin2hex(random_bytes(12)),
+                    'property_id' => $rt->property_id ?? $defaultProp->id,
+                    'room_number' => strtoupper(substr($rt->slug ?? 'COT', 0, 3)) . '-1',
+                    'name' => $rt->name,
+                    'status' => 'ACTIVE',
+                ]
+            );
+        }
+
+        // 4. Bulk query: Active rooms
         $roomQuery = Room::where('status', 'ACTIVE');
         if (!empty($data['room_type_id'])) {
             $roomQuery->where('room_type_id', $data['room_type_id']);
@@ -49,16 +79,12 @@ class PublicAvailabilityController extends Controller
 
         $availableCounts = [];
         foreach ($rooms as $room) {
-            if (!isset($unavailableRoomIds[$room->id])) {
+            $isUnavailable = isset($unavailableIds[$room->id]) || isset($unavailableIds[$room->room_type_id]);
+            if (! $isUnavailable) {
                 $rtId = $room->room_type_id;
                 $availableCounts[$rtId] = ($availableCounts[$rtId] ?? 0) + 1;
             }
         }
-
-        // 4. Bulk query: Get all active cottages with active rate plans in 1 query
-        $roomTypes = \App\Models\RoomType::with(['category', 'ratePlans' => function ($q) {
-            $q->where('status', 'ACTIVE');
-        }])->where('status', 'ACTIVE')->get();
 
         $currency = \App\Models\SiteSettings::first()?->currency
             ?? \App\Models\Property::first()?->currency
@@ -93,7 +119,7 @@ class PublicAvailabilityController extends Controller
 
         $results = [];
         foreach ($roomTypes as $rt) {
-            $availableCount = $availableCounts[$rt->id] ?? 1;
+            $availableCount = $availableCounts[$rt->id] ?? 0;
 
             $rates = [];
             $activePlans = $rt->relationLoaded('ratePlans') ? $rt->ratePlans : \App\Models\RatePlan::where('room_type_id', $rt->id)->where('status', 'ACTIVE')->get();
@@ -309,13 +335,19 @@ class PublicAvailabilityController extends Controller
                 $bookedCount = 0;
 
                 if ($totalRooms > 0) {
-                    $blockedCount = AvailabilityBlock::whereIn('room_id', $roomIds)
+                    $blockedCount = AvailabilityBlock::where(function ($q) use ($roomIds, $rt) {
+                            $q->whereIn('room_id', $roomIds)
+                              ->orWhere('room_id', $rt->id);
+                        })
                         ->where('start_date', '<', $nextDate)
                         ->where('end_date', '>', $curDate)
                         ->count();
 
                     $bookedCount = BookingItem::activeBookings()
-                        ->whereIn('room_id', $roomIds)
+                        ->where(function ($q) use ($roomIds, $rt) {
+                            $q->whereIn('room_id', $roomIds)
+                              ->orWhere('room_type_id', $rt->id);
+                        })
                         ->where('check_in', '<', $nextDate)
                         ->where('check_out', '>', $curDate)
                         ->count();

@@ -3,7 +3,10 @@ import { availabilityKeys } from "@/lib/query-keys";
 import { fetchAvailabilityCalendar, searchAvailability } from "../api/availability.api";
 import type { AvailabilitySearchParams } from "../types/availability.types";
 
-export function useAvailabilitySearch(params: AvailabilitySearchParams | null) {
+export function useAvailabilitySearch(
+  params: AvailabilitySearchParams | null,
+  options?: { staleTime?: number },
+) {
   return useQuery({
     queryKey: availabilityKeys.search(params),
     queryFn: () => {
@@ -12,7 +15,7 @@ export function useAvailabilitySearch(params: AvailabilitySearchParams | null) {
     },
     enabled: params !== null,
     placeholderData: keepPreviousData,
-    staleTime: 5 * 60_000,
+    staleTime: options?.staleTime ?? 5 * 60_000,
     retry: false,
   });
 }

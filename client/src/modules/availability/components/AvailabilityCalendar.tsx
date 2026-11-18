@@ -135,7 +135,7 @@ export function AvailabilityCalendar({
             variant="ghost"
             size="sm"
             className="size-8 rounded-full p-0"
-            disabled={offset >= 2 || isPending}
+            disabled={isPending}
             onClick={() => setOffset((o) => o + 1)}
             aria-label="Next month"
           >

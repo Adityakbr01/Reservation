@@ -458,20 +458,29 @@ export function BookingJourneyDialog({
       : Math.random().toString(36).substring(2) + Date.now().toString(36),
   );
 
-  // Live availability query if propCottages not provided
+  // Live availability query: always query for the stay dates selected inside the journey
   const hasStayDates = Boolean(checkIn && checkOut && checkOut > checkIn);
   const availabilityQuery = useAvailabilitySearch(
-    !propCottages || propCottages.length === 0
-      ? hasStayDates
-        ? { checkIn, checkOut, adults, children, rooms: 1 }
-        : null
+    hasStayDates
+      ? { checkIn, checkOut, adults, children, rooms: 1 }
       : null,
+    { staleTime: 0 },
   );
 
   const cottages = useMemo(() => {
+    if (availabilityQuery.data?.results && availabilityQuery.data.results.length > 0) {
+      return availabilityQuery.data.results;
+    }
     if (propCottages && propCottages.length > 0) return propCottages;
-    return availabilityQuery.data?.results ?? [];
-  }, [propCottages, availabilityQuery.data]);
+    return [];
+  }, [availabilityQuery.data, propCottages]);
+
+  // Whenever user is on Step 1 (Choose Cottage), refetch fresh live availability from the server
+  useEffect(() => {
+    if (isOpen && step === 1 && hasStayDates) {
+      availabilityQuery.refetch();
+    }
+  }, [isOpen, step, hasStayDates]);
 
   // Lock page scroll and pause Lenis smooth scroll while the dialog is open
   useEffect(() => {
@@ -586,6 +595,23 @@ export function BookingJourneyDialog({
   }, [cottages, selectedCottageIds]);
 
   const selectedCottages = selectedCottageItems.map((c) => c.roomType);
+
+  const hasUnavailableSelected = useMemo(() => {
+    return selectedCottageItems.some((i) => i.availableCount <= 0);
+  }, [selectedCottageItems]);
+
+  // If stay dates change and make a previously selected cottage unavailable, deselect it and notify
+  useEffect(() => {
+    if (!isOpen || selectedCottageIds.length === 0 || cottages.length === 0) return;
+    const unavailable = selectedCottageItems.filter((i) => i.availableCount <= 0);
+    if (unavailable.length > 0) {
+      const unavailIds = unavailable.map((i) => i.roomType.id);
+      setSelectedCottageIds((prev) => prev.filter((id) => !unavailIds.includes(id)));
+      toast.error(
+        `"${unavailable.map((i) => i.roomType.name).join(", ")}" is unavailable for the chosen dates and was removed from your selection.`,
+      );
+    }
+  }, [cottages, isOpen, selectedCottageItems, selectedCottageIds.length]);
 
   const galleryRoomType = useMemo(
     () => cottages.find((c) => c.roomType.id === galleryCottageId)?.roomType ?? null,
@@ -868,6 +894,10 @@ export function BookingJourneyDialog({
   }, [cottages]);
 
   const handleToggleCottage = (item: SearchResultItem) => {
+    if (item.availableCount <= 0) {
+      toast.error(`${item.roomType.name} is unavailable for these dates.`);
+      return;
+    }
     const rt = item.roomType;
     const isSelected = selectedCottageIds.includes(rt.id);
     const catId =
@@ -1172,6 +1202,7 @@ export function BookingJourneyDialog({
                   toast.error(`A minimum stay of ${minStayNights} night${minStayNights === 1 ? "" : "s"} is required.`);
                   return;
                 }
+                availabilityQuery.refetch();
                 goToStep(1);
               }}
               className="mt-[27px]"
@@ -1350,9 +1381,13 @@ export function BookingJourneyDialog({
                       data-action="top-continue-extras"
                       onClick={() => {
                         if (selectedCottageIds.length === 0) return;
+                        if (hasUnavailableSelected) {
+                          toast.error("One or more selected cottages are unavailable for these dates.");
+                          return;
+                        }
                         goToStep(2);
                       }}
-                      disabled={selectedCottageIds.length === 0}
+                      disabled={selectedCottageIds.length === 0 || hasUnavailableSelected}
                       className="flex min-h-[46px] w-auto cursor-pointer items-center justify-center gap-2.5 border-0 bg-[#243c30] px-6 py-3 text-[12px] font-medium leading-none text-[#fffdf8] transition-all hover:bg-[#1b2d24] disabled:cursor-not-allowed disabled:opacity-40 outline-offset-[5px] shadow-sm"
                     >
                       <span>Continue to extras</span>
@@ -1365,6 +1400,12 @@ export function BookingJourneyDialog({
                       </svg>
                     </button>
                   </div>
+                  {availabilityQuery.isFetching && (
+                    <div className="mt-2 flex items-center gap-2 text-[11px] text-[#243c30]/75">
+                      <div className="size-3 animate-spin rounded-full border-2 border-[#243c30] border-t-transparent" />
+                      <span>Checking live availability with server…</span>
+                    </div>
+                  )}
                   <div className="mt-[17px] space-y-8">
                     {categorizedCottages.map((group) => (
                       <section key={group.id} className="first:mt-0">
@@ -1405,6 +1446,7 @@ export function BookingJourneyDialog({
                         <div className="grid grid-cols-1 gap-[18px] md:grid-cols-2">
                           {group.items.map((item) => {
                             const rt = item.roomType;
+                            const isAvailable = item.availableCount > 0;
                             const isSelected = selectedCottageIds.includes(rt.id);
                             const cover = getCottageCoverUrl(rt);
                             const photoCnt = getCottagePhotoCount(rt);
@@ -1422,11 +1464,13 @@ export function BookingJourneyDialog({
                               <article
                                 key={rt.id}
                                 aria-label={`${rt.name} booking option`}
-                                onClick={() => handleToggleCottage(item)}
-                                className={`flex cursor-pointer flex-col overflow-hidden border bg-[#fffdf8] transition-all ${
-                                  isSelected
-                                    ? "border-[#243c30] ring-1 ring-[#243c30]"
-                                    : "border-[#d8d9cb]"
+                                onClick={() => isAvailable && handleToggleCottage(item)}
+                                className={`flex flex-col overflow-hidden border transition-all ${
+                                  !isAvailable
+                                    ? "cursor-not-allowed border-[#d8d9cb] bg-[#f5f4ef] opacity-75"
+                                    : isSelected
+                                      ? "cursor-pointer border-[#243c30] bg-[#fffdf8] ring-1 ring-[#243c30]"
+                                      : "cursor-pointer border-[#d8d9cb] bg-[#fffdf8]"
                                 }`}
                               >
                                 <button
@@ -1455,11 +1499,15 @@ export function BookingJourneyDialog({
                                     </svg>
                                     {photoCnt} photos
                                   </span>
-                                  {isSelected && (
+                                  {!isAvailable ? (
+                                    <span className="absolute top-[11px] left-[11px] bg-[#8a2c2a] p-[6px_9px] text-[8px] font-semibold uppercase tracking-[0.48px] text-[#fffdf8] shadow-sm">
+                                      Unavailable for these dates
+                                    </span>
+                                  ) : isSelected ? (
                                     <span className="absolute top-[11px] left-[11px] bg-[#243c30] p-[6px_9px] text-[8px] uppercase tracking-[0.48px] text-[#fffdf8]">
                                       Your choice
                                     </span>
-                                  )}
+                                  ) : null}
                                 </button>
 
                                 <div className="flex flex-1 flex-col p-[17px]">
@@ -1533,21 +1581,24 @@ export function BookingJourneyDialog({
                                       </svg>
                                     </button>
                                     <label
-                                      className={`flex min-h-[36px] cursor-pointer items-center justify-center gap-[7px] p-[7px_9px] text-[10px] transition-colors ${
-                                        isSelected
-                                          ? "border border-[#243c30] bg-[#e9ecdf]"
-                                          : "border border-[#243c30]/25 bg-transparent"
+                                      className={`flex min-h-[36px] items-center justify-center gap-[7px] p-[7px_9px] text-[10px] transition-colors ${
+                                        !isAvailable
+                                          ? "cursor-not-allowed border border-[#d8d9cb] bg-[#e6e5dc] text-[#7a806f]"
+                                          : isSelected
+                                            ? "cursor-pointer border border-[#243c30] bg-[#e9ecdf]"
+                                            : "cursor-pointer border border-[#243c30]/25 bg-transparent"
                                       }`}
                                     >
                                       <input
                                         type="checkbox"
                                         name="booking-cottage"
                                         value={rt.id}
+                                        disabled={!isAvailable}
                                         checked={isSelected}
-                                        onChange={() => handleToggleCottage(item)}
-                                        className="m-0 h-[14px] w-[14px] shrink-0 accent-[#243c30]"
+                                        onChange={() => isAvailable && handleToggleCottage(item)}
+                                        className="m-0 h-[14px] w-[14px] shrink-0 accent-[#243c30] disabled:cursor-not-allowed"
                                       />
-                                      <span>{isSelected ? "Selected" : "Choose"}</span>
+                                      <span>{!isAvailable ? "Unavailable" : isSelected ? "Selected" : "Choose"}</span>
                                     </label>
                                   </div>
                                 </div>
@@ -1584,9 +1635,13 @@ export function BookingJourneyDialog({
                       data-action="booking-next"
                       onClick={() => {
                         if (selectedCottageIds.length === 0) return;
+                        if (hasUnavailableSelected) {
+                          toast.error("One or more selected cottages are unavailable for these dates.");
+                          return;
+                        }
                         goToStep(2);
                       }}
-                      disabled={selectedCottageIds.length === 0}
+                      disabled={selectedCottageIds.length === 0 || hasUnavailableSelected}
                       className="flex min-h-[49px] cursor-pointer items-center justify-center gap-[15px] border-0 bg-[#243c30] p-[13px_17px] text-[11px] font-medium leading-[14.85px] text-[#fffdf8] transition-colors hover:bg-[#1b2d24] disabled:opacity-50 disabled:cursor-not-allowed outline-offset-[5px]"
                     >
                       Continue to extras
@@ -2044,6 +2099,12 @@ export function BookingJourneyDialog({
 
                         if (selectedCottages.length === 0) {
                           toast.error("Please choose at least one cottage.");
+                          goToStep(1);
+                          return;
+                        }
+
+                        if (hasUnavailableSelected) {
+                          toast.error("One or more selected cottages are unavailable for these dates.");
                           goToStep(1);
                           return;
                         }

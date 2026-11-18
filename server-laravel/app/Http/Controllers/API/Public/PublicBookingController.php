@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\Public;
 
 use App\Http\Controllers\Controller;
+use App\Models\AvailabilityBlock;
 use App\Models\Booking;
 use App\Models\BookingItem;
 use App\Models\Cottage;
@@ -399,6 +400,42 @@ class PublicBookingController extends Controller
                         'room_number' => strtoupper(substr($cottage->slug ?? 'COT', 0, 3)) . '-1',
                         'status' => 'ACTIVE',
                     ]);
+                }
+
+                // Authoritative availability check: verify neither room nor cottage is blocked or already booked
+                $checkInStart = \Carbon\Carbon::parse($checkIn)->startOfDay()->format('Y-m-d H:i:s');
+                $checkOutStart = \Carbon\Carbon::parse($checkOut)->startOfDay()->format('Y-m-d H:i:s');
+
+                $isBlocked = AvailabilityBlock::where(function ($q) use ($room, $cottage) {
+                        if ($room) {
+                            $q->where('room_id', $room->id);
+                        }
+                        $q->orWhere('room_id', $cottage->id);
+                    })
+                    ->where('start_date', '<', $checkOutStart)
+                    ->where('end_date', '>', $checkInStart)
+                    ->exists();
+
+                $isBooked = BookingItem::activeBookings()
+                    ->where(function ($q) use ($room, $cottage) {
+                        if ($room) {
+                            $q->where('room_id', $room->id);
+                        }
+                        $q->orWhere('room_type_id', $cottage->id);
+                    })
+                    ->where('check_in', '<', $checkOut)
+                    ->where('check_out', '>', $checkIn)
+                    ->exists();
+
+                if ($isBlocked || $isBooked) {
+                    $reason = $isBlocked ? 'is blocked and unavailable for the selected dates' : 'is already booked for the selected dates';
+                    return response()->json([
+                        'success' => false,
+                        'error' => [
+                            'code' => 'ROOM_UNAVAILABLE',
+                            'message' => "Sorry, {$cottage->name} {$reason}. Please select different dates or choose another cottage.",
+                        ],
+                    ], 422);
                 }
             }
 

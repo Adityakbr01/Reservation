@@ -73,6 +73,7 @@ export function DateField({ id, label, value, min, onChange, contentClassName }:
               }
             }}
             disabled={minDate ? { before: startOfDay(minDate) } : undefined}
+            endMonth={new Date(new Date().getFullYear() + 10, 11)}
           />
         </PopoverContent>
       </Popover>
