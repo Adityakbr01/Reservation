@@ -275,6 +275,13 @@ class AdminSettingsController extends Controller
             foreach ($defaults as $key => $default) {
                 $snakeKey = \Illuminate\Support\Str::snake($key);
                 if (! array_key_exists($key, $incoming) && ! array_key_exists($snakeKey, $incoming)) {
+                    if ($key === 'showSpecialRequestsLabel' && (array_key_exists('showLabel', $incoming) || array_key_exists('show_label', $incoming))) {
+                        $value = array_key_exists('showLabel', $incoming) ? $incoming['showLabel'] : $incoming['show_label'];
+                        $resolved[$section][$key] = (bool) $value;
+                    } elseif ($key === 'showSpecialRequestsPlaceholder' && (array_key_exists('showPlaceholder', $incoming) || array_key_exists('show_placeholder', $incoming))) {
+                        $value = array_key_exists('showPlaceholder', $incoming) ? $incoming['showPlaceholder'] : $incoming['show_placeholder'];
+                        $resolved[$section][$key] = (bool) $value;
+                    }
                     continue;
                 }
 

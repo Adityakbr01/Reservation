@@ -18,7 +18,6 @@ import { Switch } from "@/components/ui/switch";
 import { ImageField } from "@/components/common/ImageField";
 import { MediaPicker } from "@/components/common/MediaPicker";
 import { CkEditorField } from "@/components/common/CkEditorField";
-import { RichTextEditor } from "@/modules/cms/components/RichTextEditor";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { getCurrencySymbol } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -36,7 +35,8 @@ import type {
 
 function toBool(val: unknown, fallback = true): boolean {
   if (val === undefined || val === null) return fallback;
-  if (val === false || val === 0 || val === "false" || val === "0") return false;
+  if (val === false || val === 0 || val === "false" || val === "0")
+    return false;
   if (val === true || val === 1 || val === "true" || val === "1") return true;
   return fallback;
 }
@@ -92,25 +92,35 @@ export function CottageForm({
   }
   const initAny = initial as unknown as Record<string, unknown> | undefined;
   const [shortDescription, setShortDescription] = useState(
-    initial?.shortDescription ?? (initAny?.short_description as string | undefined) ?? "",
+    initial?.shortDescription ??
+      (initAny?.short_description as string | undefined) ??
+      "",
   );
   const [description, setDescription] = useState(
     initial?.description ?? (initAny?.description as string | undefined) ?? "",
   );
   const [middleDescription, setMiddleDescription] = useState(
-    initial?.middleDescription ?? (initAny?.middle_description as string | undefined) ?? "",
+    initial?.middleDescription ??
+      (initAny?.middle_description as string | undefined) ??
+      "",
   );
   const [aboutHeading, setAboutHeading] = useState(
-    initial?.aboutHeading ?? (initAny?.about_heading as string | undefined) ?? "",
+    initial?.aboutHeading ??
+      (initAny?.about_heading as string | undefined) ??
+      "",
   );
   const [aboutText, setAboutText] = useState(
     initial?.aboutText ?? (initAny?.about_text as string | undefined) ?? "",
   );
   const [aboutImageMediaId, setAboutImageMediaId] = useState<string | null>(
-    initial?.aboutImageMediaId ?? (initAny?.about_image_media_id as string | undefined) ?? null,
+    initial?.aboutImageMediaId ??
+      (initAny?.about_image_media_id as string | undefined) ??
+      null,
   );
   const [overviewBullets, setOverviewBullets] = useState<string[]>(
-    initial?.overviewBullets ?? (initAny?.overview_bullets as string[] | undefined) ?? [],
+    initial?.overviewBullets ??
+      (initAny?.overview_bullets as string[] | undefined) ??
+      [],
   );
   const [newBulletText, setNewBulletText] = useState("");
 
@@ -168,7 +178,8 @@ export function CottageForm({
         availability: toBool(rawSettings?.tabs?.availability, true),
         propertyDetails: toBool(
           rawSettings?.tabs?.propertyDetails ??
-            (rawSettings?.tabs as Record<string, unknown> | undefined)?.property_details,
+            (rawSettings?.tabs as Record<string, unknown> | undefined)
+              ?.property_details,
           true,
         ),
         layout: toBool(rawSettings?.tabs?.layout, true),
@@ -181,21 +192,37 @@ export function CottageForm({
         showPhotoCount: toBool(rawSettings?.cottageCard?.showPhotoCount, true),
         showTitle: toBool(rawSettings?.cottageCard?.showTitle, true),
         showCapacity: toBool(rawSettings?.cottageCard?.showCapacity, true),
-        showPetFriendly: toBool(rawSettings?.cottageCard?.showPetFriendly, true),
-        showDescription: toBool(rawSettings?.cottageCard?.showDescription, true),
+        showPetFriendly: toBool(
+          rawSettings?.cottageCard?.showPetFriendly,
+          true,
+        ),
+        showDescription: toBool(
+          rawSettings?.cottageCard?.showDescription,
+          true,
+        ),
         showPrice: toBool(rawSettings?.cottageCard?.showPrice, true),
-        showExampleRate: toBool(rawSettings?.cottageCard?.showExampleRate, true),
+        showExampleRate: toBool(
+          rawSettings?.cottageCard?.showExampleRate,
+          true,
+        ),
         showDogPolicy: toBool(rawSettings?.cottageCard?.showDogPolicy, true),
-        showExploreLink: toBool(rawSettings?.cottageCard?.showExploreLink, true),
+        showExploreLink: toBool(
+          rawSettings?.cottageCard?.showExploreLink,
+          true,
+        ),
         showCheckAvailability: toBool(
-          rawSettings?.cottageCard?.showCheckAvailability, true,
+          rawSettings?.cottageCard?.showCheckAvailability,
+          true,
         ),
         cardTitle: rawSettings?.cottageCard?.cardTitle ?? "",
         cardDescription: rawSettings?.cottageCard?.cardDescription ?? "",
         cardPriceLabel: rawSettings?.cottageCard?.cardPriceLabel ?? "From",
-        cardExampleRateLabel: rawSettings?.cottageCard?.cardExampleRateLabel ?? "Example rate",
-        cardExploreText: rawSettings?.cottageCard?.cardExploreText ?? "Explore cottage",
-        cardBookText: rawSettings?.cottageCard?.cardBookText ?? "Check availability",
+        cardExampleRateLabel:
+          rawSettings?.cottageCard?.cardExampleRateLabel ?? "Example rate",
+        cardExploreText:
+          rawSettings?.cottageCard?.cardExploreText ?? "Explore cottage",
+        cardBookText:
+          rawSettings?.cottageCard?.cardBookText ?? "Check availability",
       },
     }));
 
@@ -203,7 +230,10 @@ export function CottageForm({
   useEffect(() => {
     const fresh =
       parseSettings(initial?.sectionSettings) ??
-      parseSettings((initial as unknown as { section_settings?: unknown })?.section_settings);
+      parseSettings(
+        (initial as unknown as { section_settings?: unknown })
+          ?.section_settings,
+      );
     if (fresh) {
       setSectionSettings((prev) => ({
         ...prev,
@@ -238,8 +268,10 @@ export function CottageForm({
           cardTitle: fresh.cottageCard?.cardTitle ?? "",
           cardDescription: fresh.cottageCard?.cardDescription ?? "",
           cardPriceLabel: fresh.cottageCard?.cardPriceLabel ?? "From",
-          cardExampleRateLabel: fresh.cottageCard?.cardExampleRateLabel ?? "Example rate",
-          cardExploreText: fresh.cottageCard?.cardExploreText ?? "Explore cottage",
+          cardExampleRateLabel:
+            fresh.cottageCard?.cardExampleRateLabel ?? "Example rate",
+          cardExploreText:
+            fresh.cottageCard?.cardExploreText ?? "Explore cottage",
           cardBookText: fresh.cottageCard?.cardBookText ?? "Check availability",
         },
       }));
@@ -261,20 +293,25 @@ export function CottageForm({
 
   const [categoryId, setCategoryId] = useState<string>(() => {
     const rawAny = initial as unknown as Record<string, unknown> | undefined;
-    const directCat = (rawAny?.categoryId as string | undefined) ?? (rawAny?.category_id as string | undefined);
+    const directCat =
+      (rawAny?.categoryId as string | undefined) ??
+      (rawAny?.category_id as string | undefined);
     if (directCat) return directCat;
-    return (
-      (initial?.homeSection ?? (initial as unknown as { home_section?: string })?.home_section) === "section_2"
-        ? "cat_estate_collection"
-        : "cat_farm_cottages"
-    );
+    return (initial?.homeSection ??
+      (initial as unknown as { home_section?: string })?.home_section) ===
+      "section_2"
+      ? "cat_estate_collection"
+      : "cat_farm_cottages";
   });
 
   function handleSelectCategory(catId: string) {
     setCategoryId(catId);
     const cat = categories.find((c) => c.id === catId);
     if (cat) {
-      const isEstate = !cat.allowMultiple || cat.slug.includes("estate") || cat.id === "cat_estate_collection";
+      const isEstate =
+        !cat.allowMultiple ||
+        cat.slug.includes("estate") ||
+        cat.id === "cat_estate_collection";
       setHomeSection(isEstate ? "section_2" : "section_1");
     }
   }
@@ -433,8 +470,10 @@ export function CottageForm({
   });
   const [dogPolicyEnabled, setDogPolicyEnabled] = useState<boolean>(() => {
     const rawAny = initial as unknown as Record<string, unknown> | undefined;
-    if (rawAny?.dogPolicyEnabled !== undefined) return Boolean(rawAny.dogPolicyEnabled);
-    if (rawAny?.dog_policy_enabled !== undefined) return Boolean(rawAny.dog_policy_enabled);
+    if (rawAny?.dogPolicyEnabled !== undefined)
+      return Boolean(rawAny.dogPolicyEnabled);
+    if (rawAny?.dog_policy_enabled !== undefined)
+      return Boolean(rawAny.dog_policy_enabled);
     const d = rawAny?.maxDogs ?? rawAny?.max_dogs;
     return d != null && Number(d) > 0;
   });
@@ -444,7 +483,9 @@ export function CottageForm({
   });
   const [dogPolicySubtitle, setDogPolicySubtitle] = useState(() => {
     const rawAny = initial as unknown as Record<string, unknown> | undefined;
-    return String(rawAny?.dogPolicySubtitle ?? rawAny?.dog_policy_subtitle ?? "");
+    return String(
+      rawAny?.dogPolicySubtitle ?? rawAny?.dog_policy_subtitle ?? "",
+    );
   });
   const [dogFee, setDogFee] = useState(() => {
     const rawAny = initial as unknown as Record<string, unknown> | undefined;
@@ -462,9 +503,13 @@ export function CottageForm({
     }
     return out;
   });
-  const [dogPolicyImageMediaId, setDogPolicyImageMediaId] = useState<string | null>(() => {
+  const [dogPolicyImageMediaId, setDogPolicyImageMediaId] = useState<
+    string | null
+  >(() => {
     const rawAny = initial as unknown as Record<string, unknown> | undefined;
-    return (rawAny?.dogPolicyImageMediaId ?? rawAny?.dog_policy_image_media_id ?? null) as string | null;
+    return (rawAny?.dogPolicyImageMediaId ??
+      rawAny?.dog_policy_image_media_id ??
+      null) as string | null;
   });
   const [bathrooms, setBathrooms] = useState(() => {
     const rawAny = initial as unknown as Record<string, unknown> | undefined;
@@ -473,11 +518,15 @@ export function CottageForm({
   });
   const [hamperOn, setHamperOn] = useState(() => {
     const rawAny = initial as unknown as Record<string, unknown> | undefined;
-    return Boolean(rawAny?.welcomeHamperIncluded ?? rawAny?.welcome_hamper_included);
+    return Boolean(
+      rawAny?.welcomeHamperIncluded ?? rawAny?.welcome_hamper_included,
+    );
   });
   const [hamperHtml, setHamperHtml] = useState(() => {
     const rawAny = initial as unknown as Record<string, unknown> | undefined;
-    return String(rawAny?.welcomeHamperHtml ?? rawAny?.welcome_hamper_html ?? "");
+    return String(
+      rawAny?.welcomeHamperHtml ?? rawAny?.welcome_hamper_html ?? "",
+    );
   });
   const [amenityIds, setAmenityIds] = useState<string[]>(
     (initial as unknown as Record<string, string[]>)?.amenityIds ?? [],
@@ -489,119 +538,11 @@ export function CottageForm({
     "HIGHLIGHT",
   );
 
-  const [extras, setExtras] = useState<CottageExtra[]>(() => {
+  const [extras] = useState<CottageExtra[]>(() => {
     const raw = (initial as unknown as { extras?: CottageExtra[] })?.extras;
-    if (Array.isArray(raw) && raw.length > 0) {
-      return raw.map((item, idx) => ({
-        id: item.id || `extra_${Date.now()}_${idx}`,
-        title: item.title || "",
-        description: item.description || "",
-        price: Number(item.price ?? 0),
-        pricingType: item.pricingType === "PER_STAY" ? "PER_STAY" : "PER_PERSON",
-        imageMediaId: item.imageMediaId || (item as any).image_media_id || null,
-        imageUrl: item.imageUrl || (item as any).image_url || null,
-        showCounter: item.showCounter ?? false,
-        min: item.min ?? 1,
-        max: item.max ?? null,
-      }));
-    }
+    if (Array.isArray(raw)) return raw;
     return [];
   });
-
-  function handleAddExtra() {
-    const newId = `extra_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-    setExtras((prev) => [
-      ...prev,
-      {
-        id: newId,
-        title: "",
-        description: "",
-        price: 0,
-        pricingType: "PER_PERSON",
-        imageMediaId: null,
-        imageUrl: null,
-        showCounter: false,
-        min: 1,
-        max: null,
-      },
-    ]);
-  }
-
-  function handleUpdateExtra(id: string, updates: Partial<CottageExtra>) {
-    setExtras((prev) =>
-      prev.map((ex) => (ex.id === id ? { ...ex, ...updates } : ex)),
-    );
-  }
-
-  function handleRemoveExtra(id: string) {
-    setExtras((prev) => prev.filter((ex) => ex.id !== id));
-  }
-
-  function handleMoveExtra(index: number, direction: "up" | "down") {
-    setExtras((prev) => {
-      const targetIndex = direction === "up" ? index - 1 : index + 1;
-      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
-      const copy = [...prev];
-      const temp = copy[index];
-      copy[index] = copy[targetIndex];
-      copy[targetIndex] = temp;
-      return copy;
-    });
-  }
-
-  function handleLoadDefaultExtras() {
-    const sym = getCurrencySymbol();
-    setExtras([
-      {
-        id: "extra_golf",
-        title: "A round of golf",
-        description: `${sym}60 per adult · illustrative price`,
-        price: 60,
-        pricingType: "PER_PERSON",
-        imageMediaId: null,
-        imageUrl: null,
-        showCounter: false,
-        min: 1,
-        max: null,
-      },
-      {
-        id: "extra_padel",
-        title: "Time on the padel court",
-        description: `${sym}40 per court session · illustrative price`,
-        price: 40,
-        pricingType: "PER_STAY",
-        imageMediaId: null,
-        imageUrl: null,
-        showCounter: false,
-        min: 1,
-        max: null,
-      },
-      {
-        id: "extra_lunch",
-        title: "Lunch at the clubhouse",
-        description: `${sym}25 per adult · illustrative price`,
-        price: 25,
-        pricingType: "PER_PERSON",
-        imageMediaId: null,
-        imageUrl: null,
-        showCounter: false,
-        min: 1,
-        max: null,
-      },
-      {
-        id: "extra_dinner",
-        title: "An evening around the table",
-        description: `${sym}35 per adult · illustrative price`,
-        price: 35,
-        pricingType: "PER_PERSON",
-        imageMediaId: null,
-        imageUrl: null,
-        showCounter: false,
-        min: 1,
-        max: null,
-      },
-    ]);
-  }
 
   useEffect(() => {
     void apiClient
@@ -678,16 +619,7 @@ export function CottageForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const extrasLimitInvalid = extras.some(
-    (ex) => ex.showCounter && ex.max != null && Number(ex.min ?? 1) > Number(ex.max),
-  );
-  const invalid = name.trim().length < 2 || extrasLimitInvalid;
-
-  // function updateBed(index: number, patch: Partial<CottageBed>) {
-  //   setBeds((rows) =>
-  //     rows.map((row, i) => (i === index ? { ...row, ...patch } : row)),
-  //   );
-  // }
+  const invalid = name.trim().length < 2;
 
   function moveImage(index: number, dir: -1 | 1) {
     setImages((rows) => {
@@ -699,15 +631,6 @@ export function CottageForm({
       next.splice(target, 0, m);
       return next;
     });
-  }
-
-  function extraLimitError(id: string): string | null {
-    const ex = extras.find((e) => e.id === id);
-    if (!ex || !ex.showCounter) return null;
-    const min = Number(ex.min ?? 1);
-    const max = ex.max == null ? null : Number(ex.max);
-    if (max != null && !Number.isNaN(max) && min > max) return "Max must be greater than or equal to min";
-    return null;
   }
 
   function handleSubmit(e: FormEvent) {
@@ -761,20 +684,38 @@ export function CottageForm({
         ? { bedrooms: Math.max(0, Number(bedrooms) || 0) }
         : { bedrooms: null }),
       ...(() => {
+        if (!dogPolicyEnabled) {
+          return {
+            maxDogs: 0,
+            max_dogs: 0,
+            dogPolicyEnabled: false,
+            dog_policy_enabled: false,
+            dogPolicyTitle: null,
+            dog_policy_title: null,
+            dogPolicySubtitle: null,
+            dog_policy_subtitle: null,
+            dogFees: {},
+            dog_fees: {},
+          };
+        }
         const cleanedDogFees = Object.fromEntries(
-          Object.entries(dogFees).filter(([, v]) => String(v ?? "").trim().length > 0 && Number(v) >= 0),
+          Object.entries(dogFees).filter(
+            ([, v]) => String(v ?? "").trim().length > 0 && Number(v) >= 0,
+          ),
         );
-        const customDogCounts = Object.keys(cleanedDogFees).map(Number).filter((n) => !Number.isNaN(n) && n > 0);
-        const userMaxDogs = maxDogs.trim() ? Math.max(0, Number(maxDogs) || 0) : 0;
+        const customDogCounts = Object.keys(cleanedDogFees)
+          .map(Number)
+          .filter((n) => !Number.isNaN(n) && n > 0);
+        const userMaxDogs = maxDogs.trim()
+          ? Math.max(1, Number(maxDogs) || 1)
+          : 1;
         const effectiveMax = Math.max(userMaxDogs, ...customDogCounts);
-        const finalMaxDogs = effectiveMax > 0 ? effectiveMax : null;
-        const isDogEnabled = dogPolicyEnabled || effectiveMax > 0 || customDogCounts.length > 0;
 
         return {
-          maxDogs: finalMaxDogs,
-          max_dogs: finalMaxDogs,
-          dogPolicyEnabled: isDogEnabled,
-          dog_policy_enabled: isDogEnabled,
+          maxDogs: effectiveMax,
+          max_dogs: effectiveMax,
+          dogPolicyEnabled: true,
+          dog_policy_enabled: true,
           dogPolicyTitle: dogPolicyTitle.trim() || null,
           dog_policy_title: dogPolicyTitle.trim() || null,
           dogPolicySubtitle: dogPolicySubtitle.trim() || null,
@@ -875,10 +816,12 @@ export function CottageForm({
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label className="text-sm font-semibold flex items-center gap-2">
-              <Layers className="size-4 text-primary" /> Cottage Collection / Category *
+              <Layers className="size-4 text-primary" /> Cottage Collection /
+              Category *
             </Label>
             <p className="text-xs text-muted-foreground">
-              Link this cottage to a category. Controls group booking rules (multi-cottage booking vs single cottage only).
+              Link this cottage to a category. Controls group booking rules
+              (multi-cottage booking vs single cottage only).
             </p>
           </div>
           <Button
@@ -917,7 +860,9 @@ export function CottageForm({
                 />
                 <div className="min-w-0 flex-1 space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-semibold text-foreground">{cat.name}</span>
+                    <span className="text-sm font-semibold text-foreground">
+                      {cat.name}
+                    </span>
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
                         allowsMulti
@@ -925,11 +870,15 @@ export function CottageForm({
                           : "bg-amber-50 text-amber-700 border border-amber-200"
                       }`}
                     >
-                      {allowsMulti ? "Multi-select allowed" : "Single cottage only"}
+                      {allowsMulti
+                        ? "Multi-select allowed"
+                        : "Single cottage only"}
                     </span>
                   </div>
                   {cat.description && (
-                    <p className="text-xs text-muted-foreground line-clamp-2">{cat.description}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {cat.description}
+                    </p>
                   )}
                 </div>
               </label>
@@ -1114,7 +1063,10 @@ export function CottageForm({
                 onClick={() =>
                   setSectionSettings((prev) => ({
                     ...prev,
-                    showMiddleDescription: !toBool(prev.showMiddleDescription, true),
+                    showMiddleDescription: !toBool(
+                      prev.showMiddleDescription,
+                      true,
+                    ),
                   }))
                 }
               >
@@ -1203,7 +1155,10 @@ export function CottageForm({
                   onClick={() =>
                     setSectionSettings((prev) => ({
                       ...prev,
-                      showOverviewBullets: !toBool(prev.showOverviewBullets, true),
+                      showOverviewBullets: !toBool(
+                        prev.showOverviewBullets,
+                        true,
+                      ),
                     }))
                   }
                 >
@@ -1400,10 +1355,12 @@ export function CottageForm({
       {/* Cottage Card Display Control (Home Page & Search Result Cards) */}
       <Card className="border-border/80 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Cottage Card Display Control</CardTitle>
+          <CardTitle className="text-lg">
+            Cottage Card Display Control
+          </CardTitle>
           <CardDescription>
-            Control which elements appear on each cottage card across the home page
-            and search results. Set per cottage.
+            Control which elements appear on each cottage card across the home
+            page and search results. Set per cottage.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -1417,13 +1374,17 @@ export function CottageForm({
               Reset all card settings to defaults
             </Button>
             <p className="text-xs text-muted-foreground">
-              Restores every cottage card toggle and text field to default values.
+              Restores every cottage card toggle and text field to default
+              values.
             </p>
           </div>
           {/* Card Enable Toggle */}
           <div className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="rt-card-enabled" className="font-semibold text-foreground">
+              <Label
+                htmlFor="rt-card-enabled"
+                className="font-semibold text-foreground"
+              >
                 Enable Cottage Card
               </Label>
               <div
@@ -1454,7 +1415,8 @@ export function CottageForm({
               </div>
             </div>
             <p className="text-xs text-muted-foreground">
-              When off, this cottage will not appear in home page / search result cards.
+              When off, this cottage will not appear in home page / search
+              result cards.
             </p>
           </div>
 
@@ -1540,12 +1502,15 @@ export function CottageForm({
               },
             ].map(({ key, label, desc, input, inputKey, inputLabel }) => {
               const isChecked = toBool(
-                sectionSettings.cottageCard?.[key as keyof typeof sectionSettings.cottageCard],
+                sectionSettings.cottageCard?.[
+                  key as keyof typeof sectionSettings.cottageCard
+                ],
                 true,
               );
-              const inputValue = sectionSettings.cottageCard?.[
-                inputKey as keyof typeof sectionSettings.cottageCard
-              ] ?? "";
+              const inputValue =
+                sectionSettings.cottageCard?.[
+                  inputKey as keyof typeof sectionSettings.cottageCard
+                ] ?? "";
               return (
                 <div
                   key={key}
@@ -1559,7 +1524,9 @@ export function CottageForm({
                       >
                         {label}
                       </Label>
-                      <p className="text-[10px] text-muted-foreground">{desc}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {desc}
+                      </p>
                     </div>
                     <div
                       role="button"
@@ -2088,9 +2055,12 @@ export function CottageForm({
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <CardTitle className="text-base font-semibold">Dogs &amp; Pets Policy</CardTitle>
+              <CardTitle className="text-base font-semibold">
+                Dogs &amp; Pets Policy
+              </CardTitle>
               <CardDescription className="text-xs">
-                Manage dog-friendly status, fee, customized card notice, and custom icon
+                Manage dog-friendly status, fee, customized card notice, and
+                custom icon
               </CardDescription>
             </div>
             <div className="flex items-center gap-3">
@@ -2128,7 +2098,9 @@ export function CottageForm({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="rt-dog-fee">Dog Fee ({getCurrencySymbol()} per dog, per stay)</Label>
+                <Label htmlFor="rt-dog-fee">
+                  Dog Fee ({getCurrencySymbol()} per dog, per stay)
+                </Label>
                 <Input
                   id="rt-dog-fee"
                   type="number"
@@ -2141,17 +2113,27 @@ export function CottageForm({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="rt-dog-fees-custom">Custom Dog Fees by Count (overrides flat fee)</Label>
+                <Label htmlFor="rt-dog-fees-custom">
+                  Custom Dog Fees by Count (overrides flat fee)
+                </Label>
                 <p className="text-[11px] text-muted-foreground">
-                  Set a different total dog fee for each number of dogs (e.g. 1 dog = £10, 2 dogs = £90, 6 dogs = £200).
-                  Leave blank to use the flat fee above × count.
+                  Set a different total dog fee for each number of dogs (e.g. 1
+                  dog = £10, 2 dogs = £90, 6 dogs = £200). Leave blank to use
+                  the flat fee above × count.
                 </p>
                 <div className="space-y-2">
                   {Object.entries(dogFees).map(([count, fee]) => (
-                    <div key={count} className="flex items-center gap-3 rounded-md border border-[#d8d9cb] p-[10px_12px]">
+                    <div
+                      key={count}
+                      className="flex items-center gap-3 rounded-md border border-[#d8d9cb] p-[10px_12px]"
+                    >
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-[#243c30]">{count}</span>
-                        <span className="text-[10px] text-muted-foreground">dog{Number(count) === 1 ? "" : "s"}</span>
+                        <span className="text-xs font-medium text-[#243c30]">
+                          {count}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          dog{Number(count) === 1 ? "" : "s"}
+                        </span>
                       </div>
                       <Input
                         id={`rt-dog-fee-${count}`}
@@ -2194,7 +2176,9 @@ export function CottageForm({
                     onClick={() => {
                       setDogFees((prev) => {
                         const next = { ...prev };
-                        const newCount = String(Math.max(1, ...Object.keys(next).map(Number), 1) + 1);
+                        const newCount = String(
+                          Math.max(1, ...Object.keys(next).map(Number), 1) + 1,
+                        );
                         next[newCount] = "";
                         return next;
                       });
@@ -2208,7 +2192,6 @@ export function CottageForm({
             </div>
 
             <div className="space-y-2">
-              
               <CkEditorField
                 label="Policy Title (Display on Card)"
                 value={dogPolicyTitle}
@@ -2216,12 +2199,13 @@ export function CottageForm({
                 placeholder={`Dogs welcome · ${getCurrencySymbol()}70 per dog, per stay`}
               />
               <p className="text-[11px] text-muted-foreground">
-                Leave empty to auto-format: &ldquo;Dogs welcome · {getCurrencySymbol()}{dogFee || 70} per dog, per stay&rdquo;
+                Leave empty to auto-format: &ldquo;Dogs welcome ·{" "}
+                {getCurrencySymbol()}
+                {dogFee || 70} per dog, per stay&rdquo;
               </p>
             </div>
 
             <div className="space-y-2">
-            
               <CkEditorField
                 label="Policy Subtitle / Note (Display on Card)"
                 value={dogPolicySubtitle}
@@ -2229,7 +2213,8 @@ export function CottageForm({
                 placeholder="Up to 1 dog · added only if you bring a dog"
               />
               <p className="text-[11px] text-muted-foreground">
-                Leave empty to auto-format: &ldquo;Up to {maxDogs || 1} dog · added only if you bring a dog&rdquo;
+                Leave empty to auto-format: &ldquo;Up to {maxDogs || 1} dog ·
+                added only if you bring a dog&rdquo;
               </p>
             </div>
 
@@ -2242,213 +2227,6 @@ export function CottageForm({
             </div>
           </CardContent>
         )}
-      </Card>
-
-      {/* Optional Extras & Activities per Cottage */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <div>
-            <CardTitle className="text-base font-semibold">Optional Extras &amp; Activities</CardTitle>
-            <CardDescription className="text-xs">
-              Configure optional add-ons available for this cottage (e.g. Golf, Padel, Dining). Admin can add, edit, reorder, or delete extras anytime.
-            </CardDescription>
-          </div>
-          <div className="flex items-center gap-2">
-            {extras.length === 0 && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleLoadDefaultExtras}
-              >
-                Load Starter Extras
-              </Button>
-            )}
-            <Button
-              type="button"
-              variant="default"
-              size="sm"
-              onClick={handleAddExtra}
-              className="gap-1"
-            >
-              <Plus className="size-4" /> Add Extra
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {extras.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-              No extras added yet for this cottage. Click <strong>Add Extra</strong> or <strong>Load Starter Extras</strong> to add options for guests during checkout.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {extras.map((extra, index) => (
-                <div
-                  key={extra.id}
-                  className="rounded-lg border border-border bg-card p-4 transition-all"
-                >
-                  <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Extra #{index + 1}: {extra.title ? extra.title.replace(/<[^>]*>/g, "").trim() || "(Untitled)" : "(Untitled)"}
-                    </span>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="size-7"
-                        disabled={index === 0}
-                        onClick={() => handleMoveExtra(index, "up")}
-                        title="Move Up"
-                      >
-                        <ArrowUp className="size-4" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="size-7"
-                        disabled={index === extras.length - 1}
-                        onClick={() => handleMoveExtra(index, "down")}
-                        title="Move Down"
-                      >
-                        <ArrowDown className="size-4" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="size-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() => handleRemoveExtra(extra.id)}
-                        title="Delete Extra"
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-                    <div className="space-y-1 md:col-span-2">
-                      <RichTextEditor
-                        label="Title *"
-                        compact
-                        minHeightClass="min-h-[50px]"
-                        value={extra.title || ""}
-                        onChange={(html) => handleUpdateExtra(extra.id, { title: html })}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Price ({getCurrencySymbol()}) *</Label>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={extra.price}
-                        onChange={(e) => handleUpdateExtra(extra.id, { price: Math.max(0, parseFloat(e.target.value) || 0) })}
-                        placeholder="e.g. 60"
-                        className="h-8 text-xs"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Pricing Type</Label>
-                      <select
-                        value={extra.pricingType}
-                        onChange={(e) => handleUpdateExtra(extra.id, { pricingType: e.target.value as "PER_PERSON" | "PER_STAY" })}
-                        className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                      >
-                        <option value="PER_PERSON">Per Person / Adult</option>
-                        <option value="PER_STAY">Per Stay / Session</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Counter & limits */}
-                  <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          id={`extra-show-counter-${extra.id}`}
-                          checked={extra.showCounter ?? true}
-                          onCheckedChange={(v) =>
-                            handleUpdateExtra(extra.id, { showCounter: v })
-                          }
-                          aria-label={`Show counter for ${extra.title || "extra"}`}
-                        />
-                        <Label className="text-xs">Show quantity counter</Label>
-                      </div>
-                      {(extra.showCounter ?? true) && (
-                        <p className="text-[10px] text-muted-foreground">
-                          Guests increase/decrease quantity between min and max.
-                        </p>
-                      )}
-                      {!((extra.showCounter ?? true)) && (
-                        <p className="text-[10px] text-muted-foreground">
-                          Renders as an optional checkbox (qty 0 or 1).
-                        </p>
-                      )}
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Min qty</Label>
-                      <Input
-                        type="number"
-                        min="0"
-                        value={String(extra.min ?? 1)}
-                        disabled={!(extra.showCounter ?? true)}
-                        onChange={(e) =>
-                          handleUpdateExtra(extra.id, { min: Math.max(0, Number(e.target.value) || 0) })
-                        }
-                        placeholder="1"
-                        className="h-8 text-xs"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Max qty</Label>
-                      <Input
-                        type="number"
-                        min="0"
-                        value={extra.max == null ? "" : String(extra.max)}
-                        disabled={!(extra.showCounter ?? true)}
-                        onChange={(e) =>
-                          handleUpdateExtra(extra.id, {
-                            max: e.target.value === "" ? null : Math.max(0, Number(e.target.value) || 0),
-                          })
-                        }
-                        placeholder="none"
-                        className="h-8 text-xs"
-                      />
-                      {extraLimitError(extra.id) && (
-                        <p className="text-[10px] text-destructive">{extraLimitError(extra.id)}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="mt-3 space-y-1">
-                    <RichTextEditor
-                      label="Description / Subtitle"
-                      compact
-                      minHeightClass="min-h-[55px]"
-                      value={extra.description || ""}
-                      onChange={(html) => handleUpdateExtra(extra.id, { description: html })}
-                    />
-                  </div>
-
-                  <div className="mt-3">
-                    <ImageField
-                      label="Extra Photo / Image (Optional)"
-                      mediaId={extra.imageMediaId || (extra as any).image_media_id || null}
-                      onChange={(id, media) =>
-                        handleUpdateExtra(extra.id, {
-                          imageMediaId: id,
-                          imageUrl: media?.url ?? (id ? extra.imageUrl : null),
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
       </Card>
 
       <div className="space-y-3 rounded-md border border-input p-4">
@@ -2503,7 +2281,10 @@ export function CottageForm({
         )}
       </Button>
 
-      <CategoryManagerDialog open={isCatManagerOpen} onOpenChange={setIsCatManagerOpen} />
+      <CategoryManagerDialog
+        open={isCatManagerOpen}
+        onOpenChange={setIsCatManagerOpen}
+      />
     </form>
   );
 }

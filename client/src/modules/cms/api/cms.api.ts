@@ -200,8 +200,13 @@ export interface CottageEnquirySettings {
 export interface ReservationDetailsSettings {
   isEnabled?: boolean;
   title?: string;
+  showTitle?: boolean;
   specialRequestsLabel?: string;
+  showSpecialRequestsLabel?: boolean;
+  showLabel?: boolean;
   specialRequestsPlaceholder?: string;
+  showSpecialRequestsPlaceholder?: boolean;
+  showPlaceholder?: boolean;
   maxLength?: number;
 }
 

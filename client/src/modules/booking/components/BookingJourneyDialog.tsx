@@ -239,6 +239,11 @@ export function BookingJourneyDialog({
   // Step state: 0=Dates, 1=Cottage, 2=Extras, 3=Details & payment, 4=Confirmation
   const [step, setStep] = useState<number>(0);
 
+  // Mobile/browser back button handling: keep the user inside the journey and
+  // step backwards instead of leaving the page/dialog.
+  const historyGuardRef = useRef(false);
+  const ignorePopUntilRef = useRef(0);
+
   // Dates & Guests — no default dates; filled from the home search when the
   // guest has already picked them, otherwise chosen in this step.
   const [checkIn, setCheckIn] = useState<string>("");
@@ -281,10 +286,18 @@ export function BookingJourneyDialog({
   const bookingPage = siteSettings?.bookingPage;
   const reservationConfig = bookingPage?.reservationDetails;
   const showReservationDetails = reservationConfig?.isEnabled !== false;
+  const showReservationTitle = reservationConfig?.showTitle !== false;
   const reservationTitle = reservationConfig?.title?.trim() || "Reservation details";
+  const showSpecialRequestsLabel =
+    reservationConfig?.showSpecialRequestsLabel !== false &&
+    (reservationConfig as any)?.showLabel !== false;
   const specialRequestsLabel = reservationConfig?.specialRequestsLabel?.trim() || "Special Requests";
-  const specialRequestsPlaceholder =
-    reservationConfig?.specialRequestsPlaceholder?.trim() || "Special Requests";
+  const showSpecialRequestsPlaceholder =
+    reservationConfig?.showSpecialRequestsPlaceholder !== false &&
+    (reservationConfig as any)?.showPlaceholder !== false;
+  const specialRequestsPlaceholder = showSpecialRequestsPlaceholder
+    ? reservationConfig?.specialRequestsPlaceholder?.trim() || "Special Requests"
+    : "";
   const specialRequestsMaxLength =
     reservationConfig?.maxLength && reservationConfig.maxLength > 0
       ? reservationConfig.maxLength
@@ -457,6 +470,55 @@ export function BookingJourneyDialog({
     }
   }, [isOpen, storeCottageId, storeCheckIn, storeCheckOut, storeAdults, storeChildren, closeBookingJourney]);
 
+  // Push a guard history entry while the dialog is open so the hardware/browser
+  // back button doesn't navigate away from the booking journey.
+  useEffect(() => {
+    if (!isOpen || typeof window === "undefined") return;
+    if (window.history.state?.__bookingJourney !== true) {
+      window.history.pushState(
+        { ...(window.history.state ?? {}), __bookingJourney: true },
+        "",
+      );
+    }
+    historyGuardRef.current = true;
+
+    return () => {
+      if (!historyGuardRef.current) return;
+      historyGuardRef.current = false;
+      // Remove our guard entry only when the user is still on it (not when a
+      // navigation, e.g. "View Full Receipt", already replaced the entry).
+      if (window.history.state?.__bookingJourney === true) {
+        ignorePopUntilRef.current = Date.now() + 400;
+        window.history.back();
+      }
+    };
+  }, [isOpen]);
+
+  // Back button: step backwards through the journey. At the first step the
+  // guard is re-armed so the dialog is never dismissed by the back button.
+  useEffect(() => {
+    if (!isOpen || typeof window === "undefined") return;
+
+    const handlePopState = () => {
+      if (Date.now() < ignorePopUntilRef.current) return;
+      if (!historyGuardRef.current) return;
+
+      window.history.pushState(
+        { ...(window.history.state ?? {}), __bookingJourney: true },
+        "",
+      );
+
+      if (galleryCottageId) {
+        setGalleryCottageId(null);
+        return;
+      }
+      setStep((prev) => (prev > 0 ? prev - 1 : prev));
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [isOpen, galleryCottageId]);
+
   // Find currently selected cottages (multi-select supported)
   const selectedCottageItems = useMemo(() => {
     return cottages.filter((c) => selectedCottageIds.includes(c.roomType.id));
@@ -487,24 +549,37 @@ export function BookingJourneyDialog({
   // Dog Policy — true if any selected cottage is dog friendly
   const isDogFriendly = useMemo(() => {
     return selectedCottages.some((c) => {
+      if (c.dogPolicyEnabled === false || c.dog_policy_enabled === false) return false;
       const rawDogs = c.maxDogs ?? c.max_dogs;
-      const cc = c as any;
-      const hasCustom = cc.dogFees && Object.keys(cc.dogFees).length > 0;
-      return Boolean(
-        (c.dogPolicyEnabled ??
-          c.dog_policy_enabled ??
-          (rawDogs != null && Number(rawDogs) > 0)) ||
-          hasCustom ||
-          (c.dogFee != null && Number(c.dogFee) > 0),
+      const maxD = rawDogs != null ? Number(rawDogs) : 0;
+      return (
+        (c.dogPolicyEnabled === true ||
+          c.dog_policy_enabled === true ||
+          maxD > 0) &&
+        maxD > 0
       );
     });
   }, [selectedCottages]);
 
   // Per-cottage dog fee: each cottage uses its own dogFees/dog_fee.
   const cottageDogFee = useMemo(() => {
-    const map: Record<string, { custom: Record<number, number>; unit: number; maxDogs: number; title?: string | null; subtitle?: string | null; imageUrl?: string | null }> = {};
+    const map: Record<
+      string,
+      {
+        custom: Record<number, number>;
+        unit: number;
+        maxDogs: number;
+        title?: string | null;
+        subtitle?: string | null;
+        imageUrl?: string | null;
+      }
+    > = {};
     for (const c of selectedCottages) {
+      if (c.dogPolicyEnabled === false || c.dog_policy_enabled === false) continue;
       const rawDogs = c.maxDogs ?? c.max_dogs;
+      const configuredMax = rawDogs != null ? Number(rawDogs) : 0;
+      if (configuredMax <= 0) continue;
+
       const cc = c as any;
       let df = cc.dogFees ?? cc.dog_fees ?? null;
       if (typeof df === "string") {
@@ -522,15 +597,7 @@ export function BookingJourneyDialog({
         }
       }
       const customKeys = Object.keys(custom).map(Number);
-      const configuredMax = rawDogs != null ? Number(rawDogs) : 0;
       const effectiveMaxDogs = Math.max(configuredMax, ...customKeys, 1);
-
-      const isFriendly = Boolean(
-        (c.dogPolicyEnabled ?? c.dog_policy_enabled ?? (rawDogs != null && Number(rawDogs) > 0)) ||
-          customKeys.length > 0 ||
-          (c.dogFee != null && Number(c.dogFee) > 0),
-      );
-      if (!isFriendly) continue;
 
       map[c.id] = {
         custom,
@@ -827,12 +894,12 @@ export function BookingJourneyDialog({
         className="relative my-auto flex max-h-[92vh] w-full max-w-[1140px] flex-col overflow-y-auto overscroll-contain border-0 bg-[#f7f4ec] text-[#243c30] shadow-[0_20px_90px_rgba(0,0,0,0.267)]"
       >
         {/* Sticky Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-[25px] border-b border-[#d8d9cb] bg-[#f7f4ec] px-[30px] py-[23px]">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[#d8d9cb] bg-[#f7f4ec] px-4 py-3 sm:px-[30px] sm:py-[23px]">
           <div>
-            <span className="mb-[8px] block text-[9px] font-semibold uppercase leading-[14.4px] tracking-[1.8px]">
+            <span className="mb-[6px] sm:mb-[8px] block text-[8px] sm:text-[9px] font-semibold uppercase leading-[14.4px] tracking-[1.8px]">
               {bjValue("previewNotice")}
             </span>
-            <h2 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[35px] font-normal leading-[35.7px] tracking-[-0.875px]">
+            <h2 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[26px] sm:text-[35px] font-normal leading-[30px] sm:leading-[35.7px] tracking-[-0.875px]">
               {bjValue("modalTitle")}
             </h2>
           </div>
@@ -841,7 +908,7 @@ export function BookingJourneyDialog({
             data-action="close"
             aria-label="Close booking preview"
             onClick={closeBookingJourney}
-            className="flex h-[36px] w-[36px] cursor-pointer items-center justify-center rounded-full border border-[#243c30] text-[#243c30] opacity-85 transition-opacity hover:opacity-100 outline-offset-[5px]"
+            className="flex h-[36px] w-[36px] shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#243c30] text-[#243c30] opacity-85 transition-opacity hover:opacity-100 outline-offset-[5px]"
           >
             <svg
               viewBox="0 0 24 24"
@@ -856,48 +923,165 @@ export function BookingJourneyDialog({
         {/* 5-Step Progress Nav */}
         <nav
           aria-label="Booking progress"
-          className="grid grid-cols-5 gap-[12px] border-b border-[#d8d9cb] bg-[#eeeade] px-[30px] py-[20px]"
+          className="border-b border-[#d8d9cb] bg-[#eeeade]"
         >
-          {[
-            { index: 0, label: "Dates" },
-            { index: 1, label: "Cottage" },
-            { index: 2, label: "Extras" },
-            { index: 3, label: "Details & payment" },
-            { index: 4, label: "Confirmation" },
-          ].map(({ index, label }) => {
-            const isActive = step === index;
-            const isCompleted = step > index;
-            return (
-              <button
-                key={index}
-                type="button"
-                data-step={index}
-                aria-current={isActive ? "step" : undefined}
-                disabled={step < index}
-                onClick={() => setStep(index)}
-                className={`flex min-w-0 items-center gap-[8px] text-[10px] leading-[15px] outline-offset-[5px] transition-colors ${
-                  isActive
-                    ? "cursor-pointer font-medium text-[#243c30]"
-                    : isCompleted
-                      ? "cursor-pointer text-[#243c30]/80 hover:text-[#243c30]"
-                      : "cursor-not-allowed opacity-45 text-[#7a806f]"
-                }`}
-              >
-                <span
-                  className={`grid h-[25px] w-[25px] shrink-0 place-items-center rounded-full text-[11px] ${
+          {/* Mobile View (< sm): Connected track stepper + clear active step title */}
+          <div className="px-4 py-3 sm:hidden">
+            <div className="relative flex items-center justify-between">
+              {/* Background track line */}
+              <div
+                aria-hidden="true"
+                className="absolute left-[16px] right-[16px] top-[14px] h-[2px] -translate-y-1/2 bg-[#d8d9cb]"
+              />
+              {/* Progress filled line */}
+              <div
+                aria-hidden="true"
+                className="absolute left-[16px] top-[14px] h-[2px] -translate-y-1/2 bg-[#243c30] transition-all duration-300"
+                style={{
+                  width: `${(step / 4) * 100}%`,
+                  maxWidth: "calc(100% - 32px)",
+                }}
+              />
+
+              {[
+                { index: 0, label: "Dates" },
+                { index: 1, label: "Cottage" },
+                { index: 2, label: "Extras" },
+                { index: 3, label: "Payment" },
+                { index: 4, label: "Confirmation" },
+              ].map(({ index, label }) => {
+                const isActive = step === index;
+                const isCompleted = step > index;
+                const isClickable = step >= index;
+
+                return (
+                  <button
+                    key={index}
+                    type="button"
+                    data-step={index}
+                    aria-current={isActive ? "step" : undefined}
+                    aria-label={`Step ${index + 1}: ${label}`}
+                    disabled={!isClickable}
+                    onClick={() => setStep(index)}
+                    className={`relative z-10 flex h-[34px] w-[34px] -m-[3px] items-center justify-center rounded-full transition-all ${
+                      isActive
+                        ? "cursor-default"
+                        : isCompleted
+                          ? "cursor-pointer hover:opacity-85"
+                          : "cursor-not-allowed opacity-60"
+                    }`}
+                  >
+                    <span
+                      className={`flex h-[28px] w-[28px] items-center justify-center rounded-full text-[11px] font-medium transition-all ${
+                        isActive
+                          ? "border-2 border-[#243c30] bg-[#243c30] text-white shadow-sm ring-4 ring-[#243c30]/15"
+                          : isCompleted
+                            ? "border border-[#243c30] bg-[#243c30] text-white"
+                            : "border border-[#a2aa94] bg-[#eeeade] text-[#7a806f]"
+                      }`}
+                    >
+                      {isCompleted ? (
+                        <svg
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                          className="h-3.5 w-3.5 stroke-current stroke-[2.5] fill-none"
+                        >
+                          <path d="M20 6 9 17l-5-5" />
+                        </svg>
+                      ) : (
+                        index + 1
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Mobile Active Step Label & Quick Back link */}
+            <div className="mt-2.5 flex items-center justify-between text-[#243c30]">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-[10px] uppercase tracking-[1px] text-[#7a806f] font-semibold shrink-0">
+                  Step {step + 1} of 5 ·
+                </span>
+                <span className="text-[12px] font-semibold truncate text-[#243c30]">
+                  {[
+                    "Dates & Guests",
+                    "Choose Cottage",
+                    "Stay Extras",
+                    "Details & Payment",
+                    "Confirmation",
+                  ][step]}
+                </span>
+              </div>
+              {step > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setStep(step - 1)}
+                  className="text-[11px] font-medium text-[#243c30] underline underline-offset-2 shrink-0 ml-2 hover:opacity-75"
+                >
+                  ← Back
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Desktop View (>= sm): Spacious 5-column layout */}
+          <div className="hidden sm:grid sm:grid-cols-5 sm:gap-[12px] sm:px-[30px] sm:py-[18px]">
+            {[
+              { index: 0, label: "Dates", shortLabel: "Dates" },
+              { index: 1, label: "Cottage", shortLabel: "Cottage" },
+              { index: 2, label: "Extras", shortLabel: "Extras" },
+              { index: 3, label: "Details & payment", shortLabel: "Payment" },
+              { index: 4, label: "Confirmation", shortLabel: "Done" },
+            ].map(({ index, label, shortLabel }) => {
+              const isActive = step === index;
+              const isCompleted = step > index;
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  data-step={index}
+                  aria-current={isActive ? "step" : undefined}
+                  aria-label={label}
+                  disabled={step < index}
+                  onClick={() => setStep(index)}
+                  className={`flex min-w-0 flex-row items-center justify-start gap-[8px] text-[10px] leading-[15px] outline-offset-[5px] transition-colors ${
                     isActive
-                      ? "border border-[#243c30] bg-[#243c30] text-white"
+                      ? "cursor-pointer font-medium text-[#243c30]"
                       : isCompleted
-                        ? "border border-[#243c30] bg-[#243c30]/10 text-[#243c30]"
-                        : "border border-[#a2aa94] text-[#7a806f]"
+                        ? "cursor-pointer text-[#243c30]/80 hover:text-[#243c30]"
+                        : "cursor-not-allowed opacity-45 text-[#7a806f]"
                   }`}
                 >
-                  {index + 1}
-                </span>
-                <span className="truncate">{label}</span>
-              </button>
-            );
-          })}
+                  <span
+                    className={`grid h-[25px] w-[25px] shrink-0 place-items-center rounded-full text-[11px] ${
+                      isActive
+                        ? "border border-[#243c30] bg-[#243c30] text-white"
+                        : isCompleted
+                          ? "border border-[#243c30] bg-[#243c30]/10 text-[#243c30]"
+                          : "border border-[#a2aa94] text-[#7a806f]"
+                    }`}
+                  >
+                    {isCompleted ? (
+                      <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        className="h-3 w-3 stroke-current stroke-[2.5] fill-none"
+                      >
+                        <path d="M20 6 9 17l-5-5" />
+                      </svg>
+                    ) : (
+                      index + 1
+                    )}
+                  </span>
+                  <span className="truncate text-left">
+                    <span className="md:hidden">{shortLabel}</span>
+                    <span className="hidden md:inline">{label}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </nav>
 
         {/* Step 0: Dates */}
@@ -1088,23 +1272,8 @@ export function BookingJourneyDialog({
                     </button>
                   </div>
 
-                  {/* Header action bar with counts & top Continue button (avoids having to scroll on mobile/desktop) */}
-                  <div className="mt-[22px] flex flex-col gap-3 border-b border-[#d8d9cb] pb-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <h4 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[28px] font-normal tracking-[-0.56px]">
-                        {cottages.length} cottages to explore
-                      </h4>
-                      <span className="text-[11px] text-[#535b51]">
-                        {selectedCottageIds.length > 0 ? (
-                          <span className="font-semibold text-[#243c30]">
-                            ✓ {selectedCottageIds.length} cottage{selectedCottageIds.length === 1 ? "" : "s"} selected ({currencySymbol}{cottageTotalPounds.toLocaleString()})
-                          </span>
-                        ) : (
-                          "Choose a cottage below to continue"
-                        )}
-                      </span>
-                    </div>
-
+                  {/* Header action bar with top Continue button (avoids having to scroll on mobile/desktop) */}
+                  <div className="mt-[22px] flex justify-end border-b border-[#d8d9cb] pb-4">
                     <button
                       type="button"
                       data-action="top-continue-extras"
@@ -1115,11 +1284,7 @@ export function BookingJourneyDialog({
                       disabled={selectedCottageIds.length === 0}
                       className="flex min-h-[46px] w-full sm:w-auto cursor-pointer items-center justify-center gap-2.5 border-0 bg-[#243c30] px-6 py-3 text-[12px] font-medium leading-none text-[#fffdf8] transition-all hover:bg-[#1b2d24] disabled:cursor-not-allowed disabled:opacity-40 outline-offset-[5px] shadow-sm"
                     >
-                      <span>
-                        {selectedCottageIds.length > 0
-                          ? `Continue to extras (${selectedCottageIds.length})`
-                          : "Continue to extras"}
-                      </span>
+                      <span>Continue to extras</span>
                       <svg
                         viewBox="0 0 24 24"
                         aria-hidden="true"
@@ -1145,12 +1310,20 @@ export function BookingJourneyDialog({
                             )}
                           </div>
                           <span
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[9px] font-medium border ${
+                            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.08em] ${
                               group.allowMultiple
-                                ? "bg-[#e9ecdf] text-[#243c30] border-[#b8c3ac]"
-                                : "bg-[#f7f2e7] text-[#856319] border-[#e4d8be]"
+                                ? "border-[#243c30] bg-[#243c30] text-[#f4f7ee] shadow-sm"
+                                : "border-[#6f520f] bg-[#6f520f] text-[#fff8e7] shadow-sm"
                             }`}
                           >
+                            <span
+                              aria-hidden="true"
+                              className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                                group.allowMultiple
+                                  ? "bg-[#a9c79b]"
+                                  : "bg-[#f0d48a]"
+                              }`}
+                            />
                             {group.allowMultiple
                               ? "Multi-cottage booking"
                               : "Single cottage only"}
@@ -1165,13 +1338,16 @@ export function BookingJourneyDialog({
                             const cover = getCottageCoverUrl(rt);
                             const photoCnt = getCottagePhotoCount(rt);
                             const rawDogs = rt.maxDogs ?? rt.max_dogs;
-                            const petOk = Boolean(
-                              (rt.dogPolicyEnabled ??
-                                rt.dog_policy_enabled ??
-                                (rawDogs != null && Number(rawDogs) > 0)) ||
-                                (rt.dogFees && Object.keys(rt.dogFees).length > 0) ||
-                                (rt.dogFee != null && Number(rt.dogFee) > 0),
-                            );
+                            const maxD = rawDogs != null ? Number(rawDogs) : 0;
+                            const dogPolicyDisabled =
+                              rt.dogPolicyEnabled === false ||
+                              rt.dog_policy_enabled === false;
+                            const petOk =
+                              !dogPolicyDisabled &&
+                              (rt.dogPolicyEnabled === true ||
+                                rt.dog_policy_enabled === true ||
+                                maxD > 0) &&
+                              maxD > 0;
                             const itemPerNightPence = item.rates[0]?.perNight ?? 26000;
                             const itemPerNightPounds = Math.round(itemPerNightPence / 100);
                             const itemTotalPounds = itemPerNightPounds * nights;
@@ -1249,7 +1425,7 @@ export function BookingJourneyDialog({
                                         `Dogs welcome · ${currencySymbol}${rt.dogFee ?? 70} per dog, per stay`}
                                       <small className="mt-[6px] block pl-[24px] text-[10px] leading-[15px] text-[#535b51]">
                                         {rt.dogPolicySubtitle ||
-                                          `Up to ${rt.maxDogs ?? 1} dog · added only if you bring a dog`}
+                                          `Up to ${maxD} dog${maxD === 1 ? "" : "s"} · added only if you bring a dog`}
                                       </small>
                                     </p>
                                   )}
@@ -1349,34 +1525,6 @@ export function BookingJourneyDialog({
                       </svg>
                     </button>
                   </div>
-
-                  {/* Sticky Mobile Floating Continue Bar */}
-                  {selectedCottageIds.length > 0 && (
-                    <div className="sticky bottom-0 z-40 -mx-[27px] -mb-[27px] mt-6 flex items-center justify-between gap-3 border-t border-[#c5cbb7] bg-[#f7f4ec]/98 backdrop-blur-md p-4 shadow-[0_-6px_25px_rgba(0,0,0,0.14)] lg:hidden">
-                      <div className="min-w-0">
-                        <span className="block text-[12px] font-semibold text-[#243c30]">
-                          ✓ {selectedCottageIds.length} cottage{selectedCottageIds.length === 1 ? "" : "s"} selected
-                        </span>
-                        <span className="block text-[11px] font-medium text-[#535b51] truncate">
-                          {currencySymbol}{cottageTotalPounds.toLocaleString()} · {nights} nights
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setStep(2)}
-                        className="flex min-h-[44px] shrink-0 cursor-pointer items-center justify-center gap-2 border-0 bg-[#243c30] px-5 text-[12px] font-medium text-[#fffdf8] shadow-sm transition-colors hover:bg-[#1b2d24]"
-                      >
-                        <span>Continue to extras</span>
-                        <svg
-                          viewBox="0 0 24 24"
-                          aria-hidden="true"
-                          className="h-4 w-4 fill-none stroke-current stroke-[2]"
-                        >
-                          <path d="M4 12h15m-6-6 6 6-6 6" />
-                        </svg>
-                      </button>
-                    </div>
-                  )}
                 </div>
               )}
 
@@ -2052,16 +2200,24 @@ export function BookingJourneyDialog({
                       {/* Reservation Details / Special Requests */}
                       {showReservationDetails && (
                         <div className="mt-6 border border-[#d8d9cb] bg-[#fffdf8] p-4 text-[12px]">
-                          <span className="block text-[10px] font-semibold uppercase tracking-[1px] text-[#243c30]">
-                            {reservationTitle}
-                          </span>
-                          <label className="mt-3 flex flex-col gap-[9px] text-[11px]">
-                            <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
-                              {specialRequestsLabel.toUpperCase()}
+                          {showReservationTitle && reservationTitle && (
+                            <span className="block text-[10px] font-semibold uppercase tracking-[1px] text-[#243c30]">
+                              {reservationTitle}
                             </span>
+                          )}
+                          <label
+                            className={`${
+                              showReservationTitle && reservationTitle ? "mt-3" : ""
+                            } flex flex-col gap-[9px] text-[11px]`}
+                          >
+                            {showSpecialRequestsLabel && specialRequestsLabel && (
+                              <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
+                                {specialRequestsLabel.toUpperCase()}
+                              </span>
+                            )}
                             <textarea
                               name="specialRequests"
-                              aria-label={specialRequestsLabel}
+                              aria-label={specialRequestsLabel || "Special Requests"}
                               value={specialRequests}
                               onChange={(e) => setSpecialRequests(e.target.value)}
                               maxLength={specialRequestsMaxLength}
@@ -2074,7 +2230,7 @@ export function BookingJourneyDialog({
 
                       {/* Admin-configured Policies */}
                       {showPolicies && (
-                        <div className="mt-6 border border-[#d8d9cb] bg-[#f7f8f3] p-4 text-[12px]">
+                        <div className="mt-6 border border-[#d8d9cb] bg-[#fffdf8] p-4 text-[12px]">
                           <span className="block text-[10px] font-semibold uppercase tracking-[1px] text-[#243c30]">
                             {policiesTitle}
                           </span>

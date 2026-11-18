@@ -99,8 +99,11 @@ class SiteSettings extends Model
             'reservationDetails' => [
                 'isEnabled' => true,
                 'title' => 'Reservation details',
+                'showTitle' => true,
                 'specialRequestsLabel' => 'Special Requests',
+                'showSpecialRequestsLabel' => true,
                 'specialRequestsPlaceholder' => 'Special Requests',
+                'showSpecialRequestsPlaceholder' => true,
                 'maxLength' => 1000,
             ],
             'policies' => [

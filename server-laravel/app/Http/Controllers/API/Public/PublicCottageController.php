@@ -128,10 +128,13 @@ class PublicCottageController extends Controller
         }
 
         $cDogFees = is_array($c->dog_fees) ? $c->dog_fees : (is_string($c->dog_fees) ? (json_decode($c->dog_fees, true) ?? []) : []);
-        $effectiveMaxDogs = $c->max_dogs !== null ? (int) $c->max_dogs : null;
-        if (!empty($cDogFees)) {
+        $effectiveMaxDogs = $c->max_dogs !== null ? (int) $c->max_dogs : 0;
+        if ($c->dog_policy_enabled === false) {
+            $effectiveMaxDogs = 0;
+            $cDogFees = [];
+        } elseif (!empty($cDogFees)) {
             $maxCustom = max(array_map('intval', array_keys($cDogFees)));
-            $effectiveMaxDogs = max((int) ($c->max_dogs ?? 0), $maxCustom);
+            $effectiveMaxDogs = max($effectiveMaxDogs, $maxCustom);
         }
 
         return [
@@ -204,8 +207,8 @@ class PublicCottageController extends Controller
             'bathrooms' => $c->bathrooms !== null ? (int) $c->bathrooms : null,
             'max_dogs' => $effectiveMaxDogs,
             'maxDogs' => $effectiveMaxDogs,
-            'dog_policy_enabled' => (bool) ($c->dog_policy_enabled ?? ($effectiveMaxDogs > 0)),
-            'dogPolicyEnabled' => (bool) ($c->dog_policy_enabled ?? ($effectiveMaxDogs > 0)),
+            'dog_policy_enabled' => $c->dog_policy_enabled === false || $effectiveMaxDogs <= 0 ? false : (bool) ($c->dog_policy_enabled ?? ($effectiveMaxDogs > 0)),
+            'dogPolicyEnabled' => $c->dog_policy_enabled === false || $effectiveMaxDogs <= 0 ? false : (bool) ($c->dog_policy_enabled ?? ($effectiveMaxDogs > 0)),
             'dog_policy_title' => $c->dog_policy_title,
             'dogPolicyTitle' => $c->dog_policy_title,
             'dog_policy_subtitle' => $c->dog_policy_subtitle,

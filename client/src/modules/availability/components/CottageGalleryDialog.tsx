@@ -52,12 +52,17 @@ export function CottageGalleryDialog({
     return `A closer look at ${propertyName}`;
   }, [roomType.homeSection, roomType.home_section, siteSettings]);
 
-  const isDogFriendly = Boolean(
-    roomType.dogPolicyEnabled ??
-      roomType.dog_policy_enabled ??
-      ((roomType.maxDogs ?? roomType.max_dogs) != null &&
-        Number(roomType.maxDogs ?? roomType.max_dogs) > 0),
-  );
+  const rawDogs = roomType.maxDogs ?? roomType.max_dogs;
+  const maxD = rawDogs != null ? Number(rawDogs) : 0;
+  const dogPolicyDisabled =
+    roomType.dogPolicyEnabled === false ||
+    roomType.dog_policy_enabled === false;
+  const isDogFriendly =
+    !dogPolicyDisabled &&
+    (roomType.dogPolicyEnabled === true ||
+      roomType.dog_policy_enabled === true ||
+      maxD > 0) &&
+    maxD > 0;
 
   const photos = useMemo<GalleryPhoto[]>(() => {
     const media = roomType.media ?? [];

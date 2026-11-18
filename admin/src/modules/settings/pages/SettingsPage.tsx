@@ -47,7 +47,7 @@ import { settingsKeys } from "@/lib/query-keys";
 import { setDefaultCurrency, getCurrencySymbol } from "@/lib/money";
 import { setDefaultTimeZone, formatDateTimeWithTime } from "@/lib/date";
 import { listCottages } from "@/modules/cottages/api/cottages.api";
-import type { Cottage } from "@/modules/cottages/types/cottage.types";
+import type { Cottage, CottageExtra } from "@/modules/cottages/types/cottage.types";
 import { GlobalExtrasSection } from "../components/GlobalExtrasSection";
 
 const PRESET_CURRENCIES = [
@@ -260,8 +260,11 @@ export interface CottageEnquirySettings {
 export interface ReservationDetailsSettings {
   isEnabled?: boolean;
   title?: string;
+  showTitle?: boolean;
   specialRequestsLabel?: string;
+  showSpecialRequestsLabel?: boolean;
   specialRequestsPlaceholder?: string;
+  showSpecialRequestsPlaceholder?: boolean;
   maxLength?: number;
 }
 
@@ -330,9 +333,11 @@ export interface BookingPageSettings {
   reservationDetails?: ReservationDetailsSettings;
   policies?: BookingPagePoliciesSettings;
   bookingJourney?: BookingJourneySettings;
+  globalExtras?: CottageExtra[];
 }
 
 export const DEFAULT_BOOKING_PAGE = {
+  globalExtras: [] as CottageExtra[],
   enquiry: {
     isEnabled: true,
     heading: "Enquire about {cottage}",
@@ -348,8 +353,11 @@ export const DEFAULT_BOOKING_PAGE = {
   reservationDetails: {
     isEnabled: true,
     title: "Reservation details",
+    showTitle: true,
     specialRequestsLabel: "Special Requests",
+    showSpecialRequestsLabel: true,
     specialRequestsPlaceholder: "Special Requests",
+    showSpecialRequestsPlaceholder: true,
     maxLength: 1000,
   } satisfies Required<ReservationDetailsSettings>,
   policies: {
@@ -674,58 +682,105 @@ export function SettingsPage() {
   return <SettingsForm key={data.propertyName} initial={data} />;
 }
 
+function normalizeSettings(initial: Settings): Settings {
+  const rawBp = (initial.bookingPage || (initial as any).booking_page) ?? {};
+  const rawAck =
+    initial.bookingAcknowledgement ||
+    (initial as any).booking_acknowledgement;
+  const ack = migrateLegacyAckLinks(rawAck);
+  const rawHp = (initial.homePage || (initial as any).home_page) ?? {};
+
+  const resolvedGlobalExtras: CottageExtra[] = Array.isArray(rawBp.globalExtras)
+    ? rawBp.globalExtras
+    : Array.isArray((rawBp as any).global_extras)
+      ? (rawBp as any).global_extras
+      : [];
+
+  const rawReservation =
+    (rawBp.reservationDetails || (rawBp as any).reservation_details) ?? {};
+  const normalizedReservation: Required<ReservationDetailsSettings> = {
+    ...DEFAULT_BOOKING_PAGE.reservationDetails,
+    ...rawReservation,
+    showTitle:
+      rawReservation.showTitle !== undefined
+        ? Boolean(rawReservation.showTitle)
+        : rawReservation.show_title !== undefined
+          ? Boolean(rawReservation.show_title)
+          : DEFAULT_BOOKING_PAGE.reservationDetails.showTitle,
+    showSpecialRequestsLabel:
+      rawReservation.showSpecialRequestsLabel !== undefined
+        ? Boolean(rawReservation.showSpecialRequestsLabel)
+        : rawReservation.show_special_requests_label !== undefined
+          ? Boolean(rawReservation.show_special_requests_label)
+          : rawReservation.showLabel !== undefined
+            ? Boolean(rawReservation.showLabel)
+            : rawReservation.show_label !== undefined
+              ? Boolean(rawReservation.show_label)
+              : DEFAULT_BOOKING_PAGE.reservationDetails.showSpecialRequestsLabel,
+    showSpecialRequestsPlaceholder:
+      rawReservation.showSpecialRequestsPlaceholder !== undefined
+        ? Boolean(rawReservation.showSpecialRequestsPlaceholder)
+        : rawReservation.show_special_requests_placeholder !== undefined
+          ? Boolean(rawReservation.show_special_requests_placeholder)
+          : rawReservation.showPlaceholder !== undefined
+            ? Boolean(rawReservation.showPlaceholder)
+            : rawReservation.show_placeholder !== undefined
+              ? Boolean(rawReservation.show_placeholder)
+              : DEFAULT_BOOKING_PAGE.reservationDetails
+                  .showSpecialRequestsPlaceholder,
+  };
+
+  return {
+    ...initial,
+    bookingAcknowledgement: {
+      ...(ack ?? {}),
+      bookFaster: { ...DEFAULT_BOOK_FASTER, ...(ack?.bookFaster ?? {}) },
+    },
+    bookingPage: {
+      ...rawBp,
+      enquiry: {
+        ...DEFAULT_BOOKING_PAGE.enquiry,
+        ...(rawBp.enquiry ?? {}),
+      },
+      reservationDetails: normalizedReservation,
+      policies: {
+        ...DEFAULT_BOOKING_PAGE.policies,
+        ...(rawBp.policies ?? {}),
+      },
+      bookingJourney: {
+        ...DEFAULT_BOOKING_PAGE.bookingJourney,
+        ...(rawBp.bookingJourney ?? {}),
+      },
+      globalExtras: resolvedGlobalExtras,
+    },
+    homePage: {
+      hero: {
+        ...DEFAULT_HOME_PAGE.hero,
+        ...(rawHp.hero ?? {}),
+      },
+      section1: {
+        ...DEFAULT_HOME_PAGE.section1,
+        ...(rawHp.section1 ?? {}),
+      },
+      section2: {
+        ...DEFAULT_HOME_PAGE.section2,
+        ...(rawHp.section2 ?? {}),
+      },
+      searchForm: {
+        ...DEFAULT_HOME_PAGE.searchForm,
+        ...(rawHp.searchForm ?? {}),
+      },
+      emptyHeading:
+        rawHp.emptyHeading ?? DEFAULT_HOME_PAGE.emptyHeading,
+      emptySubtitle:
+        rawHp.emptySubtitle ?? DEFAULT_HOME_PAGE.emptySubtitle,
+    },
+  };
+}
+
 function SettingsForm({ initial }: { initial: Settings }) {
   const queryClient = useQueryClient();
-  const [form, setForm] = useState<Settings>(() => {
-    const ack = migrateLegacyAckLinks(initial.bookingAcknowledgement);
-    return {
-      ...initial,
-      bookingAcknowledgement: {
-        ...(ack ?? {}),
-        bookFaster: { ...DEFAULT_BOOK_FASTER, ...(ack?.bookFaster ?? {}) },
-      },
-      bookingPage: {
-        enquiry: {
-          ...DEFAULT_BOOKING_PAGE.enquiry,
-          ...(initial.bookingPage?.enquiry ?? {}),
-        },
-        reservationDetails: {
-          ...DEFAULT_BOOKING_PAGE.reservationDetails,
-          ...(initial.bookingPage?.reservationDetails ?? {}),
-        },
-        policies: {
-          ...DEFAULT_BOOKING_PAGE.policies,
-          ...(initial.bookingPage?.policies ?? {}),
-        },
-        bookingJourney: {
-          ...DEFAULT_BOOKING_PAGE.bookingJourney,
-          ...(initial.bookingPage?.bookingJourney ?? {}),
-        },
-      },
-      homePage: {
-        hero: {
-          ...DEFAULT_HOME_PAGE.hero,
-          ...(initial.homePage?.hero ?? {}),
-        },
-        section1: {
-          ...DEFAULT_HOME_PAGE.section1,
-          ...(initial.homePage?.section1 ?? {}),
-        },
-        section2: {
-          ...DEFAULT_HOME_PAGE.section2,
-          ...(initial.homePage?.section2 ?? {}),
-        },
-        searchForm: {
-          ...DEFAULT_HOME_PAGE.searchForm,
-          ...(initial.homePage?.searchForm ?? {}),
-        },
-        emptyHeading:
-          initial.homePage?.emptyHeading ?? DEFAULT_HOME_PAGE.emptyHeading,
-        emptySubtitle:
-          initial.homePage?.emptySubtitle ?? DEFAULT_HOME_PAGE.emptySubtitle,
-      },
-    };
-  });
+  const [form, setForm] = useState<Settings>(() => normalizeSettings(initial));
 
   const { data: cottagesData } = useQuery({
     queryKey: ["cottages", "list"],
@@ -750,7 +805,7 @@ function SettingsForm({ initial }: { initial: Settings }) {
       return unwrapResponse(r);
     },
     onSuccess: (saved) => {
-      setForm(saved);
+      setForm(normalizeSettings(saved));
       if (saved.currency) setDefaultCurrency(saved.currency);
       if (saved.timezone) setDefaultTimeZone(saved.timezone);
       void queryClient.invalidateQueries();
@@ -3262,10 +3317,25 @@ function SettingsForm({ initial }: { initial: Settings }) {
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-1">
-                    <Label className="text-xs font-semibold">Card Title</Label>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs font-semibold">Card Title</Label>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[11px] text-muted-foreground">Show</span>
+                        <Switch
+                          checked={reservation.showTitle !== false}
+                          disabled={reservation.isEnabled === false}
+                          onCheckedChange={(val) =>
+                            updateReservation({ showTitle: val })
+                          }
+                        />
+                      </div>
+                    </div>
                     <Input
                       value={reservation.title}
-                      disabled={reservation.isEnabled === false}
+                      disabled={
+                        reservation.isEnabled === false ||
+                        reservation.showTitle === false
+                      }
                       placeholder="Reservation details"
                       onChange={(e) =>
                         updateReservation({ title: e.target.value })
@@ -3273,10 +3343,25 @@ function SettingsForm({ initial }: { initial: Settings }) {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs font-semibold">Field Label</Label>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs font-semibold">Field Label</Label>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[11px] text-muted-foreground">Show</span>
+                        <Switch
+                          checked={reservation.showSpecialRequestsLabel !== false}
+                          disabled={reservation.isEnabled === false}
+                          onCheckedChange={(val) =>
+                            updateReservation({ showSpecialRequestsLabel: val })
+                          }
+                        />
+                      </div>
+                    </div>
                     <Input
                       value={reservation.specialRequestsLabel}
-                      disabled={reservation.isEnabled === false}
+                      disabled={
+                        reservation.isEnabled === false ||
+                        reservation.showSpecialRequestsLabel === false
+                      }
                       placeholder="Special Requests"
                       onChange={(e) =>
                         updateReservation({
@@ -3286,10 +3371,29 @@ function SettingsForm({ initial }: { initial: Settings }) {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs font-semibold">Placeholder</Label>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs font-semibold">Placeholder</Label>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[11px] text-muted-foreground">Show</span>
+                        <Switch
+                          checked={
+                            reservation.showSpecialRequestsPlaceholder !== false
+                          }
+                          disabled={reservation.isEnabled === false}
+                          onCheckedChange={(val) =>
+                            updateReservation({
+                              showSpecialRequestsPlaceholder: val,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
                     <Input
                       value={reservation.specialRequestsPlaceholder}
-                      disabled={reservation.isEnabled === false}
+                      disabled={
+                        reservation.isEnabled === false ||
+                        reservation.showSpecialRequestsPlaceholder === false
+                      }
                       placeholder="Special Requests"
                       onChange={(e) =>
                         updateReservation({

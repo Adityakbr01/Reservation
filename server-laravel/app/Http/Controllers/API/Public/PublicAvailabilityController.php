@@ -139,10 +139,13 @@ class PublicAvailabilityController extends Controller
             }, $rt->images ?? []);
 
             $rtDogFees = is_array($rt->dog_fees) ? $rt->dog_fees : (is_string($rt->dog_fees) ? (json_decode($rt->dog_fees, true) ?? []) : []);
-            $effectiveMaxDogs = $rt->max_dogs;
-            if (!empty($rtDogFees)) {
+            $effectiveMaxDogs = (int) ($rt->max_dogs ?? 0);
+            if ($rt->dog_policy_enabled === false) {
+                $effectiveMaxDogs = 0;
+                $rtDogFees = [];
+            } elseif (!empty($rtDogFees)) {
                 $maxCustom = max(array_map('intval', array_keys($rtDogFees)));
-                $effectiveMaxDogs = max((int) ($rt->max_dogs ?? 0), $maxCustom);
+                $effectiveMaxDogs = max($effectiveMaxDogs, $maxCustom);
             }
 
             $catId = $rt->category_id ?? ($rt->home_section === 'section_2' ? 'cat_estate_collection' : 'cat_farm_cottages');
@@ -181,8 +184,8 @@ class PublicAvailabilityController extends Controller
                     'bathrooms' => $rt->bathrooms,
                     'maxDogs' => $effectiveMaxDogs,
                     'max_dogs' => $effectiveMaxDogs,
-                    'dogPolicyEnabled' => (bool) ($rt->dog_policy_enabled ?? ($effectiveMaxDogs > 0)),
-                    'dog_policy_enabled' => (bool) ($rt->dog_policy_enabled ?? ($effectiveMaxDogs > 0)),
+                    'dogPolicyEnabled' => $rt->dog_policy_enabled === false || $effectiveMaxDogs <= 0 ? false : (bool) ($rt->dog_policy_enabled ?? ($effectiveMaxDogs > 0)),
+                    'dog_policy_enabled' => $rt->dog_policy_enabled === false || $effectiveMaxDogs <= 0 ? false : (bool) ($rt->dog_policy_enabled ?? ($effectiveMaxDogs > 0)),
                     'dogPolicyTitle' => $rt->dog_policy_title,
                     'dog_policy_title' => $rt->dog_policy_title,
                     'dogPolicySubtitle' => $rt->dog_policy_subtitle,

@@ -128,7 +128,7 @@ class PublicBookingController extends Controller
         $dogFeePence = 0;
         if ($dogsCount > 0 && $cottage) {
             $dogFees = is_array($cottage->dog_fees) ? $cottage->dog_fees : (is_string($cottage->dog_fees) ? (json_decode($cottage->dog_fees, true) ?? []) : []);
-            $isDogFriendly = (bool) ($cottage->dog_policy_enabled) || ((int) ($cottage->max_dogs ?? 0) > 0) || !empty($dogFees);
+            $isDogFriendly = ($cottage->dog_policy_enabled !== false) && ((int) ($cottage->max_dogs ?? 0) > 0);
             if ($isDogFriendly) {
                 // Custom per-count dog fees take precedence over flat dog_fee * count.
                 $customFee = null;

@@ -1,16 +1,37 @@
 import * as React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import {
+  Link,
+  Navigate,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
+import {
+  Elements,
+  PaymentElement,
+  useElements,
+  useStripe,
+} from "@stripe/react-stripe-js";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { CalendarDays, CheckCircle2, ChevronDown, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatMoney, getCurrencySymbol, setDefaultCurrency } from "@/lib/money";
+import {
+  formatMoney,
+  getCurrencySymbol,
+  setDefaultCurrency,
+} from "@/lib/money";
 import { normalizeApiError } from "@/lib/api-client";
 import { getStripePromise } from "@/lib/stripe";
 import { useAuthStore } from "@/stores/auth-store";
@@ -20,8 +41,15 @@ import {
   fetchQuote,
   validateCouponCode,
 } from "../api/booking.api";
-import { fetchCottageOffers, getCottageBySlug } from "@/modules/cottages/api/cottages.api";
-import { fetchSiteSettings, type CheckoutSection, type AcknowledgementItem } from "@/modules/cms/api/cms.api";
+import {
+  fetchCottageOffers,
+  getCottageBySlug,
+} from "@/modules/cottages/api/cottages.api";
+import {
+  fetchSiteSettings,
+  type CheckoutSection,
+  type AcknowledgementItem,
+} from "@/modules/cms/api/cms.api";
 import { useAvailabilitySearch } from "@/modules/availability";
 import { useMediaUrls } from "@/modules/media";
 import type { CottageExtra } from "@/modules/availability/types/availability.types";
@@ -64,7 +92,10 @@ function newIdempotencyKey(): string {
   }
 }
 
-function formatTimeLabel(value: string | null | undefined, fallback: string): string {
+function formatTimeLabel(
+  value: string | null | undefined,
+  fallback: string,
+): string {
   const match = /^(\d{1,2}):(\d{2})/.exec(value ?? "");
   if (!match) return fallback;
   const hours = Number(match[1]);
@@ -98,7 +129,12 @@ function parseSelection(params: URLSearchParams): BookingSelection | null {
 function prettyDate(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString("en-GB", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+  return date.toLocaleDateString("en-GB", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 function SafeImage({
@@ -148,7 +184,13 @@ function SafeImage({
   );
 }
 
-function PayButton({ bookingId, totalLabel }: { bookingId: string; totalLabel: string }) {
+function PayButton({
+  bookingId,
+  totalLabel,
+}: {
+  bookingId: string;
+  totalLabel: string;
+}) {
   const stripe = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
@@ -172,7 +214,8 @@ function PayButton({ bookingId, totalLabel }: { bookingId: string; totalLabel: s
             Payment form is taking longer than expected to load.
           </p>
           <p className="text-xs text-amber-800">
-            Please check your internet connection or ensure ad-blockers / shields allow Stripe to load.
+            Please check your internet connection or ensure ad-blockers /
+            shields allow Stripe to load.
           </p>
           <Button
             type="button"
@@ -216,7 +259,10 @@ function PayButton({ bookingId, totalLabel }: { bookingId: string; totalLabel: s
     <div className="space-y-4">
       <PaymentElement
         onLoadError={(err) => {
-          setFailed(err.error?.message ?? "Unable to load card payment fields. Please try again.");
+          setFailed(
+            err.error?.message ??
+              "Unable to load card payment fields. Please try again.",
+          );
         }}
       />
       {failed && (
@@ -255,10 +301,12 @@ class PaymentErrorBoundary extends React.Component<
       return (
         <div className="space-y-3 rounded-md border border-destructive/30 bg-destructive/10 p-4">
           <p role="alert" className="text-sm font-medium text-destructive">
-            Payment form could not be displayed ({this.state.error?.message || "Gateway error"}).
+            Payment form could not be displayed (
+            {this.state.error?.message || "Gateway error"}).
           </p>
           <p className="text-xs text-muted-foreground">
-            If you are using an ad-blocker or content filter, please disable it for this page and retry.
+            If you are using an ad-blocker or content filter, please disable it
+            for this page and retry.
           </p>
           <Button
             type="button"
@@ -290,7 +338,9 @@ export function BookingPage() {
   const isAuthed = !!sessionUser;
 
   const [couponInput, setCouponInput] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<string | undefined>(undefined);
+  const [appliedCoupon, setAppliedCoupon] = useState<string | undefined>(
+    undefined,
+  );
   const [autoCoupon, setAutoCoupon] = useState<string | null>(null);
   const autoTried = useRef(false);
 
@@ -318,7 +368,9 @@ export function BookingPage() {
   const newsletterOptIn = false;
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
-  const [acceptedAckItems, setAcceptedAckItems] = useState<Record<string, boolean>>({});
+  const [acceptedAckItems, setAcceptedAckItems] = useState<
+    Record<string, boolean>
+  >({});
 
   const [emailExists, setEmailExists] = useState(false);
   const [checkingEmail, setCheckingEmail] = useState(false);
@@ -341,7 +393,10 @@ export function BookingPage() {
             key: roomKey(selection.roomTypeId, selection.ratePlanId),
             roomTypeId: selection.roomTypeId,
             ratePlanId: selection.ratePlanId,
-            quantity: Math.max(1, Math.min(10, Number(params.get("rooms")) || 1)),
+            quantity: Math.max(
+              1,
+              Math.min(10, Number(params.get("rooms")) || 1),
+            ),
             roomName: selection.roomName,
             rateName: selection.rateName,
           },
@@ -367,7 +422,12 @@ export function BookingPage() {
   const availabilityByRoom = useMemo(() => {
     const map = new Map<
       string,
-      { availableCount: number; maxAdults: number; maxOccupancy: number; name: string }
+      {
+        availableCount: number;
+        maxAdults: number;
+        maxOccupancy: number;
+        name: string;
+      }
     >();
     for (const item of availabilityQuery.data?.results ?? []) {
       map.set(item.roomType.id, {
@@ -380,6 +440,29 @@ export function BookingPage() {
     return map;
   }, [availabilityQuery.data]);
 
+  const { data: siteSettings } = useQuery({
+    queryKey: ["site-settings-public"],
+    queryFn: fetchSiteSettings,
+    staleTime: 300_000,
+  });
+
+  const bjSettings = siteSettings?.bookingPage?.bookingJourney;
+  const bjValue = (
+    setting?: { isEnabled?: boolean; value?: string },
+    fallback = "",
+  ) => {
+    if (!setting) return fallback;
+    return setting.isEnabled !== false ? setting.value || fallback : "";
+  };
+  const currencyCode = siteSettings?.currency || "GBP";
+  const currencySymbol = getCurrencySymbol(currencyCode);
+
+  useEffect(() => {
+    if (siteSettings?.currency) {
+      setDefaultCurrency(siteSettings.currency);
+    }
+  }, [siteSettings?.currency]);
+
   const cottageLookupKey = selection?.cottageSlug || selection?.roomTypeId;
   const { data: cottageDetail } = useQuery({
     queryKey: ["cottage-detail", cottageLookupKey],
@@ -391,17 +474,35 @@ export function BookingPage() {
   const cottageDogPolicy = useMemo(() => {
     const results = availabilityQuery.data?.results ?? [];
     const matched = results.filter((item) =>
-      rooms.some((r) => r.roomTypeId === item.roomType.id || r.roomTypeId === item.roomType.slug),
+      rooms.some(
+        (r) =>
+          r.roomTypeId === item.roomType.id ||
+          r.roomTypeId === item.roomType.slug,
+      ),
     );
     if (matched.length > 0) {
-      const allowsDogs = matched.some(
-        (m) =>
-          Boolean(
-            m.roomType.dogPolicyEnabled ??
-              (m.roomType.maxDogs != null && Number(m.roomType.maxDogs) > 0),
-          ),
-      );
-      const firstWithPolicy = matched.find((m) => m.roomType.dogPolicyEnabled ?? (Number(m.roomType.maxDogs ?? 0) > 0)) || matched[0];
+      const allowsDogs = matched.some((m) => {
+        const rt = m.roomType;
+        if (rt.dogPolicyEnabled === false || rt.dog_policy_enabled === false)
+          return false;
+        const rawDogs = rt.maxDogs ?? rt.max_dogs;
+        const maxD = rawDogs != null ? Number(rawDogs) : 0;
+        return (
+          (rt.dogPolicyEnabled === true ||
+            rt.dog_policy_enabled === true ||
+            maxD > 0) &&
+          maxD > 0
+        );
+      });
+      const firstWithPolicy =
+        matched.find((m) => {
+          const rt = m.roomType;
+          if (rt.dogPolicyEnabled === false || rt.dog_policy_enabled === false)
+            return false;
+          const rawDogs = rt.maxDogs ?? rt.max_dogs;
+          const maxD = rawDogs != null ? Number(rawDogs) : 0;
+          return maxD > 0;
+        }) || matched[0];
       const rt = firstWithPolicy.roomType as any;
       let rawCustomFees = rt.dogFees ?? rt.dog_fees ?? null;
       if (typeof rawCustomFees === "string") {
@@ -427,7 +528,7 @@ export function BookingPage() {
       const imageUrl = rt.dogPolicyImageUrl ?? rt.dog_policy_image_url ?? null;
 
       return {
-        allowsDogs: allowsDogs || customKeys.length > 0,
+        allowsDogs,
         maxDogs: effectiveMaxDogs,
         dogFee,
         customFees,
@@ -461,12 +562,16 @@ export function BookingPage() {
       const subtitle = cd.dogPolicySubtitle ?? cd.dog_policy_subtitle ?? null;
       const imageUrl = cd.dogPolicyImageUrl ?? cd.dog_policy_image_url ?? null;
 
-      const allowsDogs = Boolean(
-        (cd.dogPolicyEnabled ??
-          cd.dog_policy_enabled ??
-          (cd.maxDogs != null && Number(cd.maxDogs) > 0)) ||
-          customKeys.length > 0,
-      );
+      const rawDogs = cd.maxDogs ?? cd.max_dogs;
+      const maxD = rawDogs != null ? Number(rawDogs) : 0;
+      const dogPolicyDisabled =
+        cd.dogPolicyEnabled === false || cd.dog_policy_enabled === false;
+      const allowsDogs =
+        !dogPolicyDisabled &&
+        (cd.dogPolicyEnabled === true ||
+          cd.dog_policy_enabled === true ||
+          maxD > 0) &&
+        maxD > 0;
 
       return {
         allowsDogs,
@@ -489,11 +594,22 @@ export function BookingPage() {
     };
   }, [availabilityQuery.data, rooms, cottageDetail]);
 
-  // Extras available for the cottage(s) in this booking
+  // Unified Stay-Level Extras
+  // Priority 1: SiteSettings globalExtras
+  // Priority 2: Deduplicated extras across selected cottages
+  // Priority 3: Deduplicated extras from cottageDetail
   const availableExtras: CottageExtra[] = useMemo(() => {
+    const globalList = (siteSettings?.bookingPage as any)?.globalExtras;
+    if (Array.isArray(globalList) && globalList.length > 0) {
+      return globalList;
+    }
     const results = availabilityQuery.data?.results ?? [];
     const matched = results.filter((item) =>
-      rooms.some((r) => r.roomTypeId === item.roomType.id || r.roomTypeId === item.roomType.slug),
+      rooms.some(
+        (r) =>
+          r.roomTypeId === item.roomType.id ||
+          r.roomTypeId === item.roomType.slug,
+      ),
     );
     if (matched.length > 0) {
       const list: CottageExtra[] = [];
@@ -512,7 +628,7 @@ export function BookingPage() {
       return cottageDetail.extras;
     }
     return [];
-  }, [availabilityQuery.data, rooms, cottageDetail]);
+  }, [siteSettings?.bookingPage, availabilityQuery.data, rooms, cottageDetail]);
 
   const [extraQtys, setExtraQtys] = useState<Record<string, number>>({});
 
@@ -555,7 +671,11 @@ export function BookingPage() {
       return extraMediaMap.get(mid)!;
     }
     const directUrl = extra.imageUrl || (extra as any).image_url;
-    if (directUrl && typeof directUrl === "string" && directUrl.trim().length > 0) {
+    if (
+      directUrl &&
+      typeof directUrl === "string" &&
+      directUrl.trim().length > 0
+    ) {
       return directUrl.trim();
     }
     return null;
@@ -565,30 +685,26 @@ export function BookingPage() {
     setExtraQtys((prev) => {
       const ex = availableExtras.find((e) => e.id === id);
       if (!ex) return prev;
-      const counterOn = ex.showCounter === true;
-      const min = Math.max(0, Number(ex.min ?? 1));
-      const max = ex.max == null ? Infinity : Math.max(0, Number(ex.max));
+      const counterOn = ex.showCounter !== false;
+      const min = ex?.min != null ? Math.max(1, Number(ex.min)) : 1;
+      const max = ex?.max != null ? Math.max(min, Number(ex.max)) : Infinity;
       const current = prev[id] ?? 0;
       let next: number;
       if (!counterOn) {
-        // Checkbox: only 0 or 1, toggles on each click.
         next = current > 0 ? 0 : 1;
       } else {
         next = current + delta;
-        if (next < 1) next = 0; // allow deselect
-        else next = Math.max(min, Math.min(max, next));
+        if (next < 0) next = 0;
+        if (next > max) next = max;
       }
       return { ...prev, [id]: next };
     });
   }
 
   const calculateExtraAmount = (extra: CottageExtra, qty?: number): number => {
-    const q = qty ?? (extraQtys[extra.id] ?? 0);
-    if (q <= 0) return 0;
-    if (extra.pricingType === "PER_PERSON") {
-      return extra.price * q;
-    }
-    return extra.price * q;
+    const q = qty ?? extraQtys[extra.id] ?? 0;
+    const multiplier = q > 0 ? q : 1;
+    return extra.price * multiplier;
   };
 
   const selectedExtraList = useMemo(() => {
@@ -611,7 +727,9 @@ export function BookingPage() {
             "multi-quote",
             selection.checkIn,
             selection.checkOut,
-            rooms.map((r) => `${r.roomTypeId}:${r.ratePlanId}:${r.quantity}`).join("|"),
+            rooms
+              .map((r) => `${r.roomTypeId}:${r.ratePlanId}:${r.quantity}`)
+              .join("|"),
             appliedCoupon ?? "no-coupon",
             bringingDog ? `dogs-${dogsCount}` : "no-dogs",
             Object.entries(extraQtys)
@@ -642,7 +760,9 @@ export function BookingPage() {
             adults: selection.adults,
             ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
             ...(idx === 0 && bringingDog ? { dogs: dogsCount, dogsCount } : {}),
-            ...(idx === 0 && selectedExtrasPayload.length > 0 ? { extras: selectedExtrasPayload } : {}),
+            ...(idx === 0 && selectedExtrasPayload.length > 0
+              ? { extras: selectedExtrasPayload }
+              : {}),
           }),
         ),
       );
@@ -655,11 +775,19 @@ export function BookingPage() {
           discount: parts.reduce((s, p) => s + p.pricing.discount, 0),
           tax: parts.reduce((s, p) => s + (p.pricing.tax ?? 0), 0),
           dogFee: parts.reduce(
-            (s, p) => s + (p.pricing.dogFee ?? (p.pricing as { dog_fee?: number }).dog_fee ?? 0),
+            (s, p) =>
+              s +
+              (p.pricing.dogFee ??
+                (p.pricing as { dog_fee?: number }).dog_fee ??
+                0),
             0,
           ),
           extrasFee: parts.reduce(
-            (s, p) => s + (p.pricing.extrasFee ?? (p.pricing as { extras_fee?: number }).extras_fee ?? 0),
+            (s, p) =>
+              s +
+              (p.pricing.extrasFee ??
+                (p.pricing as { extras_fee?: number }).extras_fee ??
+                0),
             0,
           ),
           total: parts.reduce((s, p) => s + p.pricing.total, 0),
@@ -687,32 +815,16 @@ export function BookingPage() {
     enabled: !!selection,
     staleTime: 300_000,
   });
-  const { data: siteSettings } = useQuery({
-    queryKey: ["site-settings-public"],
-    queryFn: fetchSiteSettings,
-    staleTime: 300_000,
-  });
-
-  const bjSettings = siteSettings?.bookingPage?.bookingJourney;
-  const bjValue = (setting?: { isEnabled?: boolean; value?: string }, fallback = "") => {
-    if (!setting) return fallback;
-    return setting.isEnabled !== false ? setting.value || fallback : "";
-  };
-  const currencyCode = siteSettings?.currency || "GBP";
-  const currencySymbol = getCurrencySymbol(currencyCode);
-
-  useEffect(() => {
-    if (siteSettings?.currency) {
-      setDefaultCurrency(siteSettings.currency);
-    }
-  }, [siteSettings?.currency]);
 
   function setRoomQuantity(key: string, quantity: number) {
     setRoomError(null);
     setRooms((prev) =>
       prev.map((r) => {
         if (r.key !== key) return r;
-        const cap = Math.min(10, availabilityByRoom.get(r.roomTypeId)?.availableCount ?? 10);
+        const cap = Math.min(
+          10,
+          availabilityByRoom.get(r.roomTypeId)?.availableCount ?? 10,
+        );
         const next = Math.max(1, Math.min(cap, Math.floor(quantity) || 1));
         return { ...r, quantity: next };
       }),
@@ -730,27 +842,44 @@ export function BookingPage() {
     });
   }
 
-  function addRoom(roomTypeId: string, ratePlanId: string, roomName: string, rateName: string) {
+  function addRoom(
+    roomTypeId: string,
+    ratePlanId: string,
+    roomName: string,
+    rateName: string,
+  ) {
     setRoomError(null);
     const key = roomKey(roomTypeId, ratePlanId);
     const info = availabilityByRoom.get(roomTypeId);
     const cap = Math.min(10, info?.availableCount ?? 1);
     if (rooms.length >= 5) {
-      setRoomError("Maximum 5 cottage lines per booking. Increase quantity instead.");
+      setRoomError(
+        "Maximum 5 cottage lines per booking. Increase quantity instead.",
+      );
       return;
     }
     const existingQty = rooms.find((r) => r.key === key)?.quantity ?? 0;
     // Per-cottage inventory cap across all lines.
-    const typeTotal = rooms.filter((r) => r.roomTypeId === roomTypeId).reduce((s, r) => s + r.quantity, 0);
+    const typeTotal = rooms
+      .filter((r) => r.roomTypeId === roomTypeId)
+      .reduce((s, r) => s + r.quantity, 0);
     if (typeTotal >= cap) {
-      setRoomError(`Only ${cap} ${info?.name ?? "cottage"} left for these dates.`);
+      setRoomError(
+        `Only ${cap} ${info?.name ?? "cottage"} left for these dates.`,
+      );
       return;
     }
     setRooms((prev) => {
       const found = prev.find((r) => r.key === key);
-      if (found) return prev.map((r) => (r.key === key ? { ...r, quantity: Math.min(cap, r.quantity + 1) } : r));
+      if (found)
+        return prev.map((r) =>
+          r.key === key ? { ...r, quantity: Math.min(cap, r.quantity + 1) } : r,
+        );
       void existingQty;
-      return [...prev, { key, roomTypeId, ratePlanId, quantity: 1, roomName, rateName }];
+      return [
+        ...prev,
+        { key, roomTypeId, ratePlanId, quantity: 1, roomName, rateName },
+      ];
     });
     setShowAddRoom(false);
     toast.success(`${roomName} added`);
@@ -766,7 +895,9 @@ export function BookingPage() {
   // Scroll to payment once the hold is created and the card appears.
   useEffect(() => {
     if (bookingId) {
-      document.getElementById("checkout-payment")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document
+        .getElementById("checkout-payment")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [bookingId]);
 
@@ -774,7 +905,12 @@ export function BookingPage() {
   // Runs once: validates against this stay, then applies silently.
   useEffect(() => {
     if (!selection || !roomOffers || roomOffers.length === 0) return;
-    if (autoTried.current || appliedCoupon !== undefined || couponInput.trim() !== "") return;
+    if (
+      autoTried.current ||
+      appliedCoupon !== undefined ||
+      couponInput.trim() !== ""
+    )
+      return;
     const offer = roomOffers[0];
     if (!offer) return;
     const from = offer.validFrom?.slice(0, 10) ?? null;
@@ -812,7 +948,10 @@ export function BookingPage() {
 
   const quote = quoteQuery.data ?? null;
   const nights = quote?.nights ?? quote?.nightly?.length ?? 0;
-  const busy = createBooking.isPending || paymentIntent.isPending || guestBooking.isPending;
+  const busy =
+    createBooking.isPending ||
+    paymentIntent.isPending ||
+    guestBooking.isPending;
 
   const displayGrandTotalPence = useMemo(() => {
     if (!quote) return 0;
@@ -828,6 +967,7 @@ export function BookingPage() {
       },
     });
   }
+  void applyCoupon;
 
   async function handleEmailBlur() {
     if (isAuthed || emailExists) return;
@@ -865,19 +1005,26 @@ export function BookingPage() {
     if (rooms.length === 0) return "Add at least one cottage.";
     if (rooms.length > 5) return "Maximum 5 cottage lines per booking.";
     if (!selection) return "Choose a cottage and dates first.";
-    if (selection.checkOut <= selection.checkIn) return "Check-out must be after check-in.";
-    if (!Number.isInteger(selection.adults) || selection.adults < 1) return "Adults must be at least 1.";
-    if (!Number.isInteger(selection.children) || selection.children < 0) return "Children cannot be negative.";
+    if (selection.checkOut <= selection.checkIn)
+      return "Check-out must be after check-in.";
+    if (!Number.isInteger(selection.adults) || selection.adults < 1)
+      return "Adults must be at least 1.";
+    if (!Number.isInteger(selection.children) || selection.children < 0)
+      return "Children cannot be negative.";
     let totalMaxAdults = 0;
     let totalMaxOccupancy = 0;
     for (const r of rooms) {
-      if (!Number.isInteger(r.quantity) || r.quantity < 1) return `Quantity for ${r.roomName} must be a positive integer.`;
-      if (r.quantity > 10) return `Maximum 10 per cottage line (${r.roomName}).`;
+      if (!Number.isInteger(r.quantity) || r.quantity < 1)
+        return `Quantity for ${r.roomName} must be a positive integer.`;
+      if (r.quantity > 10)
+        return `Maximum 10 per cottage line (${r.roomName}).`;
       const info = availabilityByRoom.get(r.roomTypeId);
       if (info) {
         totalMaxAdults += (info.maxAdults || 2) * r.quantity;
         totalMaxOccupancy += (info.maxOccupancy || 2) * r.quantity;
-        const typeTotal = rooms.filter((x) => x.roomTypeId === r.roomTypeId).reduce((s, x) => s + x.quantity, 0);
+        const typeTotal = rooms
+          .filter((x) => x.roomTypeId === r.roomTypeId)
+          .reduce((s, x) => s + x.quantity, 0);
         if (typeTotal > info.availableCount) {
           if (info.availableCount <= 0) {
             return `${info.name} is fully booked for these dates.`;
@@ -889,7 +1036,10 @@ export function BookingPage() {
     if (totalMaxAdults > 0 && selection.adults > totalMaxAdults) {
       return `Selected cottages accommodate up to ${totalMaxAdults} adults. Please add another cottage or reduce adults.`;
     }
-    if (totalMaxOccupancy > 0 && selection.adults + selection.children > totalMaxOccupancy) {
+    if (
+      totalMaxOccupancy > 0 &&
+      selection.adults + selection.children > totalMaxOccupancy
+    ) {
       return `Selected cottages sleep up to ${totalMaxOccupancy} guests total. Please add another cottage or reduce guests.`;
     }
     return null;
@@ -912,19 +1062,29 @@ export function BookingPage() {
   const bookingPage = siteSettings?.bookingPage;
   const reservationConfig = bookingPage?.reservationDetails;
   const showReservationDetails = reservationConfig?.isEnabled !== false;
+  const showReservationTitle = reservationConfig?.showTitle !== false;
   const reservationTitle =
     reservationConfig?.title?.trim() || "Reservation details";
+  const showSpecialRequestsLabel =
+    reservationConfig?.showSpecialRequestsLabel !== false &&
+    (reservationConfig as any)?.showLabel !== false;
   const specialRequestsLabel =
     reservationConfig?.specialRequestsLabel?.trim() || "Special Requests";
-  const specialRequestsPlaceholder =
-    reservationConfig?.specialRequestsPlaceholder?.trim() || "Special Requests";
+  const showSpecialRequestsPlaceholder =
+    reservationConfig?.showSpecialRequestsPlaceholder !== false &&
+    (reservationConfig as any)?.showPlaceholder !== false;
+  const specialRequestsPlaceholder = showSpecialRequestsPlaceholder
+    ? reservationConfig?.specialRequestsPlaceholder?.trim() ||
+      "Special Requests"
+    : "";
   const specialRequestsMaxLength =
     reservationConfig?.maxLength && reservationConfig.maxLength > 0
       ? reservationConfig.maxLength
       : 1000;
 
   const policiesConfig = bookingPage?.policies;
-  const showPolicies = ack?.showPoliciesSection !== false && policiesConfig?.isEnabled !== false;
+  const showPolicies =
+    ack?.showPoliciesSection !== false && policiesConfig?.isEnabled !== false;
   const policiesTitle = policiesConfig?.title?.trim() || "Policies";
   const checkInLabel = policiesConfig?.checkInLabel?.trim() || "Check-in";
   const checkOutLabel = policiesConfig?.checkOutLabel?.trim() || "Check-out";
@@ -943,7 +1103,8 @@ export function BookingPage() {
   const bookFasterPasswordHint =
     bookFaster?.passwordHint?.trim() ||
     "At least 8 characters long, case sensitive, can contain !$#%, no spaces, not the same as previous password or login";
-  const bookFasterIsOpen = bookFasterOpen ?? bookFaster?.expandedByDefault === true;
+  const bookFasterIsOpen =
+    bookFasterOpen ?? bookFaster?.expandedByDefault === true;
 
   const checkoutSections: CheckoutSection[] = useMemo(() => {
     if (ack?.sections && ack.sections.length > 0) {
@@ -954,29 +1115,35 @@ export function BookingPage() {
         id: "sec-acknowledgement",
         title: ack?.title || "Acknowledgement",
         introText: ack?.introText || "",
-        isEnabled: ack?.isEnabled !== false && ack?.showAcknowledgementSection !== false,
-        items: (ack?.items && ack.items.length > 0)
-          ? ack.items
-          : [
-              {
-                id: "ack-privacy",
-                text: ack?.privacyCheckboxText || "* I agree with the Privacy Terms.",
-                linkLabel: ack?.privacyLinkLabel || "Privacy Notice",
-                linkUrl: ack?.privacyLinkUrl || "/policies/PRIVACY",
-                isRequired: true,
-                openInNewTab: true,
-                isEnabled: true,
-              },
-              {
-                id: "ack-terms",
-                text: ack?.termsCheckboxText || "I agree with the Booking Conditions.",
-                linkLabel: ack?.termsLinkLabel || "Booking Conditions",
-                linkUrl: ack?.termsLinkUrl || "/policies/TERMS",
-                isRequired: true,
-                openInNewTab: true,
-                isEnabled: true,
-              },
-            ],
+        isEnabled:
+          ack?.isEnabled !== false && ack?.showAcknowledgementSection !== false,
+        items:
+          ack?.items && ack.items.length > 0
+            ? ack.items
+            : [
+                {
+                  id: "ack-privacy",
+                  text:
+                    ack?.privacyCheckboxText ||
+                    "* I agree with the Privacy Terms.",
+                  linkLabel: ack?.privacyLinkLabel || "Privacy Notice",
+                  linkUrl: ack?.privacyLinkUrl || "/policies/PRIVACY",
+                  isRequired: true,
+                  openInNewTab: true,
+                  isEnabled: true,
+                },
+                {
+                  id: "ack-terms",
+                  text:
+                    ack?.termsCheckboxText ||
+                    "I agree with the Booking Conditions.",
+                  linkLabel: ack?.termsLinkLabel || "Booking Conditions",
+                  linkUrl: ack?.termsLinkUrl || "/policies/TERMS",
+                  isRequired: true,
+                  openInNewTab: true,
+                  isEnabled: true,
+                },
+              ],
       },
     ];
   }, [ack]);
@@ -988,7 +1155,7 @@ export function BookingPage() {
   const allRequiredItems = useMemo(() => {
     const list: AcknowledgementItem[] = [];
     for (const sec of activeCheckoutSections) {
-      for (const it of (sec.items ?? [])) {
+      for (const it of sec.items ?? []) {
         if (it.isEnabled !== false && it.isRequired !== false) {
           list.push(it);
         }
@@ -1026,7 +1193,8 @@ export function BookingPage() {
   /** First missing item, shown as a hint under the disabled buttons. */
   function continueHint(): string | null {
     if (dateError) return dateError;
-    if (!isDatesAvailable) return "Selected dates are not available. Please choose different dates.";
+    if (!isDatesAvailable)
+      return "Selected dates are not available. Please choose different dates.";
     if (roomsError) return roomsError;
     if (!quote) return "Loading price…";
     if (busy) return "Working…";
@@ -1090,15 +1258,14 @@ export function BookingPage() {
       ...(county.trim() ? { county: county.trim() } : {}),
       ...(country.trim() ? { country: country.trim() } : {}),
     };
-    const extrasNote =
-      Object.values(extraQtys).some((q) => q > 0)
-        ? `Selected Extras: ${selectedExtraList
-            .map(
-              (x) =>
-                `${(x.title || "").replace(/<[^>]*>/g, "").trim()} ×${extraQtys[x.id]} (+${currencySymbol}${calculateExtraAmount(x)})`,
-            )
-            .join(", ")}`
-        : "";
+    const extrasNote = Object.values(extraQtys).some((q) => q > 0)
+      ? `Selected Extras: ${selectedExtraList
+          .map(
+            (x) =>
+              `${(x.title || "").replace(/<[^>]*>/g, "").trim()} ×${extraQtys[x.id]} (+${currencySymbol}${calculateExtraAmount(x)})`,
+          )
+          .join(", ")}`
+      : "";
 
     const combinedNotes = [specialRequests.trim(), extrasNote]
       .filter(Boolean)
@@ -1108,7 +1275,11 @@ export function BookingPage() {
       if (isAuthed) {
         const created = await createBooking.mutateAsync({
           input: {
-            rooms: rooms.map((r) => ({ roomTypeId: r.roomTypeId, ratePlanId: r.ratePlanId, quantity: r.quantity })),
+            rooms: rooms.map((r) => ({
+              roomTypeId: r.roomTypeId,
+              ratePlanId: r.ratePlanId,
+              quantity: r.quantity,
+            })),
             checkIn: selection.checkIn,
             checkOut: selection.checkOut,
             guests: {
@@ -1142,7 +1313,11 @@ export function BookingPage() {
         }
       } else {
         const result = await guestBooking.mutateAsync({
-          rooms: rooms.map((r) => ({ roomTypeId: r.roomTypeId, ratePlanId: r.ratePlanId, quantity: r.quantity })),
+          rooms: rooms.map((r) => ({
+            roomTypeId: r.roomTypeId,
+            ratePlanId: r.ratePlanId,
+            quantity: r.quantity,
+          })),
           checkIn: selection.checkIn,
           checkOut: selection.checkOut,
           guests: {
@@ -1157,7 +1332,9 @@ export function BookingPage() {
           ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
           ...(combinedNotes ? { notes: combinedNotes } : {}),
           createAccount: bookFasterEnabled && createAccount,
-          ...(bookFasterEnabled && createAccount && password ? { password, confirmPassword } : {}),
+          ...(bookFasterEnabled && createAccount && password
+            ? { password, confirmPassword }
+            : {}),
           newsletter: newsletterOptIn,
           acceptPrivacy,
           acceptTerms,
@@ -1176,13 +1353,16 @@ export function BookingPage() {
           );
         }
         setBookingId(result.booking.id);
-        const secret = result.payment?.clientSecret ?? (result.payment as any)?.client_secret;
+        const secret =
+          result.payment?.clientSecret ??
+          (result.payment as any)?.client_secret;
         if (secret) {
           setClientSecret(secret);
           setHoldFailed(null);
         } else {
           setHoldFailed(
-            result.paymentError || "Your cottage is held but payment setup failed. Retry below — your hold is safe.",
+            result.paymentError ||
+              "Your cottage is held but payment setup failed. Retry below — your hold is safe.",
           );
         }
       }
@@ -1208,17 +1388,22 @@ export function BookingPage() {
     }
   }
 
-  const totalLabel = quote ? formatMoney(displayGrandTotalPence, quote.pricing.currency) : "";
+  const totalLabel = quote
+    ? formatMoney(displayGrandTotalPence, quote.pricing.currency)
+    : "";
   const signInTarget = `${location.pathname}${location.search}`;
 
-  const roomSlug = params.get("roomSlug") || (location.state as { roomSlug?: string } | null)?.roomSlug;
+  const roomSlug =
+    params.get("roomSlug") ||
+    (location.state as { roomSlug?: string } | null)?.roomSlug;
   const stateFrom = (location.state as { from?: string } | null)?.from;
   const backTarget = stateFrom || (roomSlug ? `/cottages/${roomSlug}` : "/");
-  const backLabel = selection?.roomName && selection.roomName !== "Selected room"
-    ? `← Back to ${selection.roomName}`
-    : roomSlug
-      ? "← Back to cottage details"
-      : "← Back to search";
+  const backLabel =
+    selection?.roomName && selection.roomName !== "Selected room"
+      ? `← Back to ${selection.roomName}`
+      : roomSlug
+        ? "← Back to cottage details"
+        : "← Back to search";
 
   function handleBack(e: React.MouseEvent) {
     e.preventDefault();
@@ -1245,7 +1430,9 @@ export function BookingPage() {
         >
           {backLabel}
         </button>
-        <h1 className="mt-2 font-display text-3xl font-light tracking-tight sm:text-4xl">Checkout</h1>
+        <h1 className="mt-2 font-display text-3xl font-light tracking-tight sm:text-4xl">
+          Checkout
+        </h1>
       </div>
 
       {!isAuthed && (
@@ -1256,7 +1443,9 @@ export function BookingPage() {
                 Sign in
               </Link>
             </Button>
-            <span className="ml-3 text-xs text-muted-foreground">Have an account? Signing in is optional — guest check out below.</span>
+            <span className="ml-3 text-xs text-muted-foreground">
+              Have an account? Signing in is optional — guest check out below.
+            </span>
           </CardContent>
         </Card>
       )}
@@ -1265,7 +1454,9 @@ export function BookingPage() {
         <div className="min-w-0 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base tracking-wide">Contact info</CardTitle>
+              <CardTitle className="text-base tracking-wide">
+                Contact info
+              </CardTitle>
               <span className="text-xs text-muted-foreground">* Required</span>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
@@ -1279,22 +1470,45 @@ export function BookingPage() {
                 >
                   <option value="">Title</option>
                   {TITLES.map((t) => (
-                    <option key={t} value={t}>{t}</option>
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
                   ))}
                 </select>
               </div>
               <div className="hidden sm:block" />
               <div className="space-y-2">
                 <Label htmlFor="co-first">First name *</Label>
-                <Input id="co-first" required maxLength={80} value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="First Name" />
+                <Input
+                  id="co-first"
+                  required
+                  maxLength={80}
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="First Name"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="co-last">Last name *</Label>
-                <Input id="co-last" required maxLength={80} value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last Name" />
+                <Input
+                  id="co-last"
+                  required
+                  maxLength={80}
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Last Name"
+                />
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="co-mobile">Mobile phone *</Label>
-                <Input id="co-mobile" required maxLength={40} value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="Mobile phone" />
+                <Input
+                  id="co-mobile"
+                  required
+                  maxLength={40}
+                  value={mobile}
+                  onChange={(e) => setMobile(e.target.value)}
+                  placeholder="Mobile phone"
+                />
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="co-email">Email address *</Label>
@@ -1304,17 +1518,31 @@ export function BookingPage() {
                   required
                   maxLength={160}
                   value={email}
-                  onChange={(e) => { setEmail(e.target.value); setEmailExists(false); }}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailExists(false);
+                  }}
                   onBlur={() => void handleEmailBlur()}
                   placeholder="Email Address"
                   className="sm:max-w-xs"
                 />
-                <p className="text-xs text-muted-foreground">This is the email we will send your confirmation to.</p>
-                {checkingEmail && <p className="text-xs text-muted-foreground">Checking…</p>}
+                <p className="text-xs text-muted-foreground">
+                  This is the email we will send your confirmation to.
+                </p>
+                {checkingEmail && (
+                  <p className="text-xs text-muted-foreground">Checking…</p>
+                )}
                 {emailExists && !isAuthed && (
-                  <p className="rounded-md border border-amber-200 bg-amber-50/80 p-2.5 text-xs text-amber-900" role="status">
+                  <p
+                    className="rounded-md border border-amber-200 bg-amber-50/80 p-2.5 text-xs text-amber-900"
+                    role="status"
+                  >
                     An account with this email already exists. You can{" "}
-                    <Link to="/login" state={{ from: signInTarget }} className="font-semibold underline text-amber-950">
+                    <Link
+                      to="/login"
+                      state={{ from: signInTarget }}
+                      className="font-semibold underline text-amber-950"
+                    >
                       Sign in
                     </Link>{" "}
                     or continue below to complete your booking as a guest.
@@ -1323,92 +1551,133 @@ export function BookingPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="co-postcode">Post code</Label>
-                <Input id="co-postcode" maxLength={20} value={postcode} onChange={(e) => setPostcode(e.target.value)} placeholder="Post Code" />
+                <Input
+                  id="co-postcode"
+                  maxLength={20}
+                  value={postcode}
+                  onChange={(e) => setPostcode(e.target.value)}
+                  placeholder="Post Code"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="co-country">Country</Label>
-                <Input id="co-country" maxLength={80} value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Country" />
+                <Input
+                  id="co-country"
+                  maxLength={80}
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  placeholder="Country"
+                />
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="co-addr1">Address 1</Label>
-                <Input id="co-addr1" maxLength={200} value={address1} onChange={(e) => setAddress1(e.target.value)} placeholder="Address 1" />
+                <Input
+                  id="co-addr1"
+                  maxLength={200}
+                  value={address1}
+                  onChange={(e) => setAddress1(e.target.value)}
+                  placeholder="Address 1"
+                />
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="co-addr2">Address 2</Label>
-                <Input id="co-addr2" maxLength={200} value={address2} onChange={(e) => setAddress2(e.target.value)} placeholder="Address 2" />
+                <Input
+                  id="co-addr2"
+                  maxLength={200}
+                  value={address2}
+                  onChange={(e) => setAddress2(e.target.value)}
+                  placeholder="Address 2"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="co-city">City / Town</Label>
-                <Input id="co-city" maxLength={80} value={city} onChange={(e) => setCity(e.target.value)} placeholder="City / Town" />
+                <Input
+                  id="co-city"
+                  maxLength={80}
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="City / Town"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="co-county">County / Region / State</Label>
-                <Input id="co-county" maxLength={80} value={county} onChange={(e) => setCounty(e.target.value)} placeholder="County / Region / State" />
+                <Input
+                  id="co-county"
+                  maxLength={80}
+                  value={county}
+                  onChange={(e) => setCounty(e.target.value)}
+                  placeholder="County / Region / State"
+                />
               </div>
             </CardContent>
           </Card>
 
           {bookFasterEnabled && (
-          <Card>
-            <button
-              type="button"
-              onClick={() => setBookFasterOpen(!bookFasterIsOpen)}
-              aria-expanded={bookFasterIsOpen}
-              className="flex w-full items-center justify-between p-4 text-left"
-            >
-              <span className="text-sm font-medium">{bookFasterTitle}</span>
-              <ChevronDown className={`size-4 transition-transform ${bookFasterIsOpen ? "rotate-180" : ""}`} aria-hidden />
-            </button>
-            {bookFasterIsOpen && (
-              <CardContent className="space-y-4 border-t border-border pt-4">
-                <label className="flex items-center gap-2 text-sm font-medium">
-                  <input
-                    type="checkbox"
-                    checked={createAccount}
-                    onChange={(e) => setCreateAccount(e.target.checked)}
-                    className="size-4 shrink-0 accent-brand"
-                  />
-                  {bookFasterCheckboxText}
-                </label>
-                {createAccount && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="co-password">Password *</Label>
-                      <Input
-                        id="co-password"
-                        type="password"
-                        autoComplete="new-password"
-                        maxLength={128}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Password"
-                        className="sm:max-w-xs"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        {bookFasterPasswordHint}
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="co-confirm">Confirm Password *</Label>
-                      <Input
-                        id="co-confirm"
-                        type="password"
-                        autoComplete="new-password"
-                        maxLength={128}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Confirm Password"
-                        className="sm:max-w-xs"
-                      />
-                      {confirmPassword && password !== confirmPassword && (
-                        <p className="text-xs text-destructive">Passwords do not match</p>
-                      )}
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            )}
-          </Card>
+            <Card>
+              <button
+                type="button"
+                onClick={() => setBookFasterOpen(!bookFasterIsOpen)}
+                aria-expanded={bookFasterIsOpen}
+                className="flex w-full items-center justify-between p-4 text-left"
+              >
+                <span className="text-sm font-medium">{bookFasterTitle}</span>
+                <ChevronDown
+                  className={`size-4 transition-transform ${bookFasterIsOpen ? "rotate-180" : ""}`}
+                  aria-hidden
+                />
+              </button>
+              {bookFasterIsOpen && (
+                <CardContent className="space-y-4 border-t border-border pt-4">
+                  <label className="flex items-center gap-2 text-sm font-medium">
+                    <input
+                      type="checkbox"
+                      checked={createAccount}
+                      onChange={(e) => setCreateAccount(e.target.checked)}
+                      className="size-4 shrink-0 accent-brand"
+                    />
+                    {bookFasterCheckboxText}
+                  </label>
+                  {createAccount && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="co-password">Password *</Label>
+                        <Input
+                          id="co-password"
+                          type="password"
+                          autoComplete="new-password"
+                          maxLength={128}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Password"
+                          className="sm:max-w-xs"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          {bookFasterPasswordHint}
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="co-confirm">Confirm Password *</Label>
+                        <Input
+                          id="co-confirm"
+                          type="password"
+                          autoComplete="new-password"
+                          maxLength={128}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Confirm Password"
+                          className="sm:max-w-xs"
+                        />
+                        {confirmPassword && password !== confirmPassword && (
+                          <p className="text-xs text-destructive">
+                            Passwords do not match
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              )}
+            </Card>
           )}
 
           {cottageDogPolicy.allowsDogs && (
@@ -1433,7 +1702,9 @@ export function BookingPage() {
                   {cottageDogPolicy.title ? (
                     <span
                       className="[&_p]:m-0"
-                      dangerouslySetInnerHTML={{ __html: cottageDogPolicy.title }}
+                      dangerouslySetInnerHTML={{
+                        __html: cottageDogPolicy.title,
+                      }}
                     />
                   ) : (
                     "Dogs & Pets"
@@ -1443,7 +1714,9 @@ export function BookingPage() {
                   {cottageDogPolicy.subtitle ? (
                     <span
                       className="[&_p]:m-0 text-xs"
-                      dangerouslySetInnerHTML={{ __html: cottageDogPolicy.subtitle }}
+                      dangerouslySetInnerHTML={{
+                        __html: cottageDogPolicy.subtitle,
+                      }}
                     />
                   ) : (
                     `Up to ${cottageDogPolicy.maxDogs} dog${cottageDogPolicy.maxDogs === 1 ? "" : "s"} · added only if you bring a dog`
@@ -1453,7 +1726,10 @@ export function BookingPage() {
               <CardContent className="space-y-3">
                 {(() => {
                   const custom = cottageDogPolicy.customFees[1];
-                  const fee1 = custom != null && custom >= 0 ? custom : cottageDogPolicy.dogFee;
+                  const fee1 =
+                    custom != null && custom >= 0
+                      ? custom
+                      : cottageDogPolicy.dogFee;
                   return (
                     <label className="flex items-start gap-3 cursor-pointer">
                       <input
@@ -1464,10 +1740,12 @@ export function BookingPage() {
                       />
                       <div className="text-sm">
                         <span className="font-medium text-[#243c30]">
-                          I am bringing a dog (+{currencySymbol}{fee1} per stay)
+                          I am bringing a dog (+{currencySymbol}
+                          {fee1} per stay)
                         </span>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          Dogs are warmly welcomed. Dog fee includes dog bed, towel and welcome treats.
+                          Dogs are warmly welcomed. Dog fee includes dog bed,
+                          towel and welcome treats.
                         </p>
                       </div>
                     </label>
@@ -1475,19 +1753,28 @@ export function BookingPage() {
                 })()}
                 {bringingDog && cottageDogPolicy.maxDogs > 1 && (
                   <div className="pt-2 pl-7 flex items-center gap-3">
-                    <Label htmlFor="co-dogs-count" className="text-xs">Number of dogs:</Label>
+                    <Label htmlFor="co-dogs-count" className="text-xs">
+                      Number of dogs:
+                    </Label>
                     <select
                       id="co-dogs-count"
                       value={dogsCount}
                       onChange={(e) => setDogsCount(Number(e.target.value))}
                       className="h-8 rounded-md border border-input bg-background px-2 text-xs"
                     >
-                      {Array.from({ length: cottageDogPolicy.maxDogs }, (_, i) => i + 1).map((n) => {
+                      {Array.from(
+                        { length: cottageDogPolicy.maxDogs },
+                        (_, i) => i + 1,
+                      ).map((n) => {
                         const custom = cottageDogPolicy.customFees[n];
-                        const lineFee = custom != null && custom >= 0 ? custom : cottageDogPolicy.dogFee * n;
+                        const lineFee =
+                          custom != null && custom >= 0
+                            ? custom
+                            : cottageDogPolicy.dogFee * n;
                         return (
                           <option key={n} value={n}>
-                            {n} dog{n > 1 ? "s" : ""} (+{currencySymbol}{lineFee})
+                            {n} dog{n > 1 ? "s" : ""} (+{currencySymbol}
+                            {lineFee})
                           </option>
                         );
                       })}
@@ -1501,100 +1788,92 @@ export function BookingPage() {
           {availableExtras.length > 0 && (
             <Card className="border-[#d8d9cb] bg-[#fffdf8] shadow-sm">
               <CardHeader className="pb-3 border-b border-[#d8d9cb]/60">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base tracking-wide flex items-center gap-2 text-[#243c30]">
-                    <svg
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                      className="h-5 w-5 stroke-[#243c30] fill-none stroke-[1.5] stroke-linecap-round stroke-linejoin-round shrink-0"
-                    >
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    <span
-                      className="[&_p]:m-0"
-                      dangerouslySetInnerHTML={{
-                        __html: sanitizeCheckoutHtml(
-                          bjValue(bjSettings?.extrasHeading, "Optional Extras & Activities"),
-                        ),
-                      }}
-                    />
-                  </CardTitle>
-                  {Object.values(extraQtys).some((q) => q > 0) && (
-                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#243c30] text-[#fffdf8]">
-                      {Object.values(extraQtys).filter((q) => q > 0).length} selected (+{currencySymbol}{totalExtrasPounds})
-                    </span>
-                  )}
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3
+                    className="m-0 font-['Instrument_Serif',Georgia,serif] text-[28px] sm:text-[32px] font-normal leading-tight tracking-[-0.8px] text-[#243c30] [&_p]:m-0"
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeCheckoutHtml(
+                        bjValue(bjSettings?.extrasHeading, "A few nice extras"),
+                      ),
+                    }}
+                  />
                 </div>
                 <div
-                  className="text-xs text-[#535b51] mt-1 [&_p]:m-0 [&_a]:underline"
+                  className="mt-2 text-xs sm:text-[13px] leading-relaxed text-[#535b51] [&_p]:m-0 [&_a]:underline"
                   dangerouslySetInnerHTML={{
                     __html: sanitizeCheckoutHtml(
                       bjValue(
                         bjSettings?.extrasDescription,
-                        "A little more time outdoors, or something lovely around the table. Everything here is optional.",
+                        "Add rounds on the course, padel court time or dining at The Barn. You can adjust these later.",
                       ),
                     ),
                   }}
                 />
               </CardHeader>
               <CardContent className="pt-4 space-y-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid gap-[12px]">
                   {availableExtras.map((extra) => {
                     const qty = extraQtys[extra.id] ?? 0;
                     const isSelected = qty > 0;
-                    const extraPrice = calculateExtraAmount(extra);
+                    const extraPrice = calculateExtraAmount(extra, qty);
                     const imgSrc = getExtraImageUrl(extra);
-                    const plainTitle = (extra.title || "").replace(/<[^>]*>/g, "").trim();
-                    const counterOn = extra.showCounter === true;
-                    const min = Math.max(0, Number(extra.min ?? 1));
-                    const max = extra.max == null ? Infinity : Math.max(0, Number(extra.max));
+                    const plainTitle = (extra.title || "")
+                      .replace(/<[^>]*>/g, "")
+                      .trim();
+                    const counterOn = extra.showCounter !== false;
+                    const max =
+                      extra.max == null
+                        ? Infinity
+                        : Math.max(0, Number(extra.max));
 
                     return (
                       <div
                         key={extra.id}
-                        className={`flex items-center gap-3 rounded-lg border p-3 transition-all ${
+                        className={`flex items-center gap-[14px] rounded-lg border p-[14px] transition-all ${
                           isSelected
-                            ? "border-[#243c30] bg-[#f4f6f0] ring-1 ring-[#243c30]"
-                            : "border-[#d8d9cb] bg-white hover:border-[#243c30]/50"
+                            ? "border-[#243c30] bg-[#f5f7f2] shadow-sm ring-1 ring-[#243c30]"
+                            : "border-[#d8d9cb] bg-[#fffdf8] hover:border-[#243c30]/40"
                         }`}
                       >
                         <SafeImage
                           src={imgSrc}
                           alt={plainTitle}
-                          className="h-16 w-16 shrink-0 rounded-md object-cover border border-[#d8d9cb]/50"
+                          className="h-[68px] w-[68px] shrink-0 rounded-md object-cover border border-[#d8d9cb]/50 shadow-xs"
                         />
                         <div className="min-w-0 flex-1">
                           <div
-                            className="text-xs font-semibold text-[#243c30] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
+                            className="text-[13px] font-semibold text-[#243c30] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
                             dangerouslySetInnerHTML={{
                               __html: sanitizeCheckoutHtml(extra.title),
                             }}
                           />
                           {extra.description ? (
                             <div
-                              className="mt-0.5 text-[11px] leading-snug text-[#535b51] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
+                              className="mt-[3px] text-[11px] leading-[17px] text-[#535b51] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
                               dangerouslySetInnerHTML={{
                                 __html: sanitizeCheckoutHtml(extra.description),
                               }}
                             />
                           ) : (
-                            <span className="mt-0.5 block text-[11px] leading-snug text-[#535b51]">
+                            <span className="mt-[3px] block text-[11px] leading-[17px] text-[#535b51]">
                               {extra.pricingType === "PER_PERSON"
-                                ? `${currencySymbol}${extra.price} per person`
+                                ? `${currencySymbol}${extra.price} per adult`
                                 : `${currencySymbol}${extra.price} per stay`}
                             </span>
                           )}
-                          <span className="mt-1 block font-['Instrument_Serif',Georgia,serif] text-lg font-medium text-[#243c30]">
-                            {isSelected ? `+ ${currencySymbol}${extraPrice}` : `+ ${currencySymbol}${extra.price}`}
+                          <span className="mt-[4px] block font-['Instrument_Serif',Georgia,serif] text-[22px] font-normal text-[#243c30]">
+                            {isSelected
+                              ? `+ ${currencySymbol}${extraPrice}`
+                              : `+ ${currencySymbol}${extra.price}`}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0 ml-2">
+                        <div className="flex items-center gap-[4px] shrink-0 ml-[8px]">
                           {counterOn ? (
                             <div className="inline-flex items-center rounded-md border border-[#d8d9cb] bg-[#fbfcf9] p-0.5 shadow-2xs">
                               <button
                                 type="button"
                                 onClick={() => changeExtraQty(extra.id, -1)}
-                                disabled={qty <= 0 || qty <= min}
+                                disabled={qty <= 0}
                                 className="flex h-7 w-7 items-center justify-center rounded-sm bg-transparent text-[13px] font-medium text-[#243c30] transition-colors hover:bg-[#e9ecdf] disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
                                 aria-label={`Decrease ${plainTitle}`}
                               >
@@ -1619,18 +1898,25 @@ export function BookingPage() {
                           ) : (
                             <label
                               htmlFor={`checkout-extra-${extra.id}`}
-                              className="flex items-center justify-center p-2 cursor-pointer -mr-1"
+                              className="flex items-center justify-center p-2 cursor-pointer -mr-2"
                               title={`Select ${plainTitle || "extra"}`}
                             >
                               <input
                                 id={`checkout-extra-${extra.id}`}
                                 type="checkbox"
                                 checked={isSelected}
-                                onChange={() => changeExtraQty(extra.id, (qty > 0 ? 0 : 1))}
-                                className="h-4 w-4 shrink-0 rounded border-[#243c30] accent-[#243c30] cursor-pointer"
+                                onChange={() =>
+                                  changeExtraQty(extra.id, qty > 0 ? -1 : 1)
+                                }
+                                className="h-[18px] w-[18px] shrink-0 accent-[#243c30] cursor-pointer"
                                 aria-label={`Select ${plainTitle || "extra"}`}
                               />
                             </label>
+                          )}
+                          {counterOn && max !== Infinity && (
+                            <span className="ml-[4px] text-[10px] text-[#655b3e]">
+                              max {max}
+                            </span>
                           )}
                         </div>
                       </div>
@@ -1654,48 +1940,74 @@ export function BookingPage() {
           )}
 
           {showReservationDetails && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base tracking-wide">{reservationTitle}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Label htmlFor="co-requests">{specialRequestsLabel}</Label>
-              <textarea
-                id="co-requests"
-                value={specialRequests}
-                onChange={(e) => setSpecialRequests(e.target.value)}
-                rows={3}
-                maxLength={specialRequestsMaxLength}
-                placeholder={specialRequestsPlaceholder}
-                className="flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
-              />
-            </CardContent>
-          </Card>
+            <Card>
+              {showReservationTitle && reservationTitle && (
+                <CardHeader>
+                  <CardTitle className="text-base tracking-wide">
+                    {reservationTitle}
+                  </CardTitle>
+                </CardHeader>
+              )}
+              <CardContent
+                className={`space-y-2 ${
+                  showReservationTitle && reservationTitle ? "" : "pt-6"
+                }`}
+              >
+                {showSpecialRequestsLabel && specialRequestsLabel && (
+                  <Label htmlFor="co-requests">{specialRequestsLabel}</Label>
+                )}
+                <textarea
+                  id="co-requests"
+                  value={specialRequests}
+                  onChange={(e) => setSpecialRequests(e.target.value)}
+                  rows={3}
+                  maxLength={specialRequestsMaxLength}
+                  placeholder={specialRequestsPlaceholder}
+                  aria-label={specialRequestsLabel || "Special Requests"}
+                  className="flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
+                />
+              </CardContent>
+            </Card>
           )}
 
           {bookingId && (clientSecret || holdFailed) && (
-            <Card id="checkout-payment" className="scroll-mt-24 border-brand/50">
+            <Card
+              id="checkout-payment"
+              className="scroll-mt-24 border-brand/50"
+            >
               <CardHeader>
-                <CardTitle className="text-base tracking-wide">Payment</CardTitle>
+                <CardTitle className="text-base tracking-wide">
+                  Payment
+                </CardTitle>
                 <CardDescription>
-                  Your room is held{quote ? ` — pay ${totalLabel} securely to confirm.` : "."}
+                  Your room is held
+                  {quote ? ` — pay ${totalLabel} securely to confirm.` : "."}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {!stripePromise ? (
                   <div className="space-y-2 rounded-md border border-destructive/30 bg-destructive/10 p-4">
                     <p role="alert" className="text-sm text-destructive">
-                      Payments are not configured (missing publishable key). Please try again later.
+                      Payments are not configured (missing publishable key).
+                      Please try again later.
                     </p>
                   </div>
                 ) : clientSecret ? (
-                  <PaymentErrorBoundary onRetry={() => void handleRetryIntent()}>
+                  <PaymentErrorBoundary
+                    onRetry={() => void handleRetryIntent()}
+                  >
                     <Elements
                       key={clientSecret}
                       stripe={stripePromise}
-                      options={{ clientSecret, appearance: { theme: "stripe" } }}
+                      options={{
+                        clientSecret,
+                        appearance: { theme: "stripe" },
+                      }}
                     >
-                      <PayButton bookingId={bookingId} totalLabel={totalLabel} />
+                      <PayButton
+                        bookingId={bookingId}
+                        totalLabel={totalLabel}
+                      />
                     </Elements>
                   </PaymentErrorBoundary>
                 ) : !holdFailed ? (
@@ -1706,9 +2018,19 @@ export function BookingPage() {
                 ) : null}
                 {holdFailed && (
                   <div className="space-y-2 rounded-md border border-amber-300 bg-amber-50 p-3">
-                    <p role="alert" className="text-sm">{holdFailed}</p>
-                    <Button type="button" variant="outline" className="rounded-full" disabled={paymentIntent.isPending} onClick={() => void handleRetryIntent()}>
-                      {paymentIntent.isPending ? "Retrying…" : "Retry payment setup"}
+                    <p role="alert" className="text-sm">
+                      {holdFailed}
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="rounded-full"
+                      disabled={paymentIntent.isPending}
+                      onClick={() => void handleRetryIntent()}
+                    >
+                      {paymentIntent.isPending
+                        ? "Retrying…"
+                        : "Retry payment setup"}
                     </Button>
                   </div>
                 )}
@@ -1719,12 +2041,22 @@ export function BookingPage() {
           {showPolicies && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base tracking-wide">{policiesTitle}</CardTitle>
+                <CardTitle className="text-base tracking-wide">
+                  {policiesTitle}
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2 rounded-md bg-muted/50 p-4 text-sm">
+              <CardContent className="space-y-2 text-sm">
                 <div className="flex gap-8">
-                  <p><span className="font-semibold">{checkInLabel}</span><br />{policiesCheckInText}</p>
-                  <p><span className="font-semibold">{checkOutLabel}</span><br />{policiesCheckOutText}</p>
+                  <p>
+                    <span className="font-semibold">{checkInLabel}</span>
+                    <br />
+                    {policiesCheckInText}
+                  </p>
+                  <p>
+                    <span className="font-semibold">{checkOutLabel}</span>
+                    <br />
+                    {policiesCheckOutText}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -1743,35 +2075,54 @@ export function BookingPage() {
                   <div
                     className="pb-1 text-xs text-muted-foreground [&_a]:font-medium [&_a]:underline [&_a]:hover:text-brand [&_p]:m-0"
                     onClick={(e) => e.stopPropagation()}
-                    dangerouslySetInnerHTML={{ __html: sanitizeCheckoutHtml(sec.introText) }}
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeCheckoutHtml(sec.introText),
+                    }}
                   />
                 )}
                 {(sec.items ?? [])
                   .filter((item) => item.isEnabled !== false)
                   .map((item) => (
-                    <label key={item.id} className="flex items-start gap-2 cursor-pointer">
+                    <label
+                      key={item.id}
+                      className="flex items-start gap-2 cursor-pointer"
+                    >
                       <input
                         type="checkbox"
                         checked={!!acceptedAckItems[item.id]}
-                        onChange={(e) => toggleAckItem(item.id, e.target.checked)}
+                        onChange={(e) =>
+                          toggleAckItem(item.id, e.target.checked)
+                        }
                         className="mt-1 size-4 shrink-0 accent-brand cursor-pointer"
                       />
                       <span className="text-sm select-none">
                         <span
                           className="[&_a]:font-medium [&_a]:underline [&_a]:hover:text-brand [&_p]:m-0 [&_p]:inline"
-                          dangerouslySetInnerHTML={{ __html: sanitizeCheckoutHtml(item.text) }}
+                          dangerouslySetInnerHTML={{
+                            __html: sanitizeCheckoutHtml(item.text),
+                          }}
                         />{" "}
-                        {!/<a\s/i.test(item.text) && item.linkUrl && item.linkLabel && (
-                          <Link
-                            to={item.linkUrl}
-                            target={item.openInNewTab !== false ? "_blank" : undefined}
-                            rel={item.openInNewTab !== false ? "noopener noreferrer" : undefined}
-                            className="font-medium underline hover:text-brand"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {item.linkLabel}
-                          </Link>
-                        )}
+                        {!/<a\s/i.test(item.text) &&
+                          item.linkUrl &&
+                          item.linkLabel && (
+                            <Link
+                              to={item.linkUrl}
+                              target={
+                                item.openInNewTab !== false
+                                  ? "_blank"
+                                  : undefined
+                              }
+                              rel={
+                                item.openInNewTab !== false
+                                  ? "noopener noreferrer"
+                                  : undefined
+                              }
+                              className="font-medium underline hover:text-brand"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {item.linkLabel}
+                            </Link>
+                          )}
                       </span>
                     </label>
                   ))}
@@ -1788,7 +2139,9 @@ export function BookingPage() {
                 disabled={!canContinue}
                 onClick={() => void handleContinueToPayment()}
               >
-                {busy ? (ack?.busyButtonText || "Holding your cottage…") : (ack?.buttonText || "Confirm booking")}
+                {busy
+                  ? ack?.busyButtonText || "Holding your cottage…"
+                  : ack?.buttonText || "Confirm booking"}
               </Button>
               {!canContinue && continueHint() && (
                 <p className="text-center text-xs text-muted-foreground">
@@ -1802,9 +2155,13 @@ export function BookingPage() {
         <aside className="min-w-0">
           <Card className="shadow-card lg:sticky lg:top-24">
             <CardHeader>
-              <CardTitle className="text-base tracking-wide">Price details</CardTitle>
+              <CardTitle className="text-base tracking-wide">
+                Price details
+              </CardTitle>
               <CardDescription>
-                {nights} night{nights === 1 ? "" : "s"} · {rooms.reduce((s, r) => s + r.quantity, 0)} cottage{rooms.reduce((s, r) => s + r.quantity, 0) === 1 ? "" : "s"}
+                {nights} night{nights === 1 ? "" : "s"} ·{" "}
+                {rooms.reduce((s, r) => s + r.quantity, 0)} cottage
+                {rooms.reduce((s, r) => s + r.quantity, 0) === 1 ? "" : "s"}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -1827,18 +2184,28 @@ export function BookingPage() {
 
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="rounded border border-border/60 bg-background/80 p-2">
-                      <span className="text-[10px] uppercase font-semibold text-muted-foreground block">Check-in</span>
-                      <span className="font-medium text-foreground">{prettyDate(selection.checkIn)}</span>
+                      <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
+                        Check-in
+                      </span>
+                      <span className="font-medium text-foreground">
+                        {prettyDate(selection.checkIn)}
+                      </span>
                     </div>
                     <div className="rounded border border-border/60 bg-background/80 p-2">
-                      <span className="text-[10px] uppercase font-semibold text-muted-foreground block">Check-out</span>
-                      <span className="font-medium text-foreground">{prettyDate(selection.checkOut)}</span>
+                      <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
+                        Check-out
+                      </span>
+                      <span className="font-medium text-foreground">
+                        {prettyDate(selection.checkOut)}
+                      </span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600">
                     <CheckCircle2 className="size-3.5 shrink-0" />
-                    <span>{nights} night{nights === 1 ? "" : "s"} stay confirmed</span>
+                    <span>
+                      {nights} night{nights === 1 ? "" : "s"} stay confirmed
+                    </span>
                   </div>
                 </div>
               )}
@@ -1848,11 +2215,18 @@ export function BookingPage() {
                   const cap = Math.min(10, info?.availableCount ?? 10);
                   const isSoldOut = cap <= 0;
                   return (
-                    <div key={r.key} className="rounded-lg border border-border bg-card p-3 text-sm space-y-2.5">
+                    <div
+                      key={r.key}
+                      className="rounded-lg border border-border bg-card p-3 text-sm space-y-2.5"
+                    >
                       <div className="flex min-w-0 items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <p className="font-medium truncate text-foreground">{r.roomName}</p>
-                          <p className="text-xs text-muted-foreground">{r.rateName}</p>
+                          <p className="font-medium truncate text-foreground">
+                            {r.roomName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {r.rateName}
+                          </p>
                         </div>
                         {rooms.length > 1 && (
                           <Button
@@ -1871,24 +2245,35 @@ export function BookingPage() {
                       {isSoldOut ? (
                         <div className="rounded-md border border-destructive/20 bg-destructive/10 px-2.5 py-1.5 text-xs text-destructive font-medium flex items-center justify-between">
                           <span>Sold out for these dates</span>
-                          <span className="text-[11px] opacity-80">0 available</span>
+                          <span className="text-[11px] opacity-80">
+                            0 available
+                          </span>
                         </div>
                       ) : (
                         <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/60">
                           <div>
-                            <span className="text-xs font-medium text-foreground">Cottages to book</span>
+                            <span className="text-xs font-medium text-foreground">
+                              Cottages to book
+                            </span>
                             <span className="block text-[11px] text-muted-foreground">
-                              {cap} {cap === 1 ? "cottage" : "cottages"} available for your dates
+                              {cap} {cap === 1 ? "cottage" : "cottages"}{" "}
+                              available for your dates
                             </span>
                           </div>
-                          <div className="flex items-center gap-1.5" role="group" aria-label={`Quantity for ${r.roomName}`}>
+                          <div
+                            className="flex items-center gap-1.5"
+                            role="group"
+                            aria-label={`Quantity for ${r.roomName}`}
+                          >
                             <Button
                               type="button"
                               variant="outline"
                               size="sm"
                               className="h-8 w-8 rounded-full p-0"
                               disabled={r.quantity <= 1}
-                              onClick={() => setRoomQuantity(r.key, r.quantity - 1)}
+                              onClick={() =>
+                                setRoomQuantity(r.key, r.quantity - 1)
+                              }
                               aria-label={`Decrease quantity for ${r.roomName}`}
                             >
                               −
@@ -1902,7 +2287,9 @@ export function BookingPage() {
                               size="sm"
                               className="h-8 w-8 rounded-full p-0"
                               disabled={r.quantity >= cap}
-                              onClick={() => setRoomQuantity(r.key, r.quantity + 1)}
+                              onClick={() =>
+                                setRoomQuantity(r.key, r.quantity + 1)
+                              }
                               aria-label={`Increase quantity for ${r.roomName}`}
                             >
                               +
@@ -1926,70 +2313,138 @@ export function BookingPage() {
               )}
               <div className="rounded-md border border-border p-4 text-sm">
                 {quoteQuery.isPending ? (
-                  <div className="space-y-2" aria-busy="true" aria-label="Loading price">
+                  <div
+                    className="space-y-2"
+                    aria-busy="true"
+                    aria-label="Loading price"
+                  >
                     <Skeleton className="h-5 w-2/3" />
                     <Skeleton className="h-5 w-1/2" />
                   </div>
                 ) : quoteQuery.isError || !quote ? (
                   <div className="space-y-2">
-                    <p className="text-sm text-destructive">Could not price this selection.</p>
-                    <Button variant="outline" size="sm" className="rounded-full" onClick={() => void quoteQuery.refetch()}>Retry pricing</Button>
+                    <p className="text-sm text-destructive">
+                      Could not price this selection.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full"
+                      onClick={() => void quoteQuery.refetch()}
+                    >
+                      Retry pricing
+                    </Button>
                   </div>
                 ) : (
                   <div className="space-y-1">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Subtotal ({nights} nights)</span>
-                      <span className="font-semibold">{formatMoney(quote.pricing.subtotal, quote.pricing.currency)}</span>
+                      <span className="text-muted-foreground">
+                        Subtotal ({nights} nights)
+                      </span>
+                      <span className="font-semibold">
+                        {formatMoney(
+                          quote.pricing.subtotal,
+                          quote.pricing.currency,
+                        )}
+                      </span>
                     </div>
                     {quote.pricing.discount > 0 && (
                       <div className="flex justify-between text-success">
                         <span>Coupon {appliedCoupon}</span>
-                        <span>−{formatMoney(quote.pricing.discount, quote.pricing.currency)}</span>
+                        <span>
+                          −
+                          {formatMoney(
+                            quote.pricing.discount,
+                            quote.pricing.currency,
+                          )}
+                        </span>
                       </div>
                     )}
-                    {Boolean(quote.pricing.dogFee && quote.pricing.dogFee > 0) && (
+                    {Boolean(
+                      quote.pricing.dogFee && quote.pricing.dogFee > 0,
+                    ) && (
                       <div className="flex justify-between text-muted-foreground">
-                        <span>Dog fee ({dogsCount} dog{dogsCount > 1 ? "s" : ""})</span>
-                        <span>{formatMoney(quote.pricing.dogFee, quote.pricing.currency)}</span>
+                        <span>
+                          Dog fee ({dogsCount} dog{dogsCount > 1 ? "s" : ""})
+                        </span>
+                        <span>
+                          {formatMoney(
+                            quote.pricing.dogFee,
+                            quote.pricing.currency,
+                          )}
+                        </span>
                       </div>
                     )}
                     {(quote.pricing.tax ?? 0) > 0 && (
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Taxes and fees</span>
-                        <span>{formatMoney(quote.pricing.tax ?? 0, quote.pricing.currency)}</span>
+                        <span className="text-muted-foreground">
+                          Taxes and fees
+                        </span>
+                        <span>
+                          {formatMoney(
+                            quote.pricing.tax ?? 0,
+                            quote.pricing.currency,
+                          )}
+                        </span>
                       </div>
                     )}
                     {selectedExtraList.length > 0 && (
                       <div className="space-y-1.5 border-t border-border/60 pt-2 pb-1">
                         <div className="flex items-center justify-between font-semibold text-[#243c30]">
-                          <span>Optional Extras ({selectedExtraList.length})</span>
-                          <span>+{currencySymbol}{totalExtrasPounds}</span>
+                          <span>
+                            Optional Extras ({selectedExtraList.length})
+                          </span>
+                          <span>
+                            +{currencySymbol}
+                            {totalExtrasPounds}
+                          </span>
                         </div>
                         {selectedExtraList.map((extra) => (
-                          <div key={extra.id} className="flex justify-between text-xs text-muted-foreground pl-1">
+                          <div
+                            key={extra.id}
+                            className="flex justify-between text-xs text-muted-foreground pl-1"
+                          >
                             <span className="truncate pr-2">
-                              • {(extra.title || "").replace(/<[^>]*>/g, "").trim()}
-                              {extra.pricingType === "PER_PERSON" ? ` (${selection.adults} adults)` : ""}
+                              •{" "}
+                              {(extra.title || "")
+                                .replace(/<[^>]*>/g, "")
+                                .trim()}
+                              {extra.pricingType === "PER_PERSON"
+                                ? ` (${selection.adults} adults)`
+                                : ""}
                             </span>
                             <span className="font-medium text-[#243c30]">
-                              +{currencySymbol}{calculateExtraAmount(extra)}
+                              +{currencySymbol}
+                              {calculateExtraAmount(extra)}
                             </span>
                           </div>
                         ))}
                       </div>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      {prettyDate(selection.checkIn)} - {prettyDate(selection.checkOut)}<br />
-                      {selection.adults + selection.children} Adult{selection.adults + selection.children === 1 ? "" : "s"}
+                      {prettyDate(selection.checkIn)} -{" "}
+                      {prettyDate(selection.checkOut)}
+                      <br />
+                      {selection.adults + selection.children} Adult
+                      {selection.adults + selection.children === 1 ? "" : "s"}
                     </p>
                     {quote.nightly && quote.nightly.length > 0 && (
                       <details className="pt-1 text-xs">
-                        <summary className="cursor-pointer text-muted-foreground">Nightly breakdown</summary>
+                        <summary className="cursor-pointer text-muted-foreground">
+                          Nightly breakdown
+                        </summary>
                         <ul className="mt-1 divide-y divide-border">
                           {quote.nightly.map((n) => (
-                            <li key={n.date} className="flex justify-between py-0.5">
-                              <span className="text-muted-foreground">{n.date}</span>
-                              <span>{formatMoney(n.price, quote.pricing.currency)}</span>
+                            <li
+                              key={n.date}
+                              className="flex justify-between py-0.5"
+                            >
+                              <span className="text-muted-foreground">
+                                {n.date}
+                              </span>
+                              <span>
+                                {formatMoney(n.price, quote.pricing.currency)}
+                              </span>
                             </li>
                           ))}
                         </ul>
@@ -2023,7 +2478,10 @@ export function BookingPage() {
                             : "text-foreground"
                         }`}
                       >
-                        {formatMoney(displayGrandTotalPence, quote.pricing.currency)}
+                        {formatMoney(
+                          displayGrandTotalPence,
+                          quote.pricing.currency,
+                        )}
                       </p>
                       {!isDatesAvailable && (
                         <span className="text-[11px] font-semibold text-destructive block">
@@ -2034,7 +2492,8 @@ export function BookingPage() {
                   </div>
                 </div>
               )}
-              <div className="flex gap-2">
+              {/* For now comment that code */}
+              {/* <div className="flex gap-2">
                 <Input
                   value={couponInput}
                   onChange={(e) => setCouponInput(e.target.value)}
@@ -2049,9 +2508,11 @@ export function BookingPage() {
                 >
                   Apply
                 </Button>
-              </div>
+              </div> */}
               {autoCoupon && appliedCoupon === autoCoupon && (
-                <p className="text-xs text-success">{autoCoupon} auto-applied from this cottage&apos;s offer.</p>
+                <p className="text-xs text-success">
+                  {autoCoupon} auto-applied from this cottage&apos;s offer.
+                </p>
               )}
               <Button
                 type="button"
@@ -2060,7 +2521,9 @@ export function BookingPage() {
                 onClick={() => setShowAddRoom((v) => !v)}
                 aria-expanded={showAddRoom}
               >
-                {showAddRoom ? "Close cottage selector" : "+ Add another cottage to your stay"}
+                {showAddRoom
+                  ? "Close cottage selector"
+                  : "+ Add another cottage to your stay"}
               </Button>
               {showAddRoom && (
                 <div className="max-h-72 space-y-2 overflow-y-auto rounded-xl border border-border bg-card p-2.5 shadow-sm">
@@ -2069,13 +2532,22 @@ export function BookingPage() {
                       Available cottages for your dates:
                     </p>
                     <span className="text-[11px] text-muted-foreground">
-                      {(availabilityQuery.data?.results ?? []).filter((r) => r.availableCount > 0).length} available
+                      {
+                        (availabilityQuery.data?.results ?? []).filter(
+                          (r) => r.availableCount > 0,
+                        ).length
+                      }{" "}
+                      available
                     </span>
                   </div>
                   {availabilityQuery.isPending ? (
-                    <p className="p-3 text-xs text-muted-foreground animate-pulse">Checking live availability…</p>
+                    <p className="p-3 text-xs text-muted-foreground animate-pulse">
+                      Checking live availability…
+                    </p>
                   ) : (availabilityQuery.data?.results ?? []).length === 0 ? (
-                    <p className="p-3 text-xs text-muted-foreground">No other cottages available for these dates.</p>
+                    <p className="p-3 text-xs text-muted-foreground">
+                      No other cottages available for these dates.
+                    </p>
                   ) : (
                     (availabilityQuery.data?.results ?? []).flatMap((item) =>
                       item.rates.map((rate) => {
@@ -2084,30 +2556,51 @@ export function BookingPage() {
                         const typeTotal = rooms
                           .filter((r) => r.roomTypeId === item.roomType.id)
                           .reduce((s, r) => s + r.quantity, 0);
-                        const full = typeTotal >= Math.min(10, item.availableCount);
+                        const full =
+                          typeTotal >= Math.min(10, item.availableCount);
                         const isSoldOut = item.availableCount <= 0;
                         return (
                           <div
                             key={key}
                             className={`flex items-center justify-between gap-2 rounded-lg p-2.5 text-xs transition-colors ${
-                              full || isSoldOut ? "bg-muted/30 opacity-70" : "bg-muted/40 hover:bg-muted/70"
+                              full || isSoldOut
+                                ? "bg-muted/30 opacity-70"
+                                : "bg-muted/40 hover:bg-muted/70"
                             }`}
                           >
                             <div className="min-w-0">
-                              <span className="block truncate font-medium text-foreground">{item.roomType.name}</span>
+                              <span className="block truncate font-medium text-foreground">
+                                {item.roomType.name}
+                              </span>
                               <span className="block truncate text-muted-foreground">
-                                {rate.name} · {item.availableCount > 0 ? `${item.availableCount} ${item.availableCount === 1 ? "cottage" : "cottages"} left` : "Sold out"}
+                                {rate.name} ·{" "}
+                                {item.availableCount > 0
+                                  ? `${item.availableCount} ${item.availableCount === 1 ? "cottage" : "cottages"} left`
+                                  : "Sold out"}
                               </span>
                             </div>
                             <Button
                               type="button"
                               size="sm"
-                              variant={full || isSoldOut ? "outline" : "default"}
+                              variant={
+                                full || isSoldOut ? "outline" : "default"
+                              }
                               className="shrink-0 rounded-full h-7 px-3 text-xs font-medium"
                               disabled={full || isSoldOut || rooms.length >= 5}
-                              onClick={() => addRoom(item.roomType.id, rate.ratePlanId, item.roomType.name, rate.name)}
+                              onClick={() =>
+                                addRoom(
+                                  item.roomType.id,
+                                  rate.ratePlanId,
+                                  item.roomType.name,
+                                  rate.name,
+                                )
+                              }
                             >
-                              {isSoldOut || full ? "Sold out" : added ? "+1 more" : "Add"}
+                              {isSoldOut || full
+                                ? "Sold out"
+                                : added
+                                  ? "+1 more"
+                                  : "Add"}
                             </Button>
                           </div>
                         );
@@ -2116,7 +2609,9 @@ export function BookingPage() {
                   )}
                 </div>
               )}
-              <p className="text-[11px] text-muted-foreground">Availability and price are confirmed again at booking.</p>
+              <p className="text-[11px] text-muted-foreground">
+                Availability and price are confirmed again at booking.
+              </p>
             </CardContent>
           </Card>
         </aside>

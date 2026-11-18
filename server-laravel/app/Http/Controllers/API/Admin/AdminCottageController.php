@@ -117,12 +117,17 @@ class AdminCottageController extends Controller
             'max_occupancy' => $maxOccupancy,
             'bedrooms' => $request->filled('bedrooms') ? (int) $request->input('bedrooms') : null,
             'bathrooms' => $request->filled('bathrooms') ? (float) $request->input('bathrooms') : null,
-            'max_dogs' => $request->filled('maxDogs') ? (int) $request->input('maxDogs') : ($request->filled('max_dogs') ? (int) $request->input('max_dogs') : 0),
+            'max_dogs' => filter_var($request->input('dog_policy_enabled') ?? $request->input('dogPolicyEnabled'), FILTER_VALIDATE_BOOLEAN) === false
+                ? 0
+                : ($request->filled('maxDogs') ? (int) $request->input('maxDogs') : ($request->filled('max_dogs') ? (int) $request->input('max_dogs') : 0)),
             'dog_policy_enabled' => filter_var($request->input('dog_policy_enabled') ?? $request->input('dogPolicyEnabled'), FILTER_VALIDATE_BOOLEAN),
             'dog_policy_title' => $request->input('dog_policy_title') ?? $request->input('dogPolicyTitle'),
             'dog_policy_subtitle' => $request->input('dog_policy_subtitle') ?? $request->input('dogPolicySubtitle'),
             'dog_fee' => $request->filled('dog_fee') ? (float) $request->input('dog_fee') : ($request->filled('dogFee') ? (float) $request->input('dogFee') : 70.00),
             'dog_fees' => (function () use ($request, &$payload) {
+                if (filter_var($request->input('dog_policy_enabled') ?? $request->input('dogPolicyEnabled'), FILTER_VALIDATE_BOOLEAN) === false) {
+                    return [];
+                }
                 $raw = $request->input('dog_fees') ?? $request->input('dogFees') ?? [];
                 if (is_string($raw)) {
                     $raw = json_decode($raw, true) ?? [];
@@ -315,7 +320,10 @@ class AdminCottageController extends Controller
                 }
             }
             $payload['dog_fees'] = $cleanFees;
-            if (!empty($cleanFees)) {
+            if (isset($payload['dog_policy_enabled']) && $payload['dog_policy_enabled'] === false) {
+                $payload['dog_fees'] = [];
+                $payload['max_dogs'] = 0;
+            } elseif (!empty($cleanFees)) {
                 $highest = max(array_map('intval', array_keys($cleanFees)));
                 $curMax = isset($payload['max_dogs']) ? (int) $payload['max_dogs'] : (int) ($cottage->max_dogs ?? 0);
                 if ($highest > $curMax) {

@@ -232,11 +232,20 @@ export function SearchForm({
     });
   }
 
+  const visibleGuestFieldCount =
+    (showAdults ? 1 : 0) + (showChildren ? 1 : 0) + (showCottages ? 1 : 0);
+  const guestFieldSpanClass =
+    visibleGuestFieldCount >= 3
+      ? "col-span-2"
+      : visibleGuestFieldCount === 2
+        ? "col-span-3"
+        : "col-span-6";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <div className="grid grid-cols-6 gap-3 sm:gap-[14px] lg:grid-cols-[1.4fr_1.4fr_0.7fr_0.7fr_0.7fr_auto_auto] lg:items-end">
+      <div className="grid grid-cols-6 gap-3 sm:gap-[14px] lg:flex lg:items-end">
         {showCheckIn && (
-          <div className="col-span-3 lg:col-span-1">
+          <div className={`${showCheckOut ? "col-span-3" : "col-span-6"} lg:flex-[1.4]`}>
             <DateField
               id="search-checkin"
               label={checkInLabel ?? ""}
@@ -247,7 +256,7 @@ export function SearchForm({
           </div>
         )}
         {showCheckOut && (
-          <div className="col-span-3 lg:col-span-1">
+          <div className={`${showCheckIn ? "col-span-3" : "col-span-6"} lg:flex-[1.4]`}>
             <DateField
               id="search-checkout"
               label={checkOutLabel ?? ""}
@@ -258,7 +267,7 @@ export function SearchForm({
           </div>
         )}
         {showAdults && (
-          <div className="col-span-2 min-w-0 relative lg:col-span-1">
+          <div className={`${guestFieldSpanClass} min-w-0 relative lg:flex-[0.7]`}>
             <Label htmlFor="search-adults" className={fieldLabelClass}>
               {adultsLabel ?? ""}
             </Label>
@@ -280,7 +289,7 @@ export function SearchForm({
           </div>
         )}
         {showChildren && (
-          <div className="col-span-2 min-w-0 relative lg:col-span-1">
+          <div className={`${guestFieldSpanClass} min-w-0 relative lg:flex-[0.7]`}>
             <Label htmlFor="search-children" className={fieldLabelClass}>
               {childrenLabel ?? ""}
             </Label>
@@ -302,7 +311,7 @@ export function SearchForm({
           </div>
         )}
         {showCottages && (
-          <div className="col-span-2 min-w-0 relative lg:col-span-1">
+          <div className={`${guestFieldSpanClass} min-w-0 relative lg:flex-[0.7]`}>
             <Label htmlFor="search-cottages" className={fieldLabelClass}>
               {cottagesLabel ?? ""}
             </Label>
@@ -326,7 +335,7 @@ export function SearchForm({
         {showFindCottagesButton && (
           <Button
             type="submit"
-            className="btn-arrow btn-shine col-span-6 h-12 w-full shrink-0 rounded-none bg-primary px-6 text-[12px] font-medium text-primary-foreground hover:bg-brand-dark lg:col-span-1"
+            className="btn-arrow btn-shine col-span-6 h-12 w-full shrink-0 rounded-none bg-primary px-6 text-[12px] font-medium text-primary-foreground hover:bg-brand-dark lg:w-auto"
             disabled={isPending}
           >
             {isPending ? (
@@ -347,7 +356,7 @@ export function SearchForm({
             type="button"
             onClick={handleReset}
             title="Reset search to show all cottages"
-            className="col-span-6 hidden h-12 shrink-0 px-1 text-[12px] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:block lg:col-span-1"
+            className="col-span-6 hidden h-12 shrink-0 px-1 text-[12px] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:block"
           >
             {resetText ?? ""}
           </button>
