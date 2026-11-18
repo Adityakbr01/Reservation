@@ -54,14 +54,9 @@ export function CottageGalleryDialog({
 
   const rawDogs = roomType.maxDogs ?? roomType.max_dogs;
   const maxD = rawDogs != null ? Number(rawDogs) : 0;
-  const dogPolicyDisabled =
-    roomType.dogPolicyEnabled === false ||
-    roomType.dog_policy_enabled === false;
   const isDogFriendly =
-    !dogPolicyDisabled &&
     (roomType.dogPolicyEnabled === true ||
-      roomType.dog_policy_enabled === true ||
-      maxD > 0) &&
+      roomType.dog_policy_enabled === true) &&
     maxD > 0;
 
   const photos = useMemo<GalleryPhoto[]>(() => {

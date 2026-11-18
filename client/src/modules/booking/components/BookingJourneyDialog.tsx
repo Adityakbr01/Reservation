@@ -549,15 +549,11 @@ export function BookingJourneyDialog({
   // Dog Policy — true if any selected cottage is dog friendly
   const isDogFriendly = useMemo(() => {
     return selectedCottages.some((c) => {
-      if (c.dogPolicyEnabled === false || c.dog_policy_enabled === false) return false;
+      const isEnabled =
+        c.dogPolicyEnabled === true || c.dog_policy_enabled === true;
       const rawDogs = c.maxDogs ?? c.max_dogs;
       const maxD = rawDogs != null ? Number(rawDogs) : 0;
-      return (
-        (c.dogPolicyEnabled === true ||
-          c.dog_policy_enabled === true ||
-          maxD > 0) &&
-        maxD > 0
-      );
+      return isEnabled && maxD > 0;
     });
   }, [selectedCottages]);
 
@@ -1339,14 +1335,9 @@ export function BookingJourneyDialog({
                             const photoCnt = getCottagePhotoCount(rt);
                             const rawDogs = rt.maxDogs ?? rt.max_dogs;
                             const maxD = rawDogs != null ? Number(rawDogs) : 0;
-                            const dogPolicyDisabled =
-                              rt.dogPolicyEnabled === false ||
-                              rt.dog_policy_enabled === false;
                             const petOk =
-                              !dogPolicyDisabled &&
                               (rt.dogPolicyEnabled === true ||
-                                rt.dog_policy_enabled === true ||
-                                maxD > 0) &&
+                                rt.dog_policy_enabled === true) &&
                               maxD > 0;
                             const itemPerNightPence = item.rates[0]?.perNight ?? 26000;
                             const itemPerNightPounds = Math.round(itemPerNightPence / 100);

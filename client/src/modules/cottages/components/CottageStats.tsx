@@ -85,8 +85,12 @@ export function CottageStats({
       {dogs != null && dogs > 0 && (
         <StatTip label={dogs === 1 ? "1 dog allowed" : `${dogs} dogs allowed`}>
           <Dog className="size-4 text-muted-foreground" aria-hidden />
-          <span aria-hidden>{dogs}</span>
-          <span>{dogs === 1 ? "dog allowed" : "dogs allowed"}</span>
+          <span aria-hidden>
+            {dogs} {dogs === 1 ? "dog allowed" : "dogs allowed"}
+          </span>
+          <span className="sr-only">
+            {dogs === 1 ? "1 dog allowed" : `${dogs} dogs allowed`}
+          </span>
         </StatTip>
       )}
     </p>

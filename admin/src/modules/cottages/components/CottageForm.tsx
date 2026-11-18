@@ -954,17 +954,6 @@ export function CottageForm({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="rt-dogs">Max dogs</Label>
-          <Input
-            id="rt-dogs"
-            type="number"
-            min={0}
-            value={maxDogs}
-            onChange={(e) => setMaxDogs(e.target.value)}
-            placeholder="1"
-          />
-        </div>
-        <div className="space-y-2">
           <Label htmlFor="rt-bathrooms">Bathrooms</Label>
           <Input
             id="rt-bathrooms"
@@ -2213,8 +2202,9 @@ export function CottageForm({
                 placeholder="Up to 1 dog · added only if you bring a dog"
               />
               <p className="text-[11px] text-muted-foreground">
-                Leave empty to auto-format: &ldquo;Up to {maxDogs || 1} dog ·
-                added only if you bring a dog&rdquo;
+                Leave empty to auto-format: &ldquo;Up to {maxDogs || 1}{" "}
+                {Number(maxDogs || 1) === 1 ? "dog" : "dogs"} · added only if
+                you bring a dog&rdquo;
               </p>
             </div>
 

@@ -15,7 +15,7 @@ class PublicCottageController extends Controller
         return response()->json([
             'success' => true,
             'data' => $cottages->map(fn ($c) => $this->cottageData($c)),
-        ])->header('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+        ])->header('Cache-Control', 'public, max-age=5, s-maxage=10, must-revalidate');
     }
 
     public function showBySlug(string $slug)
@@ -35,7 +35,7 @@ class PublicCottageController extends Controller
         return response()->json([
             'success' => true,
             'data' => $this->cottageData($cottage),
-        ])->header('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+        ])->header('Cache-Control', 'public, max-age=5, s-maxage=10, must-revalidate');
     }
 
     public function offers(string $id)

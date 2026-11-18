@@ -8,7 +8,7 @@ export function useCottageBySlug(slug: string) {
     queryFn: () => getCottageBySlug(slug),
     enabled: slug.length > 0,
     retry: false,
-    staleTime: 5 * 60_000,
+    staleTime: 30_000,
   });
 }
 

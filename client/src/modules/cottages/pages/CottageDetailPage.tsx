@@ -557,6 +557,13 @@ export function CottageDetailPage() {
       : null) ??
     photoById.get(gallery[0]?.mediaId ?? null);
   const aboutBullets: string[] = [];
+  const isDogPolicyActive =
+    (roomType.dogPolicyEnabled ?? (roomType as any).dog_policy_enabled) === true &&
+    Number(roomType.maxDogs ?? (roomType as any).max_dogs ?? 0) > 0;
+  const effectiveDogs = isDogPolicyActive
+    ? Number(roomType.maxDogs ?? (roomType as any).max_dogs ?? 0)
+    : null;
+
   if (roomType.bedrooms != null && roomType.bathrooms != null) {
     aboutBullets.push(
       `${roomType.bedrooms} bedroom${roomType.bedrooms === 1 ? "" : "s"}, ${roomType.bathrooms} bathroom${roomType.bathrooms === 1 ? "" : "s"}`,
@@ -564,9 +571,9 @@ export function CottageDetailPage() {
   } else {
     aboutBullets.push(`Sleeps up to ${roomType.maxOccupancy} guests`);
   }
-  if ((roomType.maxDogs ?? 0) > 0) {
+  if (isDogPolicyActive && effectiveDogs != null && effectiveDogs > 0) {
     aboutBullets.push(
-      `${roomType.maxDogs === 1 ? "One dog allowed" : `${roomType.maxDogs} dogs allowed`} — ask us about local walks`,
+      `${effectiveDogs === 1 ? "One dog allowed" : `${effectiveDogs} dogs allowed`} — ask us about local walks`,
     );
   }
   if (roomType.welcomeHamperIncluded) {
@@ -977,7 +984,7 @@ export function CottageDetailPage() {
               childrenCount={roomType.maxChildren}
               bedrooms={roomType.bedrooms ?? null}
               bathrooms={roomType.bathrooms ?? null}
-              dogs={roomType.maxDogs ?? null}
+              dogs={effectiveDogs}
             />
           </div>
 

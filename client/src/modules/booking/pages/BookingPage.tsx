@@ -483,25 +483,20 @@ export function BookingPage() {
     if (matched.length > 0) {
       const allowsDogs = matched.some((m) => {
         const rt = m.roomType;
-        if (rt.dogPolicyEnabled === false || rt.dog_policy_enabled === false)
-          return false;
+        const isEnabled =
+          rt.dogPolicyEnabled === true || rt.dog_policy_enabled === true;
         const rawDogs = rt.maxDogs ?? rt.max_dogs;
         const maxD = rawDogs != null ? Number(rawDogs) : 0;
-        return (
-          (rt.dogPolicyEnabled === true ||
-            rt.dog_policy_enabled === true ||
-            maxD > 0) &&
-          maxD > 0
-        );
+        return isEnabled && maxD > 0;
       });
       const firstWithPolicy =
         matched.find((m) => {
           const rt = m.roomType;
-          if (rt.dogPolicyEnabled === false || rt.dog_policy_enabled === false)
-            return false;
+          const isEnabled =
+            rt.dogPolicyEnabled === true || rt.dog_policy_enabled === true;
           const rawDogs = rt.maxDogs ?? rt.max_dogs;
           const maxD = rawDogs != null ? Number(rawDogs) : 0;
-          return maxD > 0;
+          return isEnabled && maxD > 0;
         }) || matched[0];
       const rt = firstWithPolicy.roomType as any;
       let rawCustomFees = rt.dogFees ?? rt.dog_fees ?? null;
@@ -564,13 +559,8 @@ export function BookingPage() {
 
       const rawDogs = cd.maxDogs ?? cd.max_dogs;
       const maxD = rawDogs != null ? Number(rawDogs) : 0;
-      const dogPolicyDisabled =
-        cd.dogPolicyEnabled === false || cd.dog_policy_enabled === false;
       const allowsDogs =
-        !dogPolicyDisabled &&
-        (cd.dogPolicyEnabled === true ||
-          cd.dog_policy_enabled === true ||
-          maxD > 0) &&
+        (cd.dogPolicyEnabled === true || cd.dog_policy_enabled === true) &&
         maxD > 0;
 
       return {

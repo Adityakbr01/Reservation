@@ -103,14 +103,9 @@ export const CottageCard = memo(function CottageCard({
 
   const rawDogs = roomType.maxDogs ?? roomType.max_dogs;
   const maxDogsCount = rawDogs != null ? Number(rawDogs) : 0;
-  const dogPolicyDisabled =
-    roomType.dogPolicyEnabled === false ||
-    roomType.dog_policy_enabled === false;
   const isDogFriendly =
-    !dogPolicyDisabled &&
     (roomType.dogPolicyEnabled === true ||
-      roomType.dog_policy_enabled === true ||
-      maxDogsCount > 0) &&
+      roomType.dog_policy_enabled === true) &&
     maxDogsCount > 0;
 
   const dogFeeAmount = roomType.dogFee ?? roomType.dog_fee ?? 70;
