@@ -46,8 +46,9 @@ export function GlobalExtrasSection({
       {
         id: "extra_golf",
         title: "A round of golf",
-        description: `${currencySymbol}50 per adult · Hamptworth Championship Course`,
+        description: "Hamptworth Championship Course · per adult",
         price: 50,
+        originalPrice: 70,
         pricingType: "PER_PERSON",
         imageMediaId: null,
         imageUrl: null,
@@ -57,9 +58,10 @@ export function GlobalExtrasSection({
       },
       {
         id: "extra_padel",
-        title: "Time on the padel court",
-        description: `${currencySymbol}25 per court session · Equipment provided`,
+        title: "Padel court session",
+        description: "Court hire · equipment included",
         price: 25,
+        originalPrice: 30,
         pricingType: "PER_STAY",
         imageMediaId: null,
         imageUrl: null,
@@ -70,8 +72,9 @@ export function GlobalExtrasSection({
       {
         id: "extra_lunch",
         title: "Lunch at the clubhouse",
-        description: `${currencySymbol}20 per adult · Seasonal dining at The Barn`,
+        description: "Seasonal dishes at The Barn",
         price: 20,
+        originalPrice: null,
         pricingType: "PER_PERSON",
         imageMediaId: null,
         imageUrl: null,
@@ -81,9 +84,10 @@ export function GlobalExtrasSection({
       },
       {
         id: "extra_breakfast",
-        title: "Breakfast at clubhouse",
-        description: `${currencySymbol}15 per adult · Farm fresh cooked breakfast`,
+        title: "Breakfast at the clubhouse",
+        description: "Freshly cooked breakfast",
         price: 15,
+        originalPrice: null,
         pricingType: "PER_PERSON",
         imageMediaId: null,
         imageUrl: null,
@@ -94,8 +98,9 @@ export function GlobalExtrasSection({
       {
         id: "extra_massage",
         title: "Massage",
-        description: `${currencySymbol}90 per adult · Relaxing wellness treatment`,
+        description: "Relaxing wellness treatment",
         price: 90,
+        originalPrice: null,
         pricingType: "PER_PERSON",
         imageMediaId: null,
         imageUrl: null,
@@ -106,8 +111,9 @@ export function GlobalExtrasSection({
       {
         id: "extra_fire_pit",
         title: "Fire pit & smores",
-        description: `${currencySymbol}20 per stay · Logs, firestarter and s'mores kit`,
+        description: "Logs, firestarter and s'mores kit",
         price: 20,
+        originalPrice: null,
         pricingType: "PER_STAY",
         imageMediaId: null,
         imageUrl: null,
@@ -249,7 +255,7 @@ export function GlobalExtrasSection({
                   </div>
 
                   {/* Price, Pricing Type & Limits */}
-                  <div className="grid gap-4 sm:grid-cols-4">
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="space-y-1.5">
                       <Label className="text-xs font-medium">Price ({currencySymbol}) *</Label>
                       <Input
@@ -260,6 +266,23 @@ export function GlobalExtrasSection({
                         onChange={(e) =>
                           updateExtra(index, { price: Math.max(0, Number(e.target.value) || 0) })
                         }
+                        className="h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium">Usual Price ({currencySymbol}) (Optional)</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        placeholder="e.g. 70"
+                        value={extra.originalPrice ?? ""}
+                        onChange={(e) => {
+                          const val = e.target.value.trim();
+                          updateExtra(index, {
+                            originalPrice: val ? Math.max(0, Number(val)) : null,
+                          });
+                        }}
                         className="h-9 text-sm"
                       />
                     </div>

@@ -262,7 +262,7 @@ class PublicSettingsController extends Controller
             'bookingPage' => $bookingPage,
             'home_page' => $homePage,
             'homePage' => $homePage,
-        ]);
+        ])->header('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
     }
 
     private function resolveHomePage(?array $stored): array

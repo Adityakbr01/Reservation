@@ -22,6 +22,8 @@ export interface CottageExtra {
   title: string;
   description?: string;
   price: number;
+  originalPrice?: number | null;
+  original_price?: number | null;
   pricingType: "PER_PERSON" | "PER_STAY";
   imageMediaId?: string | null;
   imageUrl?: string | null;

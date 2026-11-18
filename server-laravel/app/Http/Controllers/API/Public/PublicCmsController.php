@@ -53,7 +53,7 @@ class PublicCmsController extends Controller
         return response()->json([
             'success' => true,
             'data' => $formatted,
-        ]);
+        ])->header('Cache-Control', 'public, max-age=120, s-maxage=600, stale-while-revalidate=1200');
     }
 
     public function policy(string $key)
@@ -76,7 +76,7 @@ class PublicCmsController extends Controller
                     'updatedAt' => $doc->updated_at ? $doc->updated_at->toIso8601String() : now()->toIso8601String(),
                     'updated_at' => $doc->updated_at ? $doc->updated_at->toIso8601String() : now()->toIso8601String(),
                 ],
-            ]);
+            ])->header('Cache-Control', 'public, max-age=120, s-maxage=600, stale-while-revalidate=1200');
         }
 
         return response()->json([

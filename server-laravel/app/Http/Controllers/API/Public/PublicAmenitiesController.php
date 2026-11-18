@@ -28,6 +28,6 @@ class PublicAmenitiesController extends Controller
                 'icon_url' => $a->icon_url,
                 'sortOrder' => (int) ($a->sort_order ?? 0),
             ]),
-        ]);
+        ])->header('Cache-Control', 'public, max-age=120, s-maxage=600, stale-while-revalidate=1200');
     }
 }

@@ -1815,7 +1815,6 @@ export function BookingPage() {
                   {availableExtras.map((extra) => {
                     const qty = extraQtys[extra.id] ?? 0;
                     const isSelected = qty > 0;
-                    const extraPrice = calculateExtraAmount(extra, qty);
                     const imgSrc = getExtraImageUrl(extra);
                     const plainTitle = (extra.title || "")
                       .replace(/<[^>]*>/g, "")
@@ -1826,98 +1825,144 @@ export function BookingPage() {
                         ? Infinity
                         : Math.max(0, Number(extra.max));
 
+                    const origPrice =
+                      extra.originalPrice ??
+                      (extra as { original_price?: number | null }).original_price ??
+                      (extra.id === "extra_golf" || /golf/i.test(plainTitle)
+                        ? 70
+                        : extra.id === "extra_padel" || /padel/i.test(plainTitle)
+                          ? 30
+                          : null);
+                    const hasDiscount =
+                      origPrice != null && Number(origPrice) > Number(extra.price);
+                    const savings = hasDiscount
+                      ? Number(origPrice) - Number(extra.price)
+                      : 0;
+
+                    const cleanDesc = (extra.description || "")
+                      .replace(
+                        /^(?:<p>)?(?:&pound;|£|\$|\u20ac)\d+(?:\.\d+)?\s*(?:per\s+[a-zA-Z]+)?\s*[·•-]\s*/i,
+                        (match) => (match.startsWith("<p>") ? "<p>" : ""),
+                      )
+                      .trim();
+
                     return (
                       <div
                         key={extra.id}
-                        className={`flex items-center gap-[14px] rounded-lg border p-[14px] transition-all ${
+                        className={`flex items-center gap-3 sm:gap-4 rounded-[14px] sm:rounded-[16px] border p-3.5 sm:p-4 transition-all ${
                           isSelected
-                            ? "border-[#243c30] bg-[#f5f7f2] shadow-sm ring-1 ring-[#243c30]"
-                            : "border-[#d8d9cb] bg-[#fffdf8] hover:border-[#243c30]/40"
+                            ? "border-[#243c30] bg-[#fffdfa] ring-1 ring-[#243c30]/40 shadow-xs"
+                            : "border-[#e5e4da] bg-[#fffdfa] hover:border-[#243c30]/40 shadow-2xs"
                         }`}
                       >
-                        <SafeImage
-                          src={imgSrc}
-                          alt={plainTitle}
-                          className="h-[68px] w-[68px] shrink-0 rounded-md object-cover border border-[#d8d9cb]/50 shadow-xs"
-                        />
-                        <div className="min-w-0 flex-1">
+                        {/* Left: Image */}
+                        {imgSrc ? (
+                          <SafeImage
+                            src={imgSrc}
+                            alt={plainTitle}
+                            className="h-[68px] w-[68px] sm:h-[76px] sm:w-[76px] shrink-0 rounded-[10px] sm:rounded-[12px] object-cover shadow-2xs border border-[#e5e4da]/60"
+                          />
+                        ) : (
+                          <div className="flex h-[68px] w-[68px] sm:h-[76px] sm:w-[76px] shrink-0 items-center justify-center rounded-[10px] sm:rounded-[12px] bg-[#f2efe6] text-[#7a806f] border border-[#e5e4da]/60">
+                            <span className="font-serif text-[22px] font-bold text-[#243c30]/40">
+                              {plainTitle.charAt(0) || "★"}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Middle: Title & Description */}
+                        <div className="min-w-0 flex-1 pr-1 sm:pr-2">
                           <div
-                            className="text-[13px] font-semibold text-[#243c30] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
+                            className="font-serif text-[18px] sm:text-[21px] font-bold text-[#1b2f24] leading-snug tracking-[-0.2px] [&_p]:m-0 [&_a]:underline"
                             dangerouslySetInnerHTML={{
                               __html: sanitizeCheckoutHtml(extra.title),
                             }}
                           />
-                          {extra.description ? (
+                          {cleanDesc ? (
                             <div
-                              className="mt-[3px] text-[11px] leading-[17px] text-[#535b51] [&_p]:m-0 [&_a]:underline [&_a]:text-[#243c30] [&_a]:cursor-pointer [&_a]:hover:text-black cursor-text"
+                              className="mt-1 text-[12px] sm:text-[13px] leading-relaxed italic text-[#555d50] [&_p]:m-0 [&_a]:underline"
                               dangerouslySetInnerHTML={{
-                                __html: sanitizeCheckoutHtml(extra.description),
+                                __html: sanitizeCheckoutHtml(cleanDesc),
                               }}
                             />
                           ) : (
-                            <span className="mt-[3px] block text-[11px] leading-[17px] text-[#535b51]">
+                            <span className="mt-1 block text-[12px] sm:text-[13px] italic text-[#555d50]">
                               {extra.pricingType === "PER_PERSON"
-                                ? `${currencySymbol}${extra.price} per adult`
-                                : `${currencySymbol}${extra.price} per stay`}
+                                ? "per adult"
+                                : "per stay"}
                             </span>
                           )}
-                          <span className="mt-[4px] block font-['Instrument_Serif',Georgia,serif] text-[22px] font-normal text-[#243c30]">
-                            {isSelected
-                              ? `+ ${currencySymbol}${extraPrice}`
-                              : `+ ${currencySymbol}${extra.price}`}
-                          </span>
                         </div>
-                        <div className="flex items-center gap-[4px] shrink-0 ml-[8px]">
-                          {counterOn ? (
-                            <div className="inline-flex items-center rounded-md border border-[#d8d9cb] bg-[#fbfcf9] p-0.5 shadow-2xs">
-                              <button
-                                type="button"
-                                onClick={() => changeExtraQty(extra.id, -1)}
-                                disabled={qty <= 0}
-                                className="flex h-7 w-7 items-center justify-center rounded-sm bg-transparent text-[13px] font-medium text-[#243c30] transition-colors hover:bg-[#e9ecdf] disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
-                                aria-label={`Decrease ${plainTitle}`}
-                              >
-                                −
-                              </button>
-                              <span
-                                aria-label={`Current quantity: ${qty}`}
-                                className="flex h-7 min-w-[28px] items-center justify-center px-1 text-[12px] font-semibold text-[#243c30] tabular-nums select-none"
-                              >
-                                {qty}
+
+                        {/* Right: Vertical border + Price + Subtitle / Badge + Stepper */}
+                        <div className="flex flex-col items-end justify-center pl-3.5 sm:pl-4 border-l border-[#e5e4da] shrink-0 min-w-[95px] sm:min-w-[115px]">
+                          <span className="font-serif text-[22px] sm:text-[24px] font-bold text-[#1b2f24] leading-none">
+                            {currencySymbol}{extra.price}
+                          </span>
+
+                          {hasDiscount ? (
+                            <>
+                              <span className="mt-1 text-[11px] text-[#788172] line-through italic leading-tight">
+                                {currencySymbol}{origPrice} usual price
                               </span>
-                              <button
-                                type="button"
-                                onClick={() => changeExtraQty(extra.id, 1)}
-                                disabled={max !== Infinity && qty >= max}
-                                className="flex h-7 w-7 items-center justify-center rounded-sm bg-transparent text-[13px] font-medium text-[#243c30] transition-colors hover:bg-[#e9ecdf] disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
-                                aria-label={`Increase ${plainTitle}`}
-                              >
-                                +
-                              </button>
-                            </div>
+                              <span className="mt-1 inline-flex items-center rounded-full bg-[#dbe8d2] px-2 py-0.5 text-[10.5px] font-semibold text-[#294a1d]">
+                                Save {currencySymbol}{savings}
+                              </span>
+                            </>
                           ) : (
-                            <label
-                              htmlFor={`checkout-extra-${extra.id}`}
-                              className="flex items-center justify-center p-2 cursor-pointer -mr-2"
-                              title={`Select ${plainTitle || "extra"}`}
-                            >
-                              <input
-                                id={`checkout-extra-${extra.id}`}
-                                type="checkbox"
-                                checked={isSelected}
-                                onChange={() =>
-                                  changeExtraQty(extra.id, qty > 0 ? -1 : 1)
-                                }
-                                className="h-[18px] w-[18px] shrink-0 accent-[#243c30] cursor-pointer"
-                                aria-label={`Select ${plainTitle || "extra"}`}
-                              />
-                            </label>
-                          )}
-                          {counterOn && max !== Infinity && (
-                            <span className="ml-[4px] text-[10px] text-[#655b3e]">
-                              max {max}
+                            <span className="mt-1 text-[11px] text-[#60675a] italic leading-tight">
+                              {extra.pricingType === "PER_PERSON" ? "per adult" : "per stay"}
                             </span>
                           )}
+
+                          {/* Stepper Counter / Checkbox */}
+                          <div className="mt-2.5">
+                            {counterOn ? (
+                              <div className="inline-flex items-center justify-between rounded-md sm:rounded-lg border border-[#c8cbbe] bg-[#fbfaf6] px-1 py-0.5 shadow-2xs h-[28px] sm:h-[30px] w-[78px] sm:w-[84px]">
+                                <button
+                                  type="button"
+                                  onClick={() => changeExtraQty(extra.id, -1)}
+                                  disabled={qty <= 0}
+                                  className="flex h-6 w-6 items-center justify-center rounded text-[15px] font-medium text-[#243c30] transition-colors hover:bg-[#e7ebd9] disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                                  aria-label={`Decrease ${plainTitle}`}
+                                >
+                                  −
+                                </button>
+                                <span
+                                  aria-label={`Current quantity: ${qty}`}
+                                  className="flex h-6 min-w-[20px] items-center justify-center px-1 text-[12.5px] font-semibold text-[#1a2f23] tabular-nums select-none"
+                                >
+                                  {qty}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => changeExtraQty(extra.id, 1)}
+                                  disabled={max !== Infinity && qty >= max}
+                                  className="flex h-6 w-6 items-center justify-center rounded text-[15px] font-medium text-[#243c30] transition-colors hover:bg-[#e7ebd9] disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                                  aria-label={`Increase ${plainTitle}`}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            ) : (
+                              <label
+                                htmlFor={`checkout-extra-${extra.id}`}
+                                className="flex items-center justify-center p-1 cursor-pointer"
+                                title={`Select ${plainTitle || "extra"}`}
+                              >
+                                <input
+                                  id={`checkout-extra-${extra.id}`}
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() =>
+                                    changeExtraQty(extra.id, qty > 0 ? -1 : 1)
+                                  }
+                                  className="h-[18px] w-[18px] rounded-[4px] accent-[#243c30] cursor-pointer"
+                                  aria-label={`Select ${plainTitle || "extra"}`}
+                                />
+                              </label>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );

@@ -250,6 +250,9 @@ class AdminSettingsController extends Controller
                         'title' => (string) ($ex['title'] ?? ''),
                         'description' => isset($ex['description']) ? (string) $ex['description'] : null,
                         'price' => isset($ex['price']) ? (float) $ex['price'] : 0.0,
+                        'originalPrice' => (isset($ex['originalPrice']) && $ex['originalPrice'] !== '' && $ex['originalPrice'] !== null)
+                            ? (float) $ex['originalPrice']
+                            : (isset($ex['original_price']) && $ex['original_price'] !== '' && $ex['original_price'] !== null ? (float) $ex['original_price'] : null),
                         'pricingType' => ($ex['pricingType'] ?? $ex['pricing_type'] ?? 'PER_STAY') === 'PER_PERSON' ? 'PER_PERSON' : 'PER_STAY',
                         'imageMediaId' => $ex['imageMediaId'] ?? $ex['image_media_id'] ?? null,
                         'imageUrl' => $ex['imageUrl'] ?? $ex['image_url'] ?? null,

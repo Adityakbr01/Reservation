@@ -34,8 +34,33 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
-# Security & CORS headers (guarantees CORS headers even on 500/errors)
+# Gzip / Deflate compression for API JSON and text responses
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE application/json text/plain text/html text/xml text/css application/javascript image/svg+xml
+</IfModule>
+
+# Browser Caching & Far-Future Expires for Uploaded Media & Images
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/avif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+</IfModule>
+
+# Security, CORS & Cache headers
 <IfModule mod_headers.c>
+    Header append Vary Accept-Encoding
+    # Immutable cache headers for all image uploads
+    <FilesMatch "\.(jpg|jpeg|png|gif|webp|avif|svg|ico|woff2?)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+
     Header always set Access-Control-Allow-Origin "*"
     Header always set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
     Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Idempotency-Key, Accept, Origin, Application, Stripe-Signature"
