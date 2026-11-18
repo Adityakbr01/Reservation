@@ -1,16 +1,30 @@
-import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { addDays } from "date-fns";
+import {
+  Elements,
+  PaymentElement,
+  useElements,
+  useStripe,
+} from "@stripe/react-stripe-js";
+import { addDays, format } from "date-fns";
 import toast from "react-hot-toast";
 import { countNights, formatDisplayDate, toDayKey } from "@/lib/date";
 import { getStripePromise } from "@/lib/stripe";
 import { DateField } from "@/components/common/DateField";
 import { getCurrencySymbol, setDefaultCurrency } from "@/lib/money";
 import { fetchSiteSettings } from "@/modules/cms/api/cms.api";
-import { useAvailabilitySearch, CottageGalleryDialog } from "@/modules/availability";
+import {
+  useAvailabilitySearch,
+  CottageGalleryDialog,
+} from "@/modules/availability";
 import { useMediaUrls } from "@/modules/media";
 import { useBookingJourneyStore } from "@/stores/booking-journey-store";
 import { createGuestBooking } from "@/modules/booking/api/booking.api";
@@ -19,9 +33,15 @@ import type {
   SearchResultRoomType,
   CottageExtra,
 } from "@/modules/availability/types/availability.types";
-import type { CheckoutSection, AcknowledgementItem } from "@/modules/cms/api/cms.api";
+import type {
+  CheckoutSection,
+  AcknowledgementItem,
+} from "@/modules/cms/api/cms.api";
 
-function formatTimeLabel(value: string | null | undefined, fallback: string): string {
+function formatTimeLabel(
+  value: string | null | undefined,
+  fallback: string,
+): string {
   const match = /^(\d{1,2}):(\d{2})/.exec(value ?? "");
   if (!match) return fallback;
   const hours = Number(match[1]);
@@ -120,7 +140,9 @@ function JourneyPaymentForm({
       });
 
       if (result.error) {
-        setPayError(result.error.message ?? "Payment failed. Please try again.");
+        setPayError(
+          result.error.message ?? "Payment failed. Please try again.",
+        );
         setPaying(false);
       } else if (
         result.paymentIntent &&
@@ -133,7 +155,9 @@ function JourneyPaymentForm({
         onSuccess();
       }
     } catch (err: any) {
-      setPayError(err?.message || "An error occurred during payment processing.");
+      setPayError(
+        err?.message || "An error occurred during payment processing.",
+      );
       setPaying(false);
     }
   };
@@ -143,13 +167,18 @@ function JourneyPaymentForm({
       <div className="rounded border border-[#d8d9cb] bg-[#fffdf8] p-4">
         <PaymentElement
           onLoadError={(err) => {
-            setPayError(err.error?.message ?? "Unable to load card payment fields.");
+            setPayError(
+              err.error?.message ?? "Unable to load card payment fields.",
+            );
           }}
         />
       </div>
 
       {payError && (
-        <div role="alert" className="rounded border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+        <div
+          role="alert"
+          className="rounded border border-red-200 bg-red-50 p-3 text-xs text-red-700"
+        >
           {payError}
         </div>
       )}
@@ -169,7 +198,9 @@ function JourneyPaymentForm({
           disabled={paying || !stripe || !elements}
           className="flex min-h-[49px] cursor-pointer items-center justify-center gap-[15px] border-0 bg-[#243c30] p-[13px_20px] text-[12px] font-medium leading-[14.85px] text-[#fffdf8] transition-colors hover:bg-[#1b2d24] disabled:cursor-not-allowed disabled:opacity-50 outline-offset-[5px]"
         >
-          {paying ? "Processing payment…" : `Pay ${currencySymbol}${totalAmount.toLocaleString()} & Confirm`}
+          {paying
+            ? "Processing payment…"
+            : `Pay ${currencySymbol}${totalAmount.toLocaleString()} & Confirm`}
           <svg
             viewBox="0 0 24 24"
             aria-hidden="true"
@@ -222,7 +253,11 @@ export function BookingJourneyDialog({
   // Resolve a single booking journey field: { isEnabled, value }
   // Disabled or missing fields yield an empty value and are not rendered.
   const bjField = (key: string) => {
-    const f = (bjSettings as Record<string, { isEnabled?: boolean; value?: string }> | undefined)?.[key];
+    const f = (
+      bjSettings as
+        | Record<string, { isEnabled?: boolean; value?: string }>
+        | undefined
+    )?.[key];
     return { isEnabled: f?.isEnabled !== false, value: f?.value ?? "" };
   };
   const bjValue = (key: string) => {
@@ -298,7 +333,12 @@ export function BookingJourneyDialog({
       const nextDepth = historyDepthRef.current + 1;
       historyDepthRef.current = nextDepth;
       window.history.pushState(
-        { ...(window.history.state ?? {}), __bj: true, __bjStep: nextStep, __bjDepth: nextDepth },
+        {
+          ...(window.history.state ?? {}),
+          __bj: true,
+          __bjStep: nextStep,
+          __bjDepth: nextDepth,
+        },
         "",
       );
     }
@@ -332,7 +372,9 @@ export function BookingJourneyDialog({
   const [extraQtys, setExtraQtys] = useState<Record<string, number>>({});
 
   // Dogs selection (count per cottageId)
-  const [dogsByCottage, setDogsByCottage] = useState<Record<string, number>>({});
+  const [dogsByCottage, setDogsByCottage] = useState<Record<string, number>>(
+    {},
+  );
 
   // Guest Details & Billing
   const [title, setTitle] = useState("Mr");
@@ -349,23 +391,28 @@ export function BookingJourneyDialog({
   const [specialRequests, setSpecialRequests] = useState("");
 
   // Acknowledgements & Policies state
-  const [acceptedAckItems, setAcceptedAckItems] = useState<Record<string, boolean>>({});
+  const [acceptedAckItems, setAcceptedAckItems] = useState<
+    Record<string, boolean>
+  >({});
 
   const ack = siteSettings?.bookingAcknowledgement;
   const bookingPage = siteSettings?.bookingPage;
   const reservationConfig = bookingPage?.reservationDetails;
   const showReservationDetails = reservationConfig?.isEnabled !== false;
   const showReservationTitle = reservationConfig?.showTitle !== false;
-  const reservationTitle = reservationConfig?.title?.trim() || "Reservation details";
+  const reservationTitle =
+    reservationConfig?.title?.trim() || "Reservation details";
   const showSpecialRequestsLabel =
     reservationConfig?.showSpecialRequestsLabel !== false &&
     (reservationConfig as any)?.showLabel !== false;
-  const specialRequestsLabel = reservationConfig?.specialRequestsLabel?.trim() || "Special Requests";
+  const specialRequestsLabel =
+    reservationConfig?.specialRequestsLabel?.trim() || "Special Requests";
   const showSpecialRequestsPlaceholder =
     reservationConfig?.showSpecialRequestsPlaceholder !== false &&
     (reservationConfig as any)?.showPlaceholder !== false;
   const specialRequestsPlaceholder = showSpecialRequestsPlaceholder
-    ? reservationConfig?.specialRequestsPlaceholder?.trim() || "Special Requests"
+    ? reservationConfig?.specialRequestsPlaceholder?.trim() ||
+      "Special Requests"
     : "";
   const specialRequestsMaxLength =
     reservationConfig?.maxLength && reservationConfig.maxLength > 0
@@ -373,7 +420,8 @@ export function BookingJourneyDialog({
       : 1000;
 
   const policiesConfig = bookingPage?.policies;
-  const showPolicies = ack?.showPoliciesSection !== false && policiesConfig?.isEnabled !== false;
+  const showPolicies =
+    ack?.showPoliciesSection !== false && policiesConfig?.isEnabled !== false;
   const policiesTitle = policiesConfig?.title?.trim() || "Policies";
   const checkInLabel = policiesConfig?.checkInLabel?.trim() || "Check-in";
   const checkOutLabel = policiesConfig?.checkOutLabel?.trim() || "Check-out";
@@ -393,29 +441,35 @@ export function BookingJourneyDialog({
         id: "sec-acknowledgement",
         title: ack?.title || "Acknowledgement",
         introText: ack?.introText || "",
-        isEnabled: ack?.isEnabled !== false && ack?.showAcknowledgementSection !== false,
-        items: (ack?.items && ack.items.length > 0)
-          ? ack.items
-          : [
-              {
-                id: "ack-privacy",
-                text: ack?.privacyCheckboxText || "* I agree with the Privacy Terms.",
-                linkLabel: ack?.privacyLinkLabel || "Privacy Notice",
-                linkUrl: ack?.privacyLinkUrl || "/policies/PRIVACY",
-                isRequired: true,
-                openInNewTab: true,
-                isEnabled: true,
-              },
-              {
-                id: "ack-terms",
-                text: ack?.termsCheckboxText || "I agree with the Booking Conditions.",
-                linkLabel: ack?.termsLinkLabel || "Booking Conditions",
-                linkUrl: ack?.termsLinkUrl || "/policies/TERMS",
-                isRequired: true,
-                openInNewTab: true,
-                isEnabled: true,
-              },
-            ],
+        isEnabled:
+          ack?.isEnabled !== false && ack?.showAcknowledgementSection !== false,
+        items:
+          ack?.items && ack.items.length > 0
+            ? ack.items
+            : [
+                {
+                  id: "ack-privacy",
+                  text:
+                    ack?.privacyCheckboxText ||
+                    "* I agree with the Privacy Terms.",
+                  linkLabel: ack?.privacyLinkLabel || "Privacy Notice",
+                  linkUrl: ack?.privacyLinkUrl || "/policies/PRIVACY",
+                  isRequired: true,
+                  openInNewTab: true,
+                  isEnabled: true,
+                },
+                {
+                  id: "ack-terms",
+                  text:
+                    ack?.termsCheckboxText ||
+                    "I agree with the Booking Conditions.",
+                  linkLabel: ack?.termsLinkLabel || "Booking Conditions",
+                  linkUrl: ack?.termsLinkUrl || "/policies/TERMS",
+                  isRequired: true,
+                  openInNewTab: true,
+                  isEnabled: true,
+                },
+              ],
       },
     ];
   }, [ack]);
@@ -427,7 +481,7 @@ export function BookingJourneyDialog({
   const allRequiredItems = useMemo(() => {
     const list: AcknowledgementItem[] = [];
     for (const sec of activeCheckoutSections) {
-      for (const it of (sec.items ?? [])) {
+      for (const it of sec.items ?? []) {
         if (it.isEnabled !== false && it.isRequired !== false) {
           list.push(it);
         }
@@ -461,14 +515,15 @@ export function BookingJourneyDialog({
   // Live availability query: always query for the stay dates selected inside the journey
   const hasStayDates = Boolean(checkIn && checkOut && checkOut > checkIn);
   const availabilityQuery = useAvailabilitySearch(
-    hasStayDates
-      ? { checkIn, checkOut, adults, children, rooms: 1 }
-      : null,
+    hasStayDates ? { checkIn, checkOut, adults, children, rooms: 1 } : null,
     { staleTime: 0 },
   );
 
   const cottages = useMemo(() => {
-    if (availabilityQuery.data?.results && availabilityQuery.data.results.length > 0) {
+    if (
+      availabilityQuery.data?.results &&
+      availabilityQuery.data.results.length > 0
+    ) {
       return availabilityQuery.data.results;
     }
     if (propCottages && propCottages.length > 0) return propCottages;
@@ -538,9 +593,17 @@ export function BookingJourneyDialog({
         historyDepthRef.current = 1;
 
         // Push initial dialog history entry
-        if (typeof window !== "undefined" && window.history.state?.__bj !== true) {
+        if (
+          typeof window !== "undefined" &&
+          window.history.state?.__bj !== true
+        ) {
           window.history.pushState(
-            { ...(window.history.state ?? {}), __bj: true, __bjStep: initial, __bjDepth: 1 },
+            {
+              ...(window.history.state ?? {}),
+              __bj: true,
+              __bjStep: initial,
+              __bjDepth: 1,
+            },
             "",
           );
         }
@@ -558,7 +621,14 @@ export function BookingJourneyDialog({
       setGalleryCottageId(null);
       historyDepthRef.current = 0;
     }
-  }, [isOpen, storeCottageId, storeCheckIn, storeCheckOut, storeAdults, storeChildren]);
+  }, [
+    isOpen,
+    storeCottageId,
+    storeCheckIn,
+    storeCheckOut,
+    storeAdults,
+    storeChildren,
+  ]);
 
   // Native Browser History Synchronization (supports iPhone Safari < and > buttons, edge swipe, and desktop)
   useEffect(() => {
@@ -602,11 +672,16 @@ export function BookingJourneyDialog({
 
   // If stay dates change and make a previously selected cottage unavailable, deselect it and notify
   useEffect(() => {
-    if (!isOpen || selectedCottageIds.length === 0 || cottages.length === 0) return;
-    const unavailable = selectedCottageItems.filter((i) => i.availableCount <= 0);
+    if (!isOpen || selectedCottageIds.length === 0 || cottages.length === 0)
+      return;
+    const unavailable = selectedCottageItems.filter(
+      (i) => i.availableCount <= 0,
+    );
     if (unavailable.length > 0) {
       const unavailIds = unavailable.map((i) => i.roomType.id);
-      setSelectedCottageIds((prev) => prev.filter((id) => !unavailIds.includes(id)));
+      setSelectedCottageIds((prev) =>
+        prev.filter((id) => !unavailIds.includes(id)),
+      );
       toast.error(
         `"${unavailable.map((i) => i.roomType.name).join(", ")}" is unavailable for the chosen dates and was removed from your selection.`,
       );
@@ -614,7 +689,9 @@ export function BookingJourneyDialog({
   }, [cottages, isOpen, selectedCottageItems, selectedCottageIds.length]);
 
   const galleryRoomType = useMemo(
-    () => cottages.find((c) => c.roomType.id === galleryCottageId)?.roomType ?? null,
+    () =>
+      cottages.find((c) => c.roomType.id === galleryCottageId)?.roomType ??
+      null,
     [cottages, galleryCottageId],
   );
 
@@ -628,7 +705,10 @@ export function BookingJourneyDialog({
   const cottageTotalPounds = useMemo(() => {
     return selectedCottageItems.reduce((sum, item) => {
       const rates = item.rates;
-      const perNight = rates && rates.length > 0 ? Math.min(...rates.map((r) => r.perNight)) : 26000;
+      const perNight =
+        rates && rates.length > 0
+          ? Math.min(...rates.map((r) => r.perNight))
+          : 26000;
       return sum + Math.round(perNight / 100) * nights;
     }, 0);
   }, [selectedCottageItems, nights]);
@@ -658,7 +738,8 @@ export function BookingJourneyDialog({
       }
     > = {};
     for (const c of selectedCottages) {
-      if (c.dogPolicyEnabled === false || c.dog_policy_enabled === false) continue;
+      if (c.dogPolicyEnabled === false || c.dog_policy_enabled === false)
+        continue;
       const rawDogs = c.maxDogs ?? c.max_dogs;
       const configuredMax = rawDogs != null ? Number(rawDogs) : 0;
       if (configuredMax <= 0) continue;
@@ -688,7 +769,8 @@ export function BookingJourneyDialog({
         maxDogs: effectiveMaxDogs,
         title: c.dogPolicyTitle ?? (c as any).dog_policy_title ?? null,
         subtitle: c.dogPolicySubtitle ?? (c as any).dog_policy_subtitle ?? null,
-        imageUrl: c.dogPolicyImageUrl ?? (c as any).dog_policy_image_url ?? null,
+        imageUrl:
+          c.dogPolicyImageUrl ?? (c as any).dog_policy_image_url ?? null,
       };
     }
     return map;
@@ -715,7 +797,8 @@ export function BookingJourneyDialog({
     const feeInfo = cottageDogFee[cottageId];
     if (!feeInfo) return "";
     const custom = feeInfo.custom[count];
-    const lineFee = custom != null && custom >= 0 ? custom : feeInfo.unit * count;
+    const lineFee =
+      custom != null && custom >= 0 ? custom : feeInfo.unit * count;
     return `${currencySymbol}${lineFee} per stay (${count} dog${count === 1 ? "" : "s"})`;
   };
 
@@ -785,7 +868,11 @@ export function BookingJourneyDialog({
       return extraMediaMap.get(mid)!;
     }
     const directUrl = extra.imageUrl || (extra as any).image_url;
-    if (directUrl && typeof directUrl === "string" && directUrl.trim().length > 0) {
+    if (
+      directUrl &&
+      typeof directUrl === "string" &&
+      directUrl.trim().length > 0
+    ) {
       return directUrl.trim();
     }
     return null;
@@ -793,7 +880,7 @@ export function BookingJourneyDialog({
 
   const calculateExtraAmount = useCallback(
     (extra: CottageExtra, qty?: number): number => {
-      const q = qty ?? (extraQtys[extra.id] ?? 0);
+      const q = qty ?? extraQtys[extra.id] ?? 0;
       if (q <= 0) return 0;
       if (extra.pricingType === "PER_PERSON") {
         return extra.price * Math.max(1, adults) * q;
@@ -867,22 +954,20 @@ export function BookingJourneyDialog({
           : "cat_farm_cottages");
       const catName =
         rt.category?.name ??
-        (catId === "cat_estate_collection" ? "The Estate Collection" : "Farm Cottages");
-      const catDesc =
-        rt.category?.description ??
         (catId === "cat_estate_collection"
-          ? "Exclusive standalone country retreats across the estate"
-          : "Picturesque self-catering cottages located on Home Farm");
+          ? "The Estate Collection"
+          : "Farm Cottages");
+
       const allowMulti =
         rt.category?.allowMultiple ??
         rt.category?.allow_multiple ??
-        (catId !== "cat_estate_collection");
+        catId !== "cat_estate_collection";
 
       if (!map.has(catId)) {
         map.set(catId, {
           id: catId,
           name: catName,
-          description: catDesc,
+
           allowMultiple: allowMulti,
           items: [],
         });
@@ -909,7 +994,7 @@ export function BookingJourneyDialog({
     const allowMultiple =
       rt.category?.allowMultiple ??
       rt.category?.allow_multiple ??
-      (catId !== "cat_estate_collection");
+      catId !== "cat_estate_collection";
 
     if (isSelected) {
       setSelectedCottageIds((prev) => prev.filter((id) => id !== rt.id));
@@ -939,7 +1024,7 @@ export function BookingJourneyDialog({
         const oAllowMulti =
           oRt.category?.allowMultiple ??
           oRt.category?.allow_multiple ??
-          (oCatId !== "cat_estate_collection");
+          oCatId !== "cat_estate_collection";
         return oAllowMulti;
       });
       return [...filtered, rt.id];
@@ -1099,13 +1184,15 @@ export function BookingJourneyDialog({
                   Step {step + 1} of 5 ·
                 </span>
                 <span className="text-[12px] font-semibold truncate text-[#243c30]">
-                  {[
-                    "Dates & Guests",
-                    "Choose Cottage",
-                    "Stay Extras",
-                    "Details & Payment",
-                    "Confirmation",
-                  ][step]}
+                  {
+                    [
+                      "Dates & Guests",
+                      "Choose Cottage",
+                      "Stay Extras",
+                      "Details & Payment",
+                      "Confirmation",
+                    ][step]
+                  }
                 </span>
               </div>
               <button
@@ -1113,7 +1200,9 @@ export function BookingJourneyDialog({
                 onClick={goBackStep}
                 className="text-[11px] font-medium text-[#243c30] underline underline-offset-2 shrink-0 ml-2 hover:opacity-75"
               >
-                {step <= initialStepRef.current || step === 0 ? "← Home" : "← Back"}
+                {step <= initialStepRef.current || step === 0
+                  ? "← Home"
+                  : "← Back"}
               </button>
             </div>
           </div>
@@ -1199,7 +1288,9 @@ export function BookingJourneyDialog({
                 }
                 const n = countNights(checkIn, checkOut);
                 if (n < minStayNights) {
-                  toast.error(`A minimum stay of ${minStayNights} night${minStayNights === 1 ? "" : "s"} is required.`);
+                  toast.error(
+                    `A minimum stay of ${minStayNights} night${minStayNights === 1 ? "" : "s"} is required.`,
+                  );
                   return;
                 }
                 availabilityQuery.refetch();
@@ -1216,26 +1307,49 @@ export function BookingJourneyDialog({
                   contentClassName="z-[120]"
                   onChange={(value) => {
                     setCheckIn(value);
-                    const inDate = new Date(`${value}T00:00:00`);
-                    if (!Number.isNaN(inDate.getTime())) {
-                      const minOut = toDayKey(addDays(inDate, minStayNights));
-                      if (!checkOut || checkOut < minOut) {
-                        setCheckOut(toDayKey(addDays(inDate, Math.max(3, minStayNights))));
+                    try {
+                      const [y, m, d] = value.split("-").map(Number);
+                      const inDate = new Date(y, m - 1, d);
+                      if (!Number.isNaN(inDate.getTime())) {
+                        const minOut = format(
+                          addDays(inDate, minStayNights),
+                          "yyyy-MM-dd",
+                        );
+                        if (!checkOut || checkOut < minOut) {
+                          setCheckOut(
+                            format(
+                              addDays(inDate, Math.max(3, minStayNights)),
+                              "yyyy-MM-dd",
+                            ),
+                          );
+                        }
                       }
-                    }
+                    } catch {}
                   }}
                 />
                 <DateField
                   id="booking-checkOut"
                   label={bjValue("step1CheckOutLabel")}
                   value={checkOut}
-                  min={checkIn ? toDayKey(addDays(new Date(`${checkIn}T00:00:00`), minStayNights)) : today}
+                  min={
+                    checkIn
+                      ? (() => {
+                          const [y, m, d] = checkIn.split("-").map(Number);
+                          return format(
+                            addDays(new Date(y, m - 1, d), minStayNights),
+                            "yyyy-MM-dd",
+                          );
+                        })()
+                      : today
+                  }
                   contentClassName="z-[120]"
                   onChange={(val) => {
                     if (checkIn) {
                       const n = countNights(checkIn, val);
                       if (n < minStayNights) {
-                        toast.error(`A minimum stay of ${minStayNights} night${minStayNights === 1 ? "" : "s"} is required.`);
+                        toast.error(
+                          `A minimum stay of ${minStayNights} night${minStayNights === 1 ? "" : "s"} is required.`,
+                        );
                         return;
                       }
                     }
@@ -1297,7 +1411,7 @@ export function BookingJourneyDialog({
               <div
                 className="m-0 mt-[13px] text-center text-[10px] leading-[17.5px] text-[#535b51] [&_p]:m-0 [&_a]:underline"
                 dangerouslySetInnerHTML={{
-                    __html: sanitizeCheckoutHtml(bjValue("step1Note")),
+                  __html: sanitizeCheckoutHtml(bjValue("step1Note")),
                 }}
               />
             </form>
@@ -1353,8 +1467,9 @@ export function BookingJourneyDialog({
                       >
                         <path d="M5 5h14v15H5ZM8 3v4m8-4v4M5 10h14" />
                       </svg>
-                      {formatDisplayDate(checkIn)} – {formatDisplayDate(checkOut)} · {adults}{" "}
-                      guest{adults === 1 ? "" : "s"}
+                      {formatDisplayDate(checkIn)} –{" "}
+                      {formatDisplayDate(checkOut)} · {adults} guest
+                      {adults === 1 ? "" : "s"}
                     </span>
                     <button
                       type="button"
@@ -1382,12 +1497,17 @@ export function BookingJourneyDialog({
                       onClick={() => {
                         if (selectedCottageIds.length === 0) return;
                         if (hasUnavailableSelected) {
-                          toast.error("One or more selected cottages are unavailable for these dates.");
+                          toast.error(
+                            "One or more selected cottages are unavailable for these dates.",
+                          );
                           return;
                         }
                         goToStep(2);
                       }}
-                      disabled={selectedCottageIds.length === 0 || hasUnavailableSelected}
+                      disabled={
+                        selectedCottageIds.length === 0 ||
+                        hasUnavailableSelected
+                      }
                       className="flex min-h-[46px] w-auto cursor-pointer items-center justify-center gap-2.5 border-0 bg-[#243c30] px-6 py-3 text-[12px] font-medium leading-none text-[#fffdf8] transition-all hover:bg-[#1b2d24] disabled:cursor-not-allowed disabled:opacity-40 outline-offset-[5px] shadow-sm"
                     >
                       <span>Continue to extras</span>
@@ -1447,7 +1567,9 @@ export function BookingJourneyDialog({
                           {group.items.map((item) => {
                             const rt = item.roomType;
                             const isAvailable = item.availableCount > 0;
-                            const isSelected = selectedCottageIds.includes(rt.id);
+                            const isSelected = selectedCottageIds.includes(
+                              rt.id,
+                            );
                             const cover = getCottageCoverUrl(rt);
                             const photoCnt = getCottagePhotoCount(rt);
                             const rawDogs = rt.maxDogs ?? rt.max_dogs;
@@ -1456,15 +1578,20 @@ export function BookingJourneyDialog({
                               (rt.dogPolicyEnabled === true ||
                                 rt.dog_policy_enabled === true) &&
                               maxD > 0;
-                            const itemPerNightPence = item.rates[0]?.perNight ?? 26000;
-                            const itemPerNightPounds = Math.round(itemPerNightPence / 100);
+                            const itemPerNightPence =
+                              item.rates[0]?.perNight ?? 26000;
+                            const itemPerNightPounds = Math.round(
+                              itemPerNightPence / 100,
+                            );
                             const itemTotalPounds = itemPerNightPounds * nights;
 
                             return (
                               <article
                                 key={rt.id}
                                 aria-label={`${rt.name} booking option`}
-                                onClick={() => isAvailable && handleToggleCottage(item)}
+                                onClick={() =>
+                                  isAvailable && handleToggleCottage(item)
+                                }
                                 className={`flex flex-col overflow-hidden border transition-all ${
                                   !isAvailable
                                     ? "cursor-not-allowed border-[#d8d9cb] bg-[#f5f4ef] opacity-75"
@@ -1516,7 +1643,8 @@ export function BookingJourneyDialog({
                                   </h4>
                                   <p className="m-0 mt-[10px] text-[10px] leading-[18px] text-[#535b51]">
                                     Sleeps {rt.maxOccupancy}
-                                    {rt.bedrooms != null && ` · ${rt.bedrooms} bedrooms`}
+                                    {rt.bedrooms != null &&
+                                      ` · ${rt.bedrooms} bedrooms`}
                                     {rt.bathrooms != null &&
                                       ` · ${rt.bathrooms} bathroom${rt.bathrooms === 1 ? "" : "s"}`}
                                     {petOk && (
@@ -1549,14 +1677,17 @@ export function BookingJourneyDialog({
                                       <small className="font-['DM_Sans',Arial,sans-serif] text-[9px] text-[#535b51]">
                                         From{" "}
                                       </small>
-                                      {currencySymbol}{itemPerNightPounds}
+                                      {currencySymbol}
+                                      {itemPerNightPounds}
                                       <small className="font-['DM_Sans',Arial,sans-serif] text-[9px] text-[#535b51]">
                                         {" "}
                                         / night
                                       </small>
                                     </strong>
                                     <span className="text-[10px] text-[#535b51]">
-                                      {currencySymbol}{itemTotalPounds.toLocaleString()} cottage total · {nights} nights
+                                      {currencySymbol}
+                                      {itemTotalPounds.toLocaleString()} cottage
+                                      total · {nights} nights
                                     </span>
                                   </div>
 
@@ -1595,10 +1726,19 @@ export function BookingJourneyDialog({
                                         value={rt.id}
                                         disabled={!isAvailable}
                                         checked={isSelected}
-                                        onChange={() => isAvailable && handleToggleCottage(item)}
+                                        onChange={() =>
+                                          isAvailable &&
+                                          handleToggleCottage(item)
+                                        }
                                         className="m-0 h-[14px] w-[14px] shrink-0 accent-[#243c30] disabled:cursor-not-allowed"
                                       />
-                                      <span>{!isAvailable ? "Unavailable" : isSelected ? "Selected" : "Choose"}</span>
+                                      <span>
+                                        {!isAvailable
+                                          ? "Unavailable"
+                                          : isSelected
+                                            ? "Selected"
+                                            : "Choose"}
+                                      </span>
                                     </label>
                                   </div>
                                 </div>
@@ -1614,7 +1754,9 @@ export function BookingJourneyDialog({
                     type="button"
                     data-action="enquire"
                     onClick={() => {
-                      alert("Planning a multi-cottage booking? Contact our team directly to arrange group stays!");
+                      alert(
+                        "Planning a multi-cottage booking? Contact our team directly to arrange group stays!",
+                      );
                     }}
                     className="mt-[18px] block cursor-pointer border-0 text-left text-[10px] text-[#243c30] underline underline-offset-4 outline-offset-[5px]"
                   >
@@ -1636,12 +1778,17 @@ export function BookingJourneyDialog({
                       onClick={() => {
                         if (selectedCottageIds.length === 0) return;
                         if (hasUnavailableSelected) {
-                          toast.error("One or more selected cottages are unavailable for these dates.");
+                          toast.error(
+                            "One or more selected cottages are unavailable for these dates.",
+                          );
                           return;
                         }
                         goToStep(2);
                       }}
-                      disabled={selectedCottageIds.length === 0 || hasUnavailableSelected}
+                      disabled={
+                        selectedCottageIds.length === 0 ||
+                        hasUnavailableSelected
+                      }
                       className="flex min-h-[49px] cursor-pointer items-center justify-center gap-[15px] border-0 bg-[#243c30] p-[13px_17px] text-[11px] font-medium leading-[14.85px] text-[#fffdf8] transition-colors hover:bg-[#1b2d24] disabled:opacity-50 disabled:cursor-not-allowed outline-offset-[5px]"
                     >
                       Continue to extras
@@ -1665,8 +1812,12 @@ export function BookingJourneyDialog({
                     <section className="mb-[28px] border border-[#b8c3ac] bg-[#e9ecdf] p-[22px]">
                       {(() => {
                         // Display the first dog-friendly cottage's custom dog icon, title and subtitle if available
-                        const firstFriendly = selectedCottages.find((c) => !!cottageDogFee[c.id]);
-                        const friendlyInfo = firstFriendly ? cottageDogFee[firstFriendly.id] : null;
+                        const firstFriendly = selectedCottages.find(
+                          (c) => !!cottageDogFee[c.id],
+                        );
+                        const friendlyInfo = firstFriendly
+                          ? cottageDogFee[firstFriendly.id]
+                          : null;
                         const customIconUrl = friendlyInfo?.imageUrl;
                         const customTitle = friendlyInfo?.title;
                         const customSubtitle = friendlyInfo?.subtitle;
@@ -1692,7 +1843,9 @@ export function BookingJourneyDialog({
                               {customTitle ? (
                                 <div
                                   className="font-['Instrument_Serif',Georgia,serif] text-[32px] font-normal leading-[35.2px] [&_p]:m-0"
-                                  dangerouslySetInnerHTML={{ __html: customTitle }}
+                                  dangerouslySetInnerHTML={{
+                                    __html: customTitle,
+                                  }}
                                 />
                               ) : (
                                 <h4 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[32px] font-normal leading-[35.2px]">
@@ -1703,7 +1856,9 @@ export function BookingJourneyDialog({
                               {customSubtitle ? (
                                 <div
                                   className="mt-[8px] text-[12px] leading-[21.6px] [&_p]:m-0"
-                                  dangerouslySetInnerHTML={{ __html: customSubtitle }}
+                                  dangerouslySetInnerHTML={{
+                                    __html: customSubtitle,
+                                  }}
                                 />
                               ) : (
                                 <p className="m-0 mt-[8px] text-[12px] leading-[21.6px]">
@@ -1728,7 +1883,10 @@ export function BookingJourneyDialog({
                           const count = dogsByCottage[cottage.id] ?? 0;
                           const maxDogsForThis = feeInfo.maxDogs;
                           return (
-                            <div key={cottage.id} className="mt-[4px] space-y-1">
+                            <div
+                              key={cottage.id}
+                              className="mt-[4px] space-y-1"
+                            >
                               <span className="text-[10px] text-[#535b51]">
                                 {cottage.name}
                               </span>
@@ -1744,13 +1902,23 @@ export function BookingJourneyDialog({
                                 }}
                                 className="block h-[46px] min-h-[46px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[12px] text-[14px] text-[#243c30] outline-offset-[5px]"
                               >
-                                <option value="0">{bjValue("step3DogsZeroOption")}</option>
-                                {Array.from({ length: maxDogsForThis }, (_, i) => i + 1).map((n) => {
+                                <option value="0">
+                                  {bjValue("step3DogsZeroOption")}
+                                </option>
+                                {Array.from(
+                                  { length: maxDogsForThis },
+                                  (_, i) => i + 1,
+                                ).map((n) => {
                                   const custom = feeInfo.custom[n];
-                                  const lineFee = custom != null && custom >= 0 ? custom : feeInfo.unit * n;
+                                  const lineFee =
+                                    custom != null && custom >= 0
+                                      ? custom
+                                      : feeInfo.unit * n;
                                   return (
                                     <option key={n} value={n}>
-                                      {n} dog{n === 1 ? "" : "s"} — +{currencySymbol}{lineFee} per stay
+                                      {n} dog{n === 1 ? "" : "s"} — +
+                                      {currencySymbol}
+                                      {lineFee} per stay
                                     </option>
                                   );
                                 })}
@@ -1765,7 +1933,10 @@ export function BookingJourneyDialog({
                         })}
                       </label>
 
-                      <p role="status" className="m-0 mt-[12px] text-[11px] leading-[19.25px]">
+                      <p
+                        role="status"
+                        className="m-0 mt-[12px] text-[11px] leading-[19.25px]"
+                      >
                         {Object.values(dogsByCottage).some((c) => c > 0)
                           ? `${currencySymbol}${totalDogFee} total pet charge included.`
                           : "No pet charge added."}
@@ -1802,7 +1973,9 @@ export function BookingJourneyDialog({
                   <div
                     className="m-0 mt-[10px] text-[12px] leading-[20.4px] text-[#535b51] [&_p]:m-0 [&_a]:underline"
                     dangerouslySetInnerHTML={{
-                      __html: sanitizeCheckoutHtml(bjValue("extrasDescription")),
+                      __html: sanitizeCheckoutHtml(
+                        bjValue("extrasDescription"),
+                      ),
                     }}
                   />
 
@@ -1830,7 +2003,9 @@ export function BookingJourneyDialog({
                     <div
                       className="mt-[20px] rounded border border-dashed border-[#d8d9cb] p-6 text-center text-xs text-[#535b51] [&_p]:m-0 [&_a]:underline"
                       dangerouslySetInnerHTML={{
-                        __html: sanitizeCheckoutHtml(bjValue("extrasEmptyMessage")),
+                        __html: sanitizeCheckoutHtml(
+                          bjValue("extrasEmptyMessage"),
+                        ),
                       }}
                     />
                   ) : (
@@ -1839,20 +2014,28 @@ export function BookingJourneyDialog({
                         const qty = extraQtys[extra.id] ?? 0;
                         const isSelected = qty > 0;
                         const imgSrc = getExtraImageUrl(extra);
-                        const plainTitle = (extra.title || "").replace(/<[^>]*>/g, "").trim();
+                        const plainTitle = (extra.title || "")
+                          .replace(/<[^>]*>/g, "")
+                          .trim();
                         const counterOn = extra.showCounter !== false;
-                        const max = extra.max == null ? Infinity : Math.max(0, Number(extra.max));
+                        const max =
+                          extra.max == null
+                            ? Infinity
+                            : Math.max(0, Number(extra.max));
 
                         const origPrice =
                           extra.originalPrice ??
-                          (extra as { original_price?: number | null }).original_price ??
+                          (extra as { original_price?: number | null })
+                            .original_price ??
                           (extra.id === "extra_golf" || /golf/i.test(plainTitle)
                             ? 70
-                            : extra.id === "extra_padel" || /padel/i.test(plainTitle)
+                            : extra.id === "extra_padel" ||
+                                /padel/i.test(plainTitle)
                               ? 30
                               : null);
                         const hasDiscount =
-                          origPrice != null && Number(origPrice) > Number(extra.price);
+                          origPrice != null &&
+                          Number(origPrice) > Number(extra.price);
                         const savings = hasDiscount
                           ? Number(origPrice) - Number(extra.price)
                           : 0;
@@ -1905,7 +2088,9 @@ export function BookingJourneyDialog({
                                 />
                               ) : (
                                 <span className="mt-1 block text-[12px] sm:text-[13px] italic text-[#555d50]">
-                                  {extra.pricingType === "PER_PERSON" ? "per adult" : "per stay"}
+                                  {extra.pricingType === "PER_PERSON"
+                                    ? "per adult"
+                                    : "per stay"}
                                 </span>
                               )}
                             </div>
@@ -1913,21 +2098,26 @@ export function BookingJourneyDialog({
                             {/* Right: Vertical border + Price + Subtitle / Badge + Stepper */}
                             <div className="flex flex-col items-end justify-center pl-3.5 sm:pl-4 border-l border-[#e5e4da] shrink-0 min-w-[95px] sm:min-w-[115px]">
                               <span className="font-serif text-[22px] sm:text-[24px] font-bold text-[#1b2f24] leading-none">
-                                {currencySymbol}{extra.price}
+                                {currencySymbol}
+                                {extra.price}
                               </span>
 
                               {hasDiscount ? (
                                 <>
                                   <span className="mt-1 text-[11px] text-[#788172] line-through italic leading-tight">
-                                    {currencySymbol}{origPrice} usual price
+                                    {currencySymbol}
+                                    {origPrice} usual price
                                   </span>
                                   <span className="mt-1 inline-flex items-center rounded-full bg-[#dbe8d2] px-2 py-0.5 text-[10.5px] font-semibold text-[#294a1d]">
-                                    Save {currencySymbol}{savings}
+                                    Save {currencySymbol}
+                                    {savings}
                                   </span>
                                 </>
                               ) : (
                                 <span className="mt-1 text-[11px] text-[#60675a] italic leading-tight">
-                                  {extra.pricingType === "PER_PERSON" ? "per adult" : "per stay"}
+                                  {extra.pricingType === "PER_PERSON"
+                                    ? "per adult"
+                                    : "per stay"}
                                 </span>
                               )}
 
@@ -1937,7 +2127,9 @@ export function BookingJourneyDialog({
                                   <div className="inline-flex items-center justify-between rounded-md sm:rounded-lg border border-[#c8cbbe] bg-[#fbfaf6] px-1 py-0.5 shadow-2xs h-[28px] sm:h-[30px] w-[78px] sm:w-[84px]">
                                     <button
                                       type="button"
-                                      onClick={() => changeExtraQty(extra.id, -1)}
+                                      onClick={() =>
+                                        changeExtraQty(extra.id, -1)
+                                      }
                                       disabled={qty <= 0}
                                       className="flex h-6 w-6 items-center justify-center rounded text-[15px] font-medium text-[#243c30] transition-colors hover:bg-[#e7ebd9] disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed"
                                       aria-label={`Decrease ${plainTitle}`}
@@ -1952,7 +2144,9 @@ export function BookingJourneyDialog({
                                     </span>
                                     <button
                                       type="button"
-                                      onClick={() => changeExtraQty(extra.id, 1)}
+                                      onClick={() =>
+                                        changeExtraQty(extra.id, 1)
+                                      }
                                       disabled={max !== Infinity && qty >= max}
                                       className="flex h-6 w-6 items-center justify-center rounded text-[15px] font-medium text-[#243c30] transition-colors hover:bg-[#e7ebd9] disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed"
                                       aria-label={`Increase ${plainTitle}`}
@@ -1970,7 +2164,12 @@ export function BookingJourneyDialog({
                                       id={`dialog-extra-${extra.id}`}
                                       type="checkbox"
                                       checked={isSelected}
-                                      onChange={() => changeExtraQty(extra.id, qty > 0 ? -1 : 1)}
+                                      onChange={() =>
+                                        changeExtraQty(
+                                          extra.id,
+                                          qty > 0 ? -1 : 1,
+                                        )
+                                      }
                                       className="h-[18px] w-[18px] rounded-[4px] accent-[#243c30] cursor-pointer"
                                       aria-label={`Select ${plainTitle || "extra"}`}
                                     />
@@ -1988,7 +2187,9 @@ export function BookingJourneyDialog({
                     <div
                       className="m-0 mt-[18px] bg-[#e9e2cf] p-[11px_13px] text-[10px] leading-[17px] text-[#655b3e] [&_p]:m-0 [&_a]:underline"
                       dangerouslySetInnerHTML={{
-                        __html: sanitizeCheckoutHtml(bjValue("extrasDisclaimer")),
+                        __html: sanitizeCheckoutHtml(
+                          bjValue("extrasDisclaimer"),
+                        ),
                       }}
                     />
                   )}
@@ -2022,10 +2223,10 @@ export function BookingJourneyDialog({
                   <button
                     type="button"
                     data-action="skip-extras"
-                      onClick={() => {
-                        setExtraQtys({});
-                        goToStep(3);
-                      }}
+                    onClick={() => {
+                      setExtraQtys({});
+                      goToStep(3);
+                    }}
                     className="mt-[18px] block cursor-pointer border-0 text-left text-[10px] text-[#243c30] underline underline-offset-4 outline-offset-[5px]"
                   >
                     {bjValue("skipExtrasText")}
@@ -2036,29 +2237,34 @@ export function BookingJourneyDialog({
               {/* STEP 3: Details & payment */}
               {step === 3 && (
                 <div>
-                  {Object.values(dogsByCottage).some((c) => c > 0) && isDogFriendly && (
-                    <p className="mb-[25px] border border-[#d8d9cb] bg-[#e9ecdf] p-[16px] text-[12px] leading-[21.6px]">
-                      <svg
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                        className="mr-[6px] inline-block h-[20px] w-[18px] shrink-0 fill-none stroke-[#243c30] stroke-[1.5] stroke-linecap-round stroke-linejoin-round align-middle"
-                      >
-                        <path d="M6 12 3 5l6 3m9 4 3-7-6 3M5 14a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0Zm4 0h.01M15 14h.01m-5 4 2 1 2-1" />
-                      </svg>
-                      {selectedCottages
-                        .map((c) => {
-                          const count = dogsByCottage[c.id] ?? 0;
-                          if (count <= 0) return null;
-                          const feeInfo = cottageDogFee[c.id];
-                          const custom = feeInfo?.custom[count];
-                          const lineFee = custom != null && custom > 0 ? custom : feeInfo?.unit * count;
-                          return `${count} dog${count === 1 ? "" : "s"} for ${c.name} (+${currencySymbol}${lineFee})`;
-                        })
-                        .filter(Boolean)
-                        .join(" · ")}
-                      · {currencySymbol}{totalDogFee} pet charge included.
-                    </p>
-                  )}
+                  {Object.values(dogsByCottage).some((c) => c > 0) &&
+                    isDogFriendly && (
+                      <p className="mb-[25px] border border-[#d8d9cb] bg-[#e9ecdf] p-[16px] text-[12px] leading-[21.6px]">
+                        <svg
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                          className="mr-[6px] inline-block h-[20px] w-[18px] shrink-0 fill-none stroke-[#243c30] stroke-[1.5] stroke-linecap-round stroke-linejoin-round align-middle"
+                        >
+                          <path d="M6 12 3 5l6 3m9 4 3-7-6 3M5 14a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0Zm4 0h.01M15 14h.01m-5 4 2 1 2-1" />
+                        </svg>
+                        {selectedCottages
+                          .map((c) => {
+                            const count = dogsByCottage[c.id] ?? 0;
+                            if (count <= 0) return null;
+                            const feeInfo = cottageDogFee[c.id];
+                            const custom = feeInfo?.custom[count];
+                            const lineFee =
+                              custom != null && custom > 0
+                                ? custom
+                                : feeInfo?.unit * count;
+                            return `${count} dog${count === 1 ? "" : "s"} for ${c.name} (+${currencySymbol}${lineFee})`;
+                          })
+                          .filter(Boolean)
+                          .join(" · ")}
+                        · {currencySymbol}
+                        {totalDogFee} pet charge included.
+                      </p>
+                    )}
 
                   <h3 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[32px] font-normal leading-[32.64px] tracking-[-0.8px]">
                     {bjValue("step4Title")}
@@ -2070,7 +2276,10 @@ export function BookingJourneyDialog({
                   </p>
 
                   {holdError && (
-                    <div role="alert" className="mt-4 rounded border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                    <div
+                      role="alert"
+                      className="mt-4 rounded border border-red-200 bg-red-50 p-3 text-xs text-red-700"
+                    >
                       {holdError}
                     </div>
                   )}
@@ -2084,7 +2293,9 @@ export function BookingJourneyDialog({
                           return;
                         }
                         if (mobile.trim().length < 4) {
-                          toast.error("Please enter a valid mobile phone number.");
+                          toast.error(
+                            "Please enter a valid mobile phone number.",
+                          );
                           return;
                         }
                         if (!/.+@.+\..+/.test(email.trim())) {
@@ -2093,7 +2304,9 @@ export function BookingJourneyDialog({
                         }
 
                         if (!allRequiredAcksAccepted) {
-                          toast.error("Please accept all required agreements to continue.");
+                          toast.error(
+                            "Please accept all required agreements to continue.",
+                          );
                           return;
                         }
 
@@ -2104,7 +2317,9 @@ export function BookingJourneyDialog({
                         }
 
                         if (hasUnavailableSelected) {
-                          toast.error("One or more selected cottages are unavailable for these dates.");
+                          toast.error(
+                            "One or more selected cottages are unavailable for these dates.",
+                          );
                           goToStep(1);
                           return;
                         }
@@ -2125,8 +2340,15 @@ export function BookingJourneyDialog({
                               guests: {
                                 adults,
                                 children,
-                                ...(Object.values(dogsByCottage).some((c) => c > 0) && isDogFriendly
-                                  ? { dogs: Object.values(dogsByCottage).reduce((a, b) => a + b, 0) }
+                                ...(Object.values(dogsByCottage).some(
+                                  (c) => c > 0,
+                                ) && isDogFriendly
+                                  ? {
+                                      dogs: Object.values(dogsByCottage).reduce(
+                                        (a, b) => a + b,
+                                        0,
+                                      ),
+                                    }
                                   : {}),
                               },
                               dogsByCottage: isDogFriendly ? dogsByCottage : {},
@@ -2137,12 +2359,22 @@ export function BookingJourneyDialog({
                                 email: email.trim(),
                                 phone: mobile.trim(),
                                 mobile: mobile.trim(),
-                                ...(postcode.trim() ? { postcode: postcode.trim() } : {}),
-                                ...(country.trim() ? { country: country.trim() } : {}),
-                                ...(address1.trim() ? { address1: address1.trim() } : {}),
-                                ...(address2.trim() ? { address2: address2.trim() } : {}),
+                                ...(postcode.trim()
+                                  ? { postcode: postcode.trim() }
+                                  : {}),
+                                ...(country.trim()
+                                  ? { country: country.trim() }
+                                  : {}),
+                                ...(address1.trim()
+                                  ? { address1: address1.trim() }
+                                  : {}),
+                                ...(address2.trim()
+                                  ? { address2: address2.trim() }
+                                  : {}),
                                 ...(city.trim() ? { city: city.trim() } : {}),
-                                ...(county.trim() ? { county: county.trim() } : {}),
+                                ...(county.trim()
+                                  ? { county: county.trim() }
+                                  : {}),
                               },
                               extras: Object.entries(extraQtys)
                                 .filter(([, q]) => q > 0)
@@ -2150,11 +2382,17 @@ export function BookingJourneyDialog({
                               notes: [
                                 specialRequests.trim(),
                                 Object.values(extraQtys).some((q) => q > 0)
-                                  ? `Selected Stay Extras: ${Object.entries(extraQtys)
+                                  ? `Selected Stay Extras: ${Object.entries(
+                                      extraQtys,
+                                    )
                                       .filter(([, q]) => q > 0)
                                       .map(([id, q]) => {
-                                        const ex = availableExtras.find((e) => e.id === id);
-                                        const cleanTitle = (ex?.title || id).replace(/<[^>]*>/g, "").trim();
+                                        const ex = availableExtras.find(
+                                          (e) => e.id === id,
+                                        );
+                                        const cleanTitle = (ex?.title || id)
+                                          .replace(/<[^>]*>/g, "")
+                                          .trim();
                                         return `${cleanTitle} × ${q}`;
                                       })
                                       .join(", ")}`
@@ -2407,19 +2645,26 @@ export function BookingJourneyDialog({
                           )}
                           <label
                             className={`${
-                              showReservationTitle && reservationTitle ? "mt-3" : ""
+                              showReservationTitle && reservationTitle
+                                ? "mt-3"
+                                : ""
                             } flex flex-col gap-[9px] text-[11px]`}
                           >
-                            {showSpecialRequestsLabel && specialRequestsLabel && (
-                              <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
-                                {specialRequestsLabel.toUpperCase()}
-                              </span>
-                            )}
+                            {showSpecialRequestsLabel &&
+                              specialRequestsLabel && (
+                                <span className="text-[10px] tracking-[0.2px] text-[#535b51]">
+                                  {specialRequestsLabel.toUpperCase()}
+                                </span>
+                              )}
                             <textarea
                               name="specialRequests"
-                              aria-label={specialRequestsLabel || "Special Requests"}
+                              aria-label={
+                                specialRequestsLabel || "Special Requests"
+                              }
                               value={specialRequests}
-                              onChange={(e) => setSpecialRequests(e.target.value)}
+                              onChange={(e) =>
+                                setSpecialRequests(e.target.value)
+                              }
                               maxLength={specialRequestsMaxLength}
                               placeholder={specialRequestsPlaceholder}
                               className="h-[80px] w-full resize-y rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[10px_12px] text-[13px] text-[#243c30] outline-offset-[5px]"
@@ -2436,10 +2681,16 @@ export function BookingJourneyDialog({
                           </span>
                           <div className="mt-2 flex flex-wrap gap-x-8 gap-y-2 text-[#535b51]">
                             <p className="m-0">
-                              <span className="font-semibold text-[#243c30]">{checkInLabel}:</span> {policiesCheckInText}
+                              <span className="font-semibold text-[#243c30]">
+                                {checkInLabel}:
+                              </span>{" "}
+                              {policiesCheckInText}
                             </p>
                             <p className="m-0">
-                              <span className="font-semibold text-[#243c30]">{checkOutLabel}:</span> {policiesCheckOutText}
+                              <span className="font-semibold text-[#243c30]">
+                                {checkOutLabel}:
+                              </span>{" "}
+                              {policiesCheckOutText}
                             </p>
                           </div>
                         </div>
@@ -2447,43 +2698,65 @@ export function BookingJourneyDialog({
 
                       {/* Admin-configured Acknowledgements / Checkout Sections */}
                       {activeCheckoutSections.map((sec) => (
-                        <div key={sec.id} className="mt-4 border border-[#d8d9cb] bg-[#fffdf8] p-4 text-[12px]">
+                        <div
+                          key={sec.id}
+                          className="mt-4 border border-[#d8d9cb] bg-[#fffdf8] p-4 text-[12px]"
+                        >
                           <span className="block text-[10px] font-semibold uppercase tracking-[1px] text-[#243c30]">
                             {sec.title}
                           </span>
                           {sec.introText && (
                             <div
                               className="mt-1 pb-1 text-[11px] text-[#535b51] [&_a]:font-medium [&_a]:underline [&_a]:hover:text-[#243c30] [&_p]:m-0"
-                              dangerouslySetInnerHTML={{ __html: sanitizeCheckoutHtml(sec.introText) }}
+                              dangerouslySetInnerHTML={{
+                                __html: sanitizeCheckoutHtml(sec.introText),
+                              }}
                             />
                           )}
                           <div className="mt-2 space-y-2">
                             {(sec.items ?? [])
                               .filter((item) => item.isEnabled !== false)
                               .map((item) => (
-                                <label key={item.id} className="flex items-start gap-2 cursor-pointer select-none">
+                                <label
+                                  key={item.id}
+                                  className="flex items-start gap-2 cursor-pointer select-none"
+                                >
                                   <input
                                     type="checkbox"
                                     checked={!!acceptedAckItems[item.id]}
-                                    onChange={(e) => toggleAckItem(item.id, e.target.checked)}
+                                    onChange={(e) =>
+                                      toggleAckItem(item.id, e.target.checked)
+                                    }
                                     className="mt-0.5 size-4 shrink-0 accent-[#243c30] cursor-pointer"
                                   />
                                   <span className="text-[11px] leading-[17px] text-[#243c30]">
                                     <span
                                       className="[&_a]:font-medium [&_a]:underline [&_a]:hover:text-[#243c30] [&_p]:m-0 [&_p]:inline"
-                                      dangerouslySetInnerHTML={{ __html: sanitizeCheckoutHtml(item.text) }}
+                                      dangerouslySetInnerHTML={{
+                                        __html: sanitizeCheckoutHtml(item.text),
+                                      }}
                                     />{" "}
-                                    {!/<a\s/i.test(item.text) && item.linkUrl && item.linkLabel && (
-                                      <Link
-                                        to={item.linkUrl}
-                                        target={item.openInNewTab !== false ? "_blank" : undefined}
-                                        rel={item.openInNewTab !== false ? "noopener noreferrer" : undefined}
-                                        className="font-medium underline hover:text-[#1b2d24]"
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        {item.linkLabel}
-                                      </Link>
-                                    )}
+                                    {!/<a\s/i.test(item.text) &&
+                                      item.linkUrl &&
+                                      item.linkLabel && (
+                                        <Link
+                                          to={item.linkUrl}
+                                          target={
+                                            item.openInNewTab !== false
+                                              ? "_blank"
+                                              : undefined
+                                          }
+                                          rel={
+                                            item.openInNewTab !== false
+                                              ? "noopener noreferrer"
+                                              : undefined
+                                          }
+                                          className="font-medium underline hover:text-[#1b2d24]"
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          {item.linkLabel}
+                                        </Link>
+                                      )}
                                   </span>
                                 </label>
                               ))}
@@ -2505,7 +2778,9 @@ export function BookingJourneyDialog({
                           disabled={isCreatingHold}
                           className="flex min-h-[49px] cursor-pointer items-center justify-center gap-[15px] border-0 bg-[#243c30] p-[13px_22px] text-[11px] font-medium leading-[14.85px] text-[#fffdf8] transition-colors hover:bg-[#1b2d24] disabled:opacity-50 disabled:cursor-not-allowed outline-offset-[5px]"
                         >
-                          {isCreatingHold ? "Reserving cottage…" : "Proceed to secure payment →"}
+                          {isCreatingHold
+                            ? "Reserving cottage…"
+                            : "Proceed to secure payment →"}
                         </button>
                       </div>
                     </form>
@@ -2515,14 +2790,28 @@ export function BookingJourneyDialog({
                       <div className="flex items-center justify-between border border-[#d8d9cb] bg-[#fffdf8] p-4 text-[12px]">
                         <div>
                           <p className="font-semibold text-[#243c30]">
-                            {title ? `${title} ` : ""}{firstName} {lastName}
+                            {title ? `${title} ` : ""}
+                            {firstName} {lastName}
                           </p>
                           <p className="text-[11px] text-[#535b51]">
                             {email} · {mobile}
                           </p>
-                          {(address1 || city || county || postcode || country) && (
+                          {(address1 ||
+                            city ||
+                            county ||
+                            postcode ||
+                            country) && (
                             <p className="text-[10px] text-[#535b51]">
-                              {[address1, address2, city, county, postcode, country].filter(Boolean).join(", ")}
+                              {[
+                                address1,
+                                address2,
+                                city,
+                                county,
+                                postcode,
+                                country,
+                              ]
+                                .filter(Boolean)
+                                .join(", ")}
                             </p>
                           )}
                         </div>
@@ -2537,7 +2826,13 @@ export function BookingJourneyDialog({
 
                       {/* Embedded Stripe Elements Form */}
                       {stripePromise && (
-                        <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: "stripe" } }}>
+                        <Elements
+                          stripe={stripePromise}
+                          options={{
+                            clientSecret,
+                            appearance: { theme: "stripe" },
+                          }}
+                        >
                           <JourneyPaymentForm
                             totalAmount={grandTotal}
                             bookingId={bookingId!}
@@ -2562,13 +2857,15 @@ export function BookingJourneyDialog({
                   YOUR LITTLE ESCAPE
                 </span>
                 <h3 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[27px] font-normal leading-[27.54px] tracking-[-0.675px]">
-                  {selectedCottages.length} cottage{selectedCottages.length === 1 ? "" : "s"} selected
+                  {selectedCottages.length} cottage
+                  {selectedCottages.length === 1 ? "" : "s"} selected
                 </h3>
                 <p className="m-0 mt-[12px] text-[11px] leading-[19.8px] text-[#535b51]">
                   {formatDisplayDate(checkIn)} – {formatDisplayDate(checkOut)}
                   <br />
                   {nights} nights · {adults} adult{adults === 1 ? "" : "s"}
-                  {children > 0 && `, ${children} child${children === 1 ? "" : "ren"}`}
+                  {children > 0 &&
+                    `, ${children} child${children === 1 ? "" : "ren"}`}
                 </p>
 
                 <button
@@ -2592,7 +2889,10 @@ export function BookingJourneyDialog({
                   {selectedCottageItems.map((item) => {
                     const rt = item.roomType;
                     const rates = item.rates;
-                    const perNight = rates && rates.length > 0 ? Math.min(...rates.map((r) => r.perNight)) : 26000;
+                    const perNight =
+                      rates && rates.length > 0
+                        ? Math.min(...rates.map((r) => r.perNight))
+                        : 26000;
                     const perNightPounds = Math.round(perNight / 100);
                     const cottageTotal = perNightPounds * nights;
                     return (
@@ -2610,9 +2910,13 @@ export function BookingJourneyDialog({
                         </h4>
                         <div className="mt-[4px] flex justify-between gap-[13px] text-[10px] leading-[16px]">
                           <span>
-                            {currencySymbol}{perNightPounds} × {nights} nights
+                            {currencySymbol}
+                            {perNightPounds} × {nights} nights
                           </span>
-                          <span>{currencySymbol}{cottageTotal.toLocaleString()}</span>
+                          <span>
+                            {currencySymbol}
+                            {cottageTotal.toLocaleString()}
+                          </span>
                         </div>
                         <p className="mt-[4px] text-[9px] text-[#535b51]">
                           Sleeps {rt.maxOccupancy}
@@ -2622,24 +2926,31 @@ export function BookingJourneyDialog({
                   })}
                 </div>
 
-                {Object.values(dogsByCottage).some((c) => c > 0) && isDogFriendly && (
-                  <div className="mt-[12px] flex justify-between gap-[13px] text-[11px] font-medium leading-[17.05px] text-[#243c30]">
-                    <span>
-                      {selectedCottages
-                        .map((c) => {
-                          const count = dogsByCottage[c.id] ?? 0;
-                          if (count <= 0) return null;
-                          const feeInfo = cottageDogFee[c.id];
-                          const custom = feeInfo?.custom[count];
-                          const lineFee = custom != null && custom > 0 ? custom : feeInfo?.unit * count;
-                          return `${count} dog${count === 1 ? "" : "s"} × ${currencySymbol}${lineFee}`;
-                        })
-                        .filter(Boolean)
-                        .join(" + ")}
-                    </span>
-                    <span>{currencySymbol}{totalDogFee}</span>
-                  </div>
-                )}
+                {Object.values(dogsByCottage).some((c) => c > 0) &&
+                  isDogFriendly && (
+                    <div className="mt-[12px] flex justify-between gap-[13px] text-[11px] font-medium leading-[17.05px] text-[#243c30]">
+                      <span>
+                        {selectedCottages
+                          .map((c) => {
+                            const count = dogsByCottage[c.id] ?? 0;
+                            if (count <= 0) return null;
+                            const feeInfo = cottageDogFee[c.id];
+                            const custom = feeInfo?.custom[count];
+                            const lineFee =
+                              custom != null && custom > 0
+                                ? custom
+                                : feeInfo?.unit * count;
+                            return `${count} dog${count === 1 ? "" : "s"} × ${currencySymbol}${lineFee}`;
+                          })
+                          .filter(Boolean)
+                          .join(" + ")}
+                      </span>
+                      <span>
+                        {currencySymbol}
+                        {totalDogFee}
+                      </span>
+                    </div>
+                  )}
 
                 {Object.entries(extraQtys).some(([, q]) => q > 0) && (
                   <div className="mt-[10px] space-y-1.5 border-t border-[#d8d9cb]/50 pt-[10px]">
@@ -2657,10 +2968,14 @@ export function BookingJourneyDialog({
                             className="flex justify-between gap-[13px] text-[10px] font-medium leading-[16px] text-[#243c30]"
                           >
                             <span className="truncate pr-2">
-                              {(extra.title || "").replace(/<[^>]*>/g, "").trim()} × {qty}
+                              {(extra.title || "")
+                                .replace(/<[^>]*>/g, "")
+                                .trim()}{" "}
+                              × {qty}
                             </span>
                             <span className="shrink-0 font-medium">
-                              +{currencySymbol}{lineTotal}
+                              +{currencySymbol}
+                              {lineTotal}
                             </span>
                           </div>
                         );
@@ -2674,7 +2989,8 @@ export function BookingJourneyDialog({
                     data-total={grandTotal}
                     className="font-['Instrument_Serif',Georgia,serif] text-[31px] font-normal"
                   >
-                    {currencySymbol}{grandTotal.toLocaleString()}
+                    {currencySymbol}
+                    {grandTotal.toLocaleString()}
                   </strong>
                 </div>
 
@@ -2725,9 +3041,7 @@ export function BookingJourneyDialog({
 
             <div className="mx-auto my-4 max-w-[480px] rounded border border-[#d8d9cb] bg-[#fffdf8] p-4 text-left text-xs leading-relaxed text-[#535b51]">
               <div className="flex justify-between py-1 border-b border-[#eee]">
-                <span>
-                  Cottage{selectedCottages.length > 1 ? "s" : ""}
-                </span>
+                <span>Cottage{selectedCottages.length > 1 ? "s" : ""}</span>
                 <span className="font-medium text-[#243c30]">
                   {selectedCottages.map((c) => c.name).join(", ")}
                 </span>
@@ -2735,20 +3049,29 @@ export function BookingJourneyDialog({
               <div className="flex justify-between py-1 border-b border-[#eee]">
                 <span>Dates</span>
                 <span className="font-medium text-[#243c30]">
-                  {formatDisplayDate(checkIn)} – {formatDisplayDate(checkOut)} ({nights} nights)
+                  {formatDisplayDate(checkIn)} – {formatDisplayDate(checkOut)} (
+                  {nights} nights)
                 </span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#eee]">
                 <span>Guests</span>
                 <span className="font-medium text-[#243c30]">
                   {adults} adult{adults > 1 ? "s" : ""}
-                  {children > 0 ? `, ${children} child${children > 1 ? "ren" : ""}` : ""}
-                  {Object.values(dogsByCottage).some((c) => c > 0) && isDogFriendly ? `, ${Object.values(dogsByCottage).reduce((a, b) => a + b, 0)} dog${Object.values(dogsByCottage).reduce((a, b) => a + b, 0) === 1 ? "" : "s"}` : ""}
+                  {children > 0
+                    ? `, ${children} child${children > 1 ? "ren" : ""}`
+                    : ""}
+                  {Object.values(dogsByCottage).some((c) => c > 0) &&
+                  isDogFriendly
+                    ? `, ${Object.values(dogsByCottage).reduce((a, b) => a + b, 0)} dog${Object.values(dogsByCottage).reduce((a, b) => a + b, 0) === 1 ? "" : "s"}`
+                    : ""}
                 </span>
               </div>
               <div className="flex justify-between py-1.5 font-semibold text-[#243c30]">
                 <span>Total paid</span>
-                <span>{currencySymbol}{(confirmedTotal || grandTotal).toLocaleString()}</span>
+                <span>
+                  {currencySymbol}
+                  {(confirmedTotal || grandTotal).toLocaleString()}
+                </span>
               </div>
             </div>
 

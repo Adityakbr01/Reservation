@@ -9,7 +9,7 @@ import type { SiteSettings } from "@/modules/cms/api/cms.api";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DateField } from "@/components/common/DateField";
-import { addDays } from "date-fns";
+import { addDays, format } from "date-fns";
 import { toDayKey } from "@/lib/date";
 import type { AvailabilitySearchParams } from "../types/availability.types";
 
@@ -130,11 +130,12 @@ export function SearchForm({
     let nextCheckOut = checkOut;
     // Minimum stay: if checkOut is empty or less than minStayNights after new checkIn, automatically push it forward
     try {
-      const inDate = new Date(`${val}T00:00:00`);
+      const [y, m, d] = val.split("-").map(Number);
+      const inDate = new Date(y, m - 1, d);
       if (!isNaN(inDate.getTime())) {
-        const minOut = toDayKey(addDays(inDate, minStayNights));
+        const minOut = format(addDays(inDate, minStayNights), "yyyy-MM-dd");
         if (!nextCheckOut || nextCheckOut < minOut) {
-          nextCheckOut = toDayKey(addDays(inDate, Math.max(3, minStayNights)));
+          nextCheckOut = format(addDays(inDate, Math.max(3, minStayNights)), "yyyy-MM-dd");
           setCheckOut(nextCheckOut);
         }
       }
@@ -261,7 +262,14 @@ export function SearchForm({
               id="search-checkout"
               label={checkOutLabel ?? ""}
               value={checkOut}
-              min={checkIn ? toDayKey(addDays(new Date(`${checkIn}T00:00:00`), minStayNights)) : today}
+              min={
+                checkIn
+                  ? (() => {
+                      const [y, m, d] = checkIn.split("-").map(Number);
+                      return format(addDays(new Date(y, m - 1, d), minStayNights), "yyyy-MM-dd");
+                    })()
+                  : today
+              }
               onChange={handleCheckOutChange}
             />
           </div>
