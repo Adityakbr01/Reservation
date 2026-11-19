@@ -53,6 +53,7 @@ import {
 import { useAvailabilitySearch } from "@/modules/availability";
 import { useMediaUrls } from "@/modules/media";
 import type { CottageExtra } from "@/modules/availability/types/availability.types";
+import { ExtraInfoPopover } from "../components/ExtraInfoPopover";
 import {
   useCreateBooking,
   usePaymentIntent,
@@ -1802,6 +1803,14 @@ export function BookingPage() {
               </CardHeader>
               <CardContent className="pt-4 space-y-3">
                 <div className="grid gap-[12px]">
+                  {availableExtras.some((e) => e.showInfo === true) && (
+                    <p className="m-0 -mb-1 text-[11.5px] text-[#555d50] flex items-center gap-1.5">
+                      <span className="inline-flex size-4 items-center justify-center rounded-full border border-[#243c30]/40 bg-[#dbe8d2] text-[#243c30] text-[10px] font-bold">
+                        i
+                      </span>
+                      <span>Click the <strong>ⓘ</strong> icon for more information</span>
+                    </p>
+                  )}
                   {availableExtras.map((extra) => {
                     const qty = extraQtys[extra.id] ?? 0;
                     const isSelected = qty > 0;
@@ -1862,12 +1871,22 @@ export function BookingPage() {
 
                         {/* Middle: Title & Description */}
                         <div className="min-w-0 flex-1 pr-1 sm:pr-2">
-                          <div
-                            className="font-serif text-[18px] sm:text-[21px] font-bold text-[#1b2f24] leading-snug tracking-[-0.2px] [&_p]:m-0 [&_a]:underline"
-                            dangerouslySetInnerHTML={{
-                              __html: sanitizeCheckoutHtml(extra.title),
-                            }}
-                          />
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <div
+                              className="font-serif text-[18px] sm:text-[21px] font-bold text-[#1b2f24] leading-snug tracking-[-0.2px] [&_p]:m-0 [&_a]:underline inline-block"
+                              dangerouslySetInnerHTML={{
+                                __html: sanitizeCheckoutHtml(extra.title),
+                              }}
+                            />
+                            {extra.showInfo === true && (
+                              <ExtraInfoPopover
+                                title={plainTitle}
+                                infoTitle={extra.infoTitle}
+                                infoText={extra.infoText}
+                                description={cleanDesc}
+                              />
+                            )}
+                          </div>
                           {cleanDesc ? (
                             <div
                               className="mt-1 text-[12px] sm:text-[13px] leading-relaxed italic text-[#555d50] [&_p]:m-0 [&_a]:underline"

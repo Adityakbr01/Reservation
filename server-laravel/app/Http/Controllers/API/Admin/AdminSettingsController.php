@@ -259,6 +259,9 @@ class AdminSettingsController extends Controller
                         'showCounter' => filter_var($ex['showCounter'] ?? $ex['show_counter'] ?? true, FILTER_VALIDATE_BOOLEAN),
                         'min' => isset($ex['min']) ? max(0, (int) $ex['min']) : 1,
                         'max' => (isset($ex['max']) && $ex['max'] !== '' && $ex['max'] !== null) ? max(1, (int) $ex['max']) : null,
+                        'showInfo' => filter_var($ex['showInfo'] ?? $ex['show_info'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                        'infoTitle' => isset($ex['infoTitle']) && $ex['infoTitle'] !== '' ? (string) $ex['infoTitle'] : (isset($ex['info_title']) && $ex['info_title'] !== '' ? (string) $ex['info_title'] : null),
+                        'infoText' => isset($ex['infoText']) && $ex['infoText'] !== '' ? (string) $ex['infoText'] : (isset($ex['info_text']) && $ex['info_text'] !== '' ? (string) $ex['info_text'] : null),
                     ];
                 }
                 $resolved['globalExtras'] = $cleanedExtras;

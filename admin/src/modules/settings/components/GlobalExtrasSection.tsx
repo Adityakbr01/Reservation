@@ -37,6 +37,9 @@ export function GlobalExtrasSection({
       showCounter: true,
       min: 1,
       max: null,
+      showInfo: false,
+      infoTitle: "",
+      infoText: "",
     };
     onChange([...extras, newExtra]);
   }
@@ -55,6 +58,9 @@ export function GlobalExtrasSection({
         showCounter: true,
         min: 1,
         max: null,
+        showInfo: true,
+        infoTitle: "A round of golf",
+        infoText: "Hamptworth Championship Course 18 holes across scenic parkland.",
       },
       {
         id: "extra_padel",
@@ -68,6 +74,9 @@ export function GlobalExtrasSection({
         showCounter: true,
         min: 1,
         max: null,
+        showInfo: true,
+        infoTitle: "Padel court session",
+        infoText: "Court hire with rackets and balls included for up to 4 players.",
       },
       {
         id: "extra_lunch",
@@ -81,6 +90,9 @@ export function GlobalExtrasSection({
         showCounter: true,
         min: 1,
         max: null,
+        showInfo: false,
+        infoTitle: "",
+        infoText: "",
       },
       {
         id: "extra_breakfast",
@@ -94,6 +106,9 @@ export function GlobalExtrasSection({
         showCounter: true,
         min: 1,
         max: null,
+        showInfo: false,
+        infoTitle: "",
+        infoText: "",
       },
       {
         id: "extra_massage",
@@ -107,6 +122,9 @@ export function GlobalExtrasSection({
         showCounter: true,
         min: 1,
         max: null,
+        showInfo: true,
+        infoTitle: "Massage treatment",
+        infoText: "Relaxing 60-minute wellness massage tailored to your needs.",
       },
       {
         id: "extra_fire_pit",
@@ -120,6 +138,9 @@ export function GlobalExtrasSection({
         showCounter: true,
         min: 1,
         max: null,
+        showInfo: true,
+        infoTitle: "Fire pit & s'mores kit",
+        infoText: "Hardwood logs, firestarters, skewers, marshmallows and artisan biscuits.",
       },
     ]);
   }
@@ -362,6 +383,71 @@ export function GlobalExtrasSection({
                         })
                       }
                     />
+                  </div>
+
+                  {/* Info (ⓘ) Popover Management */}
+                  <div className="rounded-lg border border-border/80 bg-muted/20 p-3.5 space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-1.5">
+                          <span className="inline-flex size-4 items-center justify-center rounded-full bg-emerald-700/10 text-emerald-800 text-[10px] font-bold">
+                            ⓘ
+                          </span>
+                          <Label
+                            htmlFor={`switch-info-${extra.id}`}
+                            className="text-xs font-semibold cursor-pointer"
+                          >
+                            Show Info (ⓘ) Icon &amp; Popover
+                          </Label>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          Displays an ⓘ info button beside this extra on the booking dialog &amp; page. When hovered or clicked, guests see a popup balloon with more details.
+                        </p>
+                      </div>
+                      <Switch
+                        id={`switch-info-${extra.id}`}
+                        checked={extra.showInfo === true}
+                        onCheckedChange={(checked) =>
+                          updateExtra(index, { showInfo: checked })
+                        }
+                      />
+                    </div>
+
+                    {extra.showInfo === true && (
+                      <div className="space-y-3.5 pt-2.5 border-t border-border/60">
+                        <div className="space-y-1.5 max-w-md">
+                          <Label className="text-xs font-medium">
+                            Popover Title (Optional)
+                          </Label>
+                          <Input
+                            placeholder={plainTitle || "e.g. Welcome hamper"}
+                            value={extra.infoTitle ?? ""}
+                            onChange={(e) =>
+                              updateExtra(index, { infoTitle: e.target.value })
+                            }
+                            className="h-9 text-xs"
+                          />
+                          <p className="text-[10px] text-muted-foreground">
+                            Defaults to the extra title if left blank.
+                          </p>
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-medium">
+                            Popover Information / Details *
+                          </Label>
+                          <RichTextEditor
+                            value={extra.infoText ?? ""}
+                            onChange={(html) =>
+                              updateExtra(index, { infoText: html })
+                            }
+                            minHeightClass="min-h-[100px]"
+                          />
+                          <p className="text-[10px] text-muted-foreground">
+                            Rich text content (bold, italic, links, lists, etc.) displayed inside the balloon. If left blank, the main description above will be used.
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               );

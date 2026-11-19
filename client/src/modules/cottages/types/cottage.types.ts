@@ -17,6 +17,9 @@ export interface CottageExtra {
   pricingType: "PER_PERSON" | "PER_STAY";
   imageMediaId?: string | null;
   imageUrl?: string | null;
+  showInfo?: boolean;
+  infoTitle?: string | null;
+  infoText?: string | null;
 }
 
 /** Full cottage detail as returned by GET /api/public/cottages/:slug. */

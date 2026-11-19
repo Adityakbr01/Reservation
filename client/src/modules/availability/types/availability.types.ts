@@ -33,6 +33,12 @@ export interface CottageExtra {
   min?: number;
   /** Maximum quantity when counter is on. null = no explicit cap. Default null. */
   max?: number | null;
+  /** When true, display an ⓘ info button on the booking page & dialog. */
+  showInfo?: boolean;
+  /** Custom title inside the info popover (defaults to extra title). */
+  infoTitle?: string | null;
+  /** Detailed content shown when guest hovers or clicks the ⓘ info button. */
+  infoText?: string | null;
 }
 
 export interface SearchResultRoomType {
