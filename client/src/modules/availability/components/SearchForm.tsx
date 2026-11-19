@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { ArrowRight, ChevronDown, Loader } from "lucide-react";
 import toast from "react-hot-toast";
-import { useQuery } from "@tanstack/react-query";
-import { publicApiClient, unwrapResponse } from "@/lib/api-client";
-import type { ApiEnvelope } from "@/lib/api-client";
-import type { SiteSettings } from "@/modules/cms/api/cms.api";
+import { useSiteSettings } from "@/modules/cms/hooks/use-cms";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DateField } from "@/components/common/DateField";
@@ -84,14 +81,7 @@ export function SearchForm({
   const [rangeError, setRangeError] = useState<string | null>(null);
   const [today] = useState(() => toDayKey(new Date()));
 
-  const { data: settings } = useQuery({
-    queryKey: ["site-settings-public"],
-    queryFn: async () => {
-      const r = await publicApiClient.get<ApiEnvelope<SiteSettings>>("/public/cms/site-settings");
-      return unwrapResponse(r);
-    },
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data: settings } = useSiteSettings();
 
   const minStayNights = Math.max(1, settings?.minimumStayNights ?? 2);
 

@@ -1,6 +1,5 @@
 import { useMemo, useRef, useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -9,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDisplayDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
-import { fetchSiteSettings } from "@/modules/cms/api/cms.api";
+import { useSiteSettings } from "@/modules/cms/hooks/use-cms";
 import {
   CottageCard,
   SearchForm,
@@ -88,11 +87,7 @@ export function HomePage() {
     });
   }, [data?.results]);
 
-  const { data: siteSettings } = useQuery({
-    queryKey: ["site-settings"],
-    queryFn: fetchSiteSettings,
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data: siteSettings } = useSiteSettings();
 
   const hp = siteSettings?.homePage;
 

@@ -28,6 +28,7 @@ export function useAvailabilityCalendar(roomTypeId: string | null, from: string,
       return fetchAvailabilityCalendar(roomTypeId, from, to);
     },
     enabled: roomTypeId !== null,
+    placeholderData: keepPreviousData,
     staleTime: 5 * 60_000,
     retry: false,
   });

@@ -173,6 +173,7 @@ class AdminCottageController extends Controller
         ]);
 
         $this->syncCottageInventoryAndRates($cottage, $basePrice);
+        \Illuminate\Support\Facades\Cache::forget('public_active_cottages');
 
         return response()->json([
             'success' => true,
@@ -393,6 +394,7 @@ class AdminCottageController extends Controller
             $basePrice = $request->input('basePrice');
         }
         $this->syncCottageInventoryAndRates($cottage, $basePrice);
+        \Illuminate\Support\Facades\Cache::forget('public_active_cottages');
 
         return response()->json([
             'success' => true,
@@ -412,6 +414,7 @@ class AdminCottageController extends Controller
         }
 
         $cottage->delete();
+        \Illuminate\Support\Facades\Cache::forget('public_active_cottages');
 
         return response()->json([
             'success' => true,

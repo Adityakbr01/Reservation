@@ -55,27 +55,30 @@ class PublicAvailabilityController extends Controller
             $q->where('status', 'ACTIVE');
         }])->where('status', 'ACTIVE')->get();
 
-        // Ensure every active room type has at least one physical room record
-        $defaultProp = \App\Models\Property::defaultProperty();
-        foreach ($roomTypes as $rt) {
-            Room::firstOrCreate(
-                ['room_type_id' => $rt->id],
-                [
-                    'id' => bin2hex(random_bytes(12)),
-                    'property_id' => $rt->property_id ?? $defaultProp->id,
-                    'room_number' => strtoupper(substr($rt->slug ?? 'COT', 0, 3)) . '-1',
-                    'name' => $rt->name,
-                    'status' => 'ACTIVE',
-                ]
-            );
-        }
-
-        // 4. Bulk query: Active rooms
+        // 4. Bulk query: Active rooms (Fast read-only, zero redundant writes)
         $roomQuery = Room::where('status', 'ACTIVE');
         if (!empty($data['room_type_id'])) {
             $roomQuery->where('room_type_id', $data['room_type_id']);
         }
         $rooms = $roomQuery->get();
+
+        // Safety fallback: only if rooms table is empty, create initial physical room records
+        if ($rooms->isEmpty()) {
+            $defaultProp = \App\Models\Property::defaultProperty();
+            foreach ($roomTypes as $rt) {
+                Room::firstOrCreate(
+                    ['room_type_id' => $rt->id],
+                    [
+                        'id' => bin2hex(random_bytes(12)),
+                        'property_id' => $rt->property_id ?? $defaultProp->id,
+                        'room_number' => strtoupper(substr($rt->slug ?? 'COT', 0, 3)) . '-1',
+                        'name' => $rt->name,
+                        'status' => 'ACTIVE',
+                    ]
+                );
+            }
+            $rooms = $roomQuery->get();
+        }
 
         $availableCounts = [];
         foreach ($rooms as $room) {
@@ -303,9 +306,67 @@ class PublicAvailabilityController extends Controller
             $minStayConfig = 2;
         }
 
+        // 1. Bulk query active rooms for all room types
+        $allRooms = Room::where('status', 'ACTIVE')->get()->groupBy('room_type_id');
+        $allRoomIds = $allRooms->flatten()->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $allRoomTypeIds = $roomTypes->pluck('id')->map(fn ($id) => (string) $id)->all();
+
+        // 2. Bulk query AvailabilityBlock in date range with 1 single query
+        $rangeStartStr = $startDate->copy()->startOfDay()->format('Y-m-d H:i:s');
+        $rangeEndStr = $endDate->copy()->addDay()->startOfDay()->format('Y-m-d H:i:s');
+        $rangeStartDateStr = $startDate->toDateString();
+        $rangeEndDateStr = $endDate->copy()->addDay()->toDateString();
+
+        $allBlocks = AvailabilityBlock::where(function ($q) use ($allRoomIds, $allRoomTypeIds) {
+                $q->whereIn('room_id', $allRoomIds)
+                  ->orWhereIn('room_id', $allRoomTypeIds);
+            })
+            ->where('start_date', '<', $rangeEndStr)
+            ->where('end_date', '>', $rangeStartStr)
+            ->get(['room_id', 'start_date', 'end_date']);
+
+        // 3. Bulk query active BookingItems in date range with 1 single query
+        $allBookings = BookingItem::activeBookings()
+            ->where(function ($q) use ($allRoomIds, $allRoomTypeIds) {
+                $q->whereIn('room_id', $allRoomIds)
+                  ->orWhereIn('room_type_id', $allRoomTypeIds);
+            })
+            ->where('check_in', '<', $rangeEndDateStr)
+            ->where('check_out', '>', $rangeStartDateStr)
+            ->get(['room_id', 'room_type_id', 'check_in', 'check_out']);
+
+        // Pre-convert blocks & bookings to integer timestamps for ultra-fast in-memory matching
+        $parsedBlocks = [];
+        foreach ($allBlocks as $b) {
+            $sTs = strtotime((string) $b->start_date);
+            $eTs = strtotime((string) $b->end_date);
+            if ($sTs && $eTs) {
+                $parsedBlocks[] = [
+                    'room_id' => (string) $b->room_id,
+                    'start' => $sTs,
+                    'end' => $eTs,
+                ];
+            }
+        }
+
+        $parsedBookings = [];
+        foreach ($allBookings as $bi) {
+            $sTs = strtotime((string) $bi->check_in);
+            $eTs = strtotime((string) $bi->check_out);
+            if ($sTs && $eTs) {
+                $parsedBookings[] = [
+                    'room_id' => $bi->room_id ? (string) $bi->room_id : null,
+                    'room_type_id' => $bi->room_type_id ? (string) $bi->room_type_id : null,
+                    'start' => $sTs,
+                    'end' => $eTs,
+                ];
+            }
+        }
+
         $typesData = [];
         foreach ($roomTypes as $rt) {
-            $rooms = Room::where('room_type_id', $rt->id)->where('status', 'ACTIVE')->get();
+            $rtId = (string) $rt->id;
+            $rooms = $allRooms->get($rtId, collect());
             if ($rooms->isEmpty()) {
                 $room = Room::firstOrCreate(
                     ['room_type_id' => $rt->id],
@@ -320,37 +381,50 @@ class PublicAvailabilityController extends Controller
                 $rooms = collect([$room]);
             }
             $totalRooms = max(1, $rooms->count());
-            $roomIds = $rooms->pluck('id')->all();
+            $roomIds = $rooms->pluck('id')->map(fn ($id) => (string) $id)->all();
+            $targetKeys = array_flip(array_merge([$rtId], $roomIds));
+
+            // Pre-filter records for this specific room type
+            $rtBlocks = [];
+            foreach ($parsedBlocks as $pb) {
+                if (isset($targetKeys[$pb['room_id']])) {
+                    $rtBlocks[] = [$pb['start'], $pb['end']];
+                }
+            }
+
+            $rtBookings = [];
+            foreach ($parsedBookings as $pbi) {
+                if (($pbi['room_id'] && isset($targetKeys[$pbi['room_id']])) || ($pbi['room_type_id'] === $rtId)) {
+                    $rtBookings[] = [$pbi['start'], $pbi['end']];
+                }
+            }
 
             $days = [];
             $cursor = $startDate->copy();
-            // Cap at 62 days max to prevent large loops
+            // Generous limit up to 730 days (2 full years) for unlimited month grid
             $limit = 0;
-            while ($cursor->lte($endDate) && $limit < 62) {
+            while ($cursor->lte($endDate) && $limit < 730) {
                 $limit++;
                 $curDate = $cursor->toDateString();
                 $nextDate = $cursor->copy()->addDay()->toDateString();
+                $curTs = strtotime($curDate);
+                $nextTs = strtotime($nextDate);
 
                 $blockedCount = 0;
                 $bookedCount = 0;
 
                 if ($totalRooms > 0) {
-                    $blockedCount = AvailabilityBlock::where(function ($q) use ($roomIds, $rt) {
-                            $q->whereIn('room_id', $roomIds)
-                              ->orWhere('room_id', $rt->id);
-                        })
-                        ->where('start_date', '<', $nextDate)
-                        ->where('end_date', '>', $curDate)
-                        ->count();
+                    foreach ($rtBlocks as [$bStart, $bEnd]) {
+                        if ($bStart < $nextTs && $bEnd > $curTs) {
+                            $blockedCount++;
+                        }
+                    }
 
-                    $bookedCount = BookingItem::activeBookings()
-                        ->where(function ($q) use ($roomIds, $rt) {
-                            $q->whereIn('room_id', $roomIds)
-                              ->orWhere('room_type_id', $rt->id);
-                        })
-                        ->where('check_in', '<', $nextDate)
-                        ->where('check_out', '>', $curDate)
-                        ->count();
+                    foreach ($rtBookings as [$bkStart, $bkEnd]) {
+                        if ($bkStart < $nextTs && $bkEnd > $curTs) {
+                            $bookedCount++;
+                        }
+                    }
                 }
 
                 $availableCount = max(0, $totalRooms - $blockedCount - $bookedCount);
@@ -368,7 +442,7 @@ class PublicAvailabilityController extends Controller
             }
 
             $typesData[] = [
-                'roomTypeId' => (string) $rt->id,
+                'roomTypeId' => $rtId,
                 'name' => (string) $rt->name,
                 'days' => $days,
             ];

@@ -63,8 +63,8 @@ export function useSiteSettings() {
   return useQuery({
     queryKey: KEYS.siteSettings(),
     queryFn: fetchSiteSettings,
-    staleTime: 30_000,
-    refetchOnWindowFocus: true,
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
     retry: false,
   });
 }

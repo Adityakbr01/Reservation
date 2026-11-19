@@ -46,10 +46,10 @@ import {
   getCottageBySlug,
 } from "@/modules/cottages/api/cottages.api";
 import {
-  fetchSiteSettings,
   type CheckoutSection,
   type AcknowledgementItem,
 } from "@/modules/cms/api/cms.api";
+import { useSiteSettings } from "@/modules/cms/hooks/use-cms";
 import { useAvailabilitySearch } from "@/modules/availability";
 import { useMediaUrls } from "@/modules/media";
 import type { CottageExtra } from "@/modules/availability/types/availability.types";
@@ -441,11 +441,7 @@ export function BookingPage() {
     return map;
   }, [availabilityQuery.data]);
 
-  const { data: siteSettings } = useQuery({
-    queryKey: ["site-settings-public"],
-    queryFn: fetchSiteSettings,
-    staleTime: 300_000,
-  });
+  const { data: siteSettings } = useSiteSettings();
 
   const bjSettings = siteSettings?.bookingPage?.bookingJourney;
   const bjValue = (

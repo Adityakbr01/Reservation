@@ -10,12 +10,44 @@ class PublicCottageController extends Controller
 {
     public function index()
     {
-        $cottages = Cottage::with('category')->where('status', 'ACTIVE')->get();
+        $cached = \Illuminate\Support\Facades\Cache::remember('public_active_cottages', 3600, function () {
+            $cottages = Cottage::with('category')->where('status', 'ACTIVE')->get();
+
+            // Bulk collect all media IDs across all active cottages in 1 single query
+            $allMediaIds = [];
+            foreach ($cottages as $c) {
+                foreach ($c->media ?? [] as $m) {
+                    $mid = is_array($m) ? ($m['mediaId'] ?? null) : ($m->mediaId ?? null);
+                    if ($mid) $allMediaIds[] = $mid;
+                }
+                foreach ($c->images ?? [] as $img) {
+                    $mid = is_array($img) ? ($img['mediaId'] ?? null) : ($img->mediaId ?? null);
+                    if ($mid) $allMediaIds[] = $mid;
+                }
+                if (!empty($c->about_image_media_id)) {
+                    $allMediaIds[] = $c->about_image_media_id;
+                }
+                if (!empty($c->dog_policy_image_media_id)) {
+                    $allMediaIds[] = (string) $c->dog_policy_image_media_id;
+                }
+                $extrasList = is_array($c->extras) ? $c->extras : (is_string($c->extras) ? (json_decode($c->extras, true) ?? []) : []);
+                foreach ($extrasList as $extra) {
+                    $mid = is_array($extra) ? ($extra['imageMediaId'] ?? $extra['image_media_id'] ?? null) : ($extra->imageMediaId ?? null);
+                    if ($mid) $allMediaIds[] = (string) $mid;
+                }
+            }
+
+            $mediaMap = !empty($allMediaIds)
+                ? \App\Models\Media::whereIn('id', array_unique($allMediaIds))->get()->keyBy('id')
+                : collect();
+
+            return $cottages->map(fn ($c) => $this->cottageData($c, $mediaMap))->all();
+        });
 
         return response()->json([
             'success' => true,
-            'data' => $cottages->map(fn ($c) => $this->cottageData($c)),
-        ])->header('Cache-Control', 'public, max-age=5, s-maxage=10, must-revalidate');
+            'data' => $cached,
+        ])->header('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
     }
 
     public function showBySlug(string $slug)
@@ -56,34 +88,38 @@ class PublicCottageController extends Controller
         ]);
     }
 
-    private function cottageData(Cottage $c): array
+    private function cottageData(Cottage $c, mixed $providedMediaMap = null): array
     {
-        // Resolve media URLs directly so client has URLs immediately on the first response
-        $allMediaIds = [];
-        foreach ($c->media ?? [] as $m) {
-            $mid = is_array($m) ? ($m['mediaId'] ?? null) : ($m->mediaId ?? null);
-            if ($mid) $allMediaIds[] = $mid;
-        }
-        foreach ($c->images ?? [] as $img) {
-            $mid = is_array($img) ? ($img['mediaId'] ?? null) : ($img->mediaId ?? null);
-            if ($mid) $allMediaIds[] = $mid;
-        }
-        if (!empty($c->about_image_media_id)) {
-            $allMediaIds[] = $c->about_image_media_id;
-        }
-        if (!empty($c->dog_policy_image_media_id)) {
-            $allMediaIds[] = (string) $c->dog_policy_image_media_id;
-        }
-        $extrasList = is_array($c->extras) ? $c->extras : (is_string($c->extras) ? (json_decode($c->extras, true) ?? []) : []);
-        foreach ($extrasList as $extra) {
-            $mid = is_array($extra) ? ($extra['imageMediaId'] ?? $extra['image_media_id'] ?? null) : ($extra->imageMediaId ?? null);
-            if ($mid) $allMediaIds[] = (string) $mid;
-        }
-        $mediaMap = [];
-        if (!empty($allMediaIds)) {
-            $mediaMap = \App\Models\Media::whereIn('id', array_unique($allMediaIds))
-                ->get()
-                ->keyBy('id');
+        if ($providedMediaMap !== null) {
+            $mediaMap = $providedMediaMap;
+        } else {
+            // Resolve media URLs directly so client has URLs immediately on the first response
+            $allMediaIds = [];
+            foreach ($c->media ?? [] as $m) {
+                $mid = is_array($m) ? ($m['mediaId'] ?? null) : ($m->mediaId ?? null);
+                if ($mid) $allMediaIds[] = $mid;
+            }
+            foreach ($c->images ?? [] as $img) {
+                $mid = is_array($img) ? ($img['mediaId'] ?? null) : ($img->mediaId ?? null);
+                if ($mid) $allMediaIds[] = $mid;
+            }
+            if (!empty($c->about_image_media_id)) {
+                $allMediaIds[] = $c->about_image_media_id;
+            }
+            if (!empty($c->dog_policy_image_media_id)) {
+                $allMediaIds[] = (string) $c->dog_policy_image_media_id;
+            }
+            $extrasList = is_array($c->extras) ? $c->extras : (is_string($c->extras) ? (json_decode($c->extras, true) ?? []) : []);
+            foreach ($extrasList as $extra) {
+                $mid = is_array($extra) ? ($extra['imageMediaId'] ?? $extra['image_media_id'] ?? null) : ($extra->imageMediaId ?? null);
+                if ($mid) $allMediaIds[] = (string) $mid;
+            }
+            $mediaMap = [];
+            if (!empty($allMediaIds)) {
+                $mediaMap = \App\Models\Media::whereIn('id', array_unique($allMediaIds))
+                    ->get()
+                    ->keyBy('id');
+            }
         }
 
         $resolvedMedia = array_map(function ($m) use ($mediaMap) {

@@ -1,10 +1,9 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { Dialog } from "@/components/ui/dialog";
 import { CottageImage } from "@/components/common/CottageImage";
 import { useMediaUrls } from "@/modules/media";
-import { fetchSiteSettings } from "@/modules/cms/api/cms.api";
+import { useSiteSettings } from "@/modules/cms/hooks/use-cms";
 import { cn } from "@/lib/utils";
 import type { AvailabilitySearchParams, SearchResultRoomType } from "../types/availability.types";
 import { toSearchRecord } from "../utils/search-params";
@@ -35,11 +34,7 @@ export function CottageGalleryDialog({
   const titleId = useId();
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const { data: siteSettings } = useQuery({
-    queryKey: ["site-settings"],
-    queryFn: fetchSiteSettings,
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data: siteSettings } = useSiteSettings();
 
   const sectionSubtitle = useMemo(() => {
     const isSection2 = (roomType.homeSection ?? roomType.home_section) === "section_2";

@@ -164,6 +164,8 @@ class AdminSettingsController extends Controller
 
         $fresh = $settings->fresh() ?? $settings;
 
+        \Illuminate\Support\Facades\Cache::forget('public_site_settings');
+
         return response()->json([
             'success' => true,
             'data' => $this->settingsData($fresh),

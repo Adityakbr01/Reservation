@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import {
   Elements,
   PaymentElement,
@@ -21,7 +20,7 @@ import { getStripePromise } from "@/lib/stripe";
 import { DateField } from "@/components/common/DateField";
 import { ExtraInfoPopover } from "./ExtraInfoPopover";
 import { getCurrencySymbol, setDefaultCurrency } from "@/lib/money";
-import { fetchSiteSettings } from "@/modules/cms/api/cms.api";
+import { useSiteSettings } from "@/modules/cms/hooks/use-cms";
 import {
   useAvailabilitySearch,
   CottageGalleryDialog,
@@ -240,11 +239,7 @@ export function BookingJourneyDialog({
   const storeChildren = storeSearchParams?.children ?? undefined;
 
   // Load Admin Configured Site Settings
-  const { data: siteSettings } = useQuery({
-    queryKey: ["site-settings-public"],
-    queryFn: fetchSiteSettings,
-    staleTime: 300_000,
-  });
+  const { data: siteSettings } = useSiteSettings();
 
   const bjSettings = siteSettings?.bookingPage?.bookingJourney;
   const currencyCode = siteSettings?.currency || "GBP";

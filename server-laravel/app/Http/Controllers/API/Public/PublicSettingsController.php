@@ -9,6 +9,16 @@ class PublicSettingsController extends Controller
 {
     public function show()
     {
+        $payload = \Illuminate\Support\Facades\Cache::remember('public_site_settings', 86400, function () {
+            return $this->buildSettingsPayload();
+        });
+
+        return response()->json($payload)
+            ->header('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+    }
+
+    private function buildSettingsPayload(): array
+    {
         $settings = SiteSettings::first() ?? SiteSettings::defaultSettings();
 
         $rawWhy = $settings->why_book_with_us;
@@ -60,7 +70,7 @@ class PublicSettingsController extends Controller
         }
         $homePage = $this->resolveHomePage($rawHomePage);
 
-        return response()->json([
+        return [
             'success' => true,
             'data' => [
                 'id' => $settings->id,
@@ -262,7 +272,7 @@ class PublicSettingsController extends Controller
             'bookingPage' => $bookingPage,
             'home_page' => $homePage,
             'homePage' => $homePage,
-        ])->header('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+        ];
     }
 
     private function resolveHomePage(?array $stored): array

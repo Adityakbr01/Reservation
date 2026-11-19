@@ -1,35 +1,12 @@
 import { useEffect, type ReactNode } from "react";
-import { QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/query-client";
-import { publicApiClient, unwrapResponse } from "@/lib/api-client";
-import type { ApiEnvelope } from "@/lib/api-client";
 import { setDefaultCurrency } from "@/lib/money";
 import { setDefaultTimeZone } from "@/lib/date";
-
-interface SiteSettingsData {
-  currency?: string;
-  timezone?: string;
-  propertyName?: string;
-  whyBookWithUsHeading?: string | null;
-  whyBookWithUs?: Array<{
-    title: string;
-    text?: string | null;
-    icon?: string | null;
-    imageMediaId?: string | null;
-    imageUrl?: string | null;
-    badgeColor?: string | null;
-  }>;
-}
+import { useSiteSettings } from "@/modules/cms/hooks/use-cms";
 
 function SettingsInitializer({ children }: { children: ReactNode }) {
-  const { data } = useQuery({
-    queryKey: ["public-site-settings"],
-    queryFn: async () => {
-      const r = await publicApiClient.get<ApiEnvelope<SiteSettingsData>>("/public/cms/site-settings");
-      return unwrapResponse(r);
-    },
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data } = useSiteSettings();
 
   useEffect(() => {
     if (data?.currency) {
