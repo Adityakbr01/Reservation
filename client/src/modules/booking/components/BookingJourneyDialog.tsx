@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import { createPortal } from "react-dom";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Elements,
   PaymentElement,
@@ -136,7 +136,7 @@ function JourneyPaymentForm({
       const result = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/booking/confirmation/${bookingId}`,
+          return_url: `${window.location.origin}/booking/confirmation/${bookingId}/`,
         },
         redirect: "if_required",
       });
@@ -231,6 +231,8 @@ export function BookingJourneyDialog({
     searchParams: storeSearchParams,
     closeBookingJourney,
   } = useBookingJourneyStore();
+
+  const navigate = useNavigate();
 
   // Extract primitives so effect deps are stable (store returns whole state object,
   // so cottage/searchParams would be new references every render without selectors).
@@ -2448,7 +2450,9 @@ export function BookingJourneyDialog({
                             toast.error(res.paymentError);
                           } else {
                             // If payment not required (e.g. manual / external confirmation)
-                            goToStep(4);
+                            historyDepthRef.current = 0;
+                            closeBookingJourney();
+                            navigate(`/booking/confirmation/${res.booking.id}/`, { replace: true });
                           }
                         } catch (err: any) {
                           const msg =
@@ -2867,7 +2871,11 @@ export function BookingJourneyDialog({
                             totalAmount={grandTotal}
                             bookingId={bookingId!}
                             currencySymbol={currencySymbol}
-                            onSuccess={() => goToStep(4)}
+                            onSuccess={() => {
+                              historyDepthRef.current = 0;
+                              closeBookingJourney();
+                              navigate(`/booking/confirmation/${bookingId}/`, { replace: true });
+                            }}
                             onBack={() => setClientSecret(null)}
                           />
                         </Elements>
@@ -3120,7 +3128,10 @@ export function BookingJourneyDialog({
               {bookingId && (
                 <Link
                   to={`/booking/confirmation/${bookingId}/`}
-                  onClick={handleExplicitClose}
+                  onClick={() => {
+                    historyDepthRef.current = 0;
+                    closeBookingJourney();
+                  }}
                   className="inline-flex min-h-[46px] items-center justify-center gap-[12px] border border-[#243c30] bg-transparent px-[22px] py-[12px] text-[12px] font-medium text-[#243c30] no-underline transition-colors hover:bg-[#243c30] hover:text-[#fffdf8]"
                 >
                   View Full Receipt &amp; Details

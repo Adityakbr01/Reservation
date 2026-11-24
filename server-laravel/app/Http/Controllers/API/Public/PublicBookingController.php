@@ -772,10 +772,37 @@ class PublicBookingController extends Controller
             ], 404);
         }
 
+        // Auto-confirm if Stripe payment succeeded but webhook was delayed
+        if ($booking->status === 'HELD' || $booking->payment_status === 'PENDING') {
+            $payment = \App\Models\Payment::where('booking_id', $booking->id)->latest()->first();
+            if ($payment && $payment->provider_payment_intent_id) {
+                try {
+                    \Stripe\Stripe::setApiKey(config('services.stripe.secret_key') ?? config('services.stripe.secret') ?? env('STRIPE_SECRET_KEY'));
+                    $intent = \Stripe\PaymentIntent::retrieve($payment->provider_payment_intent_id);
+                    if ($intent && $intent->status === 'succeeded') {
+                        $booking->status = 'CONFIRMED';
+                        $booking->payment_status = 'PAID';
+                        $booking->save();
+                        $payment->status = 'PAID';
+                        $payment->paid_at = now();
+                        $payment->save();
+
+                        try {
+                            app(\App\Services\NotificationService::class)->sendBookingConfirmation($booking);
+                        } catch (\Throwable $e) {
+                            \Illuminate\Support\Facades\Log::warning('Could not dispatch confirmation email: ' . $e->getMessage());
+                        }
+                    }
+                } catch (\Throwable) {
+                    // Ignore transient stripe retrieval error
+                }
+            }
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
-                'booking' => $this->bookingData($booking),
+                'booking' => $this->bookingData($booking->fresh() ?? $booking),
             ],
         ]);
     }
@@ -794,7 +821,7 @@ class PublicBookingController extends Controller
             $payment = \App\Models\Payment::where('booking_id', $booking->id)->latest()->first();
             if ($payment && $payment->provider_payment_intent_id) {
                 try {
-                    \Stripe\Stripe::setApiKey(config('services.stripe.secret') ?? env('STRIPE_SECRET_KEY'));
+                    \Stripe\Stripe::setApiKey(config('services.stripe.secret_key') ?? config('services.stripe.secret') ?? env('STRIPE_SECRET_KEY'));
                     $intent = \Stripe\PaymentIntent::retrieve($payment->provider_payment_intent_id);
                     if ($intent && $intent->status === 'succeeded') {
                         $booking->status = 'CONFIRMED';

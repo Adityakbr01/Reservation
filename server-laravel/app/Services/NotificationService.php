@@ -87,12 +87,16 @@ class NotificationService
                     $html,
                     $text
                 );
+                if (! $providerMessageId) {
+                    throw new \Exception('Resend delivery failed. Check Resend API key or sender domain in .env.');
+                }
             }
 
             $notification->status = 'SENT';
             $notification->sent_at = now();
             $notification->provider = $provider;
             $notification->provider_message_id = $providerMessageId;
+            $notification->last_error = null;
             $notification->save();
         } catch (\Exception $e) {
             Log::error('Notification failed', ['id' => $notification->id, 'error' => $e->getMessage()]);

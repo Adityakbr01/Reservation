@@ -109,6 +109,44 @@ Route::match(['get', 'post'], '/fix-env', function () {
     ]);
 });
 
+Route::match(['get', 'post'], '/clear-cache', function () {
+    if (request('token') !== 'hamptworth2026') {
+        abort(403, 'Unauthorized');
+    }
+
+    $results = [];
+    $commands = ['config:clear', 'cache:clear', 'route:clear', 'view:clear'];
+    foreach ($commands as $cmd) {
+        try {
+            Artisan::call($cmd);
+            $results[$cmd] = trim(Artisan::output()) ?: 'cleared';
+        } catch (\Throwable $e) {
+            $results[$cmd] = 'Error: ' . $e->getMessage();
+        }
+    }
+
+    $configCacheFile = base_path('bootstrap/cache/config.php');
+    if (file_exists($configCacheFile)) {
+        @unlink($configCacheFile);
+        $results['bootstrap_cache_config_deleted'] = true;
+    }
+
+    $resendKey = config('services.resend.key');
+    $stripeKey = config('services.stripe.secret_key');
+
+    return response()->json([
+        'success' => true,
+        'message' => 'All caches cleared and fresh .env loaded successfully',
+        'commands' => $results,
+        'env_status' => [
+            'resend_key_configured' => ! empty($resendKey),
+            'resend_key_preview' => $resendKey ? substr($resendKey, 0, 8) . '...' . substr($resendKey, -4) : null,
+            'stripe_configured' => ! empty($stripeKey),
+            'stripe_key_preview' => $stripeKey ? substr($stripeKey, 0, 10) . '...' . substr($stripeKey, -4) : null,
+        ],
+    ]);
+});
+
 // Direct file serving for uploads and legacy storage paths
 Route::get('/uploads/{path}', function (string $path) {
     $filename = basename($path);

@@ -245,14 +245,14 @@ function PayButton({
     const result = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `${window.location.origin}/booking/confirmation/${bookingId}`,
+        return_url: `${window.location.origin}/booking/confirmation/${bookingId}/`,
       },
     });
     setPaying(false);
     if (result.error) {
       setFailed(result.error.message ?? "Payment failed. Try again.");
     } else {
-      navigate(`/booking/confirmation/${bookingId}`);
+      navigate(`/booking/confirmation/${bookingId}/`, { replace: true });
     }
   }
 
