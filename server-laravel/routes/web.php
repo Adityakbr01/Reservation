@@ -89,6 +89,8 @@ Route::match(['get', 'post'], '/fix-env', function () {
     $content = preg_replace('/^DB_DATABASE=.*$/m', 'DB_DATABASE=hamptworthstays', $content);
     $content = preg_replace('/^DB_USERNAME=.*$/m', 'DB_USERNAME=hamptworthstays-user', $content);
     $content = preg_replace('/^DB_PASSWORD=.*$/m', 'DB_PASSWORD="ZZhXesv]esB?+-FM"', $content);
+    $content = preg_replace('/^FRONTEND_URL=.*$/m', 'FRONTEND_URL=https://book.hamptworthstays.com', $content);
+    $content = preg_replace('/^CLIENT_URL=.*$/m', 'CLIENT_URL=https://book.hamptworthstays.com', $content);
     file_put_contents($envPath, $content);
 
     $storageSymlink = public_path('storage');
@@ -139,6 +141,8 @@ Route::match(['get', 'post'], '/clear-cache', function () {
         'message' => 'All caches cleared and fresh .env loaded successfully',
         'commands' => $results,
         'env_status' => [
+            'client_url' => env('CLIENT_URL', 'https://book.hamptworthstays.com'),
+            'frontend_url' => env('FRONTEND_URL', 'https://book.hamptworthstays.com'),
             'resend_key_configured' => ! empty($resendKey),
             'resend_key_preview' => $resendKey ? substr($resendKey, 0, 8) . '...' . substr($resendKey, -4) : null,
             'stripe_configured' => ! empty($stripeKey),

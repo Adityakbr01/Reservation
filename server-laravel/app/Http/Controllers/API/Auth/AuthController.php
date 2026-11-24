@@ -67,7 +67,7 @@ class AuthController extends Controller
             $welcome = \App\Support\Email\Templates\WelcomeTemplates::welcome($name);
             $override = EmailTemplate::where('key', 'WELCOME')->first();
             if ($override) {
-                $clientBase = rtrim(env('CLIENT_URL', 'https://hamptworthstays.com'), '/');
+                $clientBase = rtrim(env('CLIENT_URL', 'https://book.hamptworthstays.com'), '/');
                 $vars = [
                     'guestName' => $name,
                     'brandName' => EmailShared::DEFAULT_BRAND_NAME,
@@ -158,7 +158,7 @@ class AuthController extends Controller
             $user->password_reset_expires = now()->addHours(2);
             $user->save();
 
-            $clientUrl = env('CLIENT_URL', 'https://hamptworthstays.com');
+            $clientUrl = env('CLIENT_URL', 'https://book.hamptworthstays.com');
             $resetUrl = rtrim($clientUrl, '/') . '/reset-password?token=' . $token;
 
             try {
@@ -227,7 +227,7 @@ class AuthController extends Controller
             $changedMail = \App\Support\Email\Templates\AuthTemplates::passwordChanged($name);
             $override = EmailTemplate::where('key', 'PASSWORD_CHANGED')->first();
             if ($override) {
-                $clientBase = rtrim(env('CLIENT_URL', 'https://hamptworthstays.com'), '/');
+                $clientBase = rtrim(env('CLIENT_URL', 'https://book.hamptworthstays.com'), '/');
                 $vars = [
                     'guestName' => $name,
                     'brandName' => EmailShared::DEFAULT_BRAND_NAME,

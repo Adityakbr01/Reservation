@@ -129,25 +129,25 @@ class NotificationService
                 'bookingReference' => $ctx['bookingReference'],
                 'headline' => 'New booking',
                 'detail' => ($ctx['guestName'] . ', ' . $ctx['roomSummary'] . ', ' . $ctx['checkIn'] . ' → ' . $ctx['checkOut']),
-                'adminUrl' => env('ADMIN_URL', 'https://hamptworthstays.com') . '/reservations/' . ($booking?->id ?? ''),
+                'adminUrl' => env('ADMIN_URL', 'https://admin.hamptworthstays.com') . '/reservations/' . ($booking?->id ?? ''),
             ], 'New booking'),
             'ADMIN_CANCELLATION' => AdminTemplates::adminAlert([
                 'bookingReference' => $ctx['bookingReference'],
                 'headline' => 'Booking cancelled',
                 'detail' => 'Booking cancelled for ' . $ctx['guestName'] . '.',
-                'adminUrl' => env('ADMIN_URL', 'https://hamptworthstays.com') . '/reservations/' . ($booking?->id ?? ''),
+                'adminUrl' => env('ADMIN_URL', 'https://admin.hamptworthstays.com') . '/reservations/' . ($booking?->id ?? ''),
             ], 'Booking cancelled'),
             'ADMIN_PAYMENT_FAILURE' => AdminTemplates::adminAlert([
                 'bookingReference' => $ctx['bookingReference'],
                 'headline' => 'Payment failure',
                 'detail' => 'Payment failed for ' . $ctx['guestName'] . '.',
-                'adminUrl' => env('ADMIN_URL', 'https://hamptworthstays.com') . '/reservations/' . ($booking?->id ?? ''),
+                'adminUrl' => env('ADMIN_URL', 'https://admin.hamptworthstays.com') . '/reservations/' . ($booking?->id ?? ''),
             ], 'Payment failure'),
             'ADMIN_SOLD_OUT' => AdminTemplates::adminAlert([
                 'bookingReference' => $ctx['bookingReference'],
                 'headline' => 'Fully booked',
                 'detail' => 'All rooms are now booked for dates: ' . $ctx['checkIn'] . ' → ' . $ctx['checkOut'],
-                'adminUrl' => env('ADMIN_URL', 'https://hamptworthstays.com'),
+                'adminUrl' => env('ADMIN_URL', 'https://admin.hamptworthstays.com'),
             ], 'Fully booked'),
             'PAYMENT_FAILED' => PaymentTemplates::paymentFailed([
                 'guestName' => $ctx['guestName'],
@@ -337,7 +337,7 @@ class NotificationService
         $total = (int) ($pricing['total'] ?? 0);
 
         $clientBase = rtrim(env('CLIENT_URL', 'https://book.hamptworthstays.com'), '/');
-        $receiptUrl = "{$clientBase}/booking/confirmation/{$booking->id}";
+        $receiptUrl = "{$clientBase}/booking/confirmation/{$booking->id}/";
         $downloadReceiptUrl = "{$receiptUrl}?download=true";
 
         return array_merge($dummy, [

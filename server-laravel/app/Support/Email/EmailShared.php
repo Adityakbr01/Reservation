@@ -6,7 +6,7 @@ class EmailShared
 {
     public const DEFAULT_BRAND_NAME = 'Hamptworth Stays';
 
-    public const DEFAULT_BRAND_SITE_URL = 'https://hamptworthstays.com/';
+    public const DEFAULT_BRAND_SITE_URL = 'https://book.hamptworthstays.com/';
 
     public const DEFAULT_BOOKING_SITE_URL = 'https://book.hamptworthstays.com/';
 

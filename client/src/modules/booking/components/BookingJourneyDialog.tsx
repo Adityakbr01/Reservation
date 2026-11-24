@@ -117,7 +117,7 @@ function JourneyPaymentForm({
   totalAmount: number;
   bookingId: string;
   currencySymbol?: string;
-  onSuccess: () => void;
+  onSuccess?: () => void;
   onBack: () => void;
 }) {
   const stripe = useStripe();
@@ -138,7 +138,6 @@ function JourneyPaymentForm({
         confirmParams: {
           return_url: `${window.location.origin}/booking/confirmation/${bookingId}/`,
         },
-        redirect: "if_required",
       });
 
       if (result.error) {
@@ -146,15 +145,9 @@ function JourneyPaymentForm({
           result.error.message ?? "Payment failed. Please try again.",
         );
         setPaying(false);
-      } else if (
-        result.paymentIntent &&
-        (result.paymentIntent.status === "succeeded" ||
-          result.paymentIntent.status === "processing")
-      ) {
-        toast.success("Payment successful!");
-        onSuccess();
       } else {
-        onSuccess();
+        onSuccess?.();
+        window.location.href = `${window.location.origin}/booking/confirmation/${bookingId}/`;
       }
     } catch (err: any) {
       setPayError(
@@ -2872,9 +2865,7 @@ export function BookingJourneyDialog({
                             bookingId={bookingId!}
                             currencySymbol={currencySymbol}
                             onSuccess={() => {
-                              historyDepthRef.current = 0;
-                              closeBookingJourney();
-                              navigate(`/booking/confirmation/${bookingId}/`, { replace: true });
+                              window.location.href = `${window.location.origin}/booking/confirmation/${bookingId}/`;
                             }}
                             onBack={() => setClientSecret(null)}
                           />

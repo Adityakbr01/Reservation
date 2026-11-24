@@ -72,8 +72,9 @@ class ResendEmails
 
         try {
             $response = Http::withToken($this->apiKey)
-                ->timeout(5)
-                ->connectTimeout(3)
+                ->withHeaders(['User-Agent' => 'HamptworthStays/1.0'])
+                ->timeout(10)
+                ->connectTimeout(5)
                 ->post('https://api.resend.com/emails', $payload);
 
             if ($response->successful()) {

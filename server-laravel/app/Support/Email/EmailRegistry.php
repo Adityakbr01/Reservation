@@ -241,7 +241,7 @@ class EmailRegistry
             'propertyAddress' => 'Home Farm, Hamptworth, SP5 2DS',
             'mapsUrl' => null,
             'brandName' => 'Hamptworth Stays',
-            'brandSiteUrl' => 'https://hamptworthstays.com/',
+            'brandSiteUrl' => 'https://book.hamptworthstays.com/',
             'bookingSiteUrl' => 'https://book.hamptworthstays.com/',
         ];
     }
@@ -273,7 +273,7 @@ class EmailRegistry
             'checkOutTime' => 'Before 11 am',
             'propertyAddress' => $booking['propertyAddress'],
             'mapsUrl' => 'https://www.google.com/maps/dir/?api=1&destination=Home+Farm%2C+Hamptworth',
-            'brandSiteUrl' => 'https://hamptworthstays.com/',
+            'brandSiteUrl' => 'https://book.hamptworthstays.com/',
             'bookingSiteUrl' => 'https://book.hamptworthstays.com/',
             'holdExpiresAt' => '23 Dec 2026, 4:00 pm',
             'cancelledAt' => '18 Dec 2026',
