@@ -18,6 +18,8 @@ import toast from "react-hot-toast";
 import { countNights, formatDisplayDate, toDayKey } from "@/lib/date";
 import { getStripePromise } from "@/lib/stripe";
 import { DateField } from "@/components/common/DateField";
+import { Label } from "@/components/ui/label";
+import { ChevronDown } from "lucide-react";
 import { ExtraInfoPopover } from "./ExtraInfoPopover";
 import { getCurrencySymbol, setDefaultCurrency } from "@/lib/money";
 import { useSiteSettings } from "@/modules/cms/hooks/use-cms";
@@ -1352,42 +1354,56 @@ export function BookingJourneyDialog({
                     setCheckOut(val);
                   }}
                 />
-                <label className="flex flex-col gap-[9px] text-[11px]">
-                  <span className="text-[10px] tracking-[0.6px] text-[#535b51]">
+                <div className="min-w-0">
+                  <Label
+                    htmlFor="booking-adults"
+                    className="mb-[7px] block text-[13px] font-normal leading-none"
+                  >
                     {bjValue("step1AdultsLabel")}
-                  </span>
-                  <select
-                    name="booking-adults"
-                    aria-label="Adults"
-                    value={adults}
-                    onChange={(e) => setAdults(Number(e.target.value))}
-                    className="h-[48px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[11px_13px] text-[13px] text-[#243c30] outline-offset-[5px]"
+                  </Label>
+                  <div className="relative">
+                    <select
+                      id="booking-adults"
+                      name="booking-adults"
+                      aria-label="Adults"
+                      value={adults}
+                      onChange={(e) => setAdults(Number(e.target.value))}
+                      className="flex h-[46px] w-full items-center justify-between overflow-hidden rounded-none border border-input bg-card px-3 pr-8 text-left text-[13px] font-normal text-foreground shadow-none outline-none appearance-none cursor-pointer focus-visible:ring-1 focus-visible:ring-ring"
+                    >
+                      {[1, 2, 3, 4, 5, 6].map((n) => (
+                        <option key={n} value={n}>
+                          {n}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 opacity-60 text-muted-foreground" />
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <Label
+                    htmlFor="booking-children"
+                    className="mb-[7px] block text-[13px] font-normal leading-none"
                   >
-                    {[1, 2, 3, 4, 5, 6].map((n) => (
-                      <option key={n} value={n}>
-                        {n}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="flex flex-col gap-[9px] text-[11px]">
-                  <span className="text-[10px] tracking-[0.6px] text-[#535b51]">
                     {bjValue("step1ChildrenLabel")}
-                  </span>
-                  <select
-                    name="booking-children"
-                    aria-label="Children"
-                    value={children}
-                    onChange={(e) => setChildren(Number(e.target.value))}
-                    className="h-[48px] w-full rounded-none border border-[#d8d9cb] bg-[#fffdf8] p-[11px_13px] text-[13px] text-[#243c30] outline-offset-[5px]"
-                  >
-                    {[0, 1, 2, 3, 4].map((n) => (
-                      <option key={n} value={n}>
-                        {n}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                  </Label>
+                  <div className="relative">
+                    <select
+                      id="booking-children"
+                      name="booking-children"
+                      aria-label="Children"
+                      value={children}
+                      onChange={(e) => setChildren(Number(e.target.value))}
+                      className="flex h-[46px] w-full items-center justify-between overflow-hidden rounded-none border border-input bg-card px-3 pr-8 text-left text-[13px] font-normal text-foreground shadow-none outline-none appearance-none cursor-pointer focus-visible:ring-1 focus-visible:ring-ring"
+                    >
+                      {[0, 1, 2, 3, 4].map((n) => (
+                        <option key={n} value={n}>
+                          {n}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 opacity-60 text-muted-foreground" />
+                  </div>
+                </div>
               </div>
 
               <button
